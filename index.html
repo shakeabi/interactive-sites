@@ -1,0 +1,1203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>OS Interview Board &mdash; hard track</title>
+<style>
+
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Newsreader:opsz,wght@6..72,400;500;600&display=swap');
+
+.osg * { box-sizing: border-box; }
+.osg {
+  --ink:#070B1A; --panel:#0E1530; --edge:#1E2A55; --edge2:#2E3D70;
+  --bios:#2B3FC4; --phos:#9FB6EE; --dim:#5E729F; --sand:#F2E7CE;
+  --alert:#FF6B45; --teal:#58C6B4;
+  background:var(--ink); color:var(--phos);
+  font-family:'IBM Plex Mono', ui-monospace, monospace;
+  min-height:100vh; display:flex; flex-direction:column;
+  font-size:14px; line-height:1.55;
+}
+.osg ::selection { background:var(--bios); color:var(--sand); }
+
+.bar {
+  display:flex; align-items:center; gap:14px; flex-wrap:wrap;
+  border-bottom:1px solid var(--edge); padding:9px 16px;
+  background:var(--panel); font-size:11px; letter-spacing:.13em; text-transform:uppercase;
+}
+.bar b { color:var(--sand); font-weight:600; letter-spacing:.2em; }
+.bar .sep { color:var(--edge2); }
+.bar .right { margin-left:auto; color:var(--dim); }
+
+.body { display:flex; flex:1; align-items:stretch; }
+
+.rail {
+  width:270px; flex:0 0 270px; border-right:1px solid var(--edge);
+  padding:18px 0 40px; background:linear-gradient(180deg,var(--panel),var(--ink) 60%);
+}
+.rail h2 {
+  font-size:10px; letter-spacing:.22em; color:var(--dim); text-transform:uppercase;
+  margin:0 0 12px; padding:0 16px; font-weight:500;
+}
+.item {
+  display:block; width:100%; text-align:left; background:none; border:0; cursor:pointer;
+  color:var(--phos); font:inherit; padding:7px 16px 7px 12px; line-height:1.35;
+}
+.item:hover { color:var(--sand); }
+.item.on { background:var(--bios); color:#fff; }
+.item.on .idx { color:#C9D6FF; }
+.item .idx { color:var(--dim); }
+.item .nm { display:block; padding-left:22px; font-size:12.5px; }
+.item .mt { display:block; padding-left:22px; font-size:10px; letter-spacing:.1em;
+  text-transform:uppercase; color:var(--dim); margin-top:2px; }
+.item.on .mt { color:#AEBEFF; }
+
+.main { flex:1; min-width:0; padding:30px 34px 90px; max-width:920px; }
+
+.eyebrow { font-size:10.5px; letter-spacing:.24em; text-transform:uppercase; color:var(--alert); }
+.h1 { font-family:'Newsreader',serif; font-size:34px; line-height:1.12; color:var(--sand);
+  margin:8px 0 6px; font-weight:500; letter-spacing:-.01em; }
+.blurb { color:var(--dim); font-size:12.5px; max-width:62ch; margin-bottom:22px; }
+
+.meter { display:flex; gap:4px; margin:0 0 26px; }
+.tick { height:5px; flex:1; background:var(--edge); }
+.tick.done { background:var(--bios); }
+.tick.now { background:var(--alert); }
+
+.stage { border-left:2px solid var(--edge2); padding:0 0 30px 20px; margin-bottom:4px; position:relative; }
+.stage.live { border-left-color:var(--alert); }
+.stage .sn {
+  position:absolute; left:-2px; top:2px; width:2px; height:16px; background:var(--sand);
+}
+.slab { font-size:10.5px; letter-spacing:.2em; text-transform:uppercase; color:var(--dim); }
+.stage.live .slab { color:var(--sand); }
+.st { font-family:'Newsreader',serif; font-size:20px; color:var(--sand); margin:3px 0 10px; font-weight:500; }
+.setup { font-family:'Newsreader',serif; font-size:16.5px; line-height:1.62; color:#D6E0F7; max-width:68ch; }
+.setup code { font-family:'IBM Plex Mono',monospace; font-size:13.5px; color:var(--teal); }
+
+.ask { margin:14px 0 0; padding:12px 14px; background:rgba(43,63,196,.16);
+  border-left:2px solid var(--bios); color:var(--sand); font-size:13.5px; max-width:68ch; }
+.ask::before { content:"ASK  "; color:var(--dim); font-size:10px; letter-spacing:.2em; }
+
+.tags { display:flex; flex-wrap:wrap; gap:6px; margin-top:12px; }
+.tag { font-size:10px; letter-spacing:.08em; color:var(--teal); border:1px solid rgba(88,198,180,.3);
+  padding:2px 7px; text-transform:uppercase; }
+
+.acts { display:flex; gap:8px; margin-top:14px; flex-wrap:wrap; }
+.btn { font:inherit; font-size:11px; letter-spacing:.12em; text-transform:uppercase;
+  background:none; border:1px solid var(--edge2); color:var(--phos); padding:6px 12px; cursor:pointer; }
+.btn:hover { border-color:var(--sand); color:var(--sand); }
+.btn.on { background:var(--edge); color:var(--sand); border-color:var(--edge2); }
+.btn.go { border-color:var(--alert); color:var(--alert); }
+.btn.go:hover { background:var(--alert); color:var(--ink); }
+.btn:focus-visible, .item:focus-visible { outline:2px solid var(--teal); outline-offset:2px; }
+.k { color:var(--dim); }
+
+.panelbox { margin-top:12px; border:1px solid var(--edge); background:var(--panel); max-width:72ch; }
+.panelbox .ph { font-size:10px; letter-spacing:.2em; text-transform:uppercase; color:var(--dim);
+  padding:8px 14px; border-bottom:1px solid var(--edge); }
+.panelbox .pb { padding:12px 14px; font-size:13px; color:#C6D3F0; }
+.grade { display:grid; grid-template-columns:82px 1fr; gap:6px 14px; padding:12px 14px; font-size:12.5px; }
+.grade dt { font-size:10px; letter-spacing:.14em; text-transform:uppercase; padding-top:3px; }
+.g1 { color:var(--alert); } .g2 { color:var(--phos); } .g3 { color:var(--teal); }
+.grade dd { margin:0; color:#C6D3F0; }
+
+.locked { color:var(--dim); font-size:12.5px; padding:16px 0 0; }
+.foot { margin-top:34px; padding-top:18px; border-top:1px solid var(--edge); color:var(--dim); font-size:12px; max-width:68ch; }
+
+.hotbar { position:sticky; bottom:0; display:flex; gap:18px; flex-wrap:wrap;
+  border-top:1px solid var(--edge); background:var(--panel); padding:8px 16px;
+  font-size:10.5px; letter-spacing:.1em; text-transform:uppercase; color:var(--dim); }
+.hotbar kbd { font:inherit; color:var(--sand); background:var(--edge); padding:1px 5px; margin-right:5px; }
+
+.ansbox { border-left:2px solid var(--teal); }
+.ansbox .ph { color:var(--teal); }
+.crux { color:var(--sand); font-family:'Newsreader',serif; font-size:16px; line-height:1.5;
+  padding:12px 14px; border-bottom:1px solid var(--edge); }
+.ansbody { padding:12px 14px; }
+.ansbody p { margin:0 0 11px; font-size:13px; color:#C6D3F0; }
+.ansbody p:last-child { margin-bottom:0; }
+.code { margin:0 0 12px; padding:11px 13px; background:#060A18; border:1px solid var(--edge);
+  overflow-x:auto; font-family:'IBM Plex Mono',monospace; font-size:12px; line-height:1.6;
+  color:var(--teal); white-space:pre; }
+
+.reveal { animation:fade .22s ease-out; }
+@keyframes fade { from { opacity:0; transform:translateY(4px); } to { opacity:1; transform:none; } }
+@media (prefers-reduced-motion:reduce) { .reveal { animation:none; } }
+
+@media (max-width:860px) {
+  .body { flex-direction:column; }
+  .rail { width:100%; flex:none; border-right:0; border-bottom:1px solid var(--edge);
+    display:flex; overflow-x:auto; padding:10px; gap:6px; }
+  .rail h2 { display:none; }
+  .item { width:auto; flex:0 0 auto; border:1px solid var(--edge); padding:6px 10px; }
+  .item .nm, .item .mt { display:none; }
+  .item .idx::after { content:attr(data-t); color:inherit; margin-left:8px; }
+  .main { padding:22px 16px 70px; }
+  .h1 { font-size:26px; }
+  .setup { font-size:15.5px; }
+}
+/* ---- html build: full DOM, class-toggled ---- */
+.prob { display:none; }
+.prob.on { display:block; }
+.hid { display:none; }
+.expander { margin-left:auto; display:flex; gap:8px; }
+.tbtn { font:inherit; font-size:10px; letter-spacing:.12em; text-transform:uppercase;
+  background:none; border:1px solid var(--edge2); color:var(--dim); padding:4px 9px; cursor:pointer; }
+.tbtn:hover { color:var(--sand); border-color:var(--sand); }
+.tbtn.on { background:var(--bios); color:#fff; border-color:var(--bios); }
+.bar .right { margin-left:0; }
+
+@media print {
+  @page { margin:16mm 14mm; }
+  .osg { background:#fff; color:#111; display:block; min-height:0; font-size:10.5pt; }
+  .bar, .rail, .hotbar, .acts, .meter, .expander { display:none !important; }
+  .body { display:block; }
+  .main { max-width:none; padding:0; }
+  .prob { display:block !important; page-break-before:always; }
+  .prob:first-child { page-break-before:avoid; }
+  .hid { display:block !important; }
+  .stage, .panelbox, .code { break-inside:avoid; }
+  .h1 { font-size:22pt; color:#000; }
+  .st { font-size:14pt; color:#000; }
+  .crux { color:#000; border-bottom:1px solid #ccc; }
+  .eyebrow { color:#000; }
+  .slab { color:#666; }
+  .blurb, .setup, .ansbody p, .grade dd, .panelbox .pb { color:#1a1a1a; }
+  .ask { background:#eee; color:#000; border-left:2px solid #000; }
+  .code { background:#f5f5f5; color:#111; border:1px solid #ccc; font-size:9pt; }
+  .tag { color:#555; border-color:#ccc; }
+  .stage { border-left-color:#ccc; }
+  .stage.live { border-left-color:#999; }
+  .panelbox, .ansbox { border:1px solid #ccc; background:#fff; }
+  .panelbox .ph { color:#555; border-bottom-color:#ddd; }
+  .g1, .g2, .g3 { color:#000; }
+  .foot { color:#555; border-top-color:#ccc; }
+}
+
+</style>
+</head>
+<body>
+<div class="osg">
+
+  <div class="bar">
+    <b>OS Interview Board</b>
+    <span class="sep">&#9474;</span>
+    <span>6 problems &middot; 32 escalations</span>
+    <span class="sep">&#9474;</span>
+    <span id="count">1/32 revealed</span>
+    <span class="expander">
+      <button class="tbtn" id="exp">Expand all</button>
+      <button class="tbtn" id="print">Print answer key</button>
+    </span>
+  </div>
+
+  <div class="body">
+    <nav class="rail" id="rail" aria-label="Problems"></nav>
+    <main class="main" id="main"></main>
+  </div>
+
+  <div class="hotbar">
+    <span><kbd>1-6</kbd>problem</span>
+    <span><kbd>&#8593;&#8595;</kbd>switch</span>
+    <span><kbd>&#8629;</kbd>next twist</span>
+    <span><kbd>H</kbd>nudge</span>
+    <span><kbd>R</kbd>grading signal</span>
+    <span><kbd>A</kbd>model answer</span>
+  </div>
+
+</div>
+<script>
+const P = [
+  {
+    key: "logger",
+    name: "The logger that ate the server",
+    meta: "concurrency · I/O · memory model",
+    blurb:
+      "One innocent logging call, followed all the way down from the mutex to the cache line. Start here — it rewards candidates who never stop asking what happens one layer lower.",
+    stages: [
+      {
+        t: "Throughput goes backwards",
+        setup:
+          "A request-handling service runs a pool of 32 worker threads. Every request calls log(), which takes one global mutex and does an fprintf to a shared FILE*. With 4 workers the service handles 40k req/s. With 32 workers it handles 22k req/s, and top shows most of the CPU time is in the kernel rather than in the application.",
+        ask: "Why does adding workers make it slower, and where exactly is that kernel time going?",
+        hint:
+          "Nothing here is unbounded work — the total work per request is identical in both runs. So the loss must be in coordination, not computation. What does an uncontended mutex cost, and what does a contended one cost?",
+        tags: ["mutex contention", "futex", "convoy effect", "Amdahl"],
+        weak: "Says 'too many threads, context switching' and stops. No mechanism.",
+        solid:
+          "Identifies the serial section: the critical section is a fixed cost per request, so throughput is capped by 1/(critical section time) no matter how many threads exist. Notes that an uncontended pthread mutex is a userspace atomic CAS, but under contention it becomes futex_wait/futex_wake syscalls plus sleeps and wakeups — that's the sys time. More waiters means more wakeups per unlock.",
+        strong:
+          "Adds the convoy effect: the woken thread is cache-cold and gets descheduled, so contention makes it worse than a purely serial run. Points out the FILE* already has its own internal lock, so there are two layers of serialization. Names how to confirm it rather than guess: off-CPU profiling, perf lock contention, or just measuring critical-section duration. Suggests sharding or removing the shared resource rather than tuning the lock.",
+      },
+      {
+        t: "Two kinds of missing data",
+        setup:
+          "They switch to per-thread buffers, drained by a background thread every 200ms with a single write() call. Throughput recovers. Then two incidents: after a kill -9, the last few log lines are missing. After a datacenter power loss, several full seconds of logs are gone — including lines the application had already successfully written and gotten a return value for.",
+        ask: "Explain why those two failures lose different amounts of data. What does a successful write() actually promise?",
+        hint: "Count the buffers between the application's log() call and a magnetic or flash surface. There are more than two.",
+        tags: ["page cache", "fsync", "durability", "write barriers"],
+        weak: "Treats write() as 'saved to disk' and can't explain the difference between the two crashes.",
+        solid:
+          "Lays out the layers: userspace buffer (lost only when the process dies), kernel page cache (survives process death, lost on power loss), then the device. write() promises only that the kernel took ownership of the bytes. Durability needs fsync/fdatasync.",
+        strong:
+          "Distinguishes fdatasync from fsync (skips metadata that isn't needed to read the data back — mtime yes, a size change no). Goes one layer further to the drive's own volatile write cache and the need for a cache-flush or FUA to survive power loss. Mentions that on Linux a failed writeback may surface as EIO exactly once and then be cleared, so ignoring an fsync return value is a data-loss bug — and that retrying fsync after a failure does not re-attempt the lost pages.",
+      },
+      {
+        t: "One thread's fsync, everyone's latency",
+        setup:
+          "They add fdatasync() after every flush. Median latency is unchanged. p99.9 jumps to 400ms, and — the part that confuses them — requests that do no logging at all also slow down, as do unrelated processes writing to different files on the same filesystem.",
+        ask: "Why does one thread's fsync degrade work it has nothing to do with? How would you get durability without this?",
+        hint: "The journal is a filesystem-wide object, not a per-file one.",
+        tags: ["journaling", "ext4 ordered mode", "group commit", "tail latency"],
+        weak: "'fsync is slow because disks are slow.' Doesn't explain the blast radius beyond the calling thread.",
+        solid:
+          "Explains that fsync forces a journal transaction commit, and in ext4's default ordered mode all dirty data belonging to the running transaction must be written out first — including other files' data. So an unrelated writer's dirty pages get dragged into your latency. Plus the blocked worker removes capacity from a fixed-size pool, which pushes queueing delay onto everything else.",
+        strong:
+          "Names it as fsync entanglement and proposes amortization: batch N records per fsync and acknowledge in groups (group commit, exactly what databases do), so the durability cost is per-batch not per-record. Alternatives: put the log on its own filesystem or device to shrink the blast radius, use O_DSYNC on a preallocated extent to avoid metadata updates, or decide the log doesn't need synchronous durability at all and instead bound the loss window. Bonus if they reason about which of these actually changes the guarantee versus just moving the cost.",
+      },
+      {
+        t: "It works on my laptop, it corrupts on the server",
+        setup:
+          "The team replaces the mutex with a lock-free multi-producer ring buffer. It passes every test on their x86 laptops, including ThreadSanitizer runs. In production on ARM servers, roughly once an hour the consumer reads a record whose header claims 40 bytes but whose body is half old data and half new.",
+        ask: "What is happening, and why did x86 hide it?",
+        hint: "The producer does two things: fill the slot, then publish the index. Who guarantees the order in which other cores observe those two things?",
+        tags: ["memory ordering", "acquire/release", "TSO vs weak", "compiler barriers"],
+        weak: "'ARM is buggy' or 'add volatile'. volatile prevents compiler caching of the value; it says nothing about inter-core visibility.",
+        solid:
+          "Identifies missing release/acquire pairing. The producer's payload stores must be ordered before the store that publishes the slot, and the consumer's load of the index must be ordered before it reads the payload. x86's TSO already forbids store-store reordering, so the bug is invisible there; ARM is weakly ordered and will reorder freely.",
+        strong:
+          "Notes that even on x86 the compiler alone can sink or hoist the stores, so this was always UB, not merely an ARM problem. Specifies the actual fix: store-release on publish, load-acquire on consume, which costs a dmb ish on ARM and is free on x86 — and that reaching for seq_cst everywhere would work but adds a full barrier per operation. Mentions that TSan can only report what the hardware and instrumentation let it observe, so a green test run on x86 proves very little about a weak memory model.",
+      },
+      {
+        t: "An empty queue that still stalls",
+        setup:
+          "Ordering is fixed and correctness is solid. But the ring is 99% empty and producers still stall; the consumer core shows an enormous cache miss rate. perf c2c points at a single hot cache line.",
+        ask: "Diagnose it, and give the fix and its cost.",
+        hint: "Look at how the head index, the tail index, and the 'records dropped' counter are laid out in the struct.",
+        tags: ["false sharing", "cache coherence", "MESI", "alignment"],
+        weak: "Suggests making the buffer bigger.",
+        solid:
+          "False sharing: head, tail and the counter share a 64-byte line, so every producer increment invalidates the consumer's copy and vice versa. The line ping-pongs between cores under the coherence protocol even though the threads touch logically independent variables. Fix by padding each to its own cache line.",
+        strong:
+          "Pads to 128 bytes rather than 64 because of adjacent-line prefetching on several Intel and ARM parts, and knows the portable name for the quantity (hardware destructive interference size). Then goes after the remaining coherence traffic: producers shouldn't read the consumer's tail on every push — cache a snapshot and only re-read when the buffer appears full, which is the Disruptor / DPDK rte_ring trick. Understands this changes a per-operation coherence miss into a per-batch one.",
+      },
+      {
+        t: "The bug that needs 430 seconds to happen",
+        setup:
+          "The ring uses a 32-bit monotonically increasing sequence number, indexed with sequence % capacity. Production runs at 10M records/sec. It has been stable for weeks. You are asked to sign off on it.",
+        ask: "What do you refuse to sign off on, and separately — how does this design free memory safely if slots ever hold pointers?",
+        hint: "2^32 divided by 10 million is a number small enough to be a coffee break.",
+        tags: ["ABA", "wraparound", "hazard pointers", "RCU", "epoch reclamation"],
+        weak: "Says wraparound is fine because modulo handles it.",
+        solid:
+          "The counter wraps roughly every 430 seconds. Any producer stalled mid-publish longer than that — preempted, migrated, hypervisor-descheduled, stopped in a debugger — resumes holding a sequence number that now aliases a live slot, and silently overwrites valid data. This is ABA: the value it re-checks looks unchanged but the world moved. Fix with 64-bit sequences, which won't wrap in the machine's lifetime.",
+        strong:
+          "Points out the failure is invisible in testing precisely because it needs a rare long stall coinciding with wrap, and that virtualized environments make multi-hundred-millisecond stalls routine. On reclamation: you can't free memory a lock-free reader might still be traversing, and there's no lock to tell you when it's done — so you need hazard pointers, epoch-based reclamation, or RCU-style grace periods. Connects RCU back to the kernel: readers are essentially free, writers pay for deferred destruction.",
+      },
+    ],
+  },
+  {
+    key: "oom",
+    name: "Nine gigabytes of nothing",
+    meta: "virtual memory · allocators · cgroups",
+    blurb:
+      "A memory investigation where every number the candidate has been trained to trust turns out to mean something slightly different from what they think.",
+    stages: [
+      {
+        t: "Three numbers that disagree",
+        setup:
+          "A service tracks its own allocations and reports 2GB live. ps reports RSS of 8GB and VSZ of 40GB. The box has 32GB of RAM and is not swapping.",
+        ask: "Define each of those three numbers precisely, and account for the gaps between them.",
+        hint: "Ask what a page has to do to be counted in each one.",
+        tags: ["RSS", "VSZ", "PSS", "COW", "page cache"],
+        weak: "Treats RSS as 'memory the program is using' and VSZ as a bug.",
+        solid:
+          "VSZ is reserved address space, most of which is never backed: thread stacks (8MB of VA each by default), glibc arenas reserving 64MB apiece, mmap'd files, guard pages. RSS is resident physical pages, which includes shared library text, file-backed pages the process has touched, and pages shared copy-on-write with other processes — all counted in full. The allocator's own bookkeeping and fragmentation account for more.",
+        strong:
+          "Notes that RSS double-counts shared pages, so summing RSS across a process tree is meaningless, and reaches for PSS or USS via smaps_rollup instead. Knows which question each metric answers: 'how much would I get back if I killed this process' is USS, not RSS.",
+      },
+      {
+        t: "Freed, but not returned",
+        setup:
+          "They fix the leak. Every allocation is now correctly freed — a heap profiler confirms zero live objects from the workload. RSS drops by 200MB out of 6GB and stays there. Calling malloc_trim recovers a bit more.",
+        ask: "Why doesn't free() give memory back to the OS?",
+        hint: "free() returns memory to the allocator. Returning it to the kernel is a separate, and much more constrained, decision.",
+        tags: ["glibc malloc", "brk vs mmap", "fragmentation", "MADV_FREE"],
+        weak: "'Memory leak somewhere else.' Doesn't distinguish allocator-free from kernel-free.",
+        solid:
+          "Explains that glibc grows the main heap with brk, which is a single contiguous region that can only be shrunk from the top. One live 64-byte object near the top pins everything beneath it. Allocations above MMAP_THRESHOLD get their own mapping and are genuinely unmapped on free. So the outcome depends entirely on allocation size distribution and fragmentation, and per-thread arenas multiply the effect.",
+        strong:
+          "Discusses arena count (MALLOC_ARENA_MAX defaults to 8× cores and each arena fragments independently), and contrasts with jemalloc/tcmalloc, which purge on a decay timer. Crucially notes that MADV_FREE-based purging means the kernel only reclaims the pages under pressure — so RSS staying high may be correct behavior and not a problem at all. Concludes that RSS is the wrong signal here; what matters is whether the process can be reclaimed under pressure.",
+      },
+      {
+        t: "Copy-on-write that copies everything",
+        setup:
+          "A pre-fork server loads a 10GB read-mostly index in the parent, then forks 16 workers. The workers only ever read the index. The expectation is that all 16 share those pages. In production, memory climbs toward 10GB per worker and the box dies.",
+        ask: "How can read-only access break copy-on-write?",
+        hint: "The workers don't write to the index. Does anything else write to the same pages?",
+        tags: ["fork", "COW", "refcounting", "GC", "THP"],
+        weak: "Concludes fork doesn't actually share memory.",
+        solid:
+          "The data is read-only at the application level, but the runtime writes to memory that lives on the same physical pages: reference counts in object headers (CPython), GC mark bits, or a compacting collector relocating objects. Any write faults and copies the whole page, so touching one refcount copies 4KB. Sweeping the entire heap copies the entire heap.",
+        strong:
+          "Multiplies it by transparent huge pages: with 2MB pages, one refcount write copies 2MB, a 512× amplification — the exact reason Redis warns against THP when forking for persistence. Names real mitigations: gc.freeze() to move objects out of the GC's scan set before forking, restructuring so hot metadata isn't co-located with cold data, or dropping fork-sharing for an explicit shared mapping / memfd. Measures with Private_Dirty in smaps rather than arguing about it.",
+      },
+      {
+        t: "The OOM killer picks wrong",
+        setup:
+          "Two facts to reconcile. Earlier in the incident, a malloc of 100GB on this 32GB box returned a valid pointer. Later, when the kernel ran out of memory, it killed the parent process and an unrelated database — but not the worker that was actually growing.",
+        ask: "Explain both.",
+        hint: "The kernel isn't tracking who allocated. It's tracking who is resident right now.",
+        tags: ["overcommit", "demand paging", "oom_score", "PSI"],
+        weak: "Thinks malloc reserves physical memory.",
+        solid:
+          "Overcommit: malloc gets address space, and physical pages are only allocated on first touch, so an enormous allocation succeeds until you actually use it. The OOM killer then scores processes roughly by current RSS plus oom_score_adj — the parent holding the big shared mapping scores high, and so does a database with a large resident working set, while the worker that merely caused the pressure may be smaller at that instant.",
+        strong:
+          "Notes overcommit is tunable (vm.overcommit_memory=2 makes malloc fail honestly, at the cost of breaking every fork-heavy and sparse-mapping workload) and that shared pages inflate the scores of everyone sharing them. Argues the real fix is not to reach the OOM killer at all: PSI-driven userspace killers like systemd-oomd act earlier with better context, and oom_score_adj should encode which processes are actually expendable.",
+      },
+      {
+        t: "Killed with 100GB free",
+        setup:
+          "The service moves to Kubernetes with a 4GiB memory limit. It gets OOM-killed while the host has 100GB free. The kill reliably happens during a nightly job that reads a 20GB file sequentially. Swap is disabled, as it usually is on these nodes.",
+        ask: "Why does reading a file — which produces reclaimable cache — kill the container?",
+        hint: "Which cgroup gets charged for a page of page cache, and what has to happen before that page can be dropped?",
+        tags: ["cgroup v2", "memory.max", "reclaim", "dirty writeback"],
+        weak: "Says page cache doesn't count toward container limits.",
+        solid:
+          "In cgroup v2, page cache is charged to the cgroup that first touches it. Approaching memory.max triggers reclaim inside the cgroup. Clean cache is cheap to drop, but with swap disabled anonymous pages are unevictable — so if the anonymous working set is already near the limit, reclaim has almost nothing it can free and the kernel OOM-kills inside the cgroup while the host is fine.",
+        strong:
+          "Separates memory.high (throttle plus aggressive reclaim, a soft brake) from memory.max (hard wall, then kill) and recommends setting both. Adds that dirty pages must complete writeback before they can be reclaimed, so a write-heavy job can outrun reclaim even with plenty of nominally reclaimable cache. Mentions kernel memory accounting (dentry and inode caches from a directory walk count too) and reads PSI rather than free memory to see pressure before the kill.",
+      },
+      {
+        t: "The optimization that cost 20%",
+        setup: "Someone enables transparent huge pages system-wide for TLB benefits. Throughput improves slightly, p99 latency gets much worse, and memory usage grows about 20%.",
+        ask: "Explain all three effects at once.",
+        hint: "Where does the kernel find a physically contiguous 2MB region on a box that has been up for 40 days?",
+        tags: ["THP", "compaction", "internal fragmentation"],
+        weak: "Only recalls 'huge pages are faster'.",
+        solid:
+          "Fewer TLB entries cover the same memory, so translation improves — that's the throughput win. But in defrag=always mode a fault may synchronously compact memory to find a contiguous 2MB block, which stalls the faulting thread for milliseconds: the tail latency. And a sparse mapping that needed 8KB now consumes 2MB, which is the memory growth.",
+        strong:
+          "Adds khugepaged's background CPU cost and its collapsing of pages behind your back, connects to the earlier COW amplification, and lands on madvise mode so only code that benefits opts in. Points out this is a general pattern: page size is a latency-versus-throughput trade, not a free win.",
+      },
+    ],
+  },
+  {
+    key: "locks",
+    name: "Everything is locked, nothing is deadlocked",
+    meta: "synchronization · signals · fork",
+    blurb:
+      "Deadlock is the easy case. This one walks through the failure modes that look like deadlock, aren't, and are worse.",
+    stages: [
+      {
+        t: "The callback under the lock",
+        setup:
+          "A cache holds a lock while invoking a user-supplied eviction callback. Some callbacks call back into the cache. In one build the process hangs; in another it works fine.",
+        ask: "Explain the difference between the builds, and say whether switching to a recursive mutex is a fix.",
+        hint: "Ask what invariants hold at the moment the callback runs.",
+        tags: ["reentrancy", "recursive mutex", "invariants", "API design"],
+        weak: "Recommends a recursive mutex and moves on.",
+        solid:
+          "A non-recursive pthread mutex re-acquired by the owner is undefined behavior — typically self-deadlock; a recursive or error-checking type behaves differently, which explains the build-dependent hang. A recursive mutex makes the hang go away without fixing anything: the callback re-enters while the cache is mid-eviction, observing a structure that violates its own invariants.",
+        strong:
+          "States the rule plainly: never call code you don't control while holding a lock. Restructures it — collect evictions under the lock, release, then invoke callbacks. Notes that a recursive mutex also silently defeats lock-ordering analysis and makes the critical section's real extent unknowable, which is why several codebases ban the type outright.",
+      },
+      {
+        t: "Busy, and going nowhere",
+        setup:
+          "Lock ordering is fixed and no deadlock is detectable — every thread is runnable and CPU is pinned at 100%. Throughput is near zero. A trace shows threads repeatedly acquiring a lock, detecting a conflict, rolling back, and retrying.",
+        ask: "Name this precisely and distinguish it from the neighbouring failure modes. Then: same system, but with priorities — a low-priority thread holds the lock, a high-priority thread blocks on it, and a medium-priority thread runs forever. What is that one called, and how is it fixed?",
+        hint: "Deadlock, livelock, starvation and priority inversion are four different things with four different fixes.",
+        tags: ["livelock", "starvation", "priority inversion", "PI mutex"],
+        weak: "Uses 'deadlock' for everything.",
+        solid:
+          "This is livelock — threads change state but make no progress; unlike deadlock the threads are running, which is why a deadlock detector finds nothing. Fix with randomized exponential backoff or by making one contender win deterministically. The second is priority inversion, fixed with priority inheritance so the lock holder temporarily runs at the blocked thread's priority; the ceiling protocol is the alternative.",
+        strong:
+          "Cites Mars Pathfinder as the canonical field failure and notes the fix shipped as a live patch enabling priority inheritance. Distinguishes starvation (some thread never gets in while the system as a whole progresses) from livelock (nobody progresses). Points out that PI has real cost — the kernel must track ownership chains — which is why PI-futexes are a distinct primitive.",
+      },
+      {
+        t: "Fair readers, fair writers, pick one",
+        setup:
+          "A read-mostly structure uses a reader-writer lock. Under continuous read traffic the writer never runs. They switch to writer-preferring and reader latency collapses.",
+        ask: "Design a lock that's fair, then tell me what fairness costs — and whether an rwlock was the right primitive at all.",
+        hint: "Fairness means giving up barging. Barging is where a lot of throughput comes from.",
+        tags: ["rwlock", "ticket lock", "MCS", "seqlock", "RCU"],
+        weak: "Just picks one preference mode without discussing the trade.",
+        solid:
+          "Proposes FIFO admission — a ticket lock, or a phase-fair rwlock that alternates reader and writer phases so both have bounded waiting. Acknowledges the cost: no barging means a thread that could have taken a free lock instead waits its turn, lowering throughput, and a FIFO queue is badly hurt if the thread at the head is preempted, since everyone behind it is stuck.",
+        strong:
+          "Reaches for queue locks (MCS/CLH) where each waiter spins on its own cache line — connecting straight back to the false-sharing problem, since a naive spinlock has every waiter hammering one line. Then questions the premise: for read-mostly data a seqlock lets readers never block and retry on a version mismatch, and RCU makes readers essentially free at the cost of deferred reclamation. Notes seqlock readers must tolerate seeing torn state, so it only works for small copyable data.",
+      },
+      {
+        t: "Two hangs, one cause",
+        setup:
+          "Two separate incidents. First: a signal handler calls the logging function, and occasionally the process freezes at 0% CPU. Second: a multithreaded process forks, and the child hangs before reaching exec, inside malloc.",
+        ask: "Are these the same bug? Explain what makes a function async-signal-safe, and what fork actually duplicates.",
+        hint: "In both cases, ask what state the lock was in at the instant the interesting thing happened.",
+        tags: ["async-signal-safety", "fork in threads", "pthread_atfork", "self-pipe"],
+        weak: "Treats them as unrelated and suggests adding a lock inside the handler.",
+        solid:
+          "Same root cause, two triggers. A signal is delivered on an existing thread's stack; if that thread already held the logging mutex, the handler's acquire deadlocks against itself. malloc has the same problem, which is why it isn't async-signal-safe. fork duplicates the address space but only the calling thread — any mutex another thread held at fork time is locked forever in the child, with no owner to release it, so the child's first malloc hangs. Hence the rule that only async-signal-safe functions are legal between fork and exec.",
+        strong:
+          "Gives the correct handler pattern: write a byte to a self-pipe (write is async-signal-safe) or use signalfd, and do the real work on a normal thread. Notes pthread_atfork exists but is a partial mitigation that doesn't cover locks inside third-party libraries, and that posix_spawn avoids the window entirely. Observes that this is why the fork-then-exec pattern is safe in practice and fork-then-do-real-work is not.",
+      },
+      {
+        t: "Costs, in nanoseconds",
+        setup: "Final round, quick-fire.",
+        ask: "Why is it illegal to sleep while holding a spinlock in the kernel? Why does a userspace mutex use a futex rather than a plain syscall? Give me rough numbers for uncontended and contended acquisition, and tell me when spinning beats blocking.",
+        hint: "The right answer is a comparison between two costs, not a rule of thumb.",
+        tags: ["spinlock", "futex", "preemption", "adaptive mutex"],
+        weak: "Knows spinlocks spin, but can't say why sleeping under one is fatal or estimate any cost.",
+        solid:
+          "Sleeping under a spinlock leaves other CPUs burning cycles for an unbounded time, and spin_lock disables preemption on the local CPU — plus interrupt context cannot sleep at all. A futex keeps the uncontended path entirely in userspace as one atomic compare-and-swap, entering the kernel only when there's actually someone to wait for or wake. Roughly: tens of nanoseconds uncontended, a few microseconds contended once a context switch is involved.",
+        strong:
+          "States the decision rule as a comparison: spin when expected hold time is below roughly twice the context-switch cost, block otherwise — which is exactly what an adaptive mutex does by spinning briefly then parking. Notes spinning is much worse under virtualization because the holder can be descheduled by the hypervisor, which is why paravirtualized spinlocks exist. Connects back to priority inversion: a plain spinlock has no way to boost the holder.",
+      },
+    ],
+  },
+  {
+    key: "fs",
+    name: "The config file that vanished",
+    meta: "filesystems · crash consistency",
+    blurb:
+      "Persistence questions separate people who have written to a file from people who have thought about what a file is. Every stage here corresponds to a real production outage.",
+    stages: [
+      {
+        t: "Zero bytes after a power cut",
+        setup:
+          "A config updater opens the live file with O_TRUNC, writes the new contents, and closes. A power loss during the update leaves a zero-byte file and a service that won't start.",
+        ask: "Give me the correct sequence, and justify every single step.",
+        hint: "The window where the file is empty should never exist on disk at all.",
+        tags: ["atomic replace", "rename", "fsync", "directory durability"],
+        weak: "Says 'write to a temp file and rename' and stops — that's half the answer.",
+        solid:
+          "Write to a temp file in the same directory (same filesystem, or rename won't be atomic), fsync the temp file so its data is durable, close it, rename over the target — rename is atomic, so any reader sees either the old file or the new one, never a partial one — then fsync the parent directory so the rename itself survives a crash.",
+        strong:
+          "Explains that the directory fsync is the step everyone omits, and it's what makes the rename durable rather than merely atomic. Notes readers must open by name and are unaffected because an open fd keeps pointing at the old inode. Checks the return values of both fsyncs and of close, and knows that an fsync failure cannot simply be retried.",
+      },
+      {
+        t: "Atomic is not durable",
+        setup:
+          "They implement write-then-rename but skip the fsync of the temp file, reasoning that rename is atomic. On ext4 a crash produces a zero-length config anyway — the rename survived, the contents didn't.",
+        ask: "Explain the mechanism, and state the general principle it violates.",
+        hint: "The metadata operation and the data blocks travel on different schedules.",
+        tags: ["delayed allocation", "journaling", "metadata vs data ordering"],
+        weak: "Believes rename implies the data is there.",
+        solid:
+          "Delayed allocation: ext4 doesn't allocate data blocks at write() time, it defers to writeback, potentially tens of seconds later. The rename is a metadata operation that goes into the journal promptly. So the crash window contains a committed rename pointing at a file with no allocated blocks. The principle: atomicity of a metadata operation says nothing about the durability of the data it refers to, and POSIX orders neither.",
+        strong:
+          "Recalls the 2009 ext4 zero-length file wave that hit Firefox and KDE, and that ext4 added the auto_da_alloc heuristic to force allocation on rename-over — a workaround that makes buggy code work and shouldn't be relied on, especially on other filesystems. Understands that filesystem behavior here is a set of implementation choices, not a standard, so portable code must fsync.",
+      },
+      {
+        t: "df and du disagree by 400 gigabytes",
+        setup:
+          "A log partition is full. df reports 100% used on a 500GB volume; du -sh on the mountpoint reports 40GB. Deleting more files changes nothing.",
+        ask: "Give me your differential, and tell me how you'd confirm each cause.",
+        hint: "du walks directory entries. Does every allocated inode have one?",
+        tags: ["inodes", "unlinked files", "reserved blocks", "sparse files"],
+        weak: "Only offers 'stale cache, try remounting'.",
+        solid:
+          "Most likely: files unlinked while still open. The directory entry is gone so du can't see them, but the inode's link count reaching zero doesn't free blocks until the last descriptor closes. Confirm with lsof +L1; fix by restarting the holder or truncating through /proc/pid/fd/N. Other candidates: inode exhaustion (df -i), the root-reserved 5%, a filesystem mounted over a directory that still holds files underneath it, and sparse files where du undercounts.",
+        strong:
+          "Recognizes this as the classic 'log rotation without signalling the writer' bug — rotation renames or removes the file, the process keeps writing to the same inode, and the space is invisible until the fd closes. Explains why copytruncate exists and what it costs, and notes that a sparse file makes du report less than the apparent size while a file with many small blocks can make it report more.",
+      },
+      {
+        t: "Two writers, one file",
+        setup:
+          "Two processes append to a shared log. One opens with O_APPEND and calls write(). The other does lseek(fd, 0, SEEK_END) followed by write(). Entries from the second one intermittently overwrite entries from the first.",
+        ask: "Explain the difference. Then tell me what breaks if this file is on NFS, and whether a single write() can ever be partial.",
+        hint: "One of those is one operation and the other is two.",
+        tags: ["O_APPEND", "atomicity", "NFS", "short writes"],
+        weak: "Assumes seek-then-write is equivalent because it's two lines of code.",
+        solid:
+          "O_APPEND makes the seek-to-end and the write a single atomic operation under the inode lock, so concurrent appenders can't clobber each other. lseek+write is a classic time-of-check-to-time-of-use race: another writer can extend the file between the two calls, and the second writer then writes at a stale offset. On NFS there is no server-side atomic append — the client computes the offset — so O_APPEND is emulated and the guarantee evaporates.",
+        strong:
+          "Adds that a write() to a regular file is rarely short but is permitted to be — signals, resource limits, or filling the device can all cut it — so writes must be looped, and a partial append breaks record framing even with O_APPEND. Notes that pipes only guarantee atomicity up to PIPE_BUF, which is why multi-process logging to a pipe interleaves garbage above that size. Suggests one writer with a queue, or O_APPEND with records small enough and framed for recovery.",
+      },
+      {
+        t: "SIGBUS at three in the morning",
+        setup:
+          "To avoid syscall overhead they mmap the log file and write through the mapping. Two new failures: when a cleanup job truncates the file, the writer dies with SIGBUS; and when the disk fills, data is silently lost with no error anywhere.",
+        ask: "Explain both, say how you make mmap writes durable, and tell me whether mmap was the right call.",
+        hint: "With write(), the kernel has somewhere to return an error to. With a store instruction, it doesn't.",
+        tags: ["mmap", "SIGBUS", "msync", "ENOSPC", "MAP_SHARED"],
+        weak: "Thinks touching a truncated mapping gives SIGSEGV, or that mmap is durable because it's 'direct'.",
+        solid:
+          "Accessing a mapped page beyond the new end of file raises SIGBUS — the mapping is valid, the backing isn't. On ENOSPC, allocation fails at writeback time, long after the store instruction retired: there is no syscall return value left to fail, so the error surfaces as a signal or is simply lost. write() would have returned ENOSPC to the caller. Durability needs msync(MS_SYNC), and the same parent-directory fsync rules still apply.",
+        strong:
+          "Concludes mmap is a poor fit for anything that must handle I/O errors or control write ordering — the argument made in 'Are You Sure You Want to Use MMAP in Your DBMS?' — because you lose error reporting, eviction control and ordering all at once. Weighs a minor page fault against the syscall it replaced and notes the syscall often wins once TLB pressure and readahead behavior are counted. Mentions preallocating with fallocate to move ENOSPC to a point where it can still be reported.",
+      },
+    ],
+  },
+  {
+    key: "sched",
+    name: "More cores, less speed",
+    meta: "scheduling · NUMA · containers",
+    blurb:
+      "Performance questions where the naive mental model — more threads means more throughput — fails at every single layer, from SMT up to the hypervisor.",
+    stages: [
+      {
+        t: "The speedup curve bends the wrong way",
+        setup:
+          "An embarrassingly parallel CPU-bound job on an 8 vCPU cloud instance: 4 threads gives 3.8× speedup, 8 threads gives 3.1×.",
+        ask: "Give me at least three distinct explanations, and tell me how you would tell them apart without guessing.",
+        hint: "'8 vCPUs' is a marketing number. Ask what the hardware actually is.",
+        tags: ["SMT", "memory bandwidth", "affinity", "perf"],
+        weak: "Offers one cause and treats it as the answer.",
+        solid:
+          "First: 8 vCPUs is likely 4 physical cores with SMT, and sibling threads share execution ports and L1/L2, so the second thread on a core adds far less than a full core. Second: memory bandwidth or last-level cache saturation — more threads means a smaller cache share each and more misses. Third: contention with other tenants and scheduler migrations landing threads on cold caches. Distinguish by reading topology from lscpu, watching IPC in perf stat (a drop points at SMT or bandwidth), pinning to physical cores with taskset, and measuring LLC misses.",
+        strong:
+          "Insists on measuring before theorizing and gives the discriminating experiment for each hypothesis rather than a list. Mentions that at high thread counts frequency scaling matters — wide vector work on many cores drops the all-core turbo frequency, so per-thread throughput falls for reasons unrelated to contention.",
+      },
+      {
+        t: "A yield that makes things faster",
+        setup: "On a shared box, inserting sched_yield() into a hot loop measurably improves throughput.",
+        ask: "What does that tell you about the system? And why is spin-then-yield a fragile strategy?",
+        hint: "Yield only helps if there was someone more useful to run.",
+        tags: ["sched_yield", "oversubscription", "lock holder preemption"],
+        weak: "Concludes yield is a performance optimization.",
+        solid:
+          "It means the machine is oversubscribed and the thread was spinning while something it depends on — likely the lock holder — was runnable but not running. Yielding hands the CPU over so the holder can finish. It's fragile because sched_yield's semantics are essentially unspecified: under CFS the yielding thread may be picked again immediately, and the behavior differs across policies and kernel versions.",
+        strong:
+          "Names it as lock holder preemption and notes it gets much worse in a VM, where the hypervisor can deschedule an entire vCPU mid-critical-section. Argues for fixing the cause — fewer runnable threads than CPUs, blocking primitives instead of spinning — rather than sprinkling yields, and mentions that a yield loop still burns a full timeslice of CPU that a futex wait would not.",
+      },
+      {
+        t: "Missed deadlines, then a dead machine",
+        setup:
+          "A latency-critical thread must respond in 5ms. Whenever a batch job runs it misses. Renicing the batch to +19 helps but doesn't eliminate the misses. They then set the critical thread to SCHED_FIFO priority 99 — and the machine becomes unresponsive.",
+        ask: "Explain why nice wasn't enough, and what exactly went wrong with SCHED_FIFO.",
+        hint: "CFS is proportional-share. Proportional to something small is still not zero.",
+        tags: ["CFS", "vruntime", "SCHED_FIFO", "RT throttling", "isolcpus"],
+        weak: "Thinks nice is a hard priority and SCHED_FIFO is simply better.",
+        solid:
+          "CFS allocates CPU proportionally by weight, and nice only changes the weight — roughly 1.25× per level, so even nice+19 leaves the batch a small but nonzero share, and the critical thread still waits up to a scheduling latency before it's picked. SCHED_FIFO runs until it blocks and preempts everything below it, including kernel threads: a busy-looping RT thread starves kworkers, ksoftirqd and the watchdog, which is what killed interactivity.",
+        strong:
+          "Knows RT throttling exists precisely for this (sched_rt_runtime_us caps RT at 950ms of every second) and that disabling it turns a hang into a permanent one. Proposes real isolation instead: dedicate cores with isolcpus or cpusets, move IRQ affinity off those cores, and consider SCHED_DEADLINE where the deadline is actually expressible to the scheduler. Frames the underlying point — you cannot get latency guarantees from a fair-share scheduler by adjusting fairness.",
+      },
+      {
+        t: "Throttled at 60% utilization",
+        setup:
+          "A container is configured with cpu.max of 200000/100000 — two CPUs' worth. Average CPU utilization is 60%. nr_throttled is climbing fast and p99 latency is terrible. The team wants to know why they're being throttled when they're 'not even using their limit'.",
+        ask: "Explain the mechanism, and give the fix.",
+        hint: "The quota isn't spent over the averaging window. It's spent over 100 milliseconds.",
+        tags: ["CFS bandwidth control", "cpu.max", "GOMAXPROCS", "throttling"],
+        weak: "Recommends raising the limit without explaining why average utilization is misleading.",
+        solid:
+          "Bandwidth control grants 200ms of CPU time per 100ms period. With, say, 16 runnable threads that quota can be consumed in about 12ms, after which the entire cgroup is frozen until the period rolls over — an 87ms stall invisible to any average. Fixes: size the thread pool to the quota rather than to the host's CPU count, shorten the period to reduce stall length, or use cpu.weight (shares) instead of a hard cap where the workload can tolerate it.",
+        strong:
+          "Names the classic version of this bug — runtimes reading the host's nproc and sizing pools accordingly, so a 2-CPU container spawns 64 threads (GOMAXPROCS, JVM container awareness, OpenMP defaults). Mentions cpu.max.burst for bursty workloads, and the pre-5.4 kernel bug where per-CPU quota slices expired unused and caused throttling well below the limit. Argues that measuring throttling directly is the only way to see this, because utilization averages hide it by construction.",
+      },
+      {
+        t: "The second socket makes it worse",
+        setup:
+          "On a two-socket server, scaling past the thread count that fits on one socket drops total throughput by 40%. Separately, in a VM, top shows 12% steal time.",
+        ask: "Explain both, including where the memory for those threads came from.",
+        hint: "Memory is assigned to a NUMA node at first touch, not at malloc.",
+        tags: ["NUMA", "first touch", "interconnect", "steal time"],
+        weak: "Knows the term NUMA but not the first-touch policy.",
+        solid:
+          "Remote memory access costs substantially more than local and shares a limited interconnect. Under the default first-touch policy, pages land on the node of whichever thread first writes them — so if one initialization thread touches the whole buffer, every thread on the other socket is doing remote access. Fix by parallelizing initialization so each thread touches its own region, or by binding explicitly with numactl. Steal time is the hypervisor running someone else on your physical CPU: an oversubscribed host or a noisy neighbour.",
+        strong:
+          "Notes that AutoNUMA page migration can partially recover this but adds its own latency, and that migration only helps if the access pattern is stable. Connects steal time back to the spinlock discussion — with vCPUs being descheduled arbitrarily, spinning becomes actively harmful and lock holder preemption dominates. Recommends checking numastat for remote-access counts instead of inferring it from throughput.",
+      },
+    ],
+  },
+  {
+    key: "jit",
+    name: "Code that writes itself",
+    meta: "protection · caches · TLB",
+    blurb:
+      "A short capstone for candidates who cleared the earlier problems with time to spare. It goes from a page-permission question to microarchitecture in five steps.",
+    stages: [
+      {
+        t: "Segfault on a valid pointer",
+        setup:
+          "A toy JIT writes machine code into a malloc'd buffer and jumps to it. The pointer is valid and the bytes are correct. The process dies with SIGSEGV on the first instruction.",
+        ask: "Why, and what's the correct way to do this?",
+        hint: "The fault is on execute, not on read or write.",
+        tags: ["NX bit", "W^X", "mprotect", "page granularity"],
+        weak: "Blames the compiler or the calling convention.",
+        solid:
+          "Heap pages are mapped without execute permission (NX). You need memory you control the permissions of: mmap it PROT_READ|PROT_WRITE, write the code, then mprotect to PROT_READ|PROT_EXEC. malloc'd memory is wrong here because permissions apply per page and you'd be changing the protection of unrelated allocations sharing those pages.",
+        strong:
+          "Explains W^X as a policy — never writable and executable simultaneously — and why hardened platforms enforce it (macOS/iOS require MAP_JIT plus per-thread toggling). Notes the page-granularity consequence: a JIT needs its own allocator over mmap'd arenas, not a general-purpose heap.",
+      },
+      {
+        t: "Correct bytes, wrong instructions",
+        setup: "Permissions are fixed and it works reliably on x86. On ARM it intermittently executes garbage — sometimes stale bytes from a previously JIT-ed function at the same address.",
+        ask: "What is different about ARM here?",
+        hint: "Two caches, one address, no agreement.",
+        tags: ["icache coherence", "cache maintenance", "ISB"],
+        weak: "Adds a memory barrier and expects it to fix an instruction-fetch problem.",
+        solid:
+          "On ARM the instruction cache is not coherent with the data cache. The freshly written bytes sit in D-cache or memory while the I-cache still holds whatever was at that address before. You must clean the data cache to the point of unification, invalidate the instruction cache for that range, and issue an instruction synchronization barrier — in practice __builtin___clear_cache. x86 keeps its instruction cache coherent with stores, so the missing maintenance is invisible there.",
+        strong:
+          "Observes this is the same class of bug as the ring buffer on ARM — x86 providing a stronger guarantee than the architecture requires, so correct-looking code is really just lucky. Notes that self-modifying code on x86 isn't free either; it triggers pipeline flushes and is slow enough to matter.",
+      },
+      {
+        t: "One process, everyone's latency",
+        setup:
+          "At scale, the JIT calls mprotect on many small regions. Latency spikes appear across the whole machine, in processes unrelated to the JIT. Profiles show time in smp_call_function.",
+        ask: "What is that function doing, and how do you avoid it?",
+        hint: "A page table entry lives in memory, but copies of the translation live in every core that used it.",
+        tags: ["TLB shootdown", "IPI", "memfd", "dual mapping"],
+        weak: "Doesn't know the TLB is per-core and must be invalidated explicitly.",
+        solid:
+          "Changing a PTE requires invalidating cached translations on every CPU that might hold them. The kernel sends inter-processor interrupts to those cores, each flushes locally and acknowledges, and the initiator waits — so the cost scales with core count and the interruption lands on cores doing unrelated work. Batch the permission changes over larger arenas instead of per-region.",
+        strong:
+          "Proposes eliminating mprotect entirely with a dual mapping: back the code with a memfd and map it twice, once RW and once RX, so writes go through one mapping and execution through the other with no permission changes at runtime — the standard approach in production JITs. Notes the security trade-off, since a writable alias of executable memory weakens W^X, and that some designs keep the writable alias in a separate process or short-lived.",
+      },
+      {
+        t: "Two names for one page",
+        setup: "That dual mapping means one physical page is reachable through two virtual addresses with different permissions.",
+        ask: "How is that possible, and what does the hardware do to keep context switches from flushing the whole TLB every time?",
+        hint: "Permissions live in the translation, not in the frame.",
+        tags: ["page tables", "aliasing", "ASID", "PCID"],
+        weak: "Believes permissions are a property of physical memory.",
+        solid:
+          "Protection bits live in the page table entry, and each mapping has its own PTE, so the same physical frame can be readable-writable through one virtual address and read-execute through another. Address space identifiers (ASIDs on ARM, PCIDs on x86) tag TLB entries with the address space they belong to, so a context switch doesn't require flushing translations that will be needed again.",
+        strong:
+          "Notes ASIDs are a limited resource that must be recycled, and that on switching to an address space whose ASID was reused you do pay a flush. Connects it to the shootdown problem — a tagged TLB makes switching cheap but does nothing about invalidating a mapping shared across cores.",
+      },
+      {
+        t: "Why syscalls got slower in 2018",
+        setup: "Same machine, kernel upgraded for Meltdown mitigations. Syscall-heavy workloads regress noticeably; compute-heavy ones barely move.",
+        ask: "Explain the mechanism, and why PCID support changes the size of the regression.",
+        hint: "The mitigation changes what is mapped while user code runs.",
+        tags: ["Meltdown", "KPTI", "speculative execution", "PCID"],
+        weak: "Knows the names Meltdown and Spectre but not what the mitigation does.",
+        solid:
+          "Meltdown let user code speculatively read kernel memory that was mapped into its address space but permission-checked; the fault came too late to prevent the value influencing the cache, so it could be recovered by timing. KPTI removes the kernel from the user page tables, so every syscall and interrupt now switches page tables twice. That's pure overhead per transition, which is why syscall-heavy workloads regress and compute-bound ones don't.",
+        strong:
+          "Explains that without PCID a page table switch flushes the TLB entirely, so the cost isn't the CR3 write but the subsequent misses; with PCID both address spaces keep tagged entries and the regression shrinks a lot. Correctly separates Meltdown (out-of-order permission check, fixable in the page tables) from Spectre (speculation across a branch or bounds check, needing per-site mitigations), and notes the general lesson that a microarchitectural side channel can turn a hardware performance optimization into a security boundary violation.",
+      },
+    ],
+  },
+];
+
+const A = {
+  "logger.0": {
+    crux: "The critical section is a fixed serial cost per request, so throughput is capped at 1/T no matter how many threads exist — and contention makes that cap worse, not merely unreachable.",
+    body: [
+      "Every request funnels through one lock, so the ceiling is one divided by the time spent holding it. At 4 threads you are already near that ceiling. Adding 28 more threads cannot raise it.",
+      "The lock's own cost changes with contention, and that is where the sys time comes from. An uncontended pthread mutex is a compare-and-swap in userspace: tens of nanoseconds, no syscall at all. The moment a thread finds it held it calls futex_wait and sleeps; the unlock then calls futex_wake. Now every handoff costs two syscalls, a context switch, and a scheduler wakeup — microseconds instead of nanoseconds. More waiters means more of this per unlock.",
+      "Then the convoy effect: the lock is passed around a queue of sleeping threads rather than being reacquired by the thread that still has the data in cache, so every holder starts cold. This is how 32 threads end up slower than a single thread doing all the work serially.",
+      "There are also two locks here, not one. glibc's FILE* carries its own internal lock, so even with the global mutex removed, fprintf would still serialize.",
+      "The fix is not a better lock. It is to stop sharing the resource: per-thread buffers, merged off the hot path. Which is where the next stage starts.",
+    ],
+  },
+  "logger.1": {
+    crux: "A successful write() promises that the kernel has taken ownership of your bytes. That is the entire promise.",
+    body: [
+      "There are four layers between log() and stable media: the application's own buffer, the kernel page cache, the device's volatile write cache, and the platter or flash.",
+      "kill -9 destroys layer one only. Anything already handed to the kernel survives, because the page cache belongs to the kernel and outlives the process — that is why you lost only the last few lines, the ones still sitting in userspace.",
+      "Power loss destroys layers one through three. Dirty pages can sit in the page cache for up to dirty_expire_centisecs, 30 seconds by default, before writeback even starts. Everything in that window is gone, along with anything still in the drive's cache. That is your multi-second hole.",
+      "Moving data from layer two to layer four requires fsync or fdatasync, which also issues a cache flush or FUA to the device. fdatasync skips metadata that is not needed to read the data back: it will still force a size update, but not an mtime update, which makes it meaningfully cheaper for append workloads.",
+      "The detail that separates candidates: on Linux, a writeback failure may be reported by exactly one fsync and then cleared. A second fsync can return success with your data permanently lost. PostgreSQL discovered this in 2018 and the resolution was to treat fsync failure as unrecoverable rather than retryable. If you ignore the return value of fsync, you do not have durability, you have a ritual.",
+    ],
+  },
+  "logger.2": {
+    crux: "fsync commits a filesystem-wide journal transaction. It is not scoped to your file.",
+    body: [
+      "ext4's default is data=ordered, meaning data blocks must reach disk before the metadata transaction referencing them can commit. An fsync forces the running transaction to commit, which requires flushing the dirty data of every file participating in that transaction — including files written by unrelated processes. Your caller waits for their I/O. The subsequent device cache flush then serializes the queue and defeats the I/O scheduler's reordering.",
+      "There is a second-order effect people miss. A blocked worker is removed from a fixed-size pool. If four of thirty-two threads are parked in fsync, you have lost twelve percent of your capacity, and that shows up as queueing delay on requests that never touch the log.",
+      "Fixes, in the order you should consider them. First, amortize: buffer N records and issue one fsync per batch, acknowledging as a group. This is group commit, it is what every database does, and it changes the guarantee from 'nothing is lost' to 'at most one batch is lost' — which for a log is almost always the correct trade. Second, shrink the blast radius by moving the log to its own filesystem or device. Third, preallocate with fallocate and open O_DSYNC so there are no metadata updates to journal. Fourth, and most honestly: decide the log does not need synchronous durability, and bound the loss window instead.",
+      "The distinction worth drawing explicitly is between options that change the guarantee and options that only move the cost. Batching changes it. A separate device does not.",
+    ],
+  },
+  "logger.3": {
+    crux: "Filling the slot and publishing the index are two separate stores, and nothing orders them for other cores unless you say so.",
+    body: [
+      "The producer writes the payload, then writes the sequence number that marks the slot ready. The consumer reads the sequence, then reads the payload. Two orderings must hold, and on x86 both come free while on ARM neither is enforced.",
+      "x86 is total store order: stores are never reordered with other stores, loads never with loads. The code is accidentally correct. AArch64 permits both reorderings, so the consumer can observe the published sequence before the payload stores become visible — a valid header over a half-written body, exactly what you are seeing.",
+      "volatile is not the fix. It prevents the compiler caching a value in a register and emits no barriers whatsoever. It says nothing about what other cores observe. And note this was undefined behaviour on x86 too: the compiler alone is permitted to sink the sequence store above the payload stores, so the x86 build was relying on the optimizer's mood.",
+    ],
+    code: `// producer
+memcpy(slot->data, rec, n);
+atomic_store_explicit(&slot->seq, s, memory_order_release);
+
+// consumer
+if (atomic_load_explicit(&slot->seq, memory_order_acquire) == expected)
+    consume(slot->data);   // payload now guaranteed visible`,
+    tail: [
+      "Cost: the release compiles to stlr or a dmb ish on ARM and to a plain mov on x86, so the fix is free on the platform where it was already working. Using seq_cst throughout would also be correct but inserts a full barrier per operation for no additional guarantee you need here.",
+      "Finally, a green ThreadSanitizer run on x86 proves very little about a weakly ordered target. TSan reports races it can observe on the hardware it runs on.",
+    ],
+  },
+  "logger.4": {
+    crux: "Cache coherence operates on lines, not variables. Two threads touching different variables in the same line contend exactly as if they shared one.",
+    body: [
+      "head, tail and the drop counter live in a single 64-byte line. Each producer increment of head takes that line into Modified state on its core, invalidating every other core's copy. The consumer's next read of tail misses and pulls the line back. The line ping-pongs on every single operation even though no two threads ever touch the same variable — hence a 99% empty queue that still stalls.",
+      "The fix is to give each independently-mutated field its own line.",
+    ],
+    code: `struct ring {
+  alignas(128) std::atomic<uint64_t> head;        // producers
+  alignas(128) std::atomic<uint64_t> tail;        // consumer
+  alignas(128) uint64_t              cached_tail; // producer-private
+  alignas(128) slot_t                slots[N];
+};`,
+    tail: [
+      "128 bytes rather than 64, because several Intel and ARM parts prefetch the adjacent line, so a 64-byte separation still shares a 128-byte sector. The portable name for this quantity is hardware_destructive_interference_size.",
+      "Padding alone leaves traffic on the table. A producer that reads the consumer's tail on every push still takes a coherence miss per operation. Cache a snapshot of tail and only refresh it when the buffer appears full — this converts a per-operation miss into a per-batch one, and it is the central trick in both the LMAX Disruptor and DPDK's rte_ring.",
+      "To confirm rather than guess: perf c2c names the contended line and the offsets within it, which is how you distinguish false sharing from ordinary capacity misses.",
+    ],
+  },
+  "logger.5": {
+    crux: "Two to the thirty-two, at ten million per second, is 430 seconds. That is comfortably inside the range of a single unlucky stall.",
+    body: [
+      "A producer that claims sequence s, is preempted before publishing, and resumes more than 430 seconds later now holds a sequence that maps to the same slot as a live entry two-to-the-thirty-two records newer. Its check — is this slot still mine — passes, because the value it compares looks unchanged. It publishes over valid data and nothing detects it. This is ABA: the world moved and came back to a value that looks identical.",
+      "430 seconds sounds impossible until you count the ways a thread stalls: hypervisor descheduling, a stop-the-world GC pause, a page-fault storm under memory pressure, a core going offline, a debugger breakpoint, live migration. Unless you are on a real-time scheduler with admission control, never assume a bound on how long a thread can be stopped.",
+      "The fix is 64-bit sequence numbers. At ten million per second a 64-bit counter wraps in roughly 58,000 years. This is why every serious ring buffer uses 64-bit sequences even on 32-bit machines, and it costs nothing worth measuring.",
+      "On reclamation: if slots hold pointers, you cannot free the pointee, because a reader may still be dereferencing it and there is no lock to ask. Three standard answers. Hazard pointers — each reader publishes what it is currently touching, and the freeing thread scans those announcements before releasing. Epoch-based reclamation — defer frees until every thread has passed a grace point. RCU, the kernel's variant, where readers cost essentially nothing and writers pay through synchronize_rcu. All three trade deferred memory for near-free reads, which is exactly the trade you want in a read-mostly structure.",
+    ],
+  },
+
+  "oom.0": {
+    crux: "VSZ counts promises. RSS counts pages currently mapped in, including ones you share and never allocated.",
+    body: [
+      "VSZ counts every mapping regardless of whether anything backs it. Thread stacks reserve 8MB of address space each, so 32 threads is 256MB of VSZ with almost nothing resident. Each glibc arena reserves 64MB. mmap'd files count at full size, plus guard pages and allocator over-reservation. 40GB of VSZ on a 32GB box is normal and harmless, because address space is not a scarce resource on 64-bit.",
+      "RSS counts resident physical pages attributed to the process. That includes shared library text, page cache for files the process mmap'd and touched, and copy-on-write pages shared with other processes — each counted at full weight in every sharer. This is why summing RSS across a process tree wildly overcounts.",
+      "The 2GB to 8GB gap is made of: allocator metadata and fragmentation (chunk headers, per-arena free lists, rounding up to size classes), pages returned to the allocator but not to the kernel, and the shared and file-backed pages above.",
+      "The right tools are /proc/PID/smaps_rollup, which gives Pss (shared pages divided among sharers) and Private_Dirty. Private_Dirty answers the question you almost always actually have — how much memory would come back if this process died — and RSS does not.",
+    ],
+  },
+  "oom.1": {
+    crux: "free() returns memory to the allocator. Only the allocator can return it to the kernel, and structurally it usually cannot.",
+    body: [
+      "glibc grows the main heap with brk, a single contiguous region that can only be shrunk from the top. One live allocation near the high-water mark pins every free byte beneath it. Non-main arenas use 64MB mmap'd heaps with the same top-only trim rule, so the problem multiplies.",
+      "Allocations above MMAP_THRESHOLD get their own mapping and are genuinely munmap'd on free. The default is 128KB, but glibc raises it dynamically up to 32MB as it observes your freeing pattern — which means a program can start out returning memory to the OS and quietly stop doing so later. That behaviour is bewildering if you do not know the mechanism.",
+      "MALLOC_ARENA_MAX defaults to eight times the core count, and each arena fragments independently, so a 64-core box can accumulate hundreds of partially-used arenas. Capping it is often the single highest-value tuning knob on a threaded server.",
+      "M_TRIM_THRESHOLD and an explicit malloc_trim force a trim. jemalloc and tcmalloc take a different approach and purge on a decay timer, which is why swapping allocators often 'fixes' this.",
+      "One subtlety that reframes the whole question: modern purging uses MADV_FREE, which tells the kernel it may take the pages but leaves them yours if you touch them first. The pages stay in RSS until there is actual memory pressure. So a high RSS may be entirely correct, costless behaviour. The question worth asking is not whether RSS is high but whether the memory is reclaimable under pressure.",
+    ],
+  },
+  "oom.2": {
+    crux: "The application data is read-only. The runtime's bookkeeping, which lives on the same physical pages, is not.",
+    body: [
+      "Copy-on-write faults at page granularity on the first write to a page. CPython increments a reference count in the object header on every access, so merely reading an object dirties the page it sits on. A tracing collector writes mark bits into headers, so one full collection dirties the entire heap. A compacting collector relocates objects and dirties everything twice.",
+      "With 4KB pages, one refcount write copies 4KB. With transparent huge pages enabled, it copies 2MB — a 512-fold amplification. This is exactly why Redis prints a startup warning about THP: it forks to write RDB snapshots, and COW amplification turns a routine background save into an out-of-memory kill.",
+      "Measure it rather than argue about it: watch Private_Dirty per worker in /proc/PID/smaps over time. If it climbs while the workload is provably read-only, you have found the mechanism.",
+      "Fixes, roughly in order of effort. gc.freeze() before forking moves existing objects into a permanent generation the collector will not scan or mark. Move the index out of the managed heap entirely, into a shared mmap or memfd with no per-object headers, so worker access touches no writable metadata. Separate hot metadata from cold data so writes concentrate on a few pages instead of spreading across all of them. And disable THP for this process specifically.",
+    ],
+  },
+  "oom.3": {
+    crux: "The kernel does not track who asked for memory. It tracks who is resident at the moment it runs out.",
+    body: [
+      "Why the 100GB malloc succeeded: with vm.overcommit_memory=0, the default heuristic, the kernel hands out address space and allocates physical pages only on first touch. An allocation is a promise, not a delivery. This is precisely what makes fork, sparse arrays and generous thread stacks affordable — and it is why malloc returning non-NULL tells you nothing about whether the memory exists.",
+      "Why it killed the wrong processes: the OOM killer selects by oom_score, which is dominated by current RSS plus oom_score_adj. The parent holds the large mapping. The database has a legitimately large resident working set. The worker that actually caused the pressure may be modest at that instant, and pages shared between parent and children inflate everyone's score simultaneously.",
+      "Tuning that exists but rarely helps: overcommit_memory=2 with an overcommit_ratio makes malloc fail honestly, at the cost of breaking every fork-heavy and sparse-mapping workload on the box. It is defensible on a dedicated appliance and almost never on a general server. oom_score_adj is the practical knob — mark expendable processes positive and critical ones negative, so the kernel's ranking reflects your priorities rather than mere size.",
+      "The strongest answer is that you should never reach the kernel OOM killer at all. It runs late, on a machine already in a degraded state, with no application context and a crude heuristic. A PSI-driven userspace daemon such as systemd-oomd or earlyoom acts on memory-pressure stall time before the machine becomes unusable, and can choose a victim by policy instead of by size.",
+    ],
+  },
+  "oom.4": {
+    crux: "Page cache is charged to the cgroup that touches it, and with swap disabled, anonymous memory cannot be reclaimed at all.",
+    body: [
+      "Under cgroup v2 the file's pages count against your memory.current. Reading 20GB fills the cgroup's cache, memory.current climbs toward memory.max, and the kernel begins reclaim inside the cgroup. The host's 100GB is irrelevant — the limit is the entire universe as far as this cgroup is concerned.",
+      "Clean file pages are cheap to drop, so this should be survivable, and usually is. It fails when the anonymous working set is already close to the limit. Without swap, anonymous pages have nowhere to go and are simply unevictable. Reclaim scans, frees a little, cannot keep pace with the allocation rate, and the kernel declares OOM within the cgroup.",
+      "A second mechanism compounds it: dirty pages must complete writeback before they can be reclaimed, so a write-heavy job can outrun writeback and stall reclaim even when there is a great deal of nominally reclaimable cache.",
+      "Fixes. Set memory.high below memory.max: high throttles the allocating task and reclaims aggressively rather than killing, giving you a soft brake and a signal instead of a corpse. Use posix_fadvise with POSIX_FADV_DONTNEED, or O_DIRECT, for the streaming read so it stops polluting the cgroup's cache at all. Alert on memory.pressure — the PSI metric rises well before the kill, whereas memory.current looks fine right up until it does not.",
+      "Do not forget kernel memory: a large directory walk fills dentry and inode caches, which are charged to the cgroup too and surprise people who have only accounted for their heap.",
+    ],
+  },
+  "oom.5": {
+    crux: "A huge page is a bet that you will use all 2MB, and that the kernel can find 2MB of contiguous physical memory quickly. Both halves can lose.",
+    body: [
+      "The throughput win is real. One TLB entry covers 2MB instead of 4KB, so a large working set stops thrashing the TLB and page-walk costs fall. On a big heap this is worth real percentage points.",
+      "The tail latency comes from allocation. In defrag=always mode, a fault that cannot find a free huge page triggers synchronous compaction — migrating pages around to manufacture contiguity — in the faulting thread's own context. On a machine that has been up for weeks and is thoroughly fragmented, that is milliseconds of stall arriving at an arbitrary point in a request.",
+      "The memory growth is internal fragmentation. A mapping that genuinely needed 8KB now occupies 2MB. Workloads with many small or sparse mappings bloat, and khugepaged collapses ranges in the background, so the growth appears after the fact with no obvious cause.",
+      "Add the COW amplification from the fork stage and you have all three symptoms from one setting.",
+      "For most servers the right setting is enabled=madvise: code that benefits, such as a database buffer pool or a large dense heap, opts in with madvise(MADV_HUGEPAGE), and nothing else pays. Explicit hugetlbfs pages reserved at boot avoid compaction entirely, at the cost of inflexibility and up-front commitment.",
+      "The general lesson is that page size trades translation throughput against allocation latency and internal fragmentation. There is no default correct for every workload, which is exactly why the kernel offers three modes instead of a boolean.",
+    ],
+  },
+};
+
+const A2 = {
+  "locks.0": {
+    crux: "The hang is the symptom. The bug is holding a lock across a call into code you do not control.",
+    body: [
+      "pthread mutexes have a type, and that explains the build-dependent behaviour. NORMAL re-acquired by its own owner is undefined behaviour, in practice a self-deadlock. ERRORCHECK returns EDEADLK. RECURSIVE succeeds and increments a count. Different builds pick different defaults — a debug glibc, std::mutex versus std::recursive_mutex, a platform default — so the same source hangs on one machine and passes on another.",
+      "Switching to a recursive mutex is not a fix, it is a downgrade. The lock exists to protect an invariant. Midway through eviction the structure is deliberately inconsistent: the entry is unlinked but the size counter has not been decremented, say. A recursive acquire lets the callback observe precisely that state. You have converted a reliable, debuggable hang into intermittent corruption, which is strictly worse.",
+      "The rule is simply never to invoke caller-supplied code while holding a lock. Restructure so the lock covers only the mutation.",
+    ],
+    code: `std::vector<Entry> evicted;
+{
+  std::lock_guard<std::mutex> g(mu_);
+  evicted = collect_evictions();   // invariants restored before unlock
+}
+for (auto& e : evicted) e.callback();   // no lock held here`,
+    tail: [
+      "A secondary cost of recursive mutexes: they destroy your ability to reason about lock ordering and about where a critical section actually ends, since any function might be an inner acquire. Several large codebases ban the type outright for this reason alone.",
+    ],
+  },
+  "locks.1": {
+    crux: "Four failure modes with four distinct mechanisms. Livelock is the one where everybody is running.",
+    body: [
+      "Deadlock is a cycle in the wait-for graph. Threads are blocked, CPU is idle, and a detector can find it by walking the graph.",
+      "Livelock: threads change state continuously but none completes. CPU sits at 100% and no deadlock detector will ever fire, because nobody is blocked. The classic source is a try-lock loop with symmetric backoff — both contenders detect the conflict, both retreat, both retry in lockstep, forever. Break the symmetry: randomized exponential backoff, or a deterministic rule that makes one contender always win.",
+      "Starvation is the case where the system as a whole progresses but one particular thread never does. That is the subject of the next stage.",
+      "Priority inversion: L holds the lock, H blocks on it, and M — which needs no lock at all — preempts L. H is now effectively waiting on a thread of lower priority than itself, for an unbounded time. Note that nothing is deadlocked and everything is technically working as specified.",
+      "The fix is priority inheritance: while H is blocked on a lock held by L, L temporarily runs at H's priority, so M cannot preempt it. POSIX exposes this as PTHREAD_PRIO_INHERIT and Linux implements it with PI-futexes, because the kernel has to be able to walk the ownership chain. The alternative is the priority ceiling protocol, where any thread holding the lock immediately runs at the highest priority of any thread that might take it — cheaper at runtime, but it requires knowing the full set of users in advance.",
+      "Mars Pathfinder in 1997 is the canonical field case. A bus-management task held a mutex, a high-priority task blocked on it, a medium-priority communications task ran, the watchdog observed the missed deadline and reset the spacecraft — repeatedly. The fix was uploaded as a live patch that enabled priority inheritance on that mutex.",
+    ],
+  },
+  "locks.2": {
+    crux: "Fairness means surrendering barging, and barging is where much of the throughput comes from. It is also worth asking whether an rwlock was the right primitive at all.",
+    body: [
+      "Reader-preferring: new readers join while readers are active, the count never reaches zero, and the writer waits forever. Writer-preferring: arriving writers block new readers, and a steady stream of writers starves the readers. Neither preference is a bug; they are two ends of one dial.",
+      "A fair design uses FIFO admission. A ticket lock issues increasing tickets and serves them in order. A phase-fair rwlock alternates reader and writer phases, so a writer waits at most one reader phase and both sides get bounded waiting.",
+      "What fairness costs: no barging, so a thread that could have taken a free lock right now instead waits its turn, which lowers throughput. And FIFO is brittle under preemption — if the thread at the head of the queue is descheduled, everyone behind it waits, whereas a barging lock would have let someone else make progress.",
+      "On the spinning side, a naive spinlock has every waiter hammering one cache line, which is the false-sharing problem from problem 01 wearing a different hat. MCS and CLH queue locks give each waiter its own node to spin on, so a release touches exactly one other core's line. That is what lets queue locks scale to high core counts.",
+      "Now question the primitive. For read-mostly data an rwlock is often wrong, because readers still write — they mutate the shared reader count, taking that line exclusively, so nominally read-only traffic still generates coherence traffic and the lock does not scale. A seqlock lets readers never block: read a version, read the data, re-read the version, retry if it changed. Readers must tolerate observing torn state mid-copy, so it suits small trivially-copyable data. RCU goes furthest — readers do essentially nothing at all, and writers publish a new version and defer freeing the old one until a grace period elapses. That is why the kernel uses RCU for read-mostly structures like the dentry cache.",
+    ],
+  },
+  "locks.3": {
+    crux: "Both cases are a mutex held by a thread that can never release it in the context that now needs it.",
+    body: [
+      "Signals: a handler runs on an existing thread's stack, hijacking it mid-execution. If that thread happened to be inside log() holding the mutex, the handler's acquire blocks on a lock owned by the very thread it interrupted. Nothing can ever run to release it. A deadlock involving one thread, and the process sits at 0% CPU.",
+      "This is the definition of async-signal-unsafe. malloc is unsafe for exactly the same reason — arena locks. So is printf, and so is anything that takes a lock or mutates global state. The safe list is short and specified by POSIX: write, _exit, the signal-related calls, and a handful of others.",
+      "fork: the child receives a complete copy of the address space but only one thread, the caller. Any mutex another thread held at the instant of the fork is copied in the locked state, with an owner that does not exist in the child. Nothing will ever unlock it, so the child's first malloc hangs. This is why POSIX permits only async-signal-safe functions between fork and exec — the child is, in effect, permanently inside a signal handler.",
+    ],
+    code: `// handler does nothing but wake a normal thread
+static int pipefd[2];
+
+void handler(int sig) {
+    unsigned char b = (unsigned char)sig;
+    write(pipefd[1], &b, 1);        // async-signal-safe
+}
+// alternative: signalfd(), read from the event loop`,
+    tail: [
+      "pthread_atfork can reacquire and release locks around fork, but it cannot know about locks inside third-party libraries, so it is a mitigation and not a guarantee. posix_spawn eliminates the window entirely by performing the fork and exec as one operation. Fork-then-exec is safe in practice; fork-then-do-real-work in a threaded program is not, and no amount of care at the call site makes it so.",
+    ],
+  },
+  "locks.4": {
+    crux: "Choose spinning or blocking by comparing expected hold time against the cost of a context switch. Everything else follows from that comparison.",
+    body: [
+      "Sleeping under a spinlock means waiters on other CPUs burn cycles for the entire duration of your sleep, with no upper bound. On Linux spin_lock also disables preemption on the local CPU, so the sleeping thread cannot be switched out cleanly, and interrupt context cannot sleep at all since there is no task to place on a wait queue. A spinlock's contract is that hold times are short and bounded; sleeping breaks the contract, not merely the performance.",
+      "A futex keeps the fast path in userspace: one compare-and-swap on a word in shared memory. If it succeeds there was no contention and no syscall happened at all, which is what makes uncontended locking cheap enough to use freely. Only when the CAS fails does the thread enter the kernel with FUTEX_WAIT to be queued on that address, and unlock only issues FUTEX_WAKE when it knows waiters exist.",
+      "Rough numbers worth carrying: an uncontended atomic CAS is 10 to 20 nanoseconds; a contended cache-line transfer between cores is around 100 nanoseconds; a futex round trip involving a context switch is one to five microseconds; a wakeup landing on a cold core costs more still.",
+      "So the rule is: spin when expected hold time is below roughly twice the context-switch cost, block otherwise. Since you rarely know in advance, adaptive mutexes spin for a bounded number of iterations and then park — glibc does this, and the kernel's mutex spins only while it observes the owner still running on another CPU, which is a neat trick because a descheduled owner will not release soon.",
+      "Virtualization inverts the calculation. A vCPU can be descheduled by the hypervisor mid-critical-section, so a spin can last a full hypervisor timeslice rather than a few hundred nanoseconds. Paravirtualized spinlocks exist so a guest can tell the hypervisor it is spinning and to please run the holder instead. This closes the loop with priority inversion: a plain spinlock has no mechanism whatsoever to boost or hint about its holder.",
+    ],
+  },
+
+  "fs.0": {
+    crux: "Five steps, and the one nearly everybody omits is the fsync of the parent directory.",
+    body: [],
+    code: `int fd = open("cfg.tmp", O_WRONLY|O_CREAT|O_TRUNC, 0644);
+write_all(fd, buf, len);           // loop: write() may be short
+fsync(fd);                         // data durable, under a name nobody reads
+close(fd);                         // check this return value too
+rename("cfg.tmp", "cfg");          // atomic swap of the directory entry
+int dfd = open(".", O_RDONLY|O_DIRECTORY);
+fsync(dfd);                        // the rename itself is now durable
+close(dfd);`,
+    tail: [
+      "The temp file must be in the same directory, because rename is only atomic within a filesystem. Across filesystems it fails with EXDEV, and the copy-then-delete fallback people write is not atomic at all.",
+      "fsync before the rename, because otherwise the name can end up pointing at a file whose contents were never written — which is the entire next stage.",
+      "rename is atomic with respect to concurrent readers: anyone opening by name gets either the complete old file or the complete new one. Never a partial one, and never ENOENT, which is why this beats unlink-then-create.",
+      "fsync of the directory, because rename modifies the directory's own data. Skip it and a crash can leave the old directory entry intact, silently rolling you back to the previous config with no error reported anywhere.",
+      "Readers that already have the file open keep reading the old inode, which stays alive until they close it. That is usually the behaviour you want; if they need to pick up the change, signal them to reopen.",
+      "Check every return value, including close — on some filesystems, notably NFS, errors surface there — and both fsyncs.",
+    ],
+  },
+  "fs.1": {
+    crux: "Rename is atomic with respect to other processes. Atomic and durable are different properties, and POSIX orders neither against the data.",
+    body: [
+      "ext4 uses delayed allocation: write() dirties pages in the page cache and does not choose disk blocks at all. Block allocation happens at writeback, potentially tens of seconds later. Meanwhile the rename is a metadata operation that enters the journal at the next commit, typically within five seconds.",
+      "So the on-disk ordering is: rename committed, data blocks never allocated. After the crash the new name exists and the file has zero length. Atomicity was never violated — every reader saw either the old entry or the new one. Durability of what the name refers to was simply never requested.",
+      "The principle to state explicitly: the atomicity of a metadata operation says nothing about the durability of the data it points at. Nothing in POSIX orders data against metadata. Every filesystem makes its own choices here, so portable code must fsync the data before publishing the name.",
+      "The history is instructive. This hit users hard in 2009 when ext4 replaced ext3, because ext3's data=ordered mode happened to flush data on every commit and had been concealing the bug for years. Firefox and KDE lost configuration files en masse. ext4 responded with the auto_da_alloc heuristic, which forces allocation when you rename over an existing file. That makes the buggy pattern work, which is arguably the worse outcome: the code stays wrong and breaks later on XFS, on btrfs, or in the cases where the heuristic does not trigger.",
+    ],
+  },
+  "fs.2": {
+    crux: "du walks names. df counts blocks. Anything with blocks and no name is invisible to du.",
+    body: [
+      "By far the most likely cause is files unlinked while still open. unlink removes the directory entry and decrements the link count, but the inode and its blocks survive until the last open descriptor closes. du cannot see it because there is no name to walk to. Confirm with lsof +L1, which lists open files whose link count is zero along with sizes and the holding pid; or ls -l /proc/PID/fd and look for entries marked deleted. Fix by restarting or signalling the holder, or if you cannot, truncate straight through the descriptor with a redirect into /proc/PID/fd/N, which frees the blocks immediately.",
+      "The root cause is almost always log rotation that renamed or removed a file without telling the writer to reopen. That is precisely what logrotate's copytruncate option exists for, and what a proper SIGHUP-reopen handler does correctly.",
+      "Other candidates, worth ruling out in order. Inode exhaustion: check df -i, since millions of tiny files can fill the inode table while blocks remain free, producing ENOSPC with visible free space. Reserved blocks: 5% by default is reserved for root, so an unprivileged process gets ENOSPC while df still shows a few percent free; tune2fs -m adjusts it. A mount shadowing a populated directory: anything written to /var/log before /var/log was mounted still occupies space on the parent filesystem and is now unreachable — find it by bind-mounting the root elsewhere and walking it. And sparse files, where du reports allocated blocks while ls -l reports apparent size, which explains the reverse mismatch when you meet it.",
+    ],
+  },
+  "fs.3": {
+    crux: "O_APPEND is one atomic operation. lseek plus write is two operations with a race between them.",
+    body: [
+      "With O_APPEND the kernel takes the inode lock, sets the offset to the current end, and writes, as a single indivisible operation. Two appenders can interleave whole writes but can never overlap them.",
+      "lseek to the end followed by write is a textbook time-of-check-to-time-of-use race. Between the two syscalls another process appends and extends the file; your write then lands at an offset that is now stale, overwriting what they just wrote. That is exactly the reported symptom, and it will be rare and load-dependent, which is why it survived testing.",
+      "NFS has no append operation in the protocol before NFSv4.2's limited support. The client resolves O_APPEND to a numeric offset locally and sends a write at that offset, so two clients race and the guarantee evaporates. The same caveat applies to most network and clustered filesystems: atomic append is a property of a local inode lock, not of the open flag.",
+      "Short writes: write() is permitted to return fewer bytes than requested. On a regular file it is rare, but a signal, an RLIMIT_FSIZE boundary, or a filling device can all cut it short, so every write must be looped. This interacts badly with O_APPEND — a partial record is appended atomically as a partial record, so your framing must be recoverable: a length prefix with a checksum, or a delimiter you can resynchronize on.",
+      "Pipes guarantee atomicity only up to PIPE_BUF, which is 4096 bytes on Linux. Above that, concurrent writers interleave, which is why several processes logging into one pipe produce spliced lines.",
+      "The robust design is a single writer fed by a queue, or O_APPEND with records below PIPE_BUF and self-describing framing so a torn tail can be discarded on read.",
+    ],
+  },
+  "fs.4": {
+    crux: "A store instruction has no return value, so there is nowhere for the kernel to report an error.",
+    body: [
+      "SIGBUS on truncate: the mapping remains valid, the backing does not. Touching an address past the new end of file finds no page to fault in, so the kernel raises SIGBUS. The distinction to state precisely is that SIGSEGV means the address is not mapped at all, while SIGBUS means it is mapped but cannot be backed. Worse, any process on the machine can truncate the file out from under you, so this is not something you can prevent from inside the writer.",
+      "Silent loss on ENOSPC: with delayed allocation, blocks are chosen at writeback, long after the store retired and the enclosing function returned. There is no syscall in flight to fail. The kernel's only options are to signal the process or to record an error on the file that a later msync or fsync might report. With write() the identical condition returns ENOSPC directly to the caller, who can do something about it.",
+      "Durability requires msync with MS_SYNC, and the parent-directory fsync rules from the first stage still apply to the file's existence. MS_ASYNC is a no-op on modern Linux.",
+      "Was mmap the right call? For a log, no. You surrender three things simultaneously: error reporting, control over write ordering — you cannot force page A out before page B — and control over eviction. This is the argument made in 'Are You Sure You Want to Use MMAP in Your DBMS?', and it is why Postgres, InnoDB and RocksDB all manage their own buffer pools. A minor page fault is also not obviously cheaper than the syscall it replaced, once TLB pressure and forfeited readahead control are counted.",
+      "If you must use it: fallocate the file up front so ENOSPC surfaces at a point where it can still be handled, and make sure nothing else in the system can truncate it.",
+    ],
+  },
+
+  "sched.0": {
+    crux: "'8 vCPUs' is a billing unit, not a description of eight independent execution resources.",
+    body: [
+      "Hypothesis one, SMT. Eight vCPUs is very likely four physical cores with two hardware threads each. Siblings share execution ports, L1 and L2. For a workload that already saturates the pipeline, the second thread adds perhaps 10 to 30 percent, not 100. Test: lscpu reports threads per core and the sibling map; run four threads pinned to four distinct physical cores, then four pinned to the siblings of two cores. A large gap between those two configurations is SMT.",
+      "Hypothesis two, bandwidth or last-level cache capacity. More threads means a smaller cache share each and more DRAM traffic. Past a point the memory controller saturates and additional threads only add queueing. Test: perf stat for IPC and LLC-load-misses. IPC falling roughly in proportion to the throughput loss, with rising misses, points here; shrinking the per-thread working set should restore scaling.",
+      "Hypothesis three, interference and migration. Other tenants on the host, or the scheduler bouncing threads between cores so each restarts cache-cold. Test: steal time in top, and pinning with taskset. If pinning alone recovers most of the loss, it was migration.",
+      "Worth naming a fourth: all-core turbo. Heavy vector work across eight threads drops the clock relative to four, so per-thread throughput falls for reasons that have nothing to do with contention. Read the actual MHz under load rather than the nameplate frequency.",
+      "What an interviewer is really listening for here is not the list. It is that each hypothesis arrives with the experiment that would falsify it.",
+    ],
+  },
+  "sched.1": {
+    crux: "Yield only helps if something you depend on was runnable and not running — which means the machine is oversubscribed.",
+    body: [
+      "The information content of the result is itself the diagnosis. If surrendering your CPU makes you finish sooner, you were spinning while the thing you were waiting for could not run. Almost always this means you are spinning on a lock whose holder is sitting on a run queue behind you.",
+      "It is fragile because sched_yield's semantics are close to unspecified. Under CFS the yielding task's vruntime is not necessarily penalized enough to stop it being chosen again immediately, so the loop can degenerate into a busy-wait with extra syscalls attached. Behaviour differs between SCHED_OTHER and the RT policies — where yield is well defined as moving you to the tail of your priority queue — and it has changed across kernel versions. Code that depends on it depends on a scheduler implementation detail.",
+      "It also still consumes a full share of CPU that a futex wait would have handed directly to the holder.",
+      "The real fixes: keep runnable threads at or below the CPU count; use a blocking primitive so the kernel knows precisely who to wake; and if you must spin, spin briefly and then park, which is what an adaptive mutex already does for you.",
+      "The condition has a name — lock holder preemption — and it becomes dramatically worse under virtualization, where the hypervisor can deschedule the holder's entire vCPU for a full timeslice.",
+    ],
+  },
+  "sched.2": {
+    crux: "Fair-share schedulers distribute CPU proportionally. Proportional to a small number is still not zero, and latency is not the quantity being scheduled.",
+    body: [
+      "CFS tracks per-task vruntime and always runs the lowest. nice maps to a weight — roughly 1.25x per level, with nice 0 at weight 1024 and nice 19 at 15 — and vruntime advances inversely to weight. So nice+19 gives the batch job about one sixty-eighth of the CPU against a nice-0 thread. Small, but nonzero. More importantly it does not bound your wakeup latency at all: even once your thread is runnable it waits for the current task's slice, and CFS targets a scheduling latency spread across all runnable tasks with a min_granularity floor beneath it. With enough runnable threads, that wait alone exceeds 5ms.",
+      "Why SCHED_FIFO 99 killed the machine: RT tasks preempt everything of lower priority, and that includes kernel threads. A busy RT thread at 99 starves kworkers, ksoftirqd — so softirq and network processing simply stop — the RCU threads, and the watchdog. Linux ships RT throttling precisely for this: sched_rt_runtime_us caps RT at 950ms of every 1000ms period, which is the only reason the box was merely unresponsive rather than permanently dead. If someone has disabled the throttle, the recovery procedure is the reset button.",
+      "Doing it properly. Partition rather than prioritize: isolcpus or a cpuset removes cores from the general scheduler, and IRQ affinity plus nohz_full keeps interrupts and timer ticks off them; pin the latency-critical thread there. If you do use RT, place it below the kernel's own threads, keep it genuinely blocking rather than busy-looping, and leave throttling enabled. And consider SCHED_DEADLINE, which is the honest primitive here — you declare runtime, period and deadline, the kernel admission-controls the set and schedules by earliest deadline first. It is the only interface where '5ms' is a thing you can actually tell the scheduler.",
+      "The underlying point: you cannot extract a latency guarantee from a fairness mechanism by making the fairness more extreme.",
+    ],
+  },
+  "sched.3": {
+    crux: "The quota is not spent over your averaging window. It is spent over 100 milliseconds, and then the entire cgroup is frozen.",
+    body: [
+      "cpu.max of 200000/100000 means 200ms of CPU time per 100ms period — two CPUs' worth, but granted as a budget rather than a rate. With sixteen runnable threads the cgroup burns all 200ms of quota in roughly 12.5ms of wall time. For the remaining 87.5ms every thread in the cgroup is dequeued. Requests in flight simply stop, mid-execution.",
+      "Sixty percent average utilization is arithmetically consistent with this and conceals it completely: 120ms of the 200ms quota consumed per period, all of it in a burst followed by a stall. Averaging destroys exactly the information you need.",
+      "The metric that shows it is nr_throttled and throttled_usec in cpu.stat. That is what to alert on, not utilization.",
+      "Fixes in order. First, size concurrency to the quota — the usual root cause is a runtime reading the host's CPU count rather than the cgroup's limit: GOMAXPROCS from nproc, older JVMs before container awareness, OpenMP defaulting to all cores, thread pools sized from hardware_concurrency. In a two-CPU container these cheerfully spawn sixty-four threads. Set them explicitly; libraries like automaxprocs derive the value from cpu.max. Second, shorten the period: the same quota over 10ms periods yields at worst an 8.75ms stall instead of 87.5ms, at the cost of more scheduler overhead. Third, use cpu.weight instead of a hard cap wherever you only need proportional fairness under contention — no throttling at all, and the workload can consume idle CPU. Fourth, cpu.max.burst allows unused quota to accumulate for genuinely bursty workloads.",
+      "One historical detail worth knowing: before kernel 5.4, quota was distributed in slices to per-CPU run queues and unused slices expired, so a many-threaded application could be throttled well below its nominal limit. Check the kernel version before trusting your own arithmetic.",
+    ],
+  },
+  "sched.4": {
+    crux: "Pages live on the NUMA node of whichever thread first touched them, not the node of the thread that allocated them.",
+    body: [
+      "Each socket has its own memory controller. Local access might be 80 nanoseconds; remote is 130 to 150 and crosses a shared interconnect with finite bandwidth. Cross-socket also makes any cache line shared between sockets far more expensive to transfer, so whatever contention you already had gets worse at the same time.",
+      "First touch is the part that surprises people. malloc gives you address space; the physical page is allocated on the first write, on the node of the thread performing that write. So the extremely common pattern — one thread allocates and initializes a large buffer, then a worker pool processes slices of it — places the entire buffer on a single node. Every worker on the other socket does 100% remote access, and all of them contend for one memory controller.",
+      "Fixes: parallelize initialization using the same partitioning as the computation, so each thread first-touches the region it will later work on. Or place explicitly with numactl --membind and --cpunodebind for whole processes, or mbind and per-node allocators inside one. Replicate read-only data per node. Verify with numastat, watching numa_miss and numa_foreign, and /proc/PID/numa_maps — rather than inferring NUMA from a throughput curve.",
+      "AutoNUMA can migrate pages toward the threads using them, but it samples, faults and migrates, so it costs latency and only helps when the access pattern is stable. It is a safety net, not a design.",
+      "Steal time is the fraction of time your vCPU was runnable but the hypervisor ran something else. Twelve percent means genuine oversubscription — a noisy neighbour, or your own vCPU count exceeding what the host can deliver. The consequences go beyond raw slowdown: your vCPU can vanish mid-critical-section, so spinlocks become actively harmful (lock holder preemption again) and any latency SLO is unenforceable. The response is a different instance type or a dedicated host; there is no fix available from inside the guest.",
+    ],
+  },
+
+  "jit.0": {
+    crux: "The heap is not executable, and permissions are a property of pages, not of allocations.",
+    body: [
+      "Since NX/XD, page table entries carry a no-execute bit and the loader maps heap and stack without it. The instruction fetch faults. That the pointer is perfectly valid for reads and writes is irrelevant — the permission that failed is execute.",
+      "The correct approach is to allocate with mmap so you own whole pages, write, then flip permissions.",
+    ],
+    code: `void *p = mmap(NULL, sz, PROT_READ|PROT_WRITE,
+               MAP_PRIVATE|MAP_ANONYMOUS, -1, 0);
+memcpy(p, code, n);
+mprotect(p, sz, PROT_READ|PROT_EXEC);      // never RWX
+__builtin___clear_cache(p, (char *)p + n); // see next stage`,
+    tail: [
+      "Why not malloc: mprotect works at page granularity, so changing permissions on a malloc'd buffer changes them for every other allocation sharing those pages. You would make unrelated heap data executable, and quite possibly make live data read-only and crash on the next unrelated write.",
+      "W^X as a policy means memory is never writable and executable at the same instant, so an attacker with a write primitive cannot inject code and one with execution cannot rewrite it. Mapping RWX to skip the mprotect defeats the entire mitigation. Some platforms enforce this: macOS and iOS require MAP_JIT plus pthread_jit_write_protect_np to toggle per-thread, and on iOS without special entitlements you cannot JIT at all.",
+      "The consequence for the design is that a JIT needs its own page-granular allocator over mmap'd arenas rather than borrowing the general-purpose heap.",
+    ],
+  },
+  "jit.1": {
+    crux: "On ARM the instruction cache is not coherent with the data cache. Your stores went into one, and the fetch came out of the other.",
+    body: [
+      "The write path puts your bytes into the L1 data cache, and possibly no further. Instruction fetch goes through the L1 instruction cache, which may still hold whatever previously occupied that virtual address — which is exactly why you see remnants of a previously JIT-ed function rather than random noise.",
+      "The required sequence on AArch64: clean the data cache by virtual address to the point of unification (dc cvau) so the bytes reach a level both caches can see; invalidate the instruction cache for that range (ic ivau); a dsb to ensure completion; then an isb so the pipeline discards anything it has already fetched. In practice, call __builtin___clear_cache, which emits the correct sequence per target and compiles to nothing on x86.",
+      "x86 keeps its instruction cache coherent with stores in hardware and snoops the pipeline, so the missing maintenance is simply invisible there. This is the same shape of problem as the ring buffer in problem 01: x86 provides a stronger guarantee than the architecture requires, so incorrect code passes and the bug waits for a port.",
+      "Two refinements worth having. Self-modifying code is not free on x86 either — it triggers a machine clear and pipeline flush, which is why JITs prefer to patch rarely and dispatch through an indirect jump table. And the invalidation must reach the core that will execute: ic ivau broadcasts within the inner shareable domain so other cores are covered, while the isb handles the local core's already-fetched instructions.",
+    ],
+  },
+  "jit.2": {
+    crux: "Every core caches translations independently, so invalidating one PTE means interrupting every core that might be holding it.",
+    body: [
+      "A page table entry change is not complete when the memory write lands. Any CPU that has walked that entry may hold it in its TLB. The kernel therefore sends an inter-processor interrupt to every CPU in the mm's cpumask; each invalidates locally and acknowledges; the initiator spins until all have replied. smp_call_function is that broadcast-and-wait.",
+      "The cost scales with core count, and it arrives as an involuntary interrupt on cores doing entirely unrelated work — which is why the latency shows up machine-wide and in other processes. On a 96-core box a shootdown-heavy workload can effectively steal a measurable fraction of the whole machine.",
+      "Mitigations in increasing order of effectiveness. Batch: build many stubs into one large arena and flip permissions once, since kernel-side batching only helps if you give it something to batch. Reduce the sharers: fewer threads in the process means a smaller cpumask and fewer IPIs. Or eliminate mprotect from the steady state entirely with a dual mapping.",
+    ],
+    code: `int fd = memfd_create("jit", MFD_CLOEXEC);
+ftruncate(fd, sz);
+void *rw = mmap(NULL, sz, PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0);
+void *rx = mmap(NULL, sz, PROT_READ|PROT_EXEC,  MAP_SHARED, fd, 0);
+// write through rw, execute through rx; permissions never change`,
+    tail: [
+      "The dual mapping is what production JITs do. The trade-off is real and should be stated: a writable alias of executable memory weakens W^X, because an attacker with an arbitrary write and knowledge of the rw address can inject code without ever needing to change a permission. Hardened designs keep the writable alias in a separate process, map it only for brief windows, or randomize its location independently.",
+    ],
+  },
+  "jit.3": {
+    crux: "Permissions live in the page table entry, and each mapping has its own entry.",
+    body: [
+      "A physical frame has no permissions of its own. The protection bits — read, write, execute, user versus supervisor — are fields in the PTE, and each virtual mapping has a separate PTE. So the same frame can be read-write through one address and read-execute through another. The same mechanism gives you shared memory between processes with different permissions on each side, and copy-on-write, where both mappings are marked read-only and the fault handler copies and remaps.",
+      "TLB tagging: without it, a context switch would have to flush the entire TLB, since identical virtual addresses now mean different things. ASIDs on ARM and PCIDs on x86 tag each entry with the address space it belongs to, so entries from several address spaces coexist and a switch becomes a register write rather than a purge.",
+      "The limits are worth knowing. The tag is narrow — 12 bits of PCID on x86, 8 or 16 bits of ASID on ARM — so tags must be recycled. Switching into an address space whose tag has been reused risks stale entries matching, so the kernel flushes that tag when it reassigns it. Under heavy process churn you end up paying for flushes anyway.",
+      "And tagged TLBs do nothing at all about invalidation across cores. That is still the shootdown from the previous stage: tags identify which address space an entry belongs to, they do not track which cores have cached it.",
+    ],
+  },
+  "jit.4": {
+    crux: "The mitigation removes the kernel from the user address space, so every syscall now switches page tables — twice.",
+    body: [
+      "Meltdown: on affected Intel cores a load from a kernel address executes speculatively and forwards its result to dependent instructions before the permission check retires. The load never architecturally completes — the fault kills it — but a dependent access has already pulled a chosen cache line in. Timing which line was cached recovers the byte. Because the kernel's direct map covers all physical memory and was mapped into every process to make syscalls cheap, this read all of physical memory from unprivileged code.",
+      "KPTI removes that mapping. Userspace runs with page tables containing only a small trampoline; entering the kernel switches CR3 to the full kernel tables and returning switches back. Every syscall, interrupt and exception now pays two page table switches.",
+      "Why syscall-heavy workloads regress and compute-bound ones barely move: the cost is per transition. A tight arithmetic loop never transitions. A network server doing millions of small reads transitions constantly. Measured regressions ranged from roughly 5 to 30 percent depending purely on syscall rate.",
+      "Why PCID changes the magnitude: without it, writing CR3 flushes the whole TLB, so the real cost is not the write but the storm of misses on return to user code. With PCID both address spaces keep tagged entries that survive the switch, cutting the regression substantially. This is the direct payoff of the previous stage's mechanism, and it explains why the mitigation hurt far more on older CPUs that lacked PCID.",
+      "Keep the two families distinct. Meltdown is a permission check applied too late — fixable in the page tables and later in silicon. Spectre attacks speculation itself, by training a branch predictor or slipping past a bounds check, so it has no single structural fix and requires per-site mitigations such as retpolines, lfence and index masking, plus compiler and hardware cooperation. Spectre v1 remains, in general, unsolved.",
+    ],
+  },
+};
+
+Object.assign(A, A2);
+
+function esc(s){return String(s).replace(/[&<>]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;'}[c];});}
+
+var pi = 0;
+var open_ = P.map(function(){return 1;});
+var panels = {};                       // "pi:i:h" -> true
+var expanded = false;
+var TOTAL = P.reduce(function(a,p){return a+p.stages.length;},0);
+
+function pk(p,i,t){return p+':'+i+':'+t;}
+
+function panelHTML(p,i,t,label,inner){
+  return '<div class="panelbox '+(t==='a'?'ansbox ':'')+'hid" data-panel="'+pk(p,i,t)+'">'
+       + '<div class="ph">'+label+'</div>'+inner+'</div>';
+}
+
+function answerHTML(a,p,i){
+  if(!a) return '';
+  var h = '<div class="crux">'+esc(a.crux)+'</div><div class="ansbody">';
+  h += (a.body||[]).map(function(t){return '<p>'+esc(t)+'</p>';}).join('');
+  if(a.code) h += '<pre class="code">'+esc(a.code)+'</pre>';
+  h += (a.tail||[]).map(function(t){return '<p>'+esc(t)+'</p>';}).join('');
+  return h+'</div>';
+}
+
+function build(){
+  document.getElementById('rail').innerHTML =
+    '<h2>Select problem</h2>' + P.map(function(p,i){
+      return '<button class="item" data-go="'+i+'">'
+        + '<span class="idx" data-t="'+esc(p.name)+'">0'+(i+1)+'</span>'
+        + '<span class="nm">'+esc(p.name)+'</span>'
+        + '<span class="mt" data-cnt="'+i+'"></span></button>';
+    }).join('');
+
+  document.getElementById('main').innerHTML = P.map(function(p,i){
+    var meter = p.stages.map(function(){return '<span class="tick"></span>';}).join('');
+    var stages = p.stages.map(function(s,j){
+      var a = A[p.key+'.'+j];
+      var last = j === p.stages.length-1;
+      return '<section class="stage" data-st="'+i+':'+j+'">'
+        + '<span class="sn"></span>'
+        + '<div class="slab" data-slab="'+i+':'+j+'">Stage '+(i+1)+'.'+(j+1)+'</div>'
+        + '<h2 class="st">'+esc(s.t)+'</h2>'
+        + '<p class="setup">'+esc(s.setup)+'</p>'
+        + '<p class="ask">'+esc(s.ask)+'</p>'
+        + '<div class="tags">'+s.tags.map(function(t){return '<span class="tag">'+esc(t)+'</span>';}).join('')+'</div>'
+        + '<div class="acts">'
+          + '<button class="btn" data-tog="'+pk(i,j,'h')+'"><span class="k">[H]</span> Nudge</button>'
+          + '<button class="btn" data-tog="'+pk(i,j,'r')+'"><span class="k">[R]</span> What to listen for</button>'
+          + '<button class="btn" data-tog="'+pk(i,j,'a')+'"><span class="k">[A]</span> Model answer</button>'
+          + (last ? '' : '<button class="btn go hid" data-next="'+i+':'+j+'"><span class="k">[&#8629;]</span> Reveal next twist</button>')
+        + '</div>'
+        + panelHTML(i,j,'h','Nudge &mdash; only if they stall for a minute','<div class="pb">'+esc(s.hint)+'</div>')
+        + panelHTML(i,j,'r','Grading signal',
+            '<dl class="grade"><dt class="g1">Weak</dt><dd>'+esc(s.weak)+'</dd>'
+          + '<dt class="g2">Solid</dt><dd>'+esc(s.solid)+'</dd>'
+          + '<dt class="g3">Exceptional</dt><dd>'+esc(s.strong)+'</dd></dl>')
+        + panelHTML(i,j,'a','Model answer &mdash; stage '+(i+1)+'.'+(j+1), answerHTML(a,i,j))
+        + '</section>';
+    }).join('');
+
+    return '<article class="prob" data-prob="'+i+'">'
+      + '<div class="eyebrow">Problem 0'+(i+1)+' &mdash; '+esc(p.meta)+'</div>'
+      + '<h1 class="h1">'+esc(p.name)+'</h1>'
+      + '<p class="blurb">'+esc(p.blurb)+'</p>'
+      + '<div class="meter" data-meter="'+i+'">'+meter+'</div>'
+      + stages
+      + '<p class="foot hid" data-foot="'+i+'">End of problem 0'+(i+1)+'. A candidate who reached the last '
+      + 'stage under their own steam is already above the internship bar &mdash; the final stages are there '
+      + 'to find the ceiling, not the floor.</p></article>';
+  }).join('');
+}
+
+function sync(){
+  document.querySelectorAll('[data-prob]').forEach(function(el){
+    el.classList.toggle('on', +el.dataset.prob === pi);
+  });
+  document.querySelectorAll('[data-go]').forEach(function(el){
+    el.classList.toggle('on', +el.dataset.go === pi);
+  });
+  P.forEach(function(p,i){
+    var n = expanded ? p.stages.length : open_[i];
+    document.querySelector('[data-cnt="'+i+'"]').textContent =
+      n + '/' + p.stages.length + ' \u00b7 ' + p.meta.split(' \u00b7 ')[0];
+    document.querySelectorAll('[data-meter="'+i+'"] .tick').forEach(function(t,j){
+      t.className = 'tick' + (j < n-1 ? ' done' : j === n-1 ? ' now' : '');
+    });
+    document.querySelector('[data-foot="'+i+'"]').classList.toggle('hid', n < p.stages.length);
+    p.stages.forEach(function(s,j){
+      var live = j === n-1;
+      var st = document.querySelector('[data-st="'+i+':'+j+'"]');
+      st.classList.toggle('hid', j >= n);
+      st.classList.toggle('live', live);
+      document.querySelector('[data-slab="'+i+':'+j+'"]').textContent =
+        'Stage '+(i+1)+'.'+(j+1) + (live && j>0 ? ' \u2014 new twist' : '');
+      var nx = document.querySelector('[data-next="'+i+':'+j+'"]');
+      if(nx) nx.classList.toggle('hid', !live);
+      ['h','r','a'].forEach(function(t){
+        var key = pk(i,j,t), on = !!panels[key] || expanded;
+        document.querySelector('[data-panel="'+key+'"]').classList.toggle('hid', !on);
+        document.querySelector('[data-tog="'+key+'"]').classList.toggle('on', on);
+      });
+    });
+  });
+  var seen = expanded ? TOTAL : open_.reduce(function(a,v){return a+v;},0);
+  document.getElementById('count').textContent = seen + '/' + TOTAL + ' revealed';
+  document.getElementById('exp').classList.toggle('on', expanded);
+  document.getElementById('exp').textContent = expanded ? 'Collapse all' : 'Expand all';
+}
+
+function advance(){
+  if(open_[pi] < P[pi].stages.length){ open_[pi]++; sync(); }
+}
+function toggle(key){
+  if(expanded) return;
+  panels[key] = !panels[key];
+  sync();
+}
+
+build();
+document.addEventListener('click', function(e){
+  var t = e.target.closest('[data-go],[data-tog],[data-next],#exp,#print');
+  if(!t) return;
+  if(t.dataset.go !== undefined){ pi = +t.dataset.go; sync(); window.scrollTo(0,0); }
+  else if(t.dataset.tog){ toggle(t.dataset.tog); }
+  else if(t.dataset.next !== undefined){ advance(); }
+  else if(t.id === 'exp'){ expanded = !expanded; sync(); }
+  else if(t.id === 'print'){ window.print(); }
+});
+document.addEventListener('keydown', function(e){
+  if(/INPUT|TEXTAREA/.test(e.target.tagName)) return;
+  var n = parseInt(e.key,10);
+  var cur = (expanded ? P[pi].stages.length : open_[pi]) - 1;
+  if(n>=1 && n<=P.length){ pi = n-1; sync(); window.scrollTo(0,0); return; }
+  if(e.key==='h'||e.key==='H') toggle(pk(pi,cur,'h'));
+  if(e.key==='r'||e.key==='R') toggle(pk(pi,cur,'r'));
+  if(e.key==='a'||e.key==='A') toggle(pk(pi,cur,'a'));
+  if(e.key==='Enter'){ e.preventDefault(); advance(); }
+  if(e.key==='ArrowDown'){ e.preventDefault(); pi = Math.min(pi+1, P.length-1); sync(); window.scrollTo(0,0); }
+  if(e.key==='ArrowUp'){ e.preventDefault(); pi = Math.max(pi-1, 0); sync(); window.scrollTo(0,0); }
+});
+sync();
+
+</script>
+</body>
+</html>
