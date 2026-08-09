@@ -1,0 +1,45 @@
+name: Generate Index Page
+on:
+  push:
+    branches:
+      - main # Change to 'master' if your default branch is named master
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Generate index.html
+        run: |
+          echo "<!DOCTYPE html>" > index.html
+          echo "<html lang='en'><head><meta charset='UTF-8'><title>Repository Directory</title></head><body>" >> index.html
+          echo "<h1>Project Directory Index</h1>" >> index.html
+          echo "<ul>" >> index.html
+
+          # Recursively find all HTML files, ignoring the main index and hidden Git folders
+          find . -type f -name "*.html" ! -name "index.html" ! -path "*/.*" | sort | while read -r file; do
+            clean_path="${file#./}"
+            display_name="${clean_path%.html}"
+            echo "<li><a href=\"$clean_path\">$display_name</a></li>" >> index.html
+          done
+
+          echo "</ul></body></html>" >> index.html
+
+      - name: Commit and Push index.html
+        run: |
+          git config --global user.name "GitHub Actions Bot"
+          git config --global user.email "actions@github.com"
+          git add index.html
+          
+          if git diff --staged --quiet; then
+            echo "No changes to index.html"
+          else
+            git commit -m "Auto-generated index.html with subfolders"
+            git push
+          </h5>
+          fi
