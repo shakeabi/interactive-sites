@@ -2,7 +2,7 @@ name: Generate Index Page
 on:
   push:
     branches:
-      - main # Change to 'master' if your default branch is named master
+      - main
 
 permissions:
   contents: write
@@ -21,7 +21,6 @@ jobs:
           echo "<h1>Project Directory Index</h1>" >> index.html
           echo "<ul>" >> index.html
 
-          # Recursively find all HTML files, ignoring the main index and hidden Git folders
           find . -type f -name "*.html" ! -name "index.html" ! -path "*/.*" | sort | while read -r file; do
             clean_path="${file#./}"
             display_name="${clean_path%.html}"
@@ -41,5 +40,4 @@ jobs:
           else
             git commit -m "Auto-generated index.html with subfolders"
             git push
-          </h5>
           fi
