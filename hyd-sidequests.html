@@ -78,6 +78,14 @@ h1 em{font-style:italic;font-variation-settings:'SOFT' 40,'WONK' 1,'opsz' 120;co
 .link{appearance:none;background:none;border:0;padding:5px 2px;cursor:pointer;color:var(--jade);
   font-family:'DM Mono',monospace;font-size:12px;letter-spacing:.08em;text-transform:uppercase}
 .link:hover{text-decoration:underline;text-underline-offset:4px}
+.notice{margin:18px 0 0;padding:13px 15px;background:var(--jade-soft);border-left:2px solid var(--jade);
+  display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center;font-size:14px;color:var(--ink)}
+.notice[hidden]{display:none}
+.sharebox{margin:14px 0 0;display:flex;gap:8px;align-items:center}
+.sharebox[hidden]{display:none}
+.sharebox input{flex:1;min-width:0;font-family:'DM Mono',monospace;font-size:12.5px;padding:9px 11px;
+  border:1px solid var(--rule);border-radius:2px;background:var(--ground-2);color:var(--ink)}
+.note{font-family:'DM Mono',monospace;font-size:11.5px;letter-spacing:.07em;text-transform:uppercase;color:var(--ink-3)}
 
 .roll{list-style:none;margin:0;padding:0}
 .quest{display:grid;grid-template-columns:44px 1fr 30px;gap:0 16px;align-items:start;
@@ -148,11 +156,24 @@ h1 em{font-style:italic;font-variation-settings:'SOFT' 40,'WONK' 1,'opsz' 120;co
   <button class="f" id="f-hide" aria-pressed="false">Hide done</button>
 </nav>
 
-<div style="display:flex;gap:20px;align-items:center;padding:14px 0 0">
+<div class="notice" id="notice" hidden>
+  <span id="notice-text"></span>
+  <button class="link" id="keep-mine" style="padding:0">Keep my board instead</button>
+</div>
+
+<div style="display:flex;flex-wrap:wrap;gap:8px 20px;align-items:center;padding:16px 0 0">
   <button class="link" id="roll-dice">Pick one for me</button>
+  <button class="link" id="share">Share board</button>
   <button class="link" id="reset" style="color:var(--ink-3)">Reset board</button>
   <span id="dice-out" style="font-size:14px;color:var(--ink-2)"></span>
 </div>
+
+<div class="sharebox" id="sharebox" hidden>
+  <input id="shareurl" readonly aria-label="Shareable link to this board">
+  <button class="f" id="copyurl" style="border-color:var(--rule)">Copy</button>
+</div>
+
+<p class="note" id="storage-note" style="margin:12px 0 0"></p>
 
 <ul class="roll" id="roll"></ul>
 <p class="empty" id="empty" hidden>Nothing matches that combination. Loosen a filter.</p>
@@ -247,14 +268,66 @@ D.forEach(q => {
   cellsEl.appendChild(b);
 });
 
-async function save(){
-  try { await window.storage.set("hyd-quests-done", JSON.stringify([...done])); } catch(e){}
+const KEY = "hyd-quests-done";
+let where = "none";
+
+async function readStore(){
+  try { const v = localStorage.getItem(KEY); if (v !== null) { where = "browser"; return v; } } catch(e){}
+  try { const r = await window.storage.get(KEY); if (r && r.value) { where = "artifact"; return r.value; } } catch(e){}
+  return null;
 }
+async function writeStore(v){
+  let hit = "none";
+  try { localStorage.setItem(KEY, v); hit = "browser"; } catch(e){}
+  try { await window.storage.set(KEY, v); if (hit === "none") hit = "artifact"; } catch(e){}
+  where = hit;
+  noteStorage();
+}
+function noteStorage(){
+  const n = document.getElementById("storage-note");
+  n.textContent = where === "browser" ? "Saved in this browser"
+    : where === "artifact" ? "Saved to this artifact. Download the file to keep progress in your own browser."
+    : "Storage unavailable here. Use the share link to carry your progress.";
+}
+
+function encode(){
+  let s = "";
+  for (let g = 0; g < 5; g++){
+    let v = 0;
+    for (let i = 0; i < 10; i++) if (done.has(g * 10 + i + 1)) v |= 1 << i;
+    s += v.toString(36).padStart(2, "0");
+  }
+  return s;
+}
+function decode(s){
+  if (!/^[0-9a-z]{10}$/.test(s)) return null;
+  const out = new Set();
+  for (let g = 0; g < 5; g++){
+    const v = parseInt(s.substr(g * 2, 2), 36);
+    if (isNaN(v)) return null;
+    for (let i = 0; i < 10; i++) if (v & (1 << i)) out.add(g * 10 + i + 1);
+  }
+  return out;
+}
+
+function save(){ writeStore(JSON.stringify([...done])); }
+
 async function load(){
-  try {
-    const r = await window.storage.get("hyd-quests-done");
-    if (r && r.value) JSON.parse(r.value).forEach(n => done.add(n));
-  } catch(e){}
+  const stored = await readStore();
+  const mine = stored ? new Set(JSON.parse(stored)) : new Set();
+  const shared = decode(location.hash.replace(/^#/, ""));
+  if (shared){
+    shared.forEach(n => done.add(n));
+    if (mine.size){
+      window._mine = mine;
+      document.getElementById("notice-text").textContent =
+        "Showing a shared board with " + shared.size + " struck off. Your own board had " + mine.size + ".";
+      document.getElementById("notice").hidden = false;
+    }
+  } else {
+    mine.forEach(n => done.add(n));
+  }
+  noteStorage();
   render();
 }
 
@@ -321,8 +394,50 @@ document.getElementById("roll-dice").onclick = () => {
   if (row) row.scrollIntoView({behavior:"smooth", block:"center"});
 };
 
+function clearHash(){
+  try { history.replaceState(null, "", location.pathname + location.search); } catch(e){}
+}
+
+const shareBox = document.getElementById("sharebox");
+const shareUrl = document.getElementById("shareurl");
+
+function buildLink(){ return location.href.split("#")[0] + "#" + encode(); }
+
+document.getElementById("share").onclick = async () => {
+  const url = buildLink();
+  const text = "Hyderabad side quests: " + done.size + " of 50 struck off.";
+  try {
+    if (navigator.share){ await navigator.share({title:"Fifty side quests", text, url}); return; }
+  } catch(e){ if (e && e.name === "AbortError") return; }
+  try {
+    await navigator.clipboard.writeText(text + " " + url);
+    diceOut.textContent = "Link copied.";
+    return;
+  } catch(e){}
+  shareUrl.value = url;
+  shareBox.hidden = false;
+  shareUrl.select();
+};
+
+document.getElementById("copyurl").onclick = () => {
+  shareUrl.select();
+  let ok = false;
+  try { ok = document.execCommand("copy"); } catch(e){}
+  diceOut.textContent = ok ? "Link copied." : "Select the link above and copy it.";
+};
+
+document.getElementById("keep-mine").onclick = () => {
+  done.clear();
+  (window._mine || new Set()).forEach(n => done.add(n));
+  document.getElementById("notice").hidden = true;
+  clearHash(); save(); render();
+};
+
 document.getElementById("reset").onclick = () => {
-  done.clear(); save(); diceOut.textContent = ""; render();
+  done.clear();
+  document.getElementById("notice").hidden = true;
+  shareBox.hidden = true;
+  clearHash(); save(); diceOut.textContent = ""; render();
 };
 
 load();
