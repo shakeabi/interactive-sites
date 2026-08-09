@@ -1,0 +1,329 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fifty side quests — Hyderabad</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300..700&family=Karla:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ground:#E4E3DC;
+  --ground-2:#EDECE6;
+  --ink:#20231D;
+  --ink-2:#585C51;
+  --ink-3:#8A8D82;
+  --rule:#C6C5BB;
+  --rule-soft:#D5D4CB;
+  --jade:#1F7A63;
+  --jade-soft:#D3E3DC;
+  --gilt:#9A7420;
+  --gilt-soft:#E6DCC2;
+  --focus:#1F7A63;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --ground:#191B17;
+    --ground-2:#212420;
+    --ink:#E6E5DD;
+    --ink-2:#A6A99D;
+    --ink-3:#75786D;
+    --rule:#35382F;
+    --rule-soft:#2B2E27;
+    --jade:#5CBFA1;
+    --jade-soft:#1E3B33;
+    --gilt:#D3AC5A;
+    --gilt-soft:#3A311C;
+    --focus:#5CBFA1;
+  }
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0;background:var(--ground);color:var(--ink);
+  font-family:'Karla',system-ui,sans-serif;font-size:16px;line-height:1.6;font-weight:400;
+  padding:0 clamp(18px,5vw,48px) 96px;
+}
+.wrap{max-width:940px;margin:0 auto}
+:focus-visible{outline:2px solid var(--focus);outline-offset:3px;border-radius:2px}
+
+.masthead{padding:clamp(48px,9vw,88px) 0 0}
+.eyebrow{font-family:'DM Mono',ui-monospace,monospace;font-size:12px;letter-spacing:.16em;
+  text-transform:uppercase;color:var(--ink-3);margin:0 0 18px}
+h1{font-family:'Fraunces',Georgia,serif;font-variation-settings:'SOFT' 0,'WONK' 1,'opsz' 120;
+  font-weight:400;font-size:clamp(42px,9vw,80px);line-height:.98;letter-spacing:-.02em;margin:0}
+h1 em{font-style:italic;font-variation-settings:'SOFT' 40,'WONK' 1,'opsz' 120;color:var(--jade)}
+.standfirst{max-width:52ch;color:var(--ink-2);font-size:17px;margin:22px 0 0}
+
+.tablet{margin:40px 0 0;padding:20px 0 0;border-top:1px solid var(--rule)}
+.tablet-head{display:flex;justify-content:space-between;align-items:baseline;gap:16px;flex-wrap:wrap;margin-bottom:14px}
+.tally{font-family:'Fraunces',Georgia,serif;font-variation-settings:'WONK' 1,'opsz' 60;
+  font-size:15px;font-weight:400;color:var(--ink-2)}
+.tally b{font-weight:500;font-size:26px;color:var(--ink);letter-spacing:-.01em}
+.legend{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3)}
+.legend i{display:inline-block;width:9px;height:9px;margin:0 5px 0 12px;vertical-align:0;background:var(--jade)}
+.legend i.g{background:transparent;border:1px solid var(--gilt)}
+.cells{display:grid;grid-template-columns:repeat(25,1fr);gap:4px}
+.cell{appearance:none;padding:0;border:1px solid var(--rule);background:transparent;
+  aspect-ratio:1;border-radius:2px;cursor:pointer;transition:background .18s ease,border-color .18s ease}
+.cell:hover{border-color:var(--ink-3)}
+.cell.stretch{border-color:var(--gilt)}
+.cell.on{background:var(--jade);border-color:var(--jade)}
+
+.controls{margin:44px 0 0;padding:18px 0;border-top:1px solid var(--rule);border-bottom:1px solid var(--rule);
+  display:flex;flex-wrap:wrap;gap:10px 6px;align-items:center}
+.f{appearance:none;background:transparent;border:1px solid transparent;color:var(--ink-2);
+  font-family:'Karla',sans-serif;font-size:14px;padding:5px 11px;border-radius:2px;cursor:pointer;transition:.15s ease}
+.f:hover{color:var(--ink);border-color:var(--rule)}
+.f[aria-pressed="true"]{background:var(--ink);color:var(--ground);border-color:var(--ink)}
+.spacer{flex:1;min-width:12px}
+.link{appearance:none;background:none;border:0;padding:5px 2px;cursor:pointer;color:var(--jade);
+  font-family:'DM Mono',monospace;font-size:12px;letter-spacing:.08em;text-transform:uppercase}
+.link:hover{text-decoration:underline;text-underline-offset:4px}
+
+.roll{list-style:none;margin:0;padding:0}
+.quest{display:grid;grid-template-columns:44px 1fr 30px;gap:0 16px;align-items:start;
+  padding:22px 0;border-bottom:1px solid var(--rule-soft);cursor:pointer;transition:opacity .2s ease}
+.quest:hover .title{color:var(--jade)}
+.quest.done{opacity:.42}
+.quest.done .title{text-decoration:line-through;text-decoration-thickness:1px}
+.num{font-family:'DM Mono',monospace;font-size:13px;color:var(--ink-3);padding-top:5px;font-variant-numeric:tabular-nums}
+.title{font-family:'Fraunces',Georgia,serif;font-variation-settings:'SOFT' 0,'WONK' 1,'opsz' 40;
+  font-weight:500;font-size:21px;line-height:1.25;letter-spacing:-.01em;margin:0 0 6px;transition:color .15s ease}
+.blurb{margin:0;color:var(--ink-2);font-size:15.5px;max-width:62ch}
+.meta{margin:11px 0 0;font-family:'DM Mono',monospace;font-size:11.5px;letter-spacing:.07em;
+  text-transform:uppercase;color:var(--ink-3);display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center}
+.meta .sep{color:var(--rule)}
+.badge{padding:3px 8px;border-radius:2px;letter-spacing:.07em}
+.badge.now{background:var(--jade-soft);color:var(--jade)}
+.badge.stretch{background:var(--gilt-soft);color:var(--gilt)}
+.mark{width:26px;height:26px;margin-top:4px;border:1px solid var(--rule);border-radius:2px;
+  display:flex;align-items:center;justify-content:center;transition:.18s ease}
+.quest:hover .mark{border-color:var(--ink-3)}
+.mark svg{width:15px;height:15px;stroke:var(--ground);stroke-width:2.4;fill:none;
+  stroke-linecap:round;stroke-linejoin:round;opacity:0}
+.quest.done .mark{background:var(--jade);border-color:var(--jade)}
+.quest.done .mark svg{opacity:1}
+
+.empty{padding:64px 0;text-align:center;color:var(--ink-3);font-size:16px}
+.colophon{margin:56px 0 0;padding-top:22px;border-top:1px solid var(--rule);
+  color:var(--ink-3);font-size:13.5px;max-width:60ch}
+
+@media (max-width:640px){
+  .cells{grid-template-columns:repeat(10,1fr);gap:5px}
+  .quest{grid-template-columns:30px 1fr 26px;gap:0 12px}
+  .title{font-size:19px}
+  .legend i{margin-left:8px}
+}
+@media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important}}
+</style>
+
+<div class="wrap">
+<header class="masthead">
+  <p class="eyebrow">Base camp: Hyderabad</p>
+  <h1>Fifty<br><em>side quests</em></h1>
+  <p class="standfirst">Small expeditions out of the flat and slightly out of your depth. Tap a line to strike it off. The board remembers.</p>
+</header>
+
+<section class="tablet" aria-label="Progress">
+  <div class="tablet-head">
+    <p class="tally"><b id="tally-n">0</b> of fifty struck off</p>
+    <p class="legend"><i></i>done<i class="g"></i>stretch</p>
+  </div>
+  <div class="cells" id="cells" role="group" aria-label="Jump to a quest"></div>
+</section>
+
+<nav class="controls" id="controls" aria-label="Filters">
+  <button class="f" data-cat="All" aria-pressed="true">Everything</button>
+  <button class="f" data-cat="Outdoors" aria-pressed="false">Outdoors</button>
+  <button class="f" data-cat="Heritage" aria-pressed="false">Heritage</button>
+  <button class="f" data-cat="Food" aria-pressed="false">Food</button>
+  <button class="f" data-cat="Making" aria-pressed="false">Making</button>
+  <button class="f" data-cat="Stage" aria-pressed="false">Stage</button>
+  <button class="f" data-cat="Body" aria-pressed="false">Body</button>
+  <button class="f" data-cat="People" aria-pressed="false">People</button>
+  <button class="f" data-cat="Day trip" aria-pressed="false">Day trips</button>
+  <button class="f" data-cat="Home" aria-pressed="false">At home</button>
+  <span class="spacer"></span>
+  <button class="f" id="f-season" aria-pressed="false">In season now</button>
+  <button class="f" id="f-stretch" aria-pressed="false">Stretch only</button>
+  <button class="f" id="f-hide" aria-pressed="false">Hide done</button>
+</nav>
+
+<div style="display:flex;gap:20px;align-items:center;padding:14px 0 0">
+  <button class="link" id="roll-dice">Pick one for me</button>
+  <button class="link" id="reset" style="color:var(--ink-3)">Reset board</button>
+  <span id="dice-out" style="font-size:14px;color:var(--ink-2)"></span>
+</div>
+
+<ul class="roll" id="roll"></ul>
+<p class="empty" id="empty" hidden>Nothing matches that combination. Loosen a filter.</p>
+
+<p class="colophon">Season tags follow the Deccan calendar rather than the Gregorian one: monsoon runs roughly June to October and is the only time the waterfalls and the hill trails are worth the drive, while the cool months from October to February are when granite is climbable before nine in the morning. Workshop, open-mic and theatre calendars change weekly, so check the venue before you set out.</p>
+</div>
+
+<script>
+const M = new Date().getMonth() + 1;
+const SEASONS = {
+  year:  {label:"all year",     months:[1,2,3,4,5,6,7,8,9,10,11,12]},
+  wet:   {label:"jun-oct",      months:[6,7,8,9,10]},
+  cool:  {label:"oct-feb",      months:[10,11,12,1,2]},
+  wetcool:{label:"jul-feb",     months:[7,8,9,10,11,12,1,2]},
+  clear: {label:"nov-feb",      months:[11,12,1,2]},
+  sow:   {label:"jun-sep",      months:[6,7,8,9]},
+  aug:   {label:"29-30 aug",    months:[8]}
+};
+const D = [
+ [1,"Climb Moula Ali at sunrise","Roughly four hundred rock-cut steps to a seventeenth-century dargah on a granite dome. Empty and cool if you are moving by 5:45.","Outdoors","half day",0,"cool"],
+ [2,"Trek Bhongir Fort, then rappel off it","A single monolith fifty kilometres out. Walk up for the view, then let an adventure outfit lower you down the face.","Outdoors","day",1,"cool"],
+ [3,"Boulder on the Khajaguda rocks","Granite older than most life on earth, inside the city limits. Go with a climbing group so shoes, pads and a spotter come with it.","Outdoors","half day",1,"cool"],
+ [4,"Kayak on Durgam Cheruvu","Paddle under the cable-stayed bridge at golden hour. No experience needed and the water is flat.","Outdoors","2 hours",1,"year"],
+ [5,"Ride the Necklace Road loop at dawn","Tank Bund to Sanjeevaiah Park and back before the traffic wakes. The best fifteen kilometres in the city.","Outdoors","2 hours",0,"year"],
+ [6,"Join a night ride to Osman Sagar","City cycling groups run Gandipet loops after dark. Blinkers on, ride in the bunch, dosa at the far end.","Outdoors","half day",1,"year"],
+ [7,"Trek Ananthagiri Hills","Coffee-scented forest trails eighty kilometres west of Vikarabad. Damp and green from the first rains through October.","Outdoors","day",0,"wetcool"],
+ [8,"Chase a monsoon waterfall","Mallela Theertham in the Nallamala runs hard between July and September, and the stepped descent to reach it is half the point.","Outdoors","day",0,"wet"],
+ [9,"Camp out and find the Milky Way","Get sixty kilometres from the city and the light pollution drops away. Post-monsoon nights are the clearest of the year.","Outdoors","weekend",1,"clear"],
+ [10,"Enter Golconda the minute it opens","Beat the tour buses, clap once at the entrance dome, reach the Baradari before the stone starts throwing heat back at you.","Heritage","half day",0,"cool"],
+ [11,"Walk the old city end to end","Charminar, Laad Bazaar, Chowmahalla, Mecca Masjid, Badshahi Ashurkhana. On foot, not through a car window.","Heritage","half day",0,"cool"],
+ [12,"Find the Paigah Tombs","Tucked into Pisal Banda where almost nobody goes. The lime-stucco geometry is the finest work in the city.","Heritage","2 hours",0,"year"],
+ [13,"Sit with the Qutb Shahi Tombs","A restored necropolis of Deccan domes across a hundred acres. Go late afternoon and simply walk between them.","Heritage","half day",0,"cool"],
+ [14,"One gallery at Salar Jung, one hour","Do not attempt the whole museum. Choose the jade room or the armoury and actually look at things.","Heritage","2 hours",0,"year"],
+ [15,"Take high tea at Falaknuma","Arrive by horse carriage, sit on the terrace above the old city. Book well ahead, it is not a walk-in.","Heritage","half day",0,"year"],
+ [16,"Run an Irani chai crawl","Three cafes in one morning. Compare the chai, the Osmania biscuit and the marble tables at each.","Food","2 hours",0,"year"],
+ [17,"Cook dum biryani from scratch","Kachi style, your own marinade, dough-sealed lid, no peeking. Half a day and mildly terrifying, which is the point.","Food","day",1,"year"],
+ [18,"Hunt down a real Telangana thali","Ulavacharu, jonna roti, gongura, natu kodi pulusu. A completely different kitchen from the one tourists eat in.","Food","2 hours",0,"year"],
+ [19,"Cook only what the Rythu Bazar has","Walk into the farmers market with no list. Buy what is in season and build dinner backwards from that.","Food","half day",0,"year"],
+ [20,"Make qubani ka meetha","Dried apricots soaked overnight, stones cracked for the kernels, no cream shortcuts. The dessert that closes every wedding here.","Food","2 hours",0,"year"],
+ [21,"Sit through a coffee cupping","A local roastery will put Araku and Chikmagalur side by side and teach you to tell them apart.","Food","2 hours",0,"year"],
+ [22,"Throw a pot on a wheel","The first collapses, the second is lopsided, the third is yours. Studios run beginner sessions most weekends.","Making","half day",1,"year"],
+ [23,"Take whatever workshop Lamakaan has on","Resin, block printing, bookbinding, poetry. Read the calendar and book the one you understand least.","Making","half day",1,"year"],
+ [24,"Photowalk the old city at six","Go while the shutters are still going up. One lens, fifty frames, no burst mode.","Making","half day",0,"cool"],
+ [25,"Sketch a monument badly, on site","Sit at Golconda or the Qutb Shahi tombs with a pen and no eraser. Urban sketcher meetups happen here monthly.","Making","2 hours",1,"cool"],
+ [26,"Learn the first strokes of Nastaliq","Reed pen, ink, the alif. The old city still has calligraphers who take students.","Making","ongoing",1,"year"],
+ [27,"Buy straight from an artisan","At Shilparamam, walk past the stalls until you find someone actually weaving or chiselling. Ask how long the piece took.","Making","half day",0,"year"],
+ [28,"Perform once at an open mic","Poetry, five minutes of standup, one song. Lamakaan and the comedy rooms run these weekly and the bar is low by design.","Stage","2 hours",1,"year"],
+ [29,"Watch a play in a language you barely speak","Telugu or Urdu theatre at Lamakaan or Rangbhoomi. You will follow far more than you expect to.","Stage","2 hours",1,"year"],
+ [30,"Take a front row seat at Ravindra Bharathi","Carnatic, Kuchipudi or Hindustani. Tickets are cheap and the hall is the cultural spine of the city.","Stage","2 hours",0,"year"],
+ [31,"Do an improv workshop","Two hours of saying yes to strangers. The most efficient comfort-zone demolition on this board.","Stage","half day",1,"year"],
+ [32,"Give one instrument four weeks","Tabla, guitar, keys. Not mastery. Just enough to play one thing badly in front of another human.","Stage","ongoing",1,"year"],
+ [33,"Volunteer at the Hyderabad Marathon","The twenty-ninth and thirtieth of August. Registration has closed but water stations and route marshals still need bodies.","Body","day",0,"aug"],
+ [34,"Turn up to a Hyderabad Runners weekend run","India's largest running club runs several group runs a week, free, every pace. No membership required to start.","Body","2 hours",0,"year"],
+ [35,"Shoot arrows at Gachibowli","The sports complex runs archery and a shooting range open to the public with an instructor on hand.","Body","2 hours",1,"year"],
+ [36,"Try aerial silks or pole","Trial classes run across Jubilee Hills and Kondapur. Your forearms will file a complaint for three days.","Body","2 hours",1,"year"],
+ [37,"Play a pickup game of ultimate","The city's ultimate community is small, self-refereed and unusually good at absorbing beginners.","Body","2 hours",1,"year"],
+ [38,"Sit in on a Toastmasters meeting","Visit as a guest first, for free. Then take a Table Topic, which is two minutes of speaking with no preparation.","People","2 hours",1,"year"],
+ [39,"Take a board game cafe table alone","Turn up solo on an open-table night and let someone teach you a game with forty pages of rules.","People","2 hours",1,"year"],
+ [40,"Give Blue Cross a Saturday morning","Walk dogs, clean kennels, help with adoption paperwork. The shelter takes weekend hands without much notice.","People","half day",0,"year"],
+ [41,"Join a lake clean-up","Citizen groups run drives at Ameenpur, Durgam Cheruvu and Kapra. Gloves supplied, seven in the morning, no speeches.","People","half day",0,"year"],
+ [42,"Crash a meetup at T-Hub","Startup, hardware, AI, product. Deliberately pick the one where you are the least qualified person in the room.","People","2 hours",1,"year"],
+ [43,"Watch ikat being woven at Pochampally","Fifty kilometres east. Warp threads tie-dyed before weaving, on pit looms, one saree taking weeks. Buy at the source.","Day trip","day",0,"year"],
+ [44,"Warangal fort and Ramappa temple","Kakatiya ruins scattered across a field, plus a world heritage temple built on bricks that float. A long day, worth all of it.","Day trip","day",0,"cool"],
+ [45,"Bidar fort and a bidri workshop","A hundred and thirty kilometres into Karnataka. Blackened alloy with silver inlay, made in front of you, plus an underground water system.","Day trip","day",0,"cool"],
+ [46,"Nagarjuna Sagar and Ethipothala","The dam, an island museum of excavated Buddhist ruins, and a three-stream waterfall on the road home.","Day trip","day",0,"wetcool"],
+ [47,"Grow a balcony garden from seed","Curry leaf, mint, chilli, tulsi. Sow with the first rains, the climate does most of the work. Kill a few, learn, sow again.","Home","ongoing",0,"sow"],
+ [48,"Fix something instead of replacing it","Open the thing up. Watch a teardown video. Worst case it was already broken.","Home","half day",1,"year"],
+ [49,"Fill a sketchbook in thirty days","One page a day, ten minutes, no skipped days and no tearing pages out. Ugly is permitted and expected.","Home","ongoing",1,"year"],
+ [50,"Learn twenty Telugu phrases and use them","Not an app streak. Actual phrases, said out loud to your auto driver, your vegetable vendor and your neighbour.","Home","ongoing",1,"year"]
+];
+
+const done = new Set();
+let cat = "All", onlySeason = false, onlyStretch = false, hideDone = false;
+const rollEl = document.getElementById("roll");
+const cellsEl = document.getElementById("cells");
+const emptyEl = document.getElementById("empty");
+const diceOut = document.getElementById("dice-out");
+const inSeason = q => SEASONS[q[6]].months.includes(M);
+
+D.forEach(q => {
+  const b = document.createElement("button");
+  b.className = "cell" + (q[5] ? " stretch" : "");
+  b.dataset.id = q[0];
+  b.type = "button";
+  b.setAttribute("aria-label", q[0] + ". " + q[1]);
+  b.title = q[0] + ". " + q[1];
+  b.onclick = () => {
+    const row = document.getElementById("q" + q[0]);
+    if (row) { row.scrollIntoView({behavior:"smooth", block:"center"}); }
+    else { diceOut.textContent = "Hidden by a filter: " + q[1]; }
+  };
+  cellsEl.appendChild(b);
+});
+
+async function save(){
+  try { await window.storage.set("hyd-quests-done", JSON.stringify([...done])); } catch(e){}
+}
+async function load(){
+  try {
+    const r = await window.storage.get("hyd-quests-done");
+    if (r && r.value) JSON.parse(r.value).forEach(n => done.add(n));
+  } catch(e){}
+  render();
+}
+
+function toggle(id){
+  done.has(id) ? done.delete(id) : done.add(id);
+  save(); render();
+}
+
+function render(){
+  const list = D.filter(q =>
+    (cat === "All" || q[3] === cat) &&
+    (!onlyStretch || q[5]) &&
+    (!onlySeason || inSeason(q)) &&
+    (!hideDone || !done.has(q[0]))
+  );
+  rollEl.innerHTML = "";
+  list.forEach(q => {
+    const isDone = done.has(q[0]);
+    const li = document.createElement("li");
+    li.className = "quest" + (isDone ? " done" : "");
+    li.id = "q" + q[0];
+    li.tabIndex = 0;
+    li.setAttribute("role", "button");
+    li.setAttribute("aria-pressed", isDone);
+    li.innerHTML =
+      '<span class="num">' + String(q[0]).padStart(2,"0") + '</span>' +
+      '<div><h2 class="title">' + q[1] + '</h2>' +
+      '<p class="blurb">' + q[2] + '</p>' +
+      '<p class="meta"><span>' + q[3] + '</span><span class="sep">/</span><span>' + q[4] + '</span>' +
+      '<span class="sep">/</span><span>' + SEASONS[q[6]].label + '</span>' +
+      (inSeason(q) && q[6] !== "year" ? '<span class="badge now">in season</span>' : '') +
+      (q[5] ? '<span class="badge stretch">stretch</span>' : '') +
+      '</p></div>' +
+      '<span class="mark"><svg viewBox="0 0 24 24"><path d="M4 12.5l5.5 5.5L20 7"/></svg></span>';
+    li.onclick = () => toggle(q[0]);
+    li.onkeydown = e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); toggle(q[0]); } };
+    rollEl.appendChild(li);
+  });
+  emptyEl.hidden = list.length > 0;
+  document.getElementById("tally-n").textContent = done.size;
+  [...cellsEl.children].forEach(c => c.classList.toggle("on", done.has(+c.dataset.id)));
+}
+
+document.getElementById("controls").addEventListener("click", e => {
+  const b = e.target.closest(".f"); if (!b) return;
+  if (b.dataset.cat){
+    cat = b.dataset.cat;
+    document.querySelectorAll(".f[data-cat]").forEach(x => x.setAttribute("aria-pressed", x === b));
+  } else {
+    const map = {"f-season":() => onlySeason = !onlySeason, "f-stretch":() => onlyStretch = !onlyStretch, "f-hide":() => hideDone = !hideDone};
+    map[b.id]();
+    b.setAttribute("aria-pressed", b.id === "f-season" ? onlySeason : b.id === "f-stretch" ? onlyStretch : hideDone);
+  }
+  render();
+});
+
+document.getElementById("roll-dice").onclick = () => {
+  const pool = D.filter(q => !done.has(q[0]) && inSeason(q));
+  const p = pool.length ? pool : D.filter(q => !done.has(q[0]));
+  if (!p.length){ diceOut.textContent = "All fifty struck off. Go write your own."; return; }
+  const q = p[Math.floor(Math.random() * p.length)];
+  diceOut.textContent = "Go and " + q[1][0].toLowerCase() + q[1].slice(1) + ".";
+  const row = document.getElementById("q" + q[0]);
+  if (row) row.scrollIntoView({behavior:"smooth", block:"center"});
+};
+
+document.getElementById("reset").onclick = () => {
+  done.clear(); save(); diceOut.textContent = ""; render();
+};
+
+load();
+</script>
