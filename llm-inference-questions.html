@@ -1,0 +1,982 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Escalation Ladder — LLM × OS interview kit</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#E8E9E3;
+  --card:#F6F6F2;
+  --ink:#16181C;
+  --soft:#5C6169;
+  --rule:#CDCFC5;
+  --violet:#4B2ED4;
+  --violet-w:#EBE7FB;
+  --teal:#0E6B60;
+  --teal-w:#E2EFEC;
+  --amber:#B26D06;
+  --sp:clamp(16px,3vw,28px);
+  --disp:'Bricolage Grotesque',ui-sans-serif,system-ui,sans-serif;
+  --body:'Source Serif 4',Georgia,serif;
+  --mono:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0;background:var(--paper);color:var(--ink);
+  font-family:var(--body);font-size:17px;line-height:1.62;
+  background-image:linear-gradient(var(--rule) 1px,transparent 1px),linear-gradient(90deg,var(--rule) 1px,transparent 1px);
+  background-size:56px 56px;background-position:-1px -1px;
+}
+body::before{content:"";position:fixed;inset:0;background:radial-gradient(ellipse at 50% 0%,transparent 20%,var(--paper) 78%);pointer-events:none;z-index:0}
+.wrap{position:relative;z-index:1;max-width:1180px;margin:0 auto;padding:0 var(--sp) 96px}
+
+/* ---------- type utilities ---------- */
+.eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--soft);font-weight:500}
+h1,h2,h3,h4{font-family:var(--disp);font-weight:800;letter-spacing:-.025em;line-height:1.02;margin:0}
+code,kbd{font-family:var(--mono);font-size:.86em;background:#DFE0D8;padding:.08em .34em;border-radius:3px;white-space:nowrap}
+.sol code{background:#E7E8E0}
+a{color:var(--violet)}
+
+/* ---------- hero ---------- */
+header.hero{padding:clamp(48px,9vw,104px) 0 40px;border-bottom:2px solid var(--ink)}
+.hero .eyebrow{display:flex;gap:14px;flex-wrap:wrap;align-items:center;margin-bottom:26px}
+.hero .eyebrow b{font-weight:700;color:var(--ink)}
+.hero h1{font-size:clamp(44px,10.5vw,116px);text-wrap:balance}
+.hero h1 .a{color:var(--violet)}
+.hero h1 .x{font-family:var(--mono);font-weight:400;font-size:.42em;vertical-align:.34em;color:var(--soft);padding:0 .1em}
+.hero h1 .b{color:var(--teal)}
+.thesis{font-size:clamp(18px,2.3vw,23px);max-width:60ch;margin:28px 0 0;color:#2B2F36}
+.thesis em{font-style:italic;color:var(--ink)}
+
+/* ---------- run notes ---------- */
+.runbook{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:1px;background:var(--rule);border:1px solid var(--rule);margin:40px 0 0}
+.runbook div{background:var(--card);padding:18px 20px}
+.runbook h4{font-size:14px;letter-spacing:0;margin-bottom:7px;font-weight:600}
+.runbook p{margin:0;font-size:14.5px;line-height:1.5;color:var(--soft)}
+
+/* ---------- tabs ---------- */
+nav.tabs{position:sticky;top:0;z-index:20;display:flex;gap:0;margin:0 calc(var(--sp) * -1);padding:0 var(--sp);
+  overflow-x:auto;background:var(--paper);border-bottom:1px solid var(--rule);scrollbar-width:thin}
+nav.tabs button{flex:0 0 auto;appearance:none;border:0;border-bottom:3px solid transparent;background:none;cursor:pointer;
+  padding:16px 18px 13px;text-align:left;color:var(--soft);font-family:var(--disp);font-size:15px;font-weight:600;letter-spacing:-.01em}
+nav.tabs button span{display:block;font-family:var(--mono);font-size:10px;letter-spacing:.14em;font-weight:500;margin-bottom:3px;opacity:.75}
+nav.tabs button:hover{color:var(--ink)}
+nav.tabs button[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--violet)}
+nav.tabs button:focus-visible{outline:2px solid var(--violet);outline-offset:-2px}
+
+/* ---------- problem head ---------- */
+.phead{padding:44px 0 30px}
+.phead h2{font-size:clamp(30px,5.4vw,52px);max-width:20ch}
+.phead .meta{display:flex;flex-wrap:wrap;gap:8px;margin:18px 0 22px}
+.tag{font-family:var(--mono);font-size:10.5px;letter-spacing:.11em;text-transform:uppercase;padding:5px 9px;border:1px solid var(--rule);background:var(--card);color:var(--soft)}
+.tag.v{border-color:#C9BEF5;background:var(--violet-w);color:var(--violet)}
+.tag.t{border-color:#B9D5CF;background:var(--teal-w);color:var(--teal)}
+.setup{background:var(--card);border:1px solid var(--rule);border-left:4px solid var(--ink);padding:20px 22px;max-width:78ch}
+.setup .eyebrow{margin-bottom:9px}
+.setup p{margin:0 0 10px}
+.setup p:last-child{margin-bottom:0}
+.setup ul{margin:8px 0 0;padding-left:20px}
+.setup li{margin-bottom:3px}
+
+/* ---------- layout ---------- */
+.stagegrid{display:grid;grid-template-columns:236px minmax(0,1fr);gap:clamp(24px,4vw,52px);align-items:start}
+@media(max-width:820px){.stagegrid{grid-template-columns:1fr;gap:22px}}
+
+/* ---------- spine ---------- */
+.spine{position:sticky;top:64px}
+@media(max-width:820px){.spine{position:static}}
+.spine>.eyebrow{margin-bottom:14px}
+.rung{display:grid;grid-template-columns:26px 1fr;gap:12px;width:100%;text-align:left;background:none;border:0;padding:0 0 20px;cursor:pointer;font-family:inherit;position:relative}
+.rung:last-child{padding-bottom:0}
+.rung::before{content:"";position:absolute;left:12px;top:19px;bottom:-3px;width:1px;background:var(--rule)}
+.rung:last-child::before{display:none}
+.dot{width:25px;height:25px;border-radius:50%;border:1px solid var(--rule);background:var(--card);display:grid;place-items:center;
+  font-family:var(--mono);font-size:11px;font-weight:700;color:var(--soft);z-index:1;transition:all .18s}
+.rung .lab{font-family:var(--disp);font-size:14px;font-weight:600;color:var(--soft);line-height:1.25;letter-spacing:-.01em;padding-top:3px}
+.rung .brk{display:block;font-family:var(--mono);font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:#8A9098;margin-top:4px;font-weight:500}
+.rung:hover .lab{color:var(--ink)}
+.rung.seen .dot{border-color:var(--soft);color:var(--ink)}
+.rung.on .dot{background:var(--violet);border-color:var(--violet);color:#fff}
+.rung.on .lab{color:var(--ink);font-weight:800}
+.rung:focus-visible{outline:2px solid var(--violet);outline-offset:3px}
+
+/* ---------- stage card ---------- */
+.stage{background:var(--card);border:1px solid var(--rule);padding:clamp(20px,3.4vw,38px);max-width:80ch}
+.stage.anim{animation:rise .3s cubic-bezier(.2,.7,.3,1)}
+@keyframes rise{from{opacity:0;transform:translateY(9px)}to{opacity:1;transform:none}}
+.stagenum{font-family:var(--mono);font-size:11px;letter-spacing:.16em;color:var(--soft);display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap}
+.stagenum .dif{color:var(--amber);font-weight:700}
+.stage h3{font-size:clamp(23px,3.6vw,33px);margin:12px 0 0;max-width:24ch}
+
+/* signature: isomorphism bar */
+.iso{display:flex;align-items:stretch;margin:24px 0 26px;border:1px solid var(--rule);font-family:var(--mono);font-size:12.5px;letter-spacing:.02em;flex-wrap:wrap}
+.iso div{flex:1 1 180px;padding:11px 14px;display:flex;align-items:center;gap:9px;min-width:0}
+.iso .l{background:var(--violet-w);color:var(--violet);border-right:1px solid var(--rule)}
+.iso .r{background:var(--teal-w);color:var(--teal)}
+.iso b{font-weight:700;overflow-wrap:anywhere}
+.iso .k{font-size:9.5px;letter-spacing:.14em;opacity:.62;flex:0 0 auto}
+.iso .eq{flex:0 0 auto;display:grid;place-items:center;padding:0 13px;background:var(--card);font-size:15px;color:var(--soft);border-right:1px solid var(--rule)}
+@media(max-width:520px){.iso .eq{display:none}.iso .l{border-right:0;border-bottom:1px solid var(--rule)}}
+
+.ask p{margin:0 0 14px}
+.ask p:last-child{margin-bottom:0}
+.ask ol,.ask ul{margin:0 0 14px;padding-left:22px}
+.ask li{margin-bottom:6px}
+.ask strong{font-weight:600}
+.data{font-family:var(--mono);font-size:13px;line-height:1.75;background:#E4E5DD;border-left:3px solid var(--soft);padding:13px 16px;margin:0 0 16px;overflow-x:auto;white-space:pre}
+
+/* reveal */
+.reveal{appearance:none;margin-top:26px;background:var(--ink);color:var(--paper);border:0;padding:12px 20px;cursor:pointer;
+  font-family:var(--mono);font-size:11.5px;letter-spacing:.15em;text-transform:uppercase;font-weight:500}
+.reveal:hover{background:var(--violet)}
+.reveal:focus-visible{outline:2px solid var(--violet);outline-offset:2px}
+.sol{margin-top:26px;border-top:2px solid var(--ink);padding-top:24px}
+.sol[hidden]{display:none}
+.sol h4{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;font-weight:500;color:var(--soft);margin-bottom:12px}
+.sol p{margin:0 0 14px}
+.sol ul,.sol ol{margin:0 0 14px;padding-left:22px}
+.sol li{margin-bottom:7px}
+.sol .key{background:linear-gradient(transparent 62%,#D9D2F7 62%);font-weight:600}
+.sol .num{font-family:var(--mono);font-size:.9em;font-weight:500;white-space:nowrap}
+
+.signals{margin-top:26px;border-top:1px solid var(--rule);padding-top:20px}
+.sig{display:grid;grid-template-columns:112px 1fr;gap:16px;padding:10px 0;border-bottom:1px dotted var(--rule);font-size:15.5px;line-height:1.5}
+.sig:last-child{border-bottom:0}
+.sig b{font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;font-weight:700;padding-top:4px}
+.sig.s1 b{color:var(--soft)}.sig.s2 b{color:var(--teal)}.sig.s3 b{color:var(--amber)}
+@media(max-width:520px){.sig{grid-template-columns:1fr;gap:3px}}
+.pushit{margin-top:22px;font-size:15.5px;background:var(--violet-w);border:1px solid #D3CAF7;padding:14px 16px}
+.pushit b{font-family:var(--mono);font-size:10px;letter-spacing:.13em;text-transform:uppercase;display:block;margin-bottom:5px;color:var(--violet)}
+
+.nav{display:flex;justify-content:space-between;gap:12px;margin-top:22px;max-width:80ch}
+.nav button{appearance:none;background:none;border:1px solid var(--rule);padding:11px 17px;cursor:pointer;
+  font-family:var(--mono);font-size:11px;letter-spacing:.13em;text-transform:uppercase;color:var(--ink)}
+.nav button:hover:not(:disabled){border-color:var(--ink);background:var(--card)}
+.nav button:disabled{opacity:.32;cursor:default}
+.nav button:focus-visible{outline:2px solid var(--violet);outline-offset:2px}
+
+.tools{display:flex;gap:10px;align-items:center;flex-wrap:wrap;padding:26px 0 0;margin-top:36px;border-top:1px solid var(--rule)}
+.tools button{appearance:none;background:none;border:1px solid var(--rule);padding:9px 14px;cursor:pointer;font-family:var(--mono);font-size:10.5px;letter-spacing:.13em;text-transform:uppercase;color:var(--soft)}
+.tools button:hover{color:var(--ink);border-color:var(--ink)}
+footer{margin-top:20px;font-size:14px;color:var(--soft);max-width:70ch}
+
+@media print{
+  body{background:#fff;font-size:11pt}
+  nav.tabs,.tools,.nav,.reveal,.spine{display:none}
+  .stagegrid{display:block}
+  .sol{display:block!important}
+  .stage{break-inside:avoid;border:0;border-top:1px solid #999;padding:12pt 0}
+}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="hero">
+  <div class="eyebrow"><b>Escalation ladder</b><span>·</span><span>Internship interview kit</span><span>·</span><span>6 problems / 30 stages</span></div>
+  <h1><span class="a">LLM inference</span><span class="x">is</span><span class="b">an operating system</span></h1>
+  <p class="thesis">Every hard problem in serving a language model is a problem someone already solved for a 1970s time-sharing kernel — and then someone re-derived it, badly, in Python. These problems start from a real serving scenario and escalate until the candidate is standing in front of <em>paging, preemption, deadlock, cache coherence, speculative execution, and barrier synchronisation</em> without anyone having said those words out loud.</p>
+
+  <div class="runbook">
+    <div><h4>How to run it</h4><p>Read the setup aloud, then hand over one stage at a time. Never show the next stage early — the escalation <em>is</em> the signal.</p></div>
+    <div><h4>Timebox</h4><p>One problem per 45-minute slot. Most candidates reach stage 3. Stage 5+ is where you separate the top few percent.</p></div>
+    <div><h4>Scoring</h4><p>Every stage lists three tiers of answer. Grade the reasoning path, not the landing spot — a wrong answer with the right invariant beats a memorised one.</p></div>
+    <div><h4>If they stall</h4><p>Use the nudge at the bottom of each solution. Giving a hint costs nothing; watching someone flail costs you the signal.</p></div>
+  </div>
+</header>
+
+<nav class="tabs" id="tabs" role="tablist" aria-label="Problems"></nav>
+<div id="app"></div>
+
+<div class="tools">
+  <button id="expandAll" type="button">Show every solution</button>
+  <button id="collapseAll" type="button">Hide every solution</button>
+  <button id="printIt" type="button">Print / save as PDF</button>
+</div>
+<footer>Numbers assume an A100-80GB (≈312 TFLOP/s bf16 dense, ≈2.0 TB/s HBM) unless stated. They're there so candidates have to <em>compute</em> rather than gesture; swap in your own hardware and the shape of every answer holds.</footer>
+
+</div>
+
+<script>
+/* eslint-disable */
+const P = [];
+
+P.push({
+  code:"P1", tab:"KV cache", title:"The 80 GB problem",
+  tags:[["v","Serving / KV cache"],["t","Virtual memory"],["","Warm-up → very hard"]],
+  setup:`<p>You are serving <b>Llama-3-8B</b> in bf16 on a single A100-80GB behind an HTTP endpoint.</p>
+  <ul>
+    <li>32 layers, 32 query heads, <b>8 key/value heads</b> (GQA), head dim 128</li>
+    <li>Weights: 16 GB. Max context: 4096 tokens.</li>
+    <li>Production traffic: median prompt 350 tokens, median output 120 tokens, p99 output 2000 tokens</li>
+  </ul>
+  <p>Your first implementation allocates, for every accepted request, one contiguous buffer big enough for the full 4096-token context.</p>`,
+  stages:[
+  {
+    t:"Size the cache",
+    brk:"Internal fragmentation",
+    dif:"Warm-up",
+    iso:["Per-request KV buffer","Fixed-size per-process stack"],
+    ask:`<p>Before any code: <b>how much memory does one token of KV cache cost</b>, how many concurrent requests fit on this GPU, and what fraction of that memory does a median request actually use?</p>
+    <p>Do it on the whiteboard. I want the arithmetic.</p>`,
+    sol:`<p><b>Bytes per token</b> = 2 (K and V) × 32 layers × 8 KV heads × 128 dim × 2 bytes = <span class="num">131,072 B = 128 KiB per token</span>. Note this is the <em>only</em> number in the problem that matters, and it depends on KV heads, not query heads — GQA already bought a 4× saving here.</p>
+    <p><b>Per request</b> at max context: 4096 × 128 KiB = <span class="num">512 MiB</span>.</p>
+    <p><b>Budget:</b> 80 GB − 16 GB weights − ~4 GB (CUDA context, activations, allocator slack) ≈ <span class="num">60 GB</span> → <span class="num">~120 concurrent requests</span>.</p>
+    <p><b>Utilisation:</b> a median request occupies 350 + 120 = 470 tokens ≈ 59 MiB of its 512 MiB reservation. <span class="key">You are wasting ~88% of the most expensive memory in the building to internal fragmentation.</span></p>
+    <p>The shape of this should be familiar: it is what happens when an OS gives every process a fixed-size stack sized for the worst case.</p>`,
+    sig:[
+      ["Solid","Gets 128 KiB/token and the 512 MiB reservation, names the waste as fragmentation."],
+      ["Strong","Spots that KV heads ≠ query heads and quantifies GQA's 4× win; notes fp8 KV would halve it again."],
+      ["Exceptional","Observes the real conclusion: at these numbers the batch size is capped by <em>memory</em>, not compute, so every subsequent design decision is a memory-allocation decision. Some will also flag that the p99 output of 2000 tokens is what forces the pessimistic reservation."]
+    ],
+    push:"If they're stuck on the byte count, ask: for one token, at one layer, how many numbers do you have to keep so you never recompute attention over it?"
+  },
+  {
+    t:"Just allocate what you need",
+    brk:"External fragmentation",
+    dif:"Standard",
+    iso:["Grow-on-demand KV buffer","malloc / free of variable extents"],
+    ask:`<p>Obvious fix: don't reserve 4096 tokens. Allocate the prompt's length, then grow the buffer as the sequence generates.</p>
+    <p><b>Give me every way this breaks in production.</b> There are at least three.</p>`,
+    sol:`<ul>
+      <li><b>You don't know the final length.</b> Generation stops at EOS, and nothing predicts when. So "allocate what you need" is undefined — you can only allocate what you need <em>so far</em>.</li>
+      <li><b>Growing costs a copy.</b> <code>realloc</code> semantics on the GPU means allocating a bigger buffer and copying up to hundreds of MB, on the critical path, between token steps. Amortised doubling reduces the copy count but reintroduces up to 2× over-reservation — you've reinvented stage 1 with a smaller constant.</li>
+      <li><b>Variable-size free holes → external fragmentation.</b> After an hour of mixed traffic you have 20 GB free and no 400 MiB contiguous run in it. Buddy or slab allocation reduces this; it does not eliminate it.</li>
+      <li><b>Two layers of it.</b> PyTorch's caching allocator is already doing exactly this underneath you, so you get fragmentation twice, and the <code>nvidia-smi</code> number stops corresponding to anything real.</li>
+    </ul>
+    <p><span class="key">The killer follow-up: why can't you just compact?</span> Because the attention kernel has raw device pointers into those buffers. Moving memory under a running kernel requires a level of indirection you don't have — which is precisely the argument for adding one.</p>`,
+    sig:[
+      ["Solid","Names the unknown-length problem and the copy cost."],
+      ["Strong","Distinguishes internal from external fragmentation correctly and unprompted."],
+      ["Exceptional","Reaches for compaction, realises it's impossible without indirection, and derives the need for a translation layer before you offer it."]
+    ],
+    push:"Ask: your allocator has 20 GB free and rejects a 400 MiB request. Is that a bug?"
+  },
+  {
+    t:"Add a translation layer",
+    brk:"Choosing a page size",
+    dif:"The pivot",
+    iso:["KV block + block table","Page frame + page table"],
+    ask:`<p>Design the fix properly. Then defend one parameter: <b>you now have a block size. Pick it, and tell me what you're trading.</b></p>`,
+    sol:`<p><b>The design (PagedAttention):</b> carve KV memory into fixed-size blocks of <em>B</em> tokens. Each sequence gets a <b>block table</b> mapping logical block index → physical block id. The attention kernel gathers K/V through that table instead of striding through contiguous memory.</p>
+    <p>The mapping is one-to-one with virtual memory: block = page frame, block table = page table, block allocator = frame allocator, and the kernel's gather is a software MMU walk. <span class="key">External fragmentation goes to zero</span> — every block is interchangeable, so a free block is always usable. Internal fragmentation is now bounded by <em>B</em>−1 tokens per sequence: at B=16 that's ≤ 1.9 MiB, versus 512 MiB.</p>
+    <p><b>The block-size trade — this is the real question:</b></p>
+    <ul>
+      <li><b>Small B:</b> less waste in the last partial block, finer-grained sharing and prefix reuse. But longer block tables, more gather indirection per attention step, and worse memory coalescing — the kernel reads shorter contiguous runs, so you lose HBM efficiency on the operation that is <em>already</em> bandwidth-bound.</li>
+      <li><b>Large B:</b> better coalescing and cheaper bookkeeping, more waste, and coarser reuse.</li>
+    </ul>
+    <p>This is the 4 KiB-vs-2 MiB huge-page argument, with the same resolution: pick empirically per model and kernel, around 16–32 tokens for typical shapes.</p>`,
+    sig:[
+      ["Solid","Arrives at fixed-size blocks with an indirection table when nudged."],
+      ["Strong","Bounds internal fragmentation at B−1 tokens and states the page-table analogy without help."],
+      ["Exceptional","Frames block size as a coalescing-versus-waste trade rather than a waste-only trade, i.e. remembers there's a kernel underneath. Bonus if they note the block table itself must live on the GPU and gets rebuilt every step."]
+    ],
+    push:"Give them the constraint, not the answer: 'suppose all your allocations had to be the same size. What breaks, and what gets better?'"
+  },
+  {
+    t:"Four samples, one prompt",
+    brk:"Sharing and refcounts",
+    dif:"Hard",
+    iso:["Shared prompt blocks","fork() + copy-on-write"],
+    ask:`<p>Requests arrive with <code>n=4</code> — four samples from the same 1,800-token prompt. Naively that's 4 × 1,800 tokens of identical KV.</p>
+    <p><b>Fix it. Then tell me exactly where it goes wrong.</b></p>`,
+    sol:`<p><b>The fix:</b> all four sequences' block tables point at the <em>same</em> physical blocks for the prompt. Each block carries a reference count. When a sequence writes into a shared block, copy it first, decrement the old refcount, point the block table at the copy: <span class="key">copy-on-write, and the analogy to <code>fork()</code> is exact.</span> Memory for the prompt goes 4× → 1×.</p>
+    <p><b>Where it goes wrong:</b></p>
+    <ul>
+      <li><b>The trailing block is always copied.</b> 1,800 tokens at B=16 is 112 full blocks plus 8 tokens. Those 8 tokens are in a block all four sequences will write to immediately, so it's copied 3 times on the very first step. Sharing only pays when the shared prefix is long relative to B.</li>
+      <li><b>Beam search churns.</b> Beams fork and die every step, so refcounts across the whole block table change every step. You want a prefix tree, not per-sequence tables, or the bookkeeping cost starts to rival the arithmetic.</li>
+      <li><b>Refcount races.</b> The scheduler thread frees blocks while the execution path copies them. Getting a decrement out of order gives you either a leak or — much worse — a live block handed to a second sequence. That's silent cross-request contamination, and it surfaces as a weird generation, never as a crash.</li>
+      <li><b>Cancellation mid-copy leaks.</b> Every abort path has to run the decrement. This is why you want ownership to be structural (RAII / a single owner object), not a decrement scattered across five call sites.</li>
+    </ul>`,
+    sig:[
+      ["Solid","Gets to sharing plus refcounting, names copy-on-write."],
+      ["Strong","Identifies the partial-trailing-block case; realises sharing granularity is bounded by B."],
+      ["Exceptional","Goes after the concurrency: who mutates refcounts, under what lock, and what the failure looks like. Candidates who say 'the bug would be silent, not a crash' have written this kind of code before."]
+    ],
+    push:"Ask what happens on the first generated token, given the prompt isn't a multiple of the block size."
+  },
+  {
+    t:"The pool hits zero",
+    brk:"Eviction policy / thrashing",
+    dif:"Hard",
+    iso:["Preempt a sequence","Page replacement + swapping"],
+    ask:`<p>60 sequences are decoding. All 60 need one more block this step. The free pool is empty.</p>
+    <p><b>What are your options, which do you pick, and — critically — whose blocks do you take?</b></p>`,
+    sol:`<p><b>Two mechanisms.</b> Both reclaim a victim sequence's blocks; they differ in how you get them back.</p>
+    <ul>
+      <li><b>Swap out</b> to pinned host memory over PCIe. A 1,000-token sequence is 128 MB; at ~25 GB/s effective that's <span class="num">~5 ms out, ~5 ms back</span>.</li>
+      <li><b>Drop and recompute</b> the prefill later. 1,000 tokens ≈ 2 × 8e9 × 1000 = <span class="num">1.6e13 FLOPs</span> → ~100 ms standalone at 50% MFU.</li>
+    </ul>
+    <p>Swapping looks 20× cheaper in isolation — <em>and that framing is the trap</em>. Recompute needs no host RAM, doesn't contend for PCIe (which your weight loading and any NVLink-less collective also want), batches naturally into the next prefill step, and can be almost free if the prefix cache still has the blocks. The honest answer is "measure it", but the candidate has to produce both numbers to earn that.</p>
+    <p><b>The policy question is the better one.</b> Evict the <span class="key">most recently admitted</span> sequence, not the least recently used. LRU here means evicting the sequence that has generated the most tokens — the one closest to finishing, holding the most reconstructable work. That's how you build a system where nothing ever completes: <b>thrashing</b>, with the classic signature of high utilisation and collapsing goodput.</p>
+    <p>Also: evict <em>all</em> of a victim's blocks. A sequence missing any block cannot run, so partial eviction pays the cost and buys nothing.</p>`,
+    sig:[
+      ["Solid","Proposes evicting someone and can argue swap versus recompute qualitatively."],
+      ["Strong","Produces both cost estimates; picks LIFO victim selection and explains why LRU inverts."],
+      ["Exceptional","Names thrashing, then jumps to prevention: admission control sized to a working set, so you never enter the regime. The very best note something an OS never has — you can <em>estimate remaining lifetime</em> from an output-length predictor, which makes near-shortest-remaining-time scheduling possible here and impossible in a kernel."]
+    ],
+    push:"'You evict the sequence that's 1,900 tokens into a 2,000-token generation. Walk me forward ten seconds.'"
+  },
+  {
+    t:"Nobody moves",
+    brk:"Deadlock",
+    dif:"Exceptional only",
+    iso:["Blocked on block allocation","Coffman conditions / Banker's algorithm"],
+    ask:`<p>Suppose product tells you preemption is unacceptable — a started request must never be interrupted. You keep everything else from stage 5.</p>
+    <p>60 sequences each hold their blocks. Each needs exactly one more to emit the next token. The free pool is empty.</p>
+    <p><b>What is this, formally? And can you design your way out of it rather than recovering from it?</b></p>`,
+    sol:`<p>It is a <b>deadlock</b>, and all four Coffman conditions hold: blocks are exclusively owned, every sequence holds while waiting, you've just forbidden preemption, and with a single resource type in multiple instances each sequence waits on capacity held by the others.</p>
+    <p><b>Now the good part.</b> Deadlock <em>avoidance</em> — Banker's algorithm — requires every process to declare its maximum claim in advance. What is a sequence's maximum block claim? It's however many tokens it generates before EOS, <span class="key">which is unknowable until it happens</span>. The only sound upper bound is <code>max_model_len</code>, and if you plug that in, the safety check degenerates into reserving 4096 tokens per sequence: you have gone all the way around the loop and landed on stage 1, at 12% utilisation.</p>
+    <p><b>So avoidance is structurally unavailable, and the answer is detection plus recovery — which means breaking "no preemption", which means going back to product.</b></p>
+    <p>The one real escape hatch: make the client declare the maximum claim. That's what <code>max_tokens</code> is, and now the candidate understands why several inference APIs require it and treat it as a reservation rather than a limit. Admit a request only if the worst case still fits, and you get a genuinely deadlock-free schedule — paid for in throughput, since almost every request finishes far short of its claim.</p>`,
+    sig:[
+      ["Solid","Recognises deadlock and walks the Coffman conditions."],
+      ["Strong","Reaches for Banker's algorithm and then notices the maximum claim is unknown."],
+      ["Exceptional","Closes the loop: shows that the only sound claim bound collapses into stage-1 preallocation, therefore avoidance is impossible in principle and <code>max_tokens</code> is the product-level workaround. This is the answer that tells you someone can reason about a system rather than recite one."]
+    ],
+    push:"'Your deadlock-avoidance check needs each request's maximum block count up front. Where do you get that number?'"
+  }
+]});
+P.push({
+  code:"P2", tab:"Scheduler",
+  title:"The batch that never finishes",
+  tags:[["v","Batching / throughput"],["t","CPU scheduling"],["","Standard → very hard"]],
+  setup:`<p>Same 8B model, same GPU, now with the paged allocator from P1 working correctly. You have a queue of incoming requests and a scheduler deciding what goes into each forward pass.</p>
+  <ul>
+    <li>Prefill (prompt processing) is <b>compute-bound</b>; decode (one token at a time) is <b>memory-bandwidth-bound</b></li>
+    <li>Your SLO: TTFT p95 under 1 s, inter-token latency p95 under 25 ms</li>
+    <li>Traffic is bimodal — short chat turns and long RAG requests with 8,000-token prompts</li>
+  </ul>
+  <p>v1 collects 32 requests, runs them as a fixed batch until every one has finished, then collects the next 32.</p>`,
+  stages:[
+  {
+    t:"One long request",
+    brk:"Head-of-line blocking",
+    dif:"Warm-up",
+    iso:["Static batching","Run-to-completion batch scheduling"],
+    ask:`<p>In one batch of 32, thirty-one requests generate 50 tokens and one generates 2,000.</p>
+    <p><b>Quantify what you lose.</b> Then name the effect.</p>`,
+    sol:`<p>The batch runs 2,000 steps because the slowest member does. Useful work is 31 × 50 + 2,000 = 3,550 token-slots out of 32 × 2,000 = 64,000 executed slots — <span class="key">5.5% slot utilisation</span>. For 1,950 of those steps the GPU pays batch-32 cost for batch-1 value.</p>
+    <p>Worse, arrivals during those steps wait for the whole batch to drain, so queueing delay is bounded by the slowest generation in the batch, not by anything about the arriving request. <b>Head-of-line blocking</b>, and the queueing behaviour is the <b>convoy effect</b> — short jobs stuck behind one long one.</p>
+    <p>Second-order: sequences must be padded to a common length, so attention burns compute on padding too.</p>`,
+    sig:[
+      ["Solid","Computes the utilisation and names head-of-line blocking."],
+      ["Strong","Notes that finished slots can't be reclaimed without changing the batch dimension mid-flight, which is why v1 was written this way."],
+      ["Exceptional","Points out that the p99 output length, not the mean, sets batch duration — so this scheme degrades as traffic gets more heterogeneous, not as it gets heavier."]
+    ],
+    push:"'The GPU is at 100% utilisation the whole time. Is that good?'"
+  },
+  {
+    t:"Reschedule every token",
+    brk:"Quantum selection",
+    dif:"Standard",
+    iso:["Continuous batching","Preemptive round-robin"],
+    ask:`<p>Fix it. Be precise about <b>when</b> the scheduler runs and what the cost of a "context switch" is here.</p>`,
+    sol:`<p><b>Continuous (iteration-level) batching:</b> after every forward pass, drop finished sequences from the batch and admit waiting ones. Slot utilisation goes to near 100% because a freed slot is reusable one step later.</p>
+    <p>This is preemptive multitasking with a quantum of <b>one decode step</b> (~10–20 ms). The reason it works is that the context switch is nearly free: a "process" here is a row in a batched tensor plus a block table, so switching is a change to an index list, not a register save or a TLB flush. <span class="key">Cheap preemption is what makes a small quantum affordable</span> — the same reason userspace green threads can time-slice more aggressively than kernel threads.</p>
+    <p>The quantum also bounds admission latency: a newly-arrived request waits at most one decode step to be considered.</p>`,
+    sig:[
+      ["Solid","Describes continuous batching correctly."],
+      ["Strong","Identifies the quantum and the near-zero switch cost as the enabling property."],
+      ["Exceptional","Connects quantum length to both admission latency and per-step scheduler overhead, and notes the CPU-side scheduling work is now on the critical path of every token."]
+    ],
+    push:"'What's the smallest unit of work after which you could change your mind about the batch?'"
+  },
+  {
+    t:"A long prompt lands",
+    brk:"Interactive/batch interference",
+    dif:"Hard",
+    iso:["Prefill vs decode","CPU-bound vs I/O-bound job mix"],
+    ask:`<p>32 sequences are happily decoding at 10 ms/step. A request with a <b>2,000-token prompt</b> arrives and your scheduler admits it.</p>
+    <p><b>What happens to the other 32 users' inter-token latency? Numbers, please.</b></p>`,
+    sol:`<p><b>Prefill cost:</b> 2 × 8e9 params × 2,000 tokens = <span class="num">3.2e13 FLOPs</span>. At ~50% MFU on 312 TFLOP/s → <span class="num">≈ 205 ms</span>.</p>
+    <p><b>Decode step cost:</b> dominated by reading 16 GB of weights at ~1.6 TB/s → <span class="num">≈ 10 ms</span>, doing only 2 × 8e9 × 32 = 5.1e11 FLOPs, i.e. <span class="num">~0.3% MFU</span>.</p>
+    <p>So one prefill stalls every decoding user for the equivalent of <span class="key">20 missed tokens; p95 inter-token latency goes from 10 ms to 205 ms and blows the SLO by 8×</span>.</p>
+    <p>The structure is a 1970s time-sharing problem: prefill is a long compute-bound burst, decode is a short latency-sensitive burst, and putting both in one FCFS queue means the batch job destroys the interactive one. The two metrics — TTFT and inter-token latency — are in direct tension, and no single-queue policy optimises both.</p>`,
+    sig:[
+      ["Solid","Gets that a prefill blocks decodes and estimates the magnitude."],
+      ["Strong","Computes both costs and correctly identifies decode as bandwidth-bound at fractional MFU."],
+      ["Exceptional","Names the analogy to mixing batch and interactive workloads, and observes the complementarity — decode wastes compute, prefill wastes bandwidth — which is the entire basis for the fix in the next stage."]
+    ],
+    push:"'How many decode steps could you have run in the time that prefill took?'"
+  },
+  {
+    t:"Slice the prefill",
+    brk:"TTFT/ITL trade",
+    dif:"Hard",
+    iso:["Chunked prefill","Time-slicing a long CPU burst"],
+    ask:`<p>Design a policy that keeps inter-token latency under 25 ms without simply refusing long prompts. <b>Then tell me what it costs</b>, because it does cost something.</p>`,
+    sol:`<p><b>Chunked prefill.</b> Split the 2,000-token prefill into chunks and attach one chunk to each decode step. A 128-token chunk is 2 × 8e9 × 128 = 2.0e12 FLOPs → <span class="num">≈ 13 ms</span>, so a fused step costs roughly 10 + 13 = <span class="num">23 ms</span>: inside SLO.</p>
+    <p><b>Why fusing is nearly free:</b> the decode step already paid to stream 16 GB of weights through the ALUs and used almost none of them. The prefill chunk rides along on weights that are already resident. <span class="key">You are overlapping a bandwidth-bound job with a compute-bound one on the same unit</span> — the same trick as scheduling an I/O-bound process alongside a CPU-bound one.</p>
+    <p><b>What it costs, and candidates must volunteer this:</b></p>
+    <ul>
+      <li>TTFT gets <em>worse</em>: 16 chunks × 23 ms ≈ 370 ms instead of 205 ms. You traded the long-prompt user's first-token latency for everyone else's smoothness.</li>
+      <li>Prefill efficiency drops: each chunk re-reads the weights, and each chunk must attend over all previously-cached tokens, so the KV reads are repeated rather than amortised.</li>
+      <li>Chunk size is now a tuning knob coupled to your batch size — a bigger decode batch leaves less headroom per step.</li>
+    </ul>
+    <p><b>The other answer: disaggregation.</b> Separate prefill and decode onto different machines and ship the KV cache between them. 2,000 tokens × 128 KiB = 256 MB; over 400 Gb/s RDMA that's ~5 ms. Zero interference, at the cost of a transfer, a harder bin-packing problem, and two fleets to size independently.</p>`,
+    sig:[
+      ["Solid","Proposes chunking and picks a plausible chunk size."],
+      ["Strong","Explains why fusion is cheap in bandwidth terms; states the TTFT regression explicitly."],
+      ["Exceptional","Raises prefill/decode disaggregation as the alternative and can argue when each wins — chunking for a small fleet with mixed traffic, disaggregation once you're big enough to run two pools and your prefill/decode ratio is stable."]
+    ],
+    push:"'Your decode step is running at 0.3% MFU. What else could you put in it?'"
+  },
+  {
+    t:"The RAG users revolt",
+    brk:"Starvation / priority inversion",
+    dif:"Hard",
+    iso:["Prefer short prompts","SJF starvation, aging, fair queueing"],
+    ask:`<p>Your scheduler prefers short prompts, because that's what protects median TTFT. Two hours after launch, requests with 8,000-token prompts have a p99 TTFT of 400 seconds.</p>
+    <p><b>Diagnose, then fix — and there's a subtler bug hiding behind the obvious one.</b></p>`,
+    sol:`<p><b>Diagnosis:</b> shortest-job-first minimises mean waiting time and starves long jobs, by construction. Under sustained load the long-prompt queue never drains because a shorter request is always available. Your dashboard looks great because the mean is dominated by the requests you're favouring.</p>
+    <p><b>Fixes, in increasing order of sophistication:</b></p>
+    <ul>
+      <li><b>Aging</b> — effective priority rises with queue time. Simple, and it bounds worst-case wait.</li>
+      <li><b>Reserved budget</b> — each iteration has a token budget; reserve a fraction for long prefills. A floor rather than a priority.</li>
+      <li><b>Weighted fair queueing on tokens, not requests.</b> The scheduling cost unit must be tokens (and attention is quadratic in prompt length), or a tenant sending 8k-token prompts gets 20× the service of one sending 400-token prompts while both look like "one request" to your fair-share accounting.</li>
+      <li><b>Deadline-driven (EDF)</b> if you have per-request SLOs, which you do.</li>
+    </ul>
+    <p><b>The subtler bug — priority inversion.</b> A high-priority request is admitted but can't get KV blocks, because the blocks are held by low-priority sequences that your scheduler is happy to keep running. Priority now controls <em>CPU-equivalent</em> scheduling but not <em>memory</em> allocation, so the low-priority job effectively blocks the high-priority one through a resource the priority system doesn't cover. Fix by making preemption priority-aware (evict low-priority holders) or by capping low-priority allocation — the same shape as priority inheritance on a mutex.</p>`,
+    sig:[
+      ["Solid","Names starvation and proposes aging."],
+      ["Strong","Insists the fair-share unit is tokens rather than requests, and can justify it with the quadratic attention cost."],
+      ["Exceptional","Finds the priority inversion unprompted — that memory is a second, unmanaged resource dimension your priority scheme silently ignores."]
+    ],
+    push:"'Your p50 TTFT is 200 ms and your p99 is 400 s. What single policy produces exactly that distribution?'"
+  },
+  {
+    t:"Ghost latency",
+    brk:"Non-GPU tail latency",
+    dif:"Exceptional only",
+    iso:["p99 inter-token spikes","Host-side jitter, GIL, Nagle"],
+    ask:`<p>You ship it. p50 inter-token latency is 12 ms. p99 is 900 ms. GPU step time is flat at 12 ms across the whole distribution — the spikes are not on the GPU.</p>
+    <p><b>Where do you look? Enumerate, don't guess.</b> I want at least five candidates and how you'd rule each in or out.</p>`,
+    sol:`<p>This stage is about whether the candidate believes the accelerator is the whole system. It is not. Strong answers enumerate:</p>
+    <ul>
+      <li><b>Tokenizer / detokenizer on the scheduler thread</b> — Python, holding the GIL, contending with the loop that launches kernels. Rule in: profile the host thread, not the device.</li>
+      <li><b>Nagle's algorithm + delayed ACK</b> on the streaming socket, producing the classic ~40 ms quantised stalls. Set <code>TCP_NODELAY</code>. If the histogram has spikes at suspiciously round multiples of 40 ms, this is it.</li>
+      <li><b>Scheduler overhead scaling with batch</b> — rebuilding block tables is O(batch × blocks) per step, in Python, every step.</li>
+      <li><b>CUDA graph invalidation</b> — a shape change forces a recapture, which is expensive and happens exactly when the batch composition changes.</li>
+      <li><b>A host-device sync point</b> — a stray <code>.item()</code> or <code>.cpu()</code> in the sampling path serialises the pipeline and converts async launches into blocking ones.</li>
+      <li><b>Garbage collection pauses</b>, especially with large object graphs per request.</li>
+      <li><b>Preemption events from P1</b>, which are rare by design and therefore live entirely in the tail.</li>
+      <li><b>Sampling cost</b> — top-p over a 128k vocabulary is a sort per sequence per step; it does not show up in "model forward" timing.</li>
+    </ul>
+    <p><span class="key">The method matters more than the list:</span> stop looking at percentiles and look at the distribution. If p99 is a separate mode rather than a tail, it's a discrete event — correlate its timestamps against preemption counters, GC logs, and batch-composition changes.</p>`,
+    sig:[
+      ["Solid","Names two or three host-side causes."],
+      ["Strong","Proposes a discrimination strategy per hypothesis rather than a list of suspects."],
+      ["Exceptional","Asks to see the full latency histogram first and reasons about bimodality versus a heavy tail — the single most useful instinct in performance debugging."]
+    ],
+    push:"'The GPU is innocent. What's left between the model and the user's screen?'"
+  }
+]});
+
+P.push({
+  code:"P3", tab:"Prefix cache",
+  title:"Cache hits you didn't ask for",
+  tags:[["v","Prefix caching"],["t","Page cache · coherence · side channels"],["","Standard → security"]],
+  setup:`<p>A multi-tenant chat product on the serving stack from P1 and P2.</p>
+  <ul>
+    <li>Every request starts with the tenant's <b>1,800-token system prompt</b>, then the conversation so far</li>
+    <li>Follow-up turns re-send the entire conversation, so turn <i>n</i> re-prefills everything from turns 1..<i>n</i>−1</li>
+    <li>Five tenants share the cluster; some are competitors of each other</li>
+  </ul>
+  <p>Profiling says prefill is 70% of your compute, and most of it is recomputing text you've already seen.</p>`,
+  stages:[
+  {
+    t:"Build the cache key",
+    brk:"Position dependence",
+    dif:"Standard",
+    iso:["Reusable KV block","Content-addressed page"],
+    ask:`<p>You want to reuse KV blocks across requests. <b>What exactly is the cache key for one block?</b></p>
+    <p>Be careful. The obvious answer is wrong, and I want you to tell me why.</p>`,
+    sol:`<p><b>Wrong answer:</b> hash the 16 token ids in the block. Identical tokens appearing after a different prefix have <em>different</em> K/V, because every entry is a function of the whole preceding context and of absolute position. Reusing on content alone silently serves the wrong numbers.</p>
+    <p><b>Right answer — hash chaining:</b> <code>h_i = H(h_{i-1} || tokens[iB:(i+1)B])</code>. A block's key encodes its entire prefix, so a hit means "this exact sequence of tokens, in this exact position", which is precisely the condition for the KV to be valid.</p>
+    <p><b>What else must be in the key</b> — this is where candidates separate:</p>
+    <ul>
+      <li>Model identity <em>and weight version</em> (a hot-swapped LoRA or a quantisation change invalidates everything)</li>
+      <li>Active LoRA adapter id</li>
+      <li>KV dtype and any RoPE scaling / context-extension config</li>
+      <li>For multimodal: a hash of the actual image bytes, not the placeholder token ids, which are identical for every image</li>
+    </ul>
+    <p>Only <em>full</em> blocks are cacheable; the trailing partial block is still being written. Payoff: 1,800 tokens → 112 full blocks reused, so prefill drops to the new turn's tokens only.</p>`,
+    sig:[
+      ["Solid","Gets to prefix-chained hashing after being told content-only fails."],
+      ["Strong","Explains position and context dependence as the reason, unprompted."],
+      ["Exceptional","Enumerates the non-token key components — especially the LoRA adapter and the multimodal byte hash. These are exactly the bugs that ship."]
+    ],
+    push:"'The string \\'the capital of\\' appears in two different conversations. Same KV?'"
+  },
+  {
+    t:"Sixty-four bits",
+    brk:"Collision → data leak",
+    dif:"Hard",
+    iso:["Hash collision on a block","Aliasing in a content-addressed store"],
+    ask:`<p>You use a 64-bit hash as the key. Over its lifetime the cluster stores about <b>10<sup>9</sup> distinct blocks</b>.</p>
+    <p><b>Is that safe? Show me.</b></p>`,
+    sol:`<p><b>No.</b> Birthday bound: p ≈ n²/2<sup>65</sup> = 1e18 / 3.69e19 ≈ <span class="num">2.7%</span>. Roughly a one-in-forty chance that somewhere in your cluster's history, two different prefixes shared a key.</p>
+    <p><b>Why that specific failure is unusually bad:</b> a collision serves one user's KV to another user's request. There is no crash, no error, no log line. It surfaces as a model that suddenly says something plausible and wrong — <span class="key">indistinguishable from a hallucination, and therefore permanently invisible in your metrics</span>. It is also a cross-tenant data leak.</p>
+    <p><b>Fixes:</b> 128-bit digest (p ≈ 1e-21), or store the token ids alongside the entry and memcmp on hit — a few microseconds against a prefill you were going to skip anyway. Do both; the comparison also protects against key-construction bugs.</p>
+    <p><b>Two footguns worth naming:</b> Python's built-in <code>hash()</code> is 64-bit <em>and</em> randomised per process, so a cache shared across worker processes will silently never hit. And if the hash isn't cryptographic, a motivated tenant can <em>construct</em> a colliding prefix — at which point it stops being a probability question and becomes an attack.</p>`,
+    sig:[
+      ["Solid","Applies the birthday bound and gets the right order of magnitude."],
+      ["Strong","Identifies that the failure is silent and cross-tenant, not merely rare."],
+      ["Exceptional","Distinguishes accidental from adversarial collisions and asks whether the hash needs to be cryptographic — which it does, the moment the input is attacker-controlled."]
+    ],
+    push:"'How many blocks before you expect your first collision? Then: what does a collision actually do to a user?'"
+  },
+  {
+    t:"Evicting live memory",
+    brk:"Pinning and the trie invariant",
+    dif:"Hard",
+    iso:["Cached-but-free KV blocks","Reclaimable page cache + LRU"],
+    ask:`<p>The cache fills. You add LRU eviction. Immediately, running sequences start producing garbage.</p>
+    <p><b>Fix it — and then tell me the right eviction order, because plain LRU is still wrong.</b></p>`,
+    sol:`<p><b>The bug:</b> you evicted blocks a running sequence was still reading. Blocks need reference counts; a block referenced by any live sequence is <b>pinned</b> and ineligible. Only refcount-zero blocks are candidates.</p>
+    <p><b>The right mental model</b> is the OS page cache: when a sequence finishes, its blocks don't get zeroed and returned to a free pool — they go onto an LRU list as <em>reclaimable</em> memory, still holding valid contents, and are reused as cache until someone actually needs the frame. "Free" and "cached" are the same memory in two states.</p>
+    <p><b>Why LRU alone is wrong:</b> cached blocks form a prefix tree. Evicting an interior block orphans everything below it — the children's keys chain through a parent that's gone. You need the invariant <em>a cached block implies its parent is cached</em>, which means eviction must proceed <span class="key">from the leaves inward: evict the longest prefix first</span>, and break ties by LRU.</p>
+    <p>The consequence is pleasing: the blocks nearest the root — the shared system prompt — are evicted last by construction, which is exactly what you want, since they're shared by every request.</p>`,
+    sig:[
+      ["Solid","Adds refcounting/pinning and explains the corruption."],
+      ["Strong","Frames free blocks as reclaimable cache rather than deallocated memory."],
+      ["Exceptional","Derives the leaves-first eviction rule from the parent-chaining invariant, and notices it makes hot shared prefixes self-protecting without a special case."]
+    ],
+    push:"'You evict a block in the middle of a cached 1,800-token prompt. Is the rest of that prompt still usable?'"
+  },
+  {
+    t:"An unwanted oracle",
+    brk:"Timing side channel",
+    dif:"Exceptional only",
+    iso:["Shared prefix cache","Memory dedup attacks / Flush+Reload"],
+    ask:`<p>A tenant files a support ticket: they can determine whether <b>another customer</b> has sent a particular prompt.</p>
+    <p><b>Explain the attack precisely, then fix it — and tell me what your fix costs the business.</b></p>`,
+    sol:`<p><b>The attack.</b> A cache hit is observable as lower TTFT. The attacker submits a candidate prefix and times the first token: fast means those blocks were already resident, i.e. <em>someone else has sent this text</em>. Since caching is per-block, they can extend a known prefix and probe forward, learning the content 16 tokens at a time.</p>
+    <p><span class="key">This is the same vulnerability class as memory-deduplication attacks on hypervisors and Flush+Reload on shared CPU caches.</span> Any content-addressed cache shared across a trust boundary, with an observable timing difference, is an oracle. The novelty here is the medium, not the mechanism.</p>
+    <p><b>Feasibility, which the good candidates raise themselves:</b> guessing 16 arbitrary tokens blind is hopeless. The attack is practical only against <em>low-entropy</em> content — a name, an account number, a filled-in template, a known system prompt with one variable field. Which is, unfortunately, precisely the content anyone cares about.</p>
+    <p><b>Fixes:</b></p>
+    <ul>
+      <li><b>Per-tenant salt in the hash chain</b> — blocks simply never match across tenants. Clean, cheap, complete.</li>
+      <li>Explicit opt-in sharing for content the tenant marks public.</li>
+      <li>TTFT normalisation — expensive, and it throws away the latency win you built this for.</li>
+    </ul>
+    <p><b>The cost.</b> Salting removes cross-tenant sharing, which sounds catastrophic and mostly isn't: the biggest single win — the 1,800-token system prompt — is already per-tenant, so you keep it. What you lose is deduplication of common public text across tenants. So the decision is a business one, and the candidate who says "this is a policy call, here's the data the policy needs" is giving you the right answer.</p>`,
+    sig:[
+      ["Solid","Sees that a cache hit is timing-observable and proposes isolation."],
+      ["Strong","Names the analogous class of attacks and gets the block-granularity probing right."],
+      ["Exceptional","Bounds the attack's practicality by input entropy, and then quantifies what isolation actually costs instead of reflexively choosing security or performance."]
+    ],
+    push:"'Your cache makes requests faster. Faster is measurable. What does measurable mean to someone who wants to know what other people are typing?'"
+  },
+  {
+    t:"Sixteen replicas, six percent",
+    brk:"Distributed cache locality",
+    dif:"Exceptional only",
+    iso:["Per-replica KV cache","Cache-aware routing / NUMA locality"],
+    ask:`<p>You scale to 16 replicas behind a round-robin load balancer. Cache hit rate falls from 92% to 6%.</p>
+    <p><b>Why, what's the fix, and what new problems does the fix create?</b></p>`,
+    sol:`<p><b>Why:</b> the cache is per-replica and round-robin is locality-destroying by design. A conversation's turn 2 lands on a replica that has never seen turn 1. Your hit rate is roughly 1/16 of what it was, which matches the 6%.</p>
+    <p><b>Fix: cache-aware routing.</b> Hash the request's prefix and route by consistent hashing, or maintain a global index of which replica holds which prefix. Session affinity is the cheap 80% version.</p>
+    <p><b>New problems:</b></p>
+    <ul>
+      <li><b>Load imbalance.</b> One very popular prefix now pins its traffic to one replica. Mitigate by replicating hot prefixes across <i>k</i> nodes and load-balancing within that set — trading cache efficiency for headroom.</li>
+      <li><b>Invalidation on model or adapter change.</b> Don't build an invalidation protocol; put the version in the key and let stale entries age out. Content-addressing turns invalidation into eviction.</li>
+      <li><b>Coherence — and here's the nice part: there isn't any.</b> Entries are immutable and content-addressed, so there is no write, no staleness, and no protocol. Worth saying out loud, because it's the property that makes the whole design tractable.</li>
+    </ul>
+    <p><b>The tiering question, for the very best candidates:</b> should a replica fetch KV from a peer over RDMA instead of recomputing it? Compare per token: transferring 128 KiB at 50 GB/s is <span class="num">2.6 µs</span>; recomputing is 2 × 8e9 FLOPs / 156 TFLOP/s ≈ <span class="num">103 µs</span>. Transfer wins by ~40×. Setting them equal gives a break-even bandwidth of 128 KiB / 103 µs ≈ <span class="num">1.25 GB/s — about 10 Gb/s</span>. <span class="key">So a KV tier over InfiniBand or 100 GbE is clearly worth it; over ordinary 10 GbE it's a coin flip; over the internet, never.</span> And the threshold moves with the model: an MHA model with 4× the KV bytes needs 4× the bandwidth to break even.</p>`,
+    sig:[
+      ["Solid","Diagnoses lost locality, proposes affinity or prefix routing."],
+      ["Strong","Anticipates hot-prefix imbalance and handles invalidation by versioning the key."],
+      ["Exceptional","Recognises that immutability eliminates coherence entirely, and derives the transfer-versus-recompute break-even bandwidth rather than asserting which is faster."]
+    ],
+    push:"'The cache didn't get smaller. What changed about how requests find it?'"
+  }
+]});
+P.push({
+  code:"P4", tab:"Speculation",
+  title:"Guessing the future",
+  tags:[["v","Speculative decoding"],["t","Branch prediction · rollback"],["","Hard throughout"]],
+  setup:`<p>A latency-sensitive product: one user, one stream, and they want tokens as fast as physically possible. Same 8B model on an A100.</p>
+  <ul>
+    <li>You also have a 1B draft model, roughly 1/10 the cost per forward pass</li>
+    <li>Batch size is 1 to 4 at the relevant hours; the GPU is mostly idle</li>
+  </ul>
+  <p>Start from first principles: nobody says the words "speculative decoding" until the candidate does.</p>`,
+  stages:[
+  {
+    t:"Find the ceiling",
+    brk:"Serial dependence",
+    dif:"Standard",
+    iso:["Autoregressive decode","Pointer chasing / latency-bound loop"],
+    ask:`<p>At batch size 1, what is the <b>maximum tokens per second</b> this hardware can produce, and what sets that limit? Then tell me how far from the machine's peak you are.</p>`,
+    sol:`<p>Every token requires reading all 16 GB of weights from HBM. At ~1.6 TB/s effective that's <span class="num">10 ms/token → a hard ceiling of ~100 tok/s</span>, independent of how fast the arithmetic units are.</p>
+    <p><b>Arithmetic intensity</b> = 2N FLOPs / 2N bytes = <span class="num">1 FLOP per byte</span>. The A100's roofline knee is 312e12 / 2e12 = <span class="num">156 FLOP/byte</span>. You are 156× to the left of the ridge point, using well under 1% of the machine's compute.</p>
+    <p>The cause is the serial dependence: token <i>t</i>+1 needs token <i>t</i>. <span class="key">You cannot parallelise a chain, so the hardware's width is unusable.</span> It's the same reason a linked-list traversal can't exploit a superscalar CPU — the work is latency-bound, not throughput-bound.</p>
+    <p>Only two escapes exist: move fewer bytes (quantise), or find more work to do per weight-read (batch — unavailable here — or evaluate multiple candidate tokens at once, which is the door to the next stage).</p>`,
+    sig:[
+      ["Solid","Gets the memory-bandwidth ceiling and the ~10 ms/token figure."],
+      ["Strong","Computes arithmetic intensity and places it against the roofline knee."],
+      ["Exceptional","Frames it as a serial-dependence problem and identifies, before being asked, that the only structural fix is to break the dependence chain speculatively."]
+    ],
+    push:"'The GPU can do 312 trillion operations a second. How many is it doing? Where's the rest going?'"
+  },
+  {
+    t:"Draft and verify",
+    brk:"Correctness of the accept rule",
+    dif:"Hard",
+    iso:["Draft + verify","Speculative execution + branch resolution"],
+    ask:`<p>Use the small model. Sketch the algorithm.</p>
+    <p>Then answer the question that actually matters: <b>is the output distribution the same as sampling from the big model, or an approximation of it?</b></p>`,
+    sol:`<p><b>The algorithm:</b> the draft model generates <i>k</i> tokens autoregressively (cheap). The target model then scores all <i>k</i>+1 positions in a <b>single</b> forward pass — the sequence dimension is parallel, which is the same property that makes prefill fast. Walk the <i>k</i> proposals left to right, accepting or rejecting each.</p>
+    <p><b>The correctness answer is "identical, not approximate", and that's the whole point.</b> With modified rejection sampling — accept proposal <i>x</i> with probability min(1, p(x)/q(x)), and on rejection sample from the normalised residual max(0, p − q) — the resulting distribution is provably exactly the target's. You get a speedup with <em>no</em> quality trade, which is rare enough that candidates should be suspicious until they see the argument.</p>
+    <p>A candidate who says "it's a close approximation" hasn't understood the mechanism; one who says "identical, and here's roughly why" has.</p>
+    <p><b>The isomorphism:</b> the draft model is a branch predictor, the verification pass is branch resolution, acceptance is a correct prediction, rejection is a pipeline flush. You do work you might throw away, in exchange for not waiting.</p>`,
+    sig:[
+      ["Solid","Describes draft-then-verify and knows the verification is one parallel pass."],
+      ["Strong","Knows the output is exactly equivalent and can gesture at the rejection-sampling argument."],
+      ["Exceptional","Explains why verifying k tokens costs about the same as verifying one — because you were bandwidth-bound and the extra tokens ride along free — which is the actual source of the speedup."]
+    ],
+    push:"'Checking k guesses at once — is that k forward passes or one? Why?'"
+  },
+  {
+    t:"When speculation loses",
+    brk:"Negative speedup",
+    dif:"Hard",
+    iso:["Fixed draft length k","Misprediction penalty / confidence counters"],
+    ask:`<p>Let α be the per-token acceptance rate and <i>c</i> the draft's cost relative to one target step.</p>
+    <p><b>Write the speedup as a function of α and k. Then find me a realistic case where speculative decoding is slower than not doing it.</b></p>`,
+    sol:`<p><b>Expected accepted tokens per round:</b> (1 − α<sup>k+1</sup>) / (1 − α). <b>Cost per round</b> ≈ <i>k·c</i> + 1.</p>
+    <p>With <i>c</i> = 0.1:</p>
+    <div class="data">α = 0.8, k = 4  →  3.36 tokens / 1.4 cost  =  2.40x
+α = 0.5, k = 4  →  1.94 tokens / 1.4 cost  =  1.39x
+α = 0.3, k = 7  →  1.43 tokens / 1.7 cost  =  0.84x   ← slower</div>
+    <p>So a badly-matched draft model with an aggressive <i>k</i> is <span class="key">a net regression</span>. The optimal <i>k</i> falls as α falls, and a fixed <i>k</i> is wrong for most requests: α varies enormously by content — boilerplate code and formulaic prose accept at 0.9, novel reasoning at 0.3.</p>
+    <p><b>The bigger reversal is batch size.</b> Verification does (k+1) × B tokens of compute per step. As B grows you slide right along the roofline until you're compute-bound — at which point the extra tokens are no longer free, and speculation is pure overhead stealing FLOPs from other users. Speculative decoding <span class="key">converts spare compute into lower latency; when there's no spare compute, it converts other people's throughput into your latency.</span></p>
+    <p><b>The production answer:</b> make <i>k</i> adaptive — per request from a running estimate of α, and globally from current batch size. This is a dynamic branch predictor with a confidence counter that stops speculating when it stops being confident.</p>`,
+    sig:[
+      ["Solid","Derives the expected-tokens formula and computes a speedup."],
+      ["Strong","Finds a parameter regime where it loses and explains that optimal k depends on α."],
+      ["Exceptional","Identifies the batch-size reversal via the roofline, and reframes the whole technique as trading throughput for latency — which tells you exactly when to switch it on."]
+    ],
+    push:"'Your draft model is right 30% of the time and you're proposing seven tokens. Do the arithmetic.'"
+  },
+  {
+    t:"Undo it",
+    brk:"Speculative state leakage",
+    dif:"Exceptional only",
+    iso:["Rejected-token rollback","Architectural vs speculative state / Spectre"],
+    ask:`<p>You propose 5 tokens; 2 are accepted. <b>Enumerate every piece of state that must be rolled back</b>, and tell me what a bug in the rollback looks like from the outside.</p>`,
+    sol:`<p><b>What must be undone:</b></p>
+    <ul>
+      <li><b>Target KV cache</b> — the verification pass wrote K/V for all 6 positions. Logically truncate to 2. In a paged allocator this is a pointer move, not a memory operation: the blocks stay, and correctness rests on the <em>length and mask</em> invariant ensuring nothing ever attends past position 2.</li>
+      <li><b>Draft KV cache</b> — same truncation, plus the draft must be re-primed with the token the target actually chose, which differs from what the draft proposed.</li>
+      <li><b>Sampler RNG state</b> — if you consumed randomness for rejected tokens, a naive rollback breaks reproducibility with a fixed seed. Users notice.</li>
+      <li><b>Stop-sequence / logit-bias / repetition-penalty state</b> — any accumulator updated per emitted token must be reverted, or a rejected token silently biases everything after it.</li>
+      <li><b>Block allocation</b> — blocks acquired for the rejected positions. Leaking these is a slow, hours-later OOM.</li>
+    </ul>
+    <p><b>What a bug looks like:</b> nothing. No exception, no crash. Slightly wrong logits produce fluent, plausible, subtly-degraded text. <span class="key">The only reliable test is exact-output equivalence against non-speculative decoding at temperature 0</span>, and it should be a CI gate, not a manual check.</p>
+    <p><b>The turn that identifies a top candidate:</b> speculative <em>memory</em> effects are not rolled back. If you insert speculatively-computed blocks into the shared prefix cache from P3, rejected tokens leave a durable, externally-observable trace — a correctness bug and, given P3's timing oracle, a fresh side channel. This is Spectre's lesson restated: the hard part of speculation isn't undoing the result, it's undoing the footprints.</p>`,
+    sig:[
+      ["Solid","Names the KV truncation for both models."],
+      ["Strong","Finds the non-obvious state — RNG, penalties, block accounting — and knows the failure is silent."],
+      ["Exceptional","Draws the Spectre parallel and spots that the prefix cache is a channel through which speculative state escapes rollback."]
+    ],
+    push:"'The blocks holding the three rejected tokens are still allocated. Does that matter? Now: does anything else in the system know about those tokens?'"
+  }
+]});
+
+P.push({
+  code:"P5", tab:"Distributed",
+  title:"Eight GPUs, one hang",
+  tags:[["v","Tensor & pipeline parallel"],["t","Barriers · deadlock · tail at scale"],["","Hard → on-call"]],
+  setup:`<p>You've moved to <b>Llama-3-70B</b>: 80 layers, hidden size 8192, 140 GB in bf16. It does not fit on one 80 GB GPU.</p>
+  <ul>
+    <li>One node, 8× A100 connected by NVLink (~250 GB/s per pair), tensor-parallel degree 8</li>
+    <li>Each rank is a separate process running the same program</li>
+    <li>You are on call</li>
+  </ul>`,
+  stages:[
+  {
+    t:"Count the barriers",
+    brk:"Synchronisation overhead",
+    dif:"Standard",
+    iso:["All-reduce per layer","Barrier synchronisation"],
+    ask:`<p>Tensor parallelism shards each layer across the 8 GPUs. <b>How many synchronisation points per forward pass, how big is each, and what does it cost?</b></p>
+    <p>Then: why is this technique restricted to a single node?</p>`,
+    sol:`<p><b>Count:</b> one all-reduce after the attention output projection and one after the MLP down projection = <span class="num">2 × 80 = 160 all-reduces per forward pass</span>. Every one is a barrier: no rank proceeds until all eight arrive.</p>
+    <p><b>Size (decode, batch 64):</b> 64 × 8192 × 2 B = 1 MB. A ring all-reduce moves ~2(N−1)/N × 1 MB ≈ 1.75 MB.</p>
+    <p><b>Cost on NVLink:</b> ~7 µs of transfer plus ~5–10 µs of launch and sync overhead ≈ 15 µs × 160 ≈ <span class="num">2.4 ms per token</span>, against per-GPU compute of (140/8) GB / 1.6 TB/s ≈ <span class="num">11 ms</span>. About 18% overhead — acceptable.</p>
+    <p><b>Cost on PCIe</b> at ~25 GB/s: ~70 µs each → <span class="num">11 ms</span>, which <em>doubles</em> your step time. That's the answer to the second question: TP's communication is frequent, tiny, and on the critical path, so it needs a fabric with low latency more than high bandwidth. Cross-node TP over Ethernet is a well-known way to make an expensive cluster slow.</p>`,
+    sig:[
+      ["Solid","Gets 2 per layer and understands all-reduce is a barrier."],
+      ["Strong","Computes both the NVLink and PCIe cases and concludes TP is intra-node."],
+      ["Exceptional","Observes that at decode the messages are tiny, so this is a <em>latency</em> problem, meaning kernel-launch overhead and CUDA graphs matter more than link bandwidth — the opposite of the training-time intuition."]
+    ],
+    push:"'How many times per token do all eight GPUs have to agree on something?'"
+  },
+  {
+    t:"3 a.m.",
+    brk:"Collective divergence",
+    dif:"Hard",
+    iso:["Ranks disagree on the batch","SPMD lockstep violation → deadlock"],
+    ask:`<p>Production hangs. No tokens for four minutes. All 8 GPUs report <b>100% utilisation</b>. <code>py-spy</code> shows every rank parked inside an NCCL collective.</p>
+    <p><b>What happened? And notice what the 100% is telling you.</b></p>`,
+    sol:`<p><b>First, the 100% is a red herring — and a diagnostic.</b> NCCL spin-waits on a collective, so a rank blocked forever looks exactly like a rank working perfectly. Utilisation is not liveness.</p>
+    <p><b>The class of bug: collective divergence.</b> TP inference is SPMD — every rank must execute the same sequence of collectives with the same shapes. Anything that makes one rank take a different path hangs the whole group. Common causes:</p>
+    <ul>
+      <li><b>Per-rank scheduling decisions.</b> If each rank runs its own scheduler and observes slightly different free memory (allocator state differs), one rank decides to preempt a sequence and the others don't. Now the batch shapes disagree and the next all-reduce never completes. <span class="key">This is the one that bites real systems, because the code is identical on every rank — the <em>inputs</em> to the decision aren't.</span></li>
+      <li>An exception in a Python callback on one rank, skipping a collective.</li>
+      <li>A branch on a tensor value (a NaN check, an early exit) that resolves differently per rank.</li>
+      <li>Ranks issuing collectives in different orders — A-then-B versus B-then-A is a textbook deadlock.</li>
+    </ul>
+    <p><b>The design fix:</b> exactly one scheduler. Rank 0 decides the batch plan and broadcasts it; the other ranks are pure executors with no autonomy. Any control-flow decision derived from tensor values must itself be reduced across ranks before anyone acts on it.</p>
+    <p><b>The operational fix:</b> a short NCCL timeout with async error handling, a watchdog that dumps every rank's stack on timeout, and a hard rule that hangs kill the process group rather than waiting. A four-minute silent hang should have been a fifteen-second crash.</p>`,
+    sig:[
+      ["Solid","Suspects the ranks disagreed and looks for nondeterminism."],
+      ["Strong","Explains why identical code still diverges — the decision inputs differ per rank."],
+      ["Exceptional","Reads 100% utilisation as evidence of spin-waiting, and proposes the single-scheduler architecture rather than patching the specific divergence."]
+    ],
+    push:"'All eight are running the same code. So how can they possibly disagree?'"
+  },
+  {
+    t:"Stretch across nodes",
+    brk:"Pipeline bubbles",
+    dif:"Hard",
+    iso:["Pipeline parallel stages","Instruction pipeline stalls"],
+    ask:`<p>You add a second node: pipeline-parallel degree 2, 40 layers each, on top of TP=8.</p>
+    <p><b>What's the new inefficiency, how big is it, and how do you fill it?</b></p>`,
+    sol:`<p><b>Bubbles.</b> With S stages and M in-flight micro-batches, the idle fraction is (S−1)/(M+S−1). At decode you naively have one batch in flight: S=2, M=1 → <span class="num">50% of your hardware is idle</span> waiting for the other stage.</p>
+    <p><b>The fill:</b> split the batch into micro-batches and keep several in flight, so stage 1 works on micro-batch <i>i</i>+1 while stage 2 works on <i>i</i>. With M=8 the bubble drops to 1/9 ≈ 11%. Continuous batching helps here for free — you already have a stream of mutually independent sequences, which is exactly the structural requirement.</p>
+    <p>The analogy is literal instruction pipelining: stages, structural hazards, and the same resolution (keep the pipe full). The difference is that your "instructions" are independent by construction, so there are no data hazards between micro-batches — which is why this works at all.</p>
+    <p><b>Why PP tolerates a slow link where TP doesn't:</b> PP sends activations once per stage boundary (batch × 8192 × 2 B — small), versus TP's 160 latency-critical round trips. PP is the right axis to scale across nodes.</p>
+    <p><b>The complication most candidates miss:</b> the KV cache is now split by layer across stages. A sequence's memory lives on both nodes, so admission, preemption and eviction from P1 must be coordinated globally — no stage can free a sequence's memory unilaterally, and a preemption decision on node 1 is meaningless unless node 2 makes the same one.</p>`,
+    sig:[
+      ["Solid","Identifies bubbles and proposes micro-batching."],
+      ["Strong","Gives the (S−1)/(M+S−1) form and explains why PP crosses nodes but TP doesn't."],
+      ["Exceptional","Realises the KV cache is now distributed by layer, which turns P1's memory management into a distributed-consensus problem."]
+    ],
+    push:"'While node 2 is computing layers 41-80, what is node 1 doing?'"
+  },
+  {
+    t:"Tail at scale",
+    brk:"Jitter amplification",
+    dif:"Exceptional only",
+    iso:["Slowest rank sets the pace","max() over ranks at every barrier"],
+    ask:`<p>At low load, with every rank healthy and no hardware faults, p99 token latency is 3× p50.</p>
+    <p><b>Explain the mechanism quantitatively.</b> Assume each rank has a 5% chance of a small hiccup in any given segment.</p>`,
+    sol:`<p><b>The mechanism: a barrier converts an average into a maximum.</b> Each of the 160 segments per token finishes when the <em>slowest</em> of 8 ranks finishes. With a 5% per-rank hiccup probability, the chance that a given segment is clean is 0.95<sup>8</sup> = <span class="num">66%</span> — so <span class="num">34% of segments are slowed by someone</span>. Across 160 segments per token, the probability that a token escapes every hiccup is effectively zero. <span class="key">Rare per-rank events become certain per-token events.</span></p>
+    <p><b>Sources of the hiccups</b> — none of which are "the model":</p>
+    <ul>
+      <li>Host CPU scheduler preempting the thread that launches kernels</li>
+      <li>Python GC pauses on one rank</li>
+      <li>Power or thermal throttling — one hot GPU clocks down and every other GPU inherits its speed</li>
+      <li>NUMA-remote pinned staging buffers, so one rank's transfers cross a socket</li>
+      <li>ECC retries, or another process sharing the host</li>
+    </ul>
+    <p><b>Mitigations:</b> CUDA graphs to remove per-launch CPU jitter entirely; pin threads to cores on the correct NUMA node; isolate those cores from the general scheduler; lock clocks; and monitor <em>per-rank</em> step-time distributions, because the aggregate average is exactly the statistic that hides this.</p>
+    <p>The general principle is Amdahl plus tail-at-scale: as you add ranks, the synchronised fraction doesn't just fail to speed up — it gets <em>slower</em>, because max() over more samples is larger.</p>`,
+    sig:[
+      ["Solid","Says the slowest rank determines the step and lists plausible jitter sources."],
+      ["Strong","Computes 0.95⁸ and reasons about compounding across 160 barriers."],
+      ["Exceptional","States the general result — that synchronisation makes the tail grow with rank count — and asks for per-rank instrumentation rather than proposing fixes blind."]
+    ],
+    push:"'One rank is slow for 1 ms. How much slower is the token? Now: how many chances per token does it get?'"
+  },
+  {
+    t:"A rank dies",
+    brk:"No partial-failure story",
+    dif:"Exceptional only",
+    iso:["GPU 3 falls off the bus","Fail-stop, timeouts, idempotent retry"],
+    ask:`<p>GPU 3 drops off the PCIe bus mid-generation.</p>
+    <p><b>What do the other seven do? What happens to the 60 in-flight requests? What should the system do — and what can't it do?</b></p>`,
+    sol:`<p><b>The other seven block</b> inside their next collective until the NCCL timeout, which defaults to minutes. So a hard hardware failure presents to your monitoring as a hang, not a crash — the worst possible failure mode, because it burns the timeout before recovery even begins.</p>
+    <p><b>The 60 requests are gone.</b> Their KV caches are sharded across all 8 GPUs; a 7/8 subset of a tensor-parallel cache is not a usable anything. <span class="key">There is no partial-failure story for tensor parallelism: the unit of failure is the whole replica.</span> Accepting that is the design, not a gap in it.</p>
+    <p><b>What to do:</b></p>
+    <ul>
+      <li>Fail fast — short NCCL timeout, watchdog, kill the entire process group deliberately rather than letting it rot.</li>
+      <li>Retry at the <b>router</b>, on a different replica. This only works if requests are idempotent and replayable, which is why request state belongs to the router and not the worker. That's an architectural decision you have to have made <em>before</em> tonight.</li>
+      <li>Recovery time is dominated by reloading 140 GB of weights, so keep warm spares, or at least load from page cache or a shared memory mapping rather than cold storage.</li>
+    </ul>
+    <p><b>What you can't do:</b> un-send tokens. If the response was already streaming, a transparent retry is impossible — the user has seen output that the new replica won't reproduce. Options: buffer until first token so early failures are invisible; or checkpoint the emitted prefix and resume by re-prefilling it on the new replica. <span class="key">That second option is P1's recompute path, reused as a fault-tolerance mechanism</span> — which is the observation that ties the whole set together, and it's worth telling the candidate so if they find it.</p>`,
+    sig:[
+      ["Solid","Knows the collective blocks and the replica is lost."],
+      ["Strong","Argues for fail-fast plus router-level retry and identifies weight loading as the recovery bottleneck."],
+      ["Exceptional","Raises the un-sending problem for partially-streamed responses and proposes prefix checkpoint plus re-prefill — recognising it as the same mechanism they designed for memory pressure in P1."]
+    ],
+    push:"'The request was 300 tokens into a stream when the GPU died. Retry it on another replica — what does the user see?'"
+  }
+]});
+
+P.push({
+  code:"P6", tab:"Last mile",
+  title:"The last mile",
+  tags:[["v","Streaming"],["t","Buffering · flow control · cancellation"],["","Short closer, 20 min"]],
+  setup:`<p>A short problem for the end of a loop, or for a candidate who's stronger on systems than on models. Everything upstream works. Tokens now have to reach a browser.</p>
+  <ul>
+    <li>Server-sent events over HTTP, one event per token</li>
+    <li>Global audience, mobile clients, flaky networks</li>
+    <li>Telemetry says ~30% of users close the tab before the response finishes</li>
+  </ul>`,
+  stages:[
+  {
+    t:"Broken characters",
+    brk:"Detokenisation is not per-token",
+    dif:"Standard",
+    iso:["Incremental detokenisation","Decoding UTF-8 from a byte stream"],
+    ask:`<p>Your streaming loop is <code>for t in tokens: yield tokenizer.decode([t])</code>. Users in Japan see replacement characters, and everyone occasionally sees missing spaces.</p>
+    <p><b>Two distinct bugs. Find both.</b></p>`,
+    sol:`<ul>
+      <li><b>Split characters.</b> BPE with byte fallback can split one multi-byte UTF-8 character across several tokens — routine for emoji, CJK and accented text. Decoding a single token yields an incomplete byte sequence, and the decoder emits U+FFFD. The bytes were never wrong; you cut them in the wrong place.</li>
+      <li><b>Detokenisation isn't a homomorphism.</b> <code>decode(a) + decode(b) ≠ decode([a,b])</code>. SentencePiece's word-boundary marker and BPE's leading-space convention mean whitespace is decided by <em>context between</em> tokens, so decoding tokens individually loses or duplicates spaces.</li>
+    </ul>
+    <p><b>Fix:</b> an incremental detokeniser that keeps a small window of recent tokens, decodes the window each step, diffs against what it has already emitted, and flushes only the newly-stable prefix — holding back any trailing incomplete UTF-8 sequence until it completes.</p>
+    <p>This is the same problem as reading UTF-8 off a socket in fixed-size chunks, and it has the same solution: <span class="key">the decoder must be stateful, because the stream's boundaries are not the data's boundaries.</span></p>`,
+    sig:[
+      ["Solid","Finds the split-character bug."],
+      ["Strong","Finds both, and knows why the whitespace one exists."],
+      ["Exceptional","Recognises it as chunked-stream decoding in general and proposes the stable-prefix flush rather than a special case for emoji."]
+    ],
+    push:"'An emoji is four bytes. How many tokens is it? Are those boundaries the same?'"
+  },
+  {
+    t:"Stop, but not too late",
+    brk:"Matching across chunk boundaries",
+    dif:"Standard",
+    iso:["Stop sequences","Streaming pattern match with lookback"],
+    ask:`<p>You support <code>stop=["\\n\\nHuman:"]</code>. In production, the stop string sometimes leaks a few characters to the user before generation halts.</p>
+    <p><b>Why, and what's the general fix?</b></p>`,
+    sol:`<p><b>Why:</b> the stop string straddles token boundaries, so you can't match on token ids — you must match on decoded text. But by the time you've decoded enough text to recognise the match, you have already streamed its opening characters to the client.</p>
+    <p><b>Fix:</b> hold back the last (longest_stop_length − 1) characters before emitting. You always lag the generation by that much, and flush the held-back tail when generation ends without a match. With many stop strings, that's a sliding window plus a multi-pattern matcher — Aho–Corasick if the set is large.</p>
+    <p><b>Details that separate answers:</b> the stop text must be excluded from the returned output but its tokens were still generated and still consumed KV blocks and time; partial matches at the end of a completed generation must be flushed, not swallowed; and holding back characters increases perceived latency slightly, so the hold-back should be sized to the longest stop string, not a constant.</p>`,
+    sig:[
+      ["Solid","Understands stop strings must match on text and span token boundaries."],
+      ["Strong","Derives the hold-back window and its correct size."],
+      ["Exceptional","Handles flushing at end-of-generation and notes the latency cost of the lag, which is the detail that makes the feature feel wrong when it's missing."]
+    ],
+    push:"'The stop string is nine characters. The token that starts it also contains three characters of real output. What do you send?'"
+  },
+  {
+    t:"A slow reader",
+    brk:"No flow control",
+    dif:"Hard",
+    iso:["Client can't keep up","Bounded buffer / TCP backpressure"],
+    ask:`<p>A mobile client on a bad connection consumes 2 tokens/s. You generate 60.</p>
+    <p><b>What goes wrong, and what's the correct fix?</b></p>`,
+    sol:`<p><b>Two failures, one obvious and one expensive.</b> The obvious one: an unbounded queue between generator and writer grows without limit, per stalled request, until the host OOMs. The expensive one: <span class="key">you are spending the scarcest resource in the building — a GPU batch slot — on a user who physically cannot receive the output.</span> Under load, every stalled slot is a slot denied to someone who could use it.</p>
+    <p><b>The fix is flow control, and the signal already exists.</b> TCP is telling you: the socket write blocks, the receive window closes. The bug is almost always that someone spawned a writer task with an unbounded channel between it and the generator, which converts backpressure into memory growth. Bound the buffer, and when it fills, either pause the sequence — preempt it out of the batch and free its slot, using the machinery from P1 — or fail the request.</p>
+    <p>It's the classic bounded-buffer producer/consumer problem, and an unbounded queue never fixes a rate mismatch. It only decides where you store the difference.</p>`,
+    sig:[
+      ["Solid","Spots unbounded memory growth."],
+      ["Strong","Identifies the wasted GPU slot as the real cost and proposes a bounded buffer."],
+      ["Exceptional","Connects pausing a stalled stream to the preemption mechanism from P1, and notes that the transport layer was already signalling the condition — the application just wasn't listening."]
+    ],
+    push:"'Where do the tokens go while the client isn't reading them? Who pays for that?'"
+  },
+  {
+    t:"Nobody's listening",
+    brk:"Cancellation leaks",
+    dif:"Hard",
+    iso:["Client disconnects","SIGPIPE / abort propagation / resource reclamation"],
+    ask:`<p>30% of users close the tab mid-response.</p>
+    <p><b>What is that costing you, what has to happen, and what's the bug you'll actually ship?</b></p>`,
+    sol:`<p><b>The cost:</b> if you don't detect disconnects, roughly 30% of your fleet is generating tokens for nobody. That's a direct 30% capacity loss with no symptom other than a bill.</p>
+    <p><b>What has to happen:</b> the disconnect must be detected at the transport layer (a failed write, or the framework's disconnect event) and propagated <em>into the scheduler</em>, which aborts the sequence and frees its KV blocks on the current iteration — not at the next convenient boundary, and certainly not when the generation would have ended anyway. Queued-but-unstarted requests should be dropped for free at admission; check for cancellation there too.</p>
+    <p><b>The bug you'll ship:</b> an abort path that removes the sequence from the batch but not from the block-table refcounts. Blocks are never returned; the free pool shrinks; you OOM six hours later with no obvious cause, at a load level you handled fine yesterday. <span class="key">Every abort path is also a deallocation path, and abort paths are the least-tested code you own.</span></p>
+    <p><b>The wrinkle:</b> with a proxy or load balancer in the middle, the disconnect may never reach you — the proxy holds the upstream connection open. So you need idle and absolute timeouts as a backstop, and you should verify the disconnect actually propagates through your specific ingress rather than assuming it does.</p>`,
+    sig:[
+      ["Solid","Wants to detect disconnects and stop generating."],
+      ["Strong","Insists on freeing KV immediately and predicts the refcount leak."],
+      ["Exceptional","Raises the proxy-swallows-the-disconnect problem and adds timeouts as defence in depth — the difference between someone who has read about this and someone who has been paged for it."]
+    ],
+    push:"'The user closed the tab. When does your GPU find out?'"
+  }
+]});
+/*__END_PROBLEMS__*/
+
+/* ---------------- render ---------------- */
+const app=document.getElementById("app"), tabsEl=document.getElementById("tabs");
+let cur=0, stg=P.map(()=>0), seen=P.map(p=>new Set([0])), open=new Set(), first=true;
+
+function tabs(){
+  tabsEl.innerHTML="";
+  P.forEach((p,i)=>{
+    const b=document.createElement("button");
+    b.type="button"; b.setAttribute("role","tab"); b.setAttribute("aria-selected", i===cur);
+    b.innerHTML='<span>'+p.code+' · '+p.stages.length+' stages</span>'+p.tab;
+    b.onclick=()=>{cur=i;first=false;draw();window.scrollTo({top:tabsEl.offsetTop-1,behavior:"smooth"});};
+    tabsEl.appendChild(b);
+  });
+}
+
+function draw(){
+  const p=P[cur], s=p.stages[stg[cur]], i=stg[cur];
+  seen[cur].add(i);
+  [...tabsEl.children].forEach((b,j)=>b.setAttribute("aria-selected", j===cur));
+  const key=cur+"-"+i, shown=open.has(key);
+
+  app.innerHTML=
+  '<div class="phead">'+
+    '<div class="eyebrow">'+p.code+' — escalation ladder</div>'+
+    '<h2 style="margin-top:14px">'+p.title+'</h2>'+
+    '<div class="meta">'+p.tags.map(t=>'<span class="tag '+t[0]+'">'+t[1]+'</span>').join("")+'</div>'+
+    '<div class="setup"><div class="eyebrow">The scenario · read this aloud</div>'+p.setup+'</div>'+
+  '</div>'+
+  '<div class="stagegrid">'+
+    '<div class="spine"><div class="eyebrow">What breaks, in order</div>'+
+      p.stages.map((x,j)=>'<button class="rung '+(j===i?"on":"")+' '+(seen[cur].has(j)?"seen":"")+'" data-j="'+j+'" type="button">'+
+        '<span class="dot">'+(j+1)+'</span><span class="lab">'+x.t+'<span class="brk">'+x.brk+'</span></span></button>').join("")+
+    '</div>'+
+    '<div>'+
+      '<article class="stage'+(first?"":" anim")+'">'+
+        '<div class="stagenum"><span>Stage '+(i+1)+' / '+p.stages.length+'</span><span class="dif">'+s.dif+'</span></div>'+
+        '<h3>'+s.t+'</h3>'+
+        '<div class="iso"><div class="l"><span class="k">MODEL</span><b>'+s.iso[0]+'</b></div>'+
+          '<div class="eq">&#8773;</div><div class="r"><span class="k">SYSTEMS</span><b>'+s.iso[1]+'</b></div></div>'+
+        '<div class="ask">'+s.ask+'</div>'+
+        '<button class="reveal" type="button" id="rev">'+(shown?"Hide the answer":"Reveal the answer")+'</button>'+
+        '<div class="sol" id="sol"'+(shown?"":" hidden")+'>'+
+          '<h4>What a good answer contains</h4>'+s.sol+
+          '<div class="signals"><h4 style="margin-bottom:6px">Calibration</h4>'+
+            s.sig.map((g,k)=>'<div class="sig s'+(k+1)+'"><b>'+g[0]+'</b><span>'+g[1]+'</span></div>').join("")+
+          '</div>'+
+          (s.push?'<div class="pushit"><b>If they stall, nudge with</b>'+s.push+'</div>':'')+
+        '</div>'+
+      '</article>'+
+      '<div class="nav"><button type="button" id="prev"'+(i===0?" disabled":"")+'>&#8592; Previous stage</button>'+
+      '<button type="button" id="next"'+(i===p.stages.length-1?" disabled":"")+'>Next escalation &#8594;</button></div>'+
+    '</div>'+
+  '</div>';
+  first=false;
+
+  app.querySelectorAll(".rung").forEach(b=>b.onclick=()=>{stg[cur]=+b.dataset.j;draw();});
+  const rev=document.getElementById("rev"), sol=document.getElementById("sol");
+  rev.onclick=()=>{ if(open.has(key)){open.delete(key);sol.hidden=true;rev.textContent="Reveal the answer";}
+                    else{open.add(key);sol.hidden=false;rev.textContent="Hide the answer";} };
+  const pv=document.getElementById("prev"), nx=document.getElementById("next");
+  pv.onclick=()=>{if(stg[cur]>0){stg[cur]--;draw();}};
+  nx.onclick=()=>{if(stg[cur]<p.stages.length-1){stg[cur]++;draw();}};
+}
+
+document.getElementById("expandAll").onclick=()=>{P.forEach((p,a)=>p.stages.forEach((s,b)=>open.add(a+"-"+b)));draw();};
+document.getElementById("collapseAll").onclick=()=>{open.clear();draw();};
+document.getElementById("printIt").onclick=()=>{P.forEach((p,a)=>p.stages.forEach((s,b)=>open.add(a+"-"+b)));draw();setTimeout(()=>window.print(),120);};
+
+document.addEventListener("keydown",e=>{
+  if(e.metaKey||e.ctrlKey||e.altKey) return;
+  if(e.key==="ArrowRight"&&stg[cur]<P[cur].stages.length-1){stg[cur]++;draw();}
+  else if(e.key==="ArrowLeft"&&stg[cur]>0){stg[cur]--;draw();}
+  else return;
+  e.preventDefault();
+});
+
+tabs(); draw();
+</script>
+</body>
+</html>
