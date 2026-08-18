@@ -2544,6 +2544,908 @@ P.push({
   }
 ]});
 P.push({
+  code:"LG1", track:"LangGraph", tab:"Mental model",
+  title:"What the runtime actually is",
+  tags:[["v","LangGraph"],["t","Pregel · BSP · layering"],["","Standard → hard"]],
+  setup:`<p>Your team has standardised on <b>LangGraph</b>. The candidate claims experience with it. This track finds out whether that means they've read the quickstart or shipped something.</p>
+  <p><b>Version note for the interviewer:</b> written against LangGraph 1.2.x (1.0 went GA in October 2025). Notably, <code>langgraph.prebuilt</code> is deprecated — <code>create_react_agent</code> gave way to <code>create_agent</code> in <code>langchain.agents</code> — and 1.2 added per-node timeouts, graceful shutdown and typed streaming. Check the current docs before running it; the API moves.</p>`,
+  stages:[
+  {
+    t:"Runtime, not library",
+    brk:"The layering question",
+    dif:"Standard",
+    pair:["Graph orchestrates model calls","The execution model is understood, not assumed"],
+    ask:`<p><b>What is LangGraph, precisely?</b> And how does it relate to LangChain — which sits on top of which?</p>
+    <p>Then: why a graph rather than a chain?</p>`,
+    sol:`<p><b>The layering, which many candidates get backwards:</b> LangGraph is the low-level <em>runtime</em> — a durable, stateful execution engine. LangChain is now a higher-level API built <em>on</em> that runtime; its agent abstraction executes as a LangGraph graph. So "LangGraph vs LangChain" is a layering question, not a rivalry. <span class="key">A candidate who describes LangGraph as "a LangChain add-on for complex chains" has the dependency inverted and probably hasn't gone below the prebuilts.</span></p>
+    <p><b>Why a graph:</b> a chain is a fixed pipeline — one direction, no cycles. Agents need cycles (act, observe, decide, act again), branching, and the ability to stop somewhere other than the end. A graph with conditional edges expresses that directly; a chain has to fake it with nesting.</p>
+    <p><b>The three primitives:</b> <b>State</b> (a shared typed structure, the single source of truth for a run), <b>nodes</b> (functions taking state and returning a partial update), and <b>edges</b> (which node runs next, fixed or computed). Compile the builder into a runnable graph.</p>
+    <p><b>The framing that shows real understanding:</b> LangGraph is a state machine with durable state, where a language model decides some of the transitions. The value proposition is not "orchestrating LLM calls" — it's that execution is checkpointed at every step, so a run survives a process restart. Most of the rest of the API surface follows from that one decision.</p>`,
+    sig:[
+      ["Solid","Describes state, nodes and edges and why cycles need a graph."],
+      ["Strong","Gets the layering right — LangGraph is the runtime, LangChain the API above it."],
+      ["Exceptional","Identifies durable checkpointed execution as the core value and derives the rest of the API surface from it."]
+    ],
+    push:"'A chain can call five models in a row. What can it not do that your agent needs?'"
+  },
+  {
+    t:"Supersteps",
+    brk:"BSP execution semantics",
+    dif:"Hard",
+    pair:["Nodes run when their turn comes","Writes commit at a barrier, not immediately"],
+    ask:`<p>Two nodes both have an edge from node A. <b>Walk me through exactly what the runtime does</b> when A finishes.</p>
+    <p>What's a superstep?</p>`,
+    sol:`<p><b>The model is Pregel-style bulk synchronous parallel.</b> Execution proceeds in <b>supersteps</b>. In each superstep: every node eligible to run executes — concurrently if there are several — each producing writes to state <em>channels</em>; then all writes are collected and applied at a <b>barrier</b>; then the next superstep's eligible nodes are determined.</p>
+    <p><b>So for the fan-out:</b> A completes, its writes commit, the runtime sees two outgoing edges and schedules both nodes in the <em>same</em> superstep. They run concurrently. Neither sees the other's writes, because writes don't land until the barrier at the end of the step.</p>
+    <p><b>Three consequences that matter and follow directly:</b></p>
+    <ul>
+      <li><b>Concurrent nodes cannot communicate through state.</b> They each read the same pre-step snapshot. Expecting one to see the other's update is a real and common bug.</li>
+      <li><b>The barrier is where write conflicts are resolved</b>, which is why reducers exist and why they're mandatory for keys written in parallel — the next problem.</li>
+      <li><b>The superstep is the checkpoint boundary and the retry unit.</b> Nodes are re-run from the top, not resumed mid-function, and there is nothing finer-grained than a node.</li>
+    </ul>
+    <p><span class="key">Getting this right is the difference between reasoning about LangGraph and guessing at it: almost every confusing behaviour in the framework is the BSP model showing through.</span></p>`,
+    sig:[
+      ["Solid","Knows fan-out runs the branches concurrently."],
+      ["Strong","Names supersteps and the barrier, and knows parallel nodes see the same input snapshot."],
+      ["Exceptional","Derives the reducer requirement, the checkpoint granularity and the re-run-from-top retry semantics all from the BSP model."]
+    ],
+    push:"'Node B writes x. Node C, running in the same step, reads x. What does it see?'"
+  },
+  {
+    t:"Prebuilt or hand-built",
+    brk:"Choosing the abstraction level",
+    dif:"Standard",
+    pair:["Prebuilt agent covers the task","Dropping down is a deliberate, justified choice"],
+    ask:`<p>You can call <code>create_agent</code> and get a working tool-calling agent in ten lines, or build a <code>StateGraph</code> by hand.</p>
+    <p><b>When do you drop down?</b></p>`,
+    sol:`<p><b>Use the prebuilt</b> when the shape genuinely is "model with tools, looping until done": one decision point, one set of tools, no bespoke control flow. That covers a lot of real work, and hand-rolling it wastes effort — the prebuilt has been hardened by far more usage than your version will get.</p>
+    <p><b>Drop to a StateGraph when you need:</b></p>
+    <ul>
+      <li><b>Deterministic steps around the agentic core</b> — validation, enrichment, or a fixed pipeline with one judgement call in it. The deterministic-harness pattern, and the most common real reason.</li>
+      <li><b>Explicit routing</b> the model shouldn't own — a classifier deciding which branch runs.</li>
+      <li><b>State beyond the message list</b> — a plan, accumulated findings, counters, flags that conditional edges read.</li>
+      <li><b>Interrupts at specific points</b>, with different gates for different action classes.</li>
+      <li><b>Fan-out with aggregation</b>, per-node retry or timeout policies, or subgraph composition.</li>
+    </ul>
+    <p><b>The historical note worth knowing:</b> the prebuilts moved. <code>langgraph.prebuilt</code> is deprecated and the agent constructor now lives in LangChain as <code>create_agent</code>, replacing <code>create_react_agent</code>. A candidate reaching for <code>create_react_agent</code> from memory is working from pre-1.0 material — a useful signal about how current their experience is, not a mark against them.</p>
+    <p><span class="key">The answer that shows judgement: start with the prebuilt and drop down when you find yourself fighting it, not in anticipation. Premature graph-building is the most common over-engineering in this ecosystem.</span></p>`,
+    sig:[
+      ["Solid","Uses the prebuilt for simple agents and the graph for custom flow."],
+      ["Strong","Gives specific triggers — extra state, explicit routing, targeted interrupts."],
+      ["Exceptional","Knows the prebuilts moved to LangChain's create_agent, and advocates starting high and dropping down on evidence rather than in advance."]
+    ],
+    push:"'Your task needs one classification step before the agent runs. Prebuilt or graph?'"
+  },
+  {
+    t:"What goes in state",
+    brk:"State as a dumping ground",
+    dif:"Hard",
+    pair:["Nodes need data, so it goes in state","State holds only what drives control flow and continuity"],
+    ask:`<p>Your <code>State</code> TypedDict has grown to 23 fields, including retrieved documents, raw API responses and a parsed PDF.</p>
+    <p><b>What's wrong, and what's the test for whether a field belongs?</b></p>`,
+    sol:`<p><b>What's wrong:</b> state is serialised into a checkpoint after every node. A 2 MB state written 30 times is 60 MB of checkpoint rows for one thread — slow writes, storage growth, latency on every step. It also lands in traces and makes debugging output unreadable.</p>
+    <p><b>The test:</b> would removing this field change a routing decision, a node's behaviour, or the ability to resume? If not, it doesn't belong in state. <span class="key">A sharper version: if no conditional edge and no node reads it, it's a log entry, not state.</span></p>
+    <p><b>Where the big things go instead:</b> external storage — object store, database, the Store — with a <em>reference</em> in state. The parsed PDF becomes a document id; the node that needs it fetches it. Large tool results get summarised into state and archived in full.</p>
+    <p><b>Two structural refinements worth crediting:</b></p>
+    <ul>
+      <li><b>Separate input, output and internal schemas.</b> The graph's public input and output need not be the full internal state, and keeping them distinct stops callers depending on internals.</li>
+      <li><b>Private channels</b> for values passed between two specific nodes that nothing else should see, rather than widening the shared schema for every intermediate value.</li>
+    </ul>
+    <p>And note the interaction with durability: a large state makes <code>"sync"</code> durability expensive, so state bloat quietly pushes teams toward weaker persistence guarantees to recover performance.</p>`,
+    sig:[
+      ["Solid","Sees that large state bloats checkpoints and wants data externalised."],
+      ["Strong","Applies the does-anything-read-it test and stores references instead of payloads."],
+      ["Exceptional","Uses separate input/output/internal schemas and private channels, and notes state size trades against the durability mode you can afford."]
+    ],
+    push:"'That field is 400 kilobytes. Which conditional edge reads it?'"
+  },
+  {
+    t:"What it costs you",
+    brk:"Framework trade-offs",
+    dif:"Hard",
+    pair:["Framework provides the runtime","You still own the invariants it doesn't enforce"],
+    ask:`<p>Make the case <b>against</b> using LangGraph for a project. Then tell me what it genuinely gives you that you'd otherwise build.</p>
+    <p>I want both halves, honestly.</p>`,
+    sol:`<p><b>Against:</b></p>
+    <ul>
+      <li><b>Real conceptual overhead.</b> Channels, reducers, supersteps, checkpoint namespaces and interrupt re-execution all have to be understood before you can debug confidently — a genuine curve for a team that only needs a while loop with tool calls.</li>
+      <li><b>Debugging through an abstraction.</b> When behaviour surprises you the cause is often runtime semantics rather than your code, which is a harder class of problem for a new team member.</li>
+      <li><b>Coupling</b> to a fast-moving ecosystem; you inherit its release cadence and its bugs.</li>
+      <li><b>The graph can obscure simplicity.</b> A five-node graph that is really a sequence is harder to read than the sequence.</li>
+    </ul>
+    <p><b>For — the honest list of what you'd otherwise build yourself:</b> checkpointed state at every step with pluggable backends; pause and resume, including multi-day human waits; time travel and forking from any prior checkpoint; per-node retry, timeout and caching policies; streaming at several granularities; and a state-merge model that makes concurrent writes explicit rather than accidental. <span class="key">That is a durable workflow engine, and hand-rolling one badly is the standard way agent projects fail in month three.</span></p>
+    <p><b>The critical caveat:</b> the framework gives you durable execution mechanics. It does <em>not</em> give you the invariants from the rest of this kit — bounded authority, effect idempotency, audit trails, aggregate limits, or containment of untrusted content. A checkpointed graph with a broad service account and unrestricted tools is exactly as dangerous as an unframeworked one. <b>Frameworks solve the plumbing; the safety properties remain your design problem.</b></p>`,
+    sig:[
+      ["Solid","Names the learning curve and credits persistence and human-in-the-loop support."],
+      ["Strong","Argues the alternative is hand-building a workflow engine, and that most teams do it badly."],
+      ["Exceptional","States plainly that the framework provides no security or authority invariants, so the containment work from the rest of the system is unchanged."]
+    ],
+    push:"'It checkpoints every step. Does it stop the agent issuing a refund it shouldn\\'t?'"
+  }
+]});
+
+P.push({
+  code:"LG2", track:"LangGraph", tab:"State & reducers",
+  title:"Reducers are a concurrency policy",
+  tags:[["v","State channels"],["t","Merge semantics · ordering"],["","Hard throughout"]],
+  setup:`<p>A research graph: a planner fans out to three retriever nodes, each returning documents, then a synthesiser reads them all.</p>
+  <p>This is the highest-yield problem in the track. Reducers are where LangGraph's execution model becomes visible, and where a lot of production bugs live.</p>`,
+  stages:[
+  {
+    t:"The error",
+    brk:"Concurrent write conflict",
+    dif:"Hard",
+    pair:["Three nodes each return documents","Every parallel-written key declares a merge policy"],
+    ask:`<p>Your three retrievers each return <code>{"documents": [...]}</code>. State declares <code>documents: list[str]</code>.</p>
+    <p><b>What happens when you run it, and why?</b></p>`,
+    sol:`<p><b>It raises <code>InvalidUpdateError</code></b> — documented as <code>INVALID_CONCURRENT_GRAPH_UPDATE</code>, with a message along the lines of "At key 'documents': Can receive only one value per step. Use an Annotated key to handle multiple values."</p>
+    <p><b>Why:</b> all three nodes run in one superstep, so three writes to the same channel arrive at the same barrier. Without a declared merge function the default is overwrite — and the runtime cannot pick which of three concurrent overwrites wins, so rather than choosing arbitrarily it refuses. <span class="key">That refusal is good design: the alternative is silent nondeterministic data loss you'd discover weeks later.</span></p>
+    <p><b>The fix</b> declares the merge policy in the schema:</p>
+    <div class="data">from typing import Annotated
+import operator
+
+class State(TypedDict):
+    documents: Annotated[list[str], operator.add]   # concatenate
+    query: str                                       # overwrite (sequential only)</div>
+    <p><b>The framing that separates candidates:</b> a reducer is not a convenience for combining lists. It is the <b>concurrency-control policy for that state key</b> — the thing that decides what the value is when two nodes write at once. It's invisible in a diagram, invisible to a type checker, and it's the only part of the schema that answers that question.</p>
+    <p>It also fires in less obvious shapes: <code>Send</code> fan-out, a static edge that survives a <code>Command(goto=...)</code>, and a retry inside a parallel branch.</p>`,
+    sig:[
+      ["Solid","Predicts the concurrent-update error and adds a reducer."],
+      ["Strong","Explains it via the superstep barrier and prefers failing loudly to silent loss."],
+      ["Exceptional","Describes a reducer as the key's concurrency-control policy, and names the non-obvious triggers — Send fan-out, surviving static edges, retries in a branch."]
+    ],
+    push:"'Three writes to one key arrive at the same barrier. Which one should the runtime keep?'"
+  },
+  {
+    t:"What the fix hides",
+    brk:"Order dependence",
+    dif:"Hard",
+    pair:["Reducer merges concurrent writes","Merge order doesn't affect correctness — or is controlled"],
+    ask:`<p>You add <code>operator.add</code>. The error goes away.</p>
+    <p><b>What did you just introduce?</b></p>`,
+    sol:`<p><b>An order dependence.</b> <code>operator.add</code> on lists is associative but <em>not commutative</em> — the merged list's order depends on which branch's write is folded first, which is a scheduling detail you don't control and can't predict run to run.</p>
+    <p><b>Whether that's a defect depends on one question: does anything downstream read the order?</b></p>
+    <ul>
+      <li><b>Taking <code>len()</code> or a set of it:</b> harmless.</li>
+      <li><b>Rendering the list into a prompt:</b> a correctness issue. Position bias means the model attends unevenly, so nondeterministic order makes your output nondeterministic in a way unrelated to sampling temperature — and it presents as model flakiness. <span class="key">This is the bug that gets misdiagnosed as "the LLM is unreliable" for weeks.</span></li>
+      <li><b>Taking the first element as "best":</b> straightforwardly wrong.</li>
+    </ul>
+    <p><b>The discipline:</b> for every key with a reducer, ask whether the reducer is commutative, and if not, whether order reaches a decision. Where it does, either make the merge deterministic — write tagged entries and sort by the tag in the consumer — or aggregate in a single downstream node that sorts explicitly rather than relying on fold order.</p>
+    <p><b>Worth knowing:</b> a <code>Send</code> list built from a model's structured output makes the fan-out order itself model-dependent, so the nondeterminism has two stacked sources. And LangGraph provides an <code>Overwrite</code> type for deliberately bypassing a reducer on a sequential write — useful, and a footgun on a parallel-written key.</p>`,
+    sig:[
+      ["Solid","Notes the merged order isn't guaranteed."],
+      ["Strong","Asks whether anything downstream depends on order, and identifies prompt rendering as the dangerous case."],
+      ["Exceptional","Tests reducers for commutativity as a habit, proposes tagged entries with explicit downstream sorting, and connects nondeterministic order to misdiagnosed model flakiness."]
+    ],
+    push:"'The list order varies between runs. You paste it into a prompt. Is that a problem?'"
+  },
+  {
+    t:"add_messages isn't append",
+    brk:"Message channel semantics",
+    dif:"Hard",
+    pair:["Messages accumulate in state","Message identity and removal are handled explicitly"],
+    ask:`<p><code>messages: Annotated[list, add_messages]</code>. <b>Why not just <code>operator.add</code>?</b></p>
+    <p>And how do you remove a message?</p>`,
+    sol:`<p><b>What <code>add_messages</code> does beyond concatenation:</b></p>
+    <ul>
+      <li><b>ID-based upsert.</b> A message whose id matches an existing one <em>replaces</em> it rather than appending a duplicate. That's what makes editing a message work, and what stops resume-after-interrupt duplicating history.</li>
+      <li><b>Assigns ids</b> to messages that lack them, so identity exists to upsert on.</li>
+      <li><b>Coerces</b> dicts and tuples into proper message objects, so <code>{"role": "user", ...}</code> works.</li>
+      <li><b>Honours removal sentinels</b> — returning a <code>RemoveMessage</code> with an id deletes that message from the channel.</li>
+    </ul>
+    <p><span class="key">With plain <code>operator.add</code> you get duplicates on any replay, no way to edit, and no way to delete — and the duplicates are what you'll actually hit, because replay is normal in this runtime.</span></p>
+    <p><b>Removal in practice:</b> return <code>RemoveMessage(id=...)</code> per message to drop. Two live uses: trimming history to control context growth, and stripping a failed tool-call/tool-result pair that would otherwise confuse the model on the next turn.</p>
+    <p><b>The constraint to be careful about:</b> most providers reject a tool-call message without its matching tool result, so trimming must respect those pairs. Naively dropping the oldest N messages is a reliable way to produce provider API errors that look like model problems — a good candidate raises this unprompted.</p>`,
+    sig:[
+      ["Solid","Knows add_messages handles message objects and appends properly."],
+      ["Strong","Explains ID-based upsert and knows RemoveMessage is how deletion works."],
+      ["Exceptional","Connects upsert to replay-without-duplication, and warns that trimming must preserve tool-call/tool-result pairing or the provider rejects the request."]
+    ],
+    push:"'You resume a thread and the node re-runs. What stops the same message appearing twice?'"
+  },
+  {
+    t:"Checkpoint bloat",
+    brk:"State growth over a thread",
+    dif:"Hard",
+    pair:["Every step writes a checkpoint","Checkpoint volume is bounded and pruned"],
+    ask:`<p>A long-running thread has 400 checkpoints, each containing the full message list.</p>
+    <p><b>Work out roughly what you're storing</b>, and what you do about it.</p>`,
+    sol:`<p><b>The shape:</b> a checkpoint is a snapshot of state, written per superstep. If state grows with the conversation, checkpoint <i>n</i> contains roughly <i>n</i> steps' worth of content, so total storage across a thread is <span class="num">quadratic</span> in step count — the same shape as the agent context cost problem, now in your database.</p>
+    <p><b>What to do:</b></p>
+    <ul>
+      <li><b>Keep state small</b> — references not payloads. Highest-leverage fix, and it compounds across every checkpoint.</li>
+      <li><b>Trim the message channel</b> with <code>RemoveMessage</code>, or summarise older turns into a compact field, so state stops growing linearly.</li>
+      <li><b>Set retention.</b> Prune checkpoints beyond a horizon, or use a TTL where the backend supports one. Old intermediate checkpoints have little value once a thread completes — time travel to step 6 of a finished thread is rarely needed.</li>
+      <li><b>Choose durability deliberately.</b> <code>durability="exit"</code> writes only at run boundaries rather than per step, cutting checkpoint volume substantially — at the cost of mid-run crash recovery. A fair trade for short cheap runs, wrong for long expensive ones.</li>
+      <li><b>Scope checkpointing by subgraph.</b> Compile a high-frequency inner subgraph without its own checkpointer and let the outer graph checkpoint at meaningful phase boundaries. Coarser granularity means more re-execution after a crash and far fewer writes.</li>
+    </ul>
+    <p><span class="key">The instinct: checkpoint granularity is a tunable trade between write volume and how much work a crash costs. Most teams never touch it and pay per-node write costs for micro-steps that were never worth persisting.</span></p>`,
+    sig:[
+      ["Solid","Wants to trim state and prune old checkpoints."],
+      ["Strong","Gets the quadratic growth and knows durability modes change write volume."],
+      ["Exceptional","Uses subgraph-scoped checkpointing to move granularity to phase boundaries, and frames it as a write-volume versus re-execution trade."]
+    ],
+    push:"'Checkpoint 400 contains the whole history. So did checkpoint 399. Add them up.'"
+  },
+  {
+    t:"Evolve the schema",
+    brk:"Live threads on old shapes",
+    dif:"Hard",
+    pair:["State schema evolves with the code","Schema changes stay compatible with live threads"],
+    ask:`<p>You need to add a field and rename another. There are 2,000 live threads with checkpoints written under the old schema.</p>
+    <p><b>What happens, and what's your policy?</b></p>`,
+    sol:`<p><b>What happens:</b> a resumed thread loads a checkpoint written under the old schema into code expecting the new one. Adding an optional field is usually survivable — it's absent, and nodes must tolerate that. A rename is not: the old value sits under the old key, your nodes read the new key and find nothing, and <span class="key">the failure is typically a missing value flowing into a prompt rather than an exception, so it looks like a quality problem rather than a migration bug.</span></p>
+    <p><b>The policy — ordinary schema-migration discipline, applied where people forget to apply it:</b></p>
+    <ul>
+      <li><b>Additive changes only</b>, with defaults, and nodes written to tolerate absent keys.</li>
+      <li><b>Never rename in place.</b> Add the new key, write both through a deprecation window, migrate readers, then stop writing the old one once no live thread carries it.</li>
+      <li><b>Version the state</b> with a schema-version field so a node can detect and upgrade an old shape on load — the explicit migration path, worth it if threads are long-lived.</li>
+      <li><b>Know your thread lifetime.</b> If threads finish within an hour, drain and deploy. If they can resume after a month, you need real compatibility. Most teams never establish which world they're in.</li>
+      <li><b>Test it:</b> keep fixture checkpoints from previous schema versions and assert current code can load and resume them. Cheap, and nobody does it.</li>
+    </ul>
+    <p>And the related trap: changing the <em>graph shape</em> — removing a node a live checkpoint expects to resume into — is at least as breaking as changing the state.</p>`,
+    sig:[
+      ["Solid","Sees that live checkpoints carry the old shape and wants additive changes."],
+      ["Strong","Proposes dual-writing through a deprecation window and a schema version field."],
+      ["Exceptional","Notes the failure is a silent missing value rather than an error, keeps fixture checkpoints as a regression test, and flags graph-shape changes as equally breaking."]
+    ],
+    push:"'A thread paused last Tuesday resumes today under new code. Which schema wrote its checkpoint?'"
+  }
+]});
+
+P.push({
+  code:"LG3", track:"LangGraph", tab:"Control flow",
+  title:"Edges, Command, Send",
+  tags:[["v","Routing"],["t","Fan-out · loops · subgraphs"],["","Hard throughout"]],
+  setup:`<p>Same research graph, now with routing: a triage node picks a strategy, some paths loop, one path fans out over a model-chosen list of subtopics, and one branch is a reusable subgraph shared with another product.</p>`,
+  stages:[
+  {
+    t:"Conditional edge or Command",
+    brk:"Two routing mechanisms",
+    dif:"Hard",
+    pair:["Node decides where to go next","Exactly one mechanism owns each transition"],
+    ask:`<p>You can route with <code>add_conditional_edges</code> and a router function, or by returning <code>Command(goto=..., update=...)</code> from the node.</p>
+    <p><b>Compare them.</b> When does each fit, and what's the trap?</p>`,
+    sol:`<p><b>Conditional edges:</b> a separate router function reads state and returns the next node's name. The routing logic sits outside the node, is visible in the compiled graph, and is testable in isolation — you can unit-test the router with a state dict and no model at all. Prefer this by default; it keeps the graph legible.</p>
+    <p><b>Command:</b> the node returns both a state update and a destination together. Right when the routing decision is inseparable from the work — the node called the model and the model's output determines both the update and the next step, and splitting them would mean recomputing or stashing the decision in state purely to hand it to a router. Also the mechanism for agent handoff, including across a subgraph boundary with <code>graph=Command.PARENT</code>.</p>
+    <p><b>The trap:</b> mixing them. If a node has a static <code>add_edge</code> to B <em>and</em> returns <code>Command(goto="C")</code>, both transitions apply — B and C both run, in the same superstep. <span class="key">People expect <code>goto</code> to override the static edge. It doesn't; it adds to it — and then the two branches collide on a shared state key and you get the concurrent-update error, which sends you debugging reducers instead of the actual bug.</span></p>
+    <p><b>The rule:</b> per node, pick one mechanism. A node returning <code>Command(goto=...)</code> should have no static outgoing edge.</p>`,
+    sig:[
+      ["Solid","Describes both mechanisms correctly."],
+      ["Strong","Prefers conditional edges for testability and Command when decision and update are inseparable."],
+      ["Exceptional","Knows a static edge and a Command goto both fire, predicts the resulting concurrent-update error, and states the one-mechanism-per-node rule."]
+    ],
+    push:"'The node has an edge to B and returns goto C. What runs next?'"
+  },
+  {
+    t:"Fan out over unknown N",
+    brk:"Dynamic parallelism",
+    dif:"Hard",
+    pair:["Model chooses how many branches","Aggregation and width bounds are declared up front"],
+    ask:`<p>The planner returns a list of subtopics — could be 3, could be 40. Each needs the same research node run over it.</p>
+    <p><b>How?</b> And what must be true for the results to come back correctly?</p>`,
+    sol:`<p><b>The <code>Send</code> API.</b> A conditional-edge function returns a list of <code>Send(node_name, payload)</code> objects — one per item — and the runtime schedules that many instances of the node in one superstep. Crucially the payload can be a <em>different</em> shape from the main graph state, so each worker receives just its subtopic rather than everything.</p>
+    <div class="data">from langgraph.types import Send
+
+def fan_out(state):
+    return [Send("research", {"subtopic": t}) for t in state["subtopics"]]
+
+builder.add_conditional_edges("planner", fan_out, ["research"])</div>
+    <p><b>The key property:</b> normal conditional edges choose among routes declared at compile time; <code>Send</code> creates edges at runtime, as many as the data demands. That's what makes map-reduce expressible at all.</p>
+    <p><b>What must be true:</b></p>
+    <ul>
+      <li><b>The aggregation key needs a reducer.</b> N workers writing <code>findings</code> in one superstep is exactly the concurrent-write case — without <code>Annotated[list, operator.add]</code> you get the error. The most common Send mistake by a wide margin.</li>
+      <li><b>Order is not guaranteed</b>, and here the fan-out list came from model output, so both order and count vary run to run.</li>
+      <li><b>N is model-chosen and therefore unbounded.</b> Cap it in code before building the Send list. A planner returning 400 subtopics will launch 400 concurrent model calls, hit provider rate limits, and cost accordingly. <span class="key">Any model-determined fan-out width needs a hard ceiling enforced outside the model — the bounded-behaviour principle applied to concurrency.</span></li>
+      <li><b>Partial failure needs a decision</b>, so one failed worker doesn't yield an aggregate that looks complete.</li>
+    </ul>`,
+    sig:[
+      ["Solid","Knows Send is the mechanism and that workers run in parallel."],
+      ["Strong","Requires a reducer on the aggregation key and knows the payload shape can differ."],
+      ["Exceptional","Caps the model-chosen fan-out width in code, and requires an explicit policy for partial worker failure rather than aggregating silently."]
+    ],
+    push:"'The planner returns four hundred subtopics. What does your graph do?'"
+  },
+  {
+    t:"Loops that end",
+    brk:"Recursion limit as a symptom",
+    dif:"Standard",
+    pair:["Agent loops until done","Termination is a designed condition, not a ceiling"],
+    ask:`<p>Your test-fix loop hits <code>GraphRecursionError: Recursion limit of 25 reached</code>.</p>
+    <p><b>What do you do?</b></p>`,
+    sol:`<p><b>What most people do:</b> raise <code>recursion_limit</code> at invoke time. Sometimes correct — 25 supersteps is genuinely low for a real agent, and a legitimate 60-step task will trip it.</p>
+    <p><b>What it usually means:</b> the loop has no working exit condition and the limit is the only thing stopping it. Raising the ceiling converts a fast failure into a slow expensive one. <span class="key">The recursion limit is a backstop, not a termination strategy — hitting it is a design signal, and the first question is whether the loop can exit at all.</span></p>
+    <p><b>What to actually do:</b></p>
+    <ul>
+      <li><b>Put an explicit attempt counter in state</b> and route to a give-up branch past a threshold. Now the exit is a designed transition with a defined outcome, and it's testable.</li>
+      <li><b>Make the give-up path useful</b> — escalate, report what was tried, hand back partial work. A terminal node that summarises the failure beats an exception.</li>
+      <li><b>Check progress, not just count.</b> If the same test fails identically three times, the loop is stuck rather than working — a different and earlier exit than the attempt cap.</li>
+      <li><b>Then set <code>recursion_limit</code> above your designed maximum</b>, so it only fires on a genuine bug — and alert when it does.</li>
+    </ul>
+    <p>Note the accounting: the limit counts <em>supersteps</em>, not model calls, so a graph with parallel branches burns fewer supersteps than nodes executed, and a tight two-node cycle burns two per iteration.</p>`,
+    sig:[
+      ["Solid","Raises the limit and adds an attempt counter."],
+      ["Strong","Treats hitting the limit as a design signal and builds a give-up branch with a useful outcome."],
+      ["Exceptional","Adds a progress-based exit distinct from the attempt cap, keeps the recursion limit as a bug alarm, and knows it counts supersteps rather than node executions."]
+    ],
+    push:"'You raise the limit to 200. Does the loop now terminate?'"
+  },
+  {
+    t:"Wait for everyone",
+    brk:"Fan-in timing",
+    dif:"Hard",
+    pair:["Branches finish at different times","Aggregation runs once, after all branches"],
+    ask:`<p>Three branches of different lengths — one node, three nodes, two nodes — all converge on a synthesis node.</p>
+    <p><b>When does synthesis run?</b> What could go wrong?</p>`,
+    sol:`<p><b>The thing to reason about:</b> a node becomes eligible when it receives a write on an incoming channel, and eligible nodes execute each superstep. With branches of unequal length, "synthesis waits for all three" is not automatic — it can be triggered when the first branch reaches it, potentially running more than once or running on incomplete input.</p>
+    <p><b>The mechanism for this is deferred execution</b> — marking the node so it runs only after all pending branches that could reach it have completed (<code>defer=True</code> on <code>add_node</code>). That's the right tool for a fan-in over uneven branches, and it's the feature people don't find until they've debugged a double-executing aggregator.</p>
+    <p><b>What goes wrong without it:</b></p>
+    <ul>
+      <li><b>Synthesis runs early</b> on partial results and produces a confident answer from a third of the evidence.</li>
+      <li><b>Synthesis runs twice</b>, doing duplicate work and — if it has side effects — duplicating them.</li>
+      <li><b>The reducer masks it.</b> Because the aggregation key merges rather than errors, incomplete input looks like complete input, so <span class="key">the failure isn't an exception, it's a worse answer — which is why this survives in production.</span></li>
+    </ul>
+    <p><b>The defensive habit regardless:</b> have the aggregator assert on what it received — expected branch count, or a per-branch completion marker in state — so incomplete input fails loudly. That's the process-assertion principle applied inside the graph, and it doesn't depend on getting the framework's scheduling semantics exactly right.</p>`,
+    sig:[
+      ["Solid","Expects the fan-in to wait and is unsure whether it does."],
+      ["Strong","Knows deferred nodes are the mechanism for waiting on uneven branches."],
+      ["Exceptional","Predicts that a reducer makes incomplete aggregation silent rather than erroring, and adds a branch-completion assertion as a framework-independent guard."]
+    ],
+    push:"'Branch one is one node, branch two is three. Synthesis is triggered by branch one. What does it see?'"
+  },
+  {
+    t:"Subgraphs",
+    brk:"State isolation and namespaces",
+    dif:"Hard",
+    pair:["Subgraph reused across graphs","Boundary contract and namespacing are explicit"],
+    ask:`<p>You extract the research branch into a subgraph shared with another product.</p>
+    <p><b>How does state cross the boundary, and what surprises you?</b></p>`,
+    sol:`<p><b>Two ways across:</b></p>
+    <ul>
+      <li><b>Shared state keys.</b> If parent and subgraph schemas share a key it flows automatically through the channel. Convenient, and it couples the two schemas — a poor fit for a subgraph shared between products, since each product's schema now constrains the other's.</li>
+      <li><b>Explicit transformation.</b> Wrap the subgraph in a node that maps parent state into the subgraph's input and maps its output back. More code, and the boundary becomes a real contract you can version and test. <span class="key">For a reusable subgraph this is the right answer — the difference between a shared module and two coupled graphs.</span></li>
+    </ul>
+    <p><b>The surprises:</b></p>
+    <ul>
+      <li><b>Separate checkpoint namespaces.</b> A subgraph checkpoints under its own namespace, so parent state doesn't automatically reflect subgraph internals, and inspecting a paused run means knowing which namespace you're in. Streaming needs <code>subgraphs=True</code> to see inside at all — without it, nested execution is invisible and looks like one long silent node.</li>
+      <li><b>Interrupts inside subgraphs</b> pause the whole run, and resuming targets the paused task in the nested namespace. Debuggable once you know; baffling before.</li>
+      <li><b>Node defaults don't inherit.</b> Retry, timeout and cache policies set on the parent do not apply inside a subgraph, so a subgraph compiled without them has no retry protection while the parent looks fully covered.</li>
+      <li><b>Parallel subgraphs have been reported to raise concurrent-update errors on keys the subgraph never wrote</b> — worth knowing so you don't spend a day assuming your own code is at fault.</li>
+    </ul>`,
+    sig:[
+      ["Solid","Knows shared keys are the simple path and that subgraphs have their own state."],
+      ["Strong","Prefers explicit input/output transformation for a reusable subgraph and knows streaming needs subgraphs=True."],
+      ["Exceptional","Knows node defaults don't inherit into subgraphs, and treats the boundary as a versioned contract rather than a shared schema."]
+    ],
+    push:"'Your other product has a different state schema. Does the subgraph still work?'"
+  }
+]});
+
+P.push({
+  code:"LG4", track:"LangGraph", tab:"Persistence",
+  title:"Checkpointers, threads, stores",
+  tags:[["v","Persistence"],["t","Durability · time travel"],["","Hard throughout"]],
+  setup:`<p>Your graph works locally. It now needs to survive restarts, serve many users, remember things across conversations, and let you inspect what happened yesterday.</p>
+  <p>This is where the framework earns its keep, and where the gap between the tutorial and production is widest.</p>`,
+  stages:[
+  {
+    t:"Checkpointer or store",
+    brk:"Two different memories",
+    dif:"Standard",
+    pair:["Agent remembers things","Thread-scoped and cross-thread memory are distinct systems"],
+    ask:`<p>You need two things: a conversation that continues where it left off, and the user's preferences remembered across every conversation.</p>
+    <p><b>Which mechanism for each, and why aren't they the same?</b></p>`,
+    sol:`<p><b>Checkpointer — short-term, thread-scoped.</b> It persists graph <em>state snapshots</em> for one thread, keyed by the <code>thread_id</code> passed in config. It gives you conversation continuity, resume-after-crash, human-in-the-loop pauses and time travel. It's the mechanism for "continue this run".</p>
+    <p><b>Store — long-term, cross-thread.</b> It persists application-defined key-value items in namespaces, read and written explicitly by nodes, independent of any thread. It gives you user preferences, learned facts, shared knowledge — and typically supports semantic search over items, so retrieval by meaning rather than exact key.</p>
+    <p><b>Why they can't be one thing:</b> they differ in scope, lifecycle and access pattern. Thread state is a snapshot the runtime owns and advances; store items are application data you update in place and read from any thread. Keeping durable user facts in thread state makes them invisible to the next conversation; keeping run state in the store means you've reimplemented the checkpointer badly.</p>
+    <p><span class="key">Mixing these up is the most reliably diagnostic mistake in a LangGraph interview — it indicates someone who followed a chat tutorial and never built cross-session memory.</span></p>
+    <p><b>Most real applications use both:</b> checkpointer for the thread, store for what should outlive it. And the store is where the memory-design questions from earlier in this kit land — write policy, provenance, conflict resolution, and never deriving authority from a retrieved item.</p>`,
+    sig:[
+      ["Solid","Assigns checkpointer to conversation continuity and store to cross-session facts."],
+      ["Strong","Explains the scope and access-pattern differences rather than just labelling them."],
+      ["Exceptional","Connects the store to the earlier memory-architecture problems — write policy, provenance, no authority from retrieved items."]
+    ],
+    push:"'The user gives their timezone in conversation one. Conversation two starts. Where does that live?'"
+  },
+  {
+    t:"Which checkpointer",
+    brk:"Development backend in production",
+    dif:"Hard",
+    pair:["Checkpointer is configured","Backend matches the deployment topology"],
+    ask:`<p>You developed with <code>InMemorySaver</code>. <b>What breaks in production</b>, and what are the operational concerns with the replacement?</p>`,
+    sol:`<p><b>What breaks:</b> in-memory checkpoints live in process RAM. A restart, a deploy or a pod eviction loses every in-flight thread — and with multiple replicas behind a load balancer it's worse than lossy, it's <em>incoherent</em>: a follow-up routed to a different replica finds no thread, so conversations appear to reset intermittently. A maddening bug if you don't suspect the checkpointer.</p>
+    <p><b>The progression:</b> in-memory for tests and notebooks; SQLite for single-process local or lightweight deployments; Postgres (sync or async variants) for anything multi-process. Any backend implementing the checkpointer interface works, which is why community savers exist.</p>
+    <p><b>The operational concerns that catch teams out:</b></p>
+    <ul>
+      <li><b>Connection lifetime.</b> Used directly, a Postgres saver can hold a connection for the duration of a run — and agent runs are minutes. Use a pool sized for concurrent <em>runs</em> rather than requests per second, or you'll exhaust connections at modest traffic.</li>
+      <li><b>Table setup and indexes</b> must be created before first use.</li>
+      <li><b>Unbounded growth.</b> Checkpoints accumulate per thread per step. Plan pruning or TTL from the start; retrofitting it onto a large table is a migration.</li>
+      <li><b>Identifier limits</b> — thread ids are stored in a bounded column, so keep them short. Use a UUID rather than a concatenated natural key.</li>
+      <li><b>Async/sync mismatch:</b> pairing a sync saver with an async graph is a common source of surprising blocking.</li>
+    </ul>
+    <p><span class="key">And the sharpest question to ask: what's the multi-replica story? A checkpointer makes state durable; it does not make concurrent access to one thread safe.</span></p>`,
+    sig:[
+      ["Solid","Knows in-memory doesn't survive restarts and moves to Postgres."],
+      ["Strong","Raises connection pooling for long-running runs and checkpoint table growth."],
+      ["Exceptional","Identifies the multi-replica incoherence symptom, and separates durability from safe concurrent access to the same thread."]
+    ],
+    push:"'Two replicas, sticky sessions off. The user sends a second message. Which replica has the thread?'"
+  },
+  {
+    t:"How durable",
+    brk:"Persistence timing",
+    dif:"Hard",
+    pair:["Checkpointer persists state","Write timing is chosen against the cost of losing a step"],
+    ask:`<p>There's a <code>durability</code> setting with three values. <b>Name them, explain the trade, and pick one</b> for (a) a 90-second interactive task and (b) a multi-day approval workflow.</p>`,
+    sol:`<p><b>The three modes, least to most durable:</b></p>
+    <ul>
+      <li><b><code>"exit"</code></b> — persists only when the run exits: success, error, or interrupt. Best performance and far fewer writes; no mid-run crash recovery, because intermediate state was never written.</li>
+      <li><b><code>"async"</code></b> — persists in the background while the next step executes. Good balance, with a small risk that a crash during execution loses the write.</li>
+      <li><b><code>"sync"</code></b> — blocks until the write is confirmed before the next step starts. Strongest guarantee, real per-step overhead.</li>
+    </ul>
+    <p><b>The picks:</b> (a) a 90-second interactive task can reasonably use <code>"exit"</code> or <code>"async"</code> — losing it means re-running 90 seconds, annoying rather than expensive, and you save a lot of writes. (b) A multi-day workflow wants <code>"sync"</code>: a lost checkpoint could mean a re-sent email, a duplicated approval or a silently skipped step, and write cost is irrelevant against a multi-day horizon.</p>
+    <p><b>The decision rule to articulate:</b> compare the cost of re-executing since the last durable write against the cost of the write itself. Long, expensive, side-effecting steps justify <code>"sync"</code>; short cheap read-only ones don't.</p>
+    <p><span class="key">And the trap worth naming: durability mode is orthogonal to the backend. Setting <code>durability="sync"</code> with an in-memory saver changes when it writes to RAM and nothing about surviving a restart. The mode controls timing; the saver controls whether it's persistent at all.</span></p>`,
+    sig:[
+      ["Solid","Names the three modes with roughly correct semantics."],
+      ["Strong","Justifies the choice by cost of re-execution versus write overhead."],
+      ["Exceptional","Points out durability is orthogonal to the backend, so sync on an in-memory saver is still not durable."]
+    ],
+    push:"'You set it to sync. Your checkpointer is InMemorySaver. Are you durable?'"
+  },
+  {
+    t:"Time travel",
+    brk:"Inspecting and forking history",
+    dif:"Hard",
+    pair:["Checkpoints exist per step","Any prior state is inspectable and re-runnable"],
+    ask:`<p>A run went wrong at step 7 of 20. <b>What can the persistence layer give you</b>, and what would you actually do with it?</p>`,
+    sol:`<p><b>What you get:</b> list the thread's checkpoint history to see state at every step; select a specific checkpoint id and re-invoke from it to <b>replay</b> — steps before it aren't re-executed, execution resumes from there; or update state at a checkpoint, which <b>forks</b> a new branch of history with your modified values.</p>
+    <p><b>What that's genuinely good for:</b></p>
+    <ul>
+      <li><b>Counterfactual debugging.</b> Fork at step 7, correct the bad tool result, see whether the run then succeeds. A causal test rather than a story — the ablation-by-replay idea from the foundations track, available out of the box.</li>
+      <li><b>Testing a fix.</b> Change the prompt, replay from step 6, compare. Much cheaper than re-running from scratch, and it isolates the change.</li>
+      <li><b>Human correction as a first-class operation.</b> A reviewer edits the agent's plan or a drafted artefact by updating state, and the run continues from the corrected version rather than restarting.</li>
+      <li><b>Explaining an incident</b> — step through what state actually was, rather than reconstructing it from logs.</li>
+    </ul>
+    <p><b>The honest limits:</b> replay re-executes the model, which is nondeterministic, so the same fork may not reproduce the same path — it tells you what the agent <em>would</em> do, not what it did. External state has also moved on, so a replayed tool call may hit a different world. And forking branches the thread's history, which needs care when that history is also your evidence.</p>
+    <p><span class="key">Time travel is the strongest debugging affordance the framework offers, and the one most teams never use because they never look at the checkpoint history.</span></p>`,
+    sig:[
+      ["Solid","Knows history can be listed and a prior checkpoint replayed."],
+      ["Strong","Uses forking via state update for counterfactual tests and human correction."],
+      ["Exceptional","Notes replay is nondeterministic and the external world has moved, so it shows what the agent would do rather than reproducing what it did."]
+    ],
+    push:"'The tool returned garbage at step 7. Can you find out whether the rest of the run would have worked?'"
+  },
+  {
+    t:"Checkpoints aren't durable execution",
+    brk:"Concurrency and idempotency gaps",
+    dif:"Exceptional only",
+    pair:["Framework persists and resumes","Concurrent resume and duplicate effects are prevented by you"],
+    ask:`<p>Your teammate says persistence gives you durable execution, so the idempotency and reconciliation work from earlier is unnecessary.</p>
+    <p><b>Push back precisely.</b></p>`,
+    sol:`<p><b>What checkpointing gives you:</b> state survives a crash, and a run can resume from the last durable checkpoint. Real and valuable.</p>
+    <p><b>What it does not give you:</b></p>
+    <ul>
+      <li><b>Exclusive execution per thread.</b> If two processes resume the same <code>thread_id</code> concurrently — possible during partial-failure recovery, a retrying client, or a double-delivered webhook — there is no built-in coordination stopping both from executing. Two agents proceed from the same checkpoint and both take effects. <span class="key">You need your own lock or lease per thread; the checkpointer will not provide it.</span></li>
+      <li><b>Effect idempotency.</b> A node that charged a card and crashed before its checkpoint will charge again on resume. The runtime replays the node; the payment provider has no idea. Idempotency keys and reconciliation remain entirely yours.</li>
+      <li><b>Exactly-once node execution.</b> Re-execution is normal — on retry, on resume after interrupt, on replay. Any node with side effects must tolerate running more than once.</li>
+      <li><b>An audit trail.</b> Checkpoints are mutable working state with retention policies, and they can be forked. They are not an append-only, tamper-evident record of effects, and using them as one fails the first time it matters.</li>
+    </ul>
+    <p><b>The framing:</b> the framework gives you <em>durable state</em>. Durable <em>execution</em> — an effect happening effectively once despite crashes and retries — requires idempotent effects and reconciliation, which are properties of your tool layer and the external systems. No orchestrator can supply them for you.</p>
+    <p>The practical guidance follows: keep side effects in their own nodes, make each idempotent with a caller-supplied key, record intent before attempting, and reconcile against external state on resume.</p>`,
+    sig:[
+      ["Solid","Knows nodes can re-execute so side effects need care."],
+      ["Strong","Requires idempotency keys and knows the framework doesn't provide them."],
+      ["Exceptional","Raises concurrent resume of the same thread as an unguarded case needing your own lease, and refuses to treat checkpoints as an audit trail."]
+    ],
+    push:"'Two workers pick up the same thread_id at the same time. What stops them both running?'"
+  }
+]});
+
+P.push({
+  code:"LG5", track:"LangGraph", tab:"Interrupts",
+  title:"The double-execution problem",
+  tags:[["v","Human in the loop"],["t","interrupt · resume semantics"],["","Hard → very hard"]],
+  setup:`<p>You need human approval before the agent sends a customer email. LangGraph's <code>interrupt()</code> is the mechanism.</p>
+  <p>This is the single most consequential piece of LangGraph-specific knowledge in the track. The mechanism is simple; its semantics are surprising, and the surprise has financial consequences.</p>`,
+  stages:[
+  {
+    t:"The mechanism",
+    brk:"Pause and resume",
+    dif:"Standard",
+    pair:["Graph pauses for a human","A checkpointer and a thread id make the pause durable"],
+    ask:`<p><b>How do you pause a graph and resume it with a human's decision?</b></p>
+    <p>What are the prerequisites, and how is this different from a static breakpoint?</p>`,
+    sol:`<p><b>The mechanism:</b> call <code>interrupt(payload)</code> inside a node. The runtime persists state and surfaces the payload to the caller. To continue, re-invoke the graph with <code>Command(resume=value)</code> on the same thread — and that value becomes the return value of the <code>interrupt()</code> call.</p>
+    <div class="data">from langgraph.types import interrupt, Command
+
+def approval_node(state):
+    decision = interrupt({"draft": state["email"], "to": state["recipient"]})
+    return {"approved": decision == "approve"}
+
+# later, possibly days later, different process:
+graph.invoke(Command(resume="approve"), {"configurable": {"thread_id": tid}})</div>
+    <p><b>Prerequisites:</b> a checkpointer (the pause is implemented by persisting state, so without one there's nothing to resume from) and a <code>thread_id</code> in config so the runtime knows which state to resume. The payload must be JSON-serialisable, since it crosses a process boundary.</p>
+    <p><b>Versus static breakpoints:</b> <code>interrupt_before</code> / <code>interrupt_after</code> pause at fixed node boundaries, declared at compile time — good for debugging and for a blanket "always review before this node". <code>interrupt()</code> is <em>dynamic</em>: it can sit anywhere in the code and fire conditionally, which is what you need for "only ask when the amount exceeds a threshold". That conditionality is why it's the right tool for the risk-tiered gating from the human-in-the-loop problem earlier.</p>
+    <p><b>And the property that makes it genuinely useful:</b> the pause is durable and unbounded. The process can exit; the approval can come days later from a different machine. That is a real capability, not sugar over a blocking call.</p>`,
+    sig:[
+      ["Solid","Describes interrupt and Command(resume=...) correctly."],
+      ["Strong","Names checkpointer and thread_id as prerequisites and explains why."],
+      ["Exceptional","Contrasts dynamic interrupts with static breakpoints and connects conditional interrupts to risk-tiered gating; notes the pause survives process exit."]
+    ],
+    push:"'The approval comes back tomorrow, from a different server. How does the graph know where it was?'"
+  },
+  {
+    t:"It ran twice",
+    brk:"Node re-execution on resume",
+    dif:"Hard",
+    pair:["Node pauses mid-function","Everything before the pause is safe to run again"],
+    ask:`<p>Here's a node. It worked in testing. In production, customers received two emails.</p>
+    <div class="data">def send_with_approval(state):
+    draft = build_draft(state)
+    log_attempt(draft)                  # writes to DB
+    email_id = queue_email(draft)       # side effect!
+    ok = interrupt({"draft": draft})
+    if ok:
+        return {"sent": email_id}
+    return {"sent": None}</div>
+    <p><b>Explain exactly what happened.</b></p>`,
+    sol:`<p><b>On resume, the node re-executes from the top.</b> LangGraph does not suspend and resume a Python frame — it checkpoints at node boundaries and re-runs the node's function from line one, with the resume value now returned by <code>interrupt()</code>. The docs state this plainly: execution resumes at the beginning of the node.</p>
+    <p><b>So the trace is:</b> first pass — build draft, write log, queue email, hit interrupt, pause. Human approves. Second pass — build draft again, <b>write log again, queue email again</b>, reach interrupt which now returns the decision, and continue. Two emails, two log rows, one approval.</p>
+    <p><b>Why the framework works this way, which is worth understanding rather than resenting:</b> serialising a suspended Python frame to Postgres and rehydrating it in a different process days later is essentially intractable. Re-running a function from the top is trivially portable. <span class="key">The framework bought resumability-across-processes-and-days by making node bodies replayable, and it charged you the cost: every line before <code>interrupt()</code> must be idempotent or side-effect-free.</span></p>
+    <p><b>The fix — the rule is structural, not stylistic:</b></p>
+    <div class="data">def request_approval(state):          # pure: builds and pauses
+    draft = build_draft(state)
+    ok = interrupt({"draft": draft})
+    return {"draft": draft, "approved": ok}
+
+def perform_send(state):              # separate node: effects only
+    if not state["approved"]:
+        return {"sent": None}
+    return {"sent": queue_email(state["draft"])}</div>
+    <p>Side effects go in a node <em>after</em> the gate, never before it. And if the pre-interrupt work is expensive or non-deterministic, move it to its own earlier node so its result is checkpointed and simply read back on replay.</p>`,
+    sig:[
+      ["Solid","Identifies that the code before interrupt ran twice."],
+      ["Strong","Knows the node re-executes from the top and separates the effect into a later node."],
+      ["Exceptional","Explains the design trade — replayable node bodies are what buys cross-process resumption — and moves expensive pre-gate work into its own checkpointed node."]
+    ],
+    push:"'Which line does execution resume from? Are you sure it\\'s the interrupt call?'"
+  },
+  {
+    t:"Two gates, one node",
+    brk:"Positional resume matching",
+    dif:"Exceptional only",
+    pair:["Several approvals in one node","Each gate is its own node"],
+    ask:`<p>A node calls <code>interrupt()</code> twice — approve the recipient, then approve the content. <b>What happens?</b></p>
+    <p>And what if the node is a tool-executing node where only some tools need approval?</p>`,
+    sol:`<p><b>Multiple interrupts in one node are matched to resume values <em>by order</em>.</b> The list of resume values is scoped to the task executing that node, and the first <code>interrupt()</code> encountered on replay takes the first value, the second takes the second. There is no naming, no key, no correlation identifier — the binding is positional.</p>
+    <p><b>Which means:</b></p>
+    <ul>
+      <li><b>Any conditional path change between passes misaligns the values.</b> If the first interrupt is inside an <code>if</code> whose condition differs on replay, the second gate receives the first gate's answer. The recipient approval lands on the content gate. Nothing errors.</li>
+      <li><b>Resume semantics with multiple pending interrupts have known rough edges</b> — the runtime re-runs the node after a single resume rather than waiting for all pending interrupts, which has been an open issue. So a two-gate node can behave in ways that are hard to reason about even when your code is correct.</li>
+    </ul>
+    <p><b>The tool-node case is the sharp one:</b> a single node executing a batch of tool calls where some need approval and some don't. Resume values can be misrouted between tool calls in that batch, and this has been reported as a real bug. <span class="key">The maintainers' own recommended workaround is the design rule: don't mix auto-execute and approval-required tools in one node — split them, or accumulate results into state before the interrupt so replay can detect what already ran.</span></p>
+    <p><b>The rule to take away:</b> one gate per node. It costs a couple of extra nodes and buys you correct, checkpointed, individually-resumable approvals with no positional coupling. A candidate who arrives at "one interrupt per node" on their own has understood the replay model.</p>`,
+    sig:[
+      ["Solid","Suspects multiple interrupts in one node are risky."],
+      ["Strong","Knows resume values are matched positionally and that a path change misaligns them."],
+      ["Exceptional","Knows the mixed auto/approval ToolNode case is a live problem and states the one-gate-per-node rule as the structural fix."]
+    ],
+    push:"'The human sends back \\'approve\\'. Which of the two interrupts does that answer?'"
+  },
+  {
+    t:"Approving the wrong thing",
+    brk:"Implicit approval binding",
+    dif:"Exceptional only",
+    pair:["Human approves a displayed action","Approval is bound to the specific action, verifiably"],
+    ask:`<p>Your approval UI shows the payload from the interrupt and sends back <code>{"resume": "approve"}</code>.</p>
+    <p><b>What is that approval actually bound to?</b> Why does that matter?</p>`,
+    sol:`<p><b>It's bound to wherever the checkpoint is currently paused — positionally, not by identity.</b> The resume value carries no reference to the action it approves. Any identifier in the interrupt payload exists so the UI can display it; it is not echoed back, and the server does not verify it. The server applies "approve" to whatever interrupt that thread is waiting on.</p>
+    <p><b>Why that matters:</b></p>
+    <ul>
+      <li><b>A UI bug becomes an authorisation bug.</b> If the approval screen renders stale or mismatched arguments, the human approves what they saw and the system executes what it has. <span class="key">The reviewer's consent and the executed action are correlated only by the correctness of your frontend, which is not where you want an authorisation boundary.</span></li>
+      <li><b>Concurrent or repeated resumes</b> on the same thread have no idempotency by default — a double-clicked approve button is a second resume against whatever is pending now.</li>
+      <li><b>Your audit record is weak</b> unless you add to it. "A human approved" is worth little; the record needs what was displayed.</li>
+    </ul>
+    <p><b>What to build on top:</b> include a stable action id and a hash of the exact rendered payload in the interrupt; have the client return them alongside the decision; and verify in the resuming node that the id and hash match what's pending, rejecting the resume if not. Then log the displayed payload, the reviewer, the timestamp and the decision to the audit trail. <b>That's a handful of lines, and it converts a positional coupling into a verified binding.</b></p>
+    <p>This is the general lesson from the authority track showing up in a framework detail: the mechanism gives you a pause, not an authorisation model. The authorisation model is yours to build.</p>`,
+    sig:[
+      ["Solid","Realises the resume value doesn't identify what it approves."],
+      ["Strong","Sees that a frontend bug becomes an authorisation problem and wants verification."],
+      ["Exceptional","Proposes echoing an action id plus a payload hash and verifying it on resume, and records what was displayed in the audit trail."]
+    ],
+    push:"'The UI displayed draft A. The checkpoint is paused on draft B. What gets sent?'"
+  },
+  {
+    t:"Nobody approves",
+    brk:"Unbounded pauses",
+    dif:"Hard",
+    pair:["Interrupt waits indefinitely","Pending approvals have owners, deadlines and cleanup"],
+    ask:`<p>An interrupt waits indefinitely. Three weeks later you have 4,000 paused threads.</p>
+    <p><b>What's the operational story?</b></p>`,
+    sol:`<p><b>What "indefinitely" costs you:</b></p>
+    <ul>
+      <li><b>Storage.</b> 4,000 paused threads hold their full checkpoint state, plus every checkpoint the run produced before pausing, indefinitely.</li>
+      <li><b>Nobody knows they exist.</b> A paused thread is invisible unless you built a queue view. The work simply never completes, and the requester assumes it's still in progress.</li>
+      <li><b>Staleness.</b> An approval decision made against three-week-old state may be wrong now — the customer's situation changed, the price changed, the order was cancelled. Resuming it executes a decision on a premise that has expired.</li>
+      <li><b>Cache and context loss.</b> Any prompt cache is long gone, so the resumed step is a cold, more expensive one.</li>
+    </ul>
+    <p><b>The operational design:</b></p>
+    <ul>
+      <li><b>A pending-approvals queue as a product surface</b>, with age visible and an owner per item — not a database table someone remembers to query.</li>
+      <li><b>Deadlines with a defined expiry action.</b> Auto-escalate after N hours, auto-reject after M days, and record which happened. Choose per action class; expiring toward "reject" is usually the safe default.</li>
+      <li><b>Re-validate on resume.</b> Before executing, re-check the preconditions the interrupt payload was built from. If they've changed, don't execute — re-present. This is the single most valuable addition and it's rarely there.</li>
+      <li><b>Retention for abandoned threads</b>, so cleanup is a policy rather than a future incident.</li>
+      <li><b>Batch the approvals</b> into one review session — which also mitigates the approval-fatigue problem from the interaction-design track.</li>
+    </ul>
+    <p><span class="key">The framing: an interrupt creates a pending obligation in the outside world. Anything that creates obligations needs a queue, an owner, a deadline and an expiry policy — the framework gives you the pause and none of those.</span></p>`,
+    sig:[
+      ["Solid","Wants a queue and timeouts on pending approvals."],
+      ["Strong","Adds an expiry action and notes storage growth from paused threads."],
+      ["Exceptional","Requires re-validating preconditions on resume because the premise may have expired, and frames the interrupt as creating an obligation needing an owner and deadline."]
+    ],
+    push:"'The approval arrives three weeks later. The order was cancelled two weeks ago. What executes?'"
+  }
+]});
+
+P.push({
+  code:"LG6", track:"LangGraph", tab:"Reliability",
+  title:"Retries, timeouts, caching, streaming",
+  tags:[["v","Node policies"],["t","Fault tolerance · observability"],["","Standard → hard"]],
+  setup:`<p>Your graph calls twelve flaky services, has one very expensive planning node, and a user waiting on the other end of a two-minute run.</p>
+  <p>The framework has per-node policies for most of this. The interview question is whether the candidate knows they exist and what their semantics are.</p>`,
+  stages:[
+  {
+    t:"Retry policy",
+    brk:"Retry semantics",
+    dif:"Standard",
+    pair:["Flaky node is retried","Retries are scoped, bounded, and don't leak partial writes"],
+    ask:`<p><b>How do you retry a flaky node</b>, and what are the semantics you need to know?</p>
+    <p>Specifically: what happens to writes from a failed attempt, and what is never retried?</p>`,
+    sol:`<p><b>The mechanism:</b> attach a <code>RetryPolicy</code> to a node — <code>add_node("fetch", fetch, retry_policy=RetryPolicy(max_attempts=3))</code> — with control over which exceptions qualify via <code>retry_on</code>. You can pass a sequence of policies and the first whose matcher applies is used, which lets you retry a timeout three times and a rate-limit six times with different backoff. As of 1.2 there's also <code>set_node_defaults</code> to apply retry, timeout, cache and error-handler settings graph-wide instead of repeating them per node.</p>
+    <p><b>The two semantics worth knowing:</b></p>
+    <ul>
+      <li><b>Buffered writes from a failed attempt are discarded before the retry.</b> A partially-completed attempt doesn't pollute state — you don't get half of attempt one merged with all of attempt two. Important, because with a reducer that would otherwise duplicate entries silently.</li>
+      <li><b>Control-flow signals are never retried.</b> An interrupt or a parent-command propagating out of a node is not an error, and retrying it would be incoherent. <span class="key">So a retry policy on a node containing <code>interrupt()</code> won't fight the pause — but it will re-run everything before the interrupt on the actual retry path, so the idempotency rule from LG5 still applies.</span></li>
+    </ul>
+    <p><b>What the framework doesn't do for you:</b> the retry re-runs the whole node from the top, so a node with a side effect followed by a flaky call will repeat the side effect on every attempt. Retry safety is a property of how you factored your nodes, and the correct pattern is the same as for interrupts: effects isolated in their own nodes, idempotent, keyed.</p>
+    <p>And note the system-level caveat: per-node retries multiply load on a degrading dependency. The retry budget, jitter and circuit-breaker thinking from the failure-modes problem still has to live in your tool layer — the node policy is a local mechanism, not a capacity strategy.</p>`,
+    sig:[
+      ["Solid","Knows RetryPolicy exists and can attach it per node."],
+      ["Strong","Knows failed-attempt writes are cleared and that the whole node re-runs."],
+      ["Exceptional","Knows control-flow signals like interrupts aren't retried, and notes per-node retries don't constitute a retry budget or circuit breaker at the system level."]
+    ],
+    push:"'The node writes to the database, then calls a flaky API. It retries three times. How many rows?'"
+  },
+  {
+    t:"Timeouts",
+    brk:"Unbounded node execution",
+    dif:"Hard",
+    pair:["Node may hang indefinitely","Each attempt is time-bounded and commits nothing on timeout"],
+    ask:`<p>One node occasionally hangs for twenty minutes on a slow dependency.</p>
+    <p><b>How do you bound it?</b> There are constraints worth knowing.</p>`,
+    sol:`<p><b>The mechanism (1.2 and later):</b> a <code>timeout</code> on <code>add_node</code> capping how long a single attempt may run. Pass seconds, a timedelta, or a <code>TimeoutPolicy</code> for finer control — a hard wall-clock run timeout, an idle timeout that resets on progress, or both. Exceeding it raises <code>NodeTimeoutError</code>, which subclasses the built-in <code>TimeoutError</code>.</p>
+    <p><b>The constraints that matter:</b></p>
+    <ul>
+      <li><b>Async nodes only.</b> Setting a timeout on a sync node raises an error at compile time, because a synchronous Python call can't be safely cancelled in-process. <span class="key">Which means "I want node timeouts" is a reason to write your nodes async — a design consequence, not a config detail.</span></li>
+      <li><b>The timer is per attempt</b> and resets on each retry, so a 3-attempt policy with a 30-second timeout permits 90 seconds of total work. If you need an overall bound, that's a separate concern at the run level.</li>
+      <li><b>Timed-out attempts commit no writes.</b> Buffered state updates and any child tasks they would have scheduled are dropped, so nothing leaks past the timeout boundary — the same hygiene as the retry path.</li>
+      <li><b>Interaction with retry:</b> if the policy retries <code>TimeoutError</code>, the timed-out attempt is retried; if not, it fails through. Both are reasonable, and choosing deliberately is the point.</li>
+    </ul>
+    <p><b>And the honest gap:</b> cancelling the coroutine doesn't cancel work already dispatched to a remote system. A timed-out payment call may still complete server-side, which is precisely the ambiguous-effect case from the durability problem — the timeout bounds your waiting, not the world's doing.</p>`,
+    sig:[
+      ["Solid","Knows node timeouts exist and sets one."],
+      ["Strong","Knows they're async-only and that the timer is per attempt."],
+      ["Exceptional","Notes timed-out attempts commit no writes, and that a cancelled call may still have completed remotely — an ambiguous effect the timeout doesn't resolve."]
+    ],
+    push:"'You time out after thirty seconds. Did the remote call happen?'"
+  },
+  {
+    t:"Node caching",
+    brk:"Repeating expensive work",
+    dif:"Hard",
+    pair:["Expensive node re-runs on replay","Caching is keyed correctly and scoped safely"],
+    ask:`<p>Your planning node costs 40 cents and gets re-run on every replay and retry.</p>
+    <p><b>How do you cache it, and when shouldn't you?</b></p>`,
+    sol:`<p><b>The mechanism:</b> a <code>CachePolicy</code> on the node with a TTL, plus a cache backend on compile. By default the cache key derives from the node's input; <code>key_func</code> lets you customise it — normalising inputs, or ignoring fields that shouldn't affect the result. Caches can be cleared programmatically.</p>
+    <p><b>Where it genuinely helps:</b> deterministic expensive work re-executed by replay or retry, identical planning inputs across runs, and development iteration where you're changing a downstream node and don't want to pay for the upstream one each time. That last use alone justifies knowing about it.</p>
+    <p><b>When not to:</b></p>
+    <ul>
+      <li><b>Nodes with side effects.</b> A cache hit skips the body, so the effect doesn't happen while the state update suggests it did. Cache read-only computation only.</li>
+      <li><b>Anything freshness-dependent</b> — a node reading current balances or availability.</li>
+      <li><b>When the key is wrong.</b> If the default key doesn't include everything affecting the result — a config value, a retrieved document version, the tenant — you serve one input's answer for another's. <span class="key">A cache key that omits tenant identity is a cross-tenant leak, exactly as in the economics problem, and it's easier to get wrong here because the key is generated for you.</span></li>
+      <li><b>When you want variety</b> — caching a node whose value comes from sampling defeats the purpose.</li>
+    </ul>
+    <p><b>An operational wrinkle worth knowing:</b> a cache hit skips execution, so anything the node emitted as a side channel during execution — custom stream events, for instance — won't be emitted on the hit. There's a reported issue about exactly that. If your UI depends on progress events from a cached node, it will look like the node did nothing.</p>`,
+    sig:[
+      ["Solid","Knows CachePolicy exists and sets a TTL."],
+      ["Strong","Refuses to cache side-effecting or freshness-dependent nodes and customises the key."],
+      ["Exceptional","Flags tenant identity in the cache key as a leak risk, and knows a cache hit skips the node's emitted stream events."]
+    ],
+    push:"'The node sends an email and returns a summary. You cache it. What happens on a hit?'"
+  },
+  {
+    t:"Streaming",
+    brk:"Opaque long runs",
+    dif:"Hard",
+    pair:["Run takes two minutes","Progress is observable at the right granularity"],
+    ask:`<p>A two-minute run and a user waiting. <b>What are the streaming modes, and which do you use for what?</b></p>`,
+    sol:`<p><b>The modes, and each answers a different question:</b></p>
+    <ul>
+      <li><b><code>values</code></b> — the full state after each step. Simple, and it re-sends everything each time, so it's expensive on large state.</li>
+      <li><b><code>updates</code></b> — just the state delta per node, keyed by node name. The efficient default for driving a progress UI: you learn which node ran and what it changed.</li>
+      <li><b><code>messages</code></b> — token-level output from model calls inside nodes, which is what you need for the typewriter effect.</li>
+      <li><b><code>custom</code></b> — arbitrary events your node code emits. The right way to surface domain progress ("reviewed 12 of 40 contracts") rather than making the UI infer it from node names.</li>
+      <li><b><code>debug</code></b> — verbose internals, for development.</li>
+    </ul>
+    <p>Modes can be combined, and <code>subgraphs=True</code> is required to see inside nested graphs — without it a subgraph is one silent opaque step. There's also an event-level API for fine-grained lifecycle events, and 1.2 added an opt-in typed streaming and invocation surface (<code>version="v2"</code>) returning uniform typed chunks and a structured output object, which is worth adopting in production precisely because it turns "unexpected chunk shape" from a silent failure into a type error.</p>
+    <p><b>The design guidance, connecting to the interaction-design track:</b> drive the UI from <code>updates</code> plus <code>custom</code> events, not from raw reasoning tokens. Node names are an implementation detail, so <span class="key">emit deliberate domain-level custom events rather than letting your UI depend on your graph's internal node names — otherwise renaming a node breaks the frontend.</span> Stream model tokens only where the user is reading prose as it's produced.</p>`,
+    sig:[
+      ["Solid","Names values and updates and knows token streaming exists."],
+      ["Strong","Uses updates for progress and custom events for domain-level signals; knows subgraphs=True."],
+      ["Exceptional","Argues against coupling the UI to node names, and adopts the typed streaming surface so shape changes fail loudly."]
+    ],
+    push:"'Your UI shows \\'running node retrieve_v2\\'. Is that what the user wanted to know?'"
+  },
+  {
+    t:"Errors in the graph",
+    brk:"Where failures live",
+    dif:"Hard",
+    pair:["A node raises","Failure is a state the graph can route on"],
+    ask:`<p>A tool call fails permanently, and a model hallucinates a tool name that doesn't exist.</p>
+    <p><b>What should happen in each case</b>, and what's the general pattern for errors in a graph?</p>`,
+    sol:`<p><b>The hallucinated tool name is not an error — it's a normal event.</b> Tool-executing nodes can be configured to return the error to the model as a tool result so it can correct itself and pick a real tool. That's the loop working as designed, and treating it as an exception breaks a recovery path that would otherwise succeed.</p>
+    <p><b>The permanent tool failure is a state, not an exception.</b> The pattern that works: catch it in the node, write it into state as structured error information, and let a conditional edge route on it — to a fallback path, a different tool, a degraded answer, or an escalation node. <span class="key">A raised exception exits the graph and takes your checkpoint, your partial work and your ability to degrade gracefully with it; an error in state is something the graph can reason about.</span> 1.2 also lets you attach an <code>error_handler</code> per node, or graph-wide via node defaults, as a structured place for that logic.</p>
+    <p><b>The general pattern:</b></p>
+    <ul>
+      <li><b>Retryable and transient</b> → handled by the retry policy, never reaching state or the model.</li>
+      <li><b>Recoverable by the model</b> → returned as a tool result with actionable content, per the error-messages-as-prompts principle.</li>
+      <li><b>Recoverable by the graph</b> → written to state, routed on by a conditional edge.</li>
+      <li><b>Unrecoverable</b> → route to a terminal node that records what happened and escalates, rather than letting the exception propagate.</li>
+    </ul>
+    <p><b>The design test:</b> for each node, if it fails permanently, does the run end in a defined state with a report, or does it throw? Every node that can throw and has no route for failure is an unhandled case, and the graph structure makes that auditable in a way a bare loop does not — which is one of the better arguments for the framework.</p>`,
+    sig:[
+      ["Solid","Catches errors and returns them to the model or handles them in the node."],
+      ["Strong","Writes failures into state and routes on them with conditional edges."],
+      ["Exceptional","Gives the full four-tier taxonomy, and applies the test that every throwing node needs a defined failure route — using the graph shape to make that auditable."]
+    ],
+    push:"'The node raises. Where does the graph go? What happens to the work already done?'"
+  }
+]});
+
+P.push({
+  code:"LG7", track:"LangGraph", tab:"Shipping it",
+  title:"Deploying, testing, escaping",
+  tags:[["v","Production"],["t","Deployment · testing · lock-in"],["","Hard throughout"]],
+  setup:`<p>The graph works. Now it has to run somewhere, be tested by people who didn't write it, survive a year of changes, and not trap you.</p>`,
+  stages:[
+  {
+    t:"Where it runs",
+    brk:"Deployment topology",
+    dif:"Hard",
+    pair:["Graph is compiled and invoked","Runtime topology matches the workload's shape"],
+    ask:`<p><b>What are your deployment options</b>, and what does a managed agent server give you that a plain web service doesn't?</p>`,
+    sol:`<p><b>The options:</b></p>
+    <ul>
+      <li><b>Embed in your own service.</b> Compile the graph in a FastAPI app, wire a Postgres checkpointer, run your own workers. Total control, and you own everything below: run queueing, concurrency limits, long-run lifecycle, streaming transport, thread APIs, and the fact that an HTTP request handler is a poor host for a forty-minute run.</li>
+      <li><b>A managed agent server / platform deployment</b>, which handles persistence automatically and provides a server with concepts that map onto the workload: <b>assistants</b> (a versioned configuration of a graph), <b>threads</b> (persistent conversations), and <b>runs</b> (executions against a thread), plus background runs, streaming endpoints, cron-style scheduling and a queue.</li>
+    </ul>
+    <p><b>The distinction that matters:</b> the awkward part of self-hosting isn't invoking the graph, it's that agent runs are long-lived, resumable, cancellable, streamable and queued — so a plain request/response service is structurally the wrong shape and you end up building a job runner. <span class="key">The managed option is essentially "we already built the job runner and the thread API"; the trade is a platform dependency and less control over the data path.</span></p>
+    <p><b>What to check either way:</b> where checkpoint data lives and who can read it; how a run is cancelled and whether cancellation actually stops token spend; concurrency limits per deployment; how in-flight runs behave across a deploy; and whether background runs survive a restart. Those questions are the same whether you buy or build — a candidate who asks them is thinking about operations rather than about getting a demo online.</p>`,
+    sig:[
+      ["Solid","Knows you can self-host or use a managed platform."],
+      ["Strong","Identifies the assistants/threads/runs model and why request-response is the wrong shape for long runs."],
+      ["Exceptional","Frames the managed option as buying a job runner, and asks the operational questions — cancellation, concurrency, in-flight runs across deploys — that apply either way."]
+    ],
+    push:"'Your run takes forty minutes. It\\'s an HTTP request handler. What goes wrong?'"
+  },
+  {
+    t:"Test it",
+    brk:"Untestable graphs",
+    dif:"Hard",
+    pair:["Graph behaviour is model-dependent","Most of the graph is tested without a model"],
+    ask:`<p><b>How do you test a LangGraph application?</b></p>
+    <p>Be specific about what can be tested deterministically and what can't.</p>`,
+    sol:`<p><b>The insight that makes this tractable: most of your graph is not the model.</b> A node is a function from state to a partial update; a router is a function from state to a node name. Both are ordinary Python and can be unit-tested with a state dict and no model at all.</p>
+    <p><b>The layers:</b></p>
+    <ul>
+      <li><b>Routers</b> — pure functions, exhaustively testable. Every branch, including the ones that should never happen. Cheap, fast, and they catch a surprising share of real bugs.</li>
+      <li><b>Nodes with the model injected</b> — pass a fake or scripted model, assert the state update. This is why dependency-injecting the model rather than constructing it inside the node matters; a node that builds its own client is untestable.</li>
+      <li><b>Reducers</b> — test the merge directly, including with writes in both orders, which is how you catch the commutativity problems from LG2.</li>
+      <li><b>The compiled graph with scripted tool and model layers</b> — deterministic end-to-end path tests. This is the deterministic-replay idea, and it makes CI cheap.</li>
+      <li><b>Interrupt/resume paths</b> — invoke, assert it paused with the expected payload, resume with each possible decision, assert the outcome. And explicitly assert that pre-interrupt side effects did not happen twice, which is the LG5 bug as a regression test.</li>
+      <li><b>Checkpoint compatibility</b> — load fixture checkpoints from older schema versions and assert they resume.</li>
+      <li><b>Real-model evals</b> — the layer that can't be deterministic, run separately with repeated runs and distributions, per the evaluation problem.</li>
+    </ul>
+    <p><span class="key">The framing worth crediting: the graph structure is an asset for testing, because it forces the decision logic out of the model's context and into functions you can call. A monolithic while-loop with everything in one prompt has no equivalent seam.</span></p>`,
+    sig:[
+      ["Solid","Tests nodes individually and mocks the model."],
+      ["Strong","Tests routers exhaustively as pure functions and injects the model rather than constructing it inside nodes."],
+      ["Exceptional","Adds interrupt/resume regression tests asserting effects didn't repeat, tests reducers in both write orders, and keeps fixture checkpoints for compatibility."]
+    ],
+    push:"'Your router has four branches. How many model calls do you need to test all four?'"
+  },
+  {
+    t:"Observe it",
+    brk:"Framework tracing vs audit",
+    dif:"Hard",
+    pair:["Framework emits rich traces","Effects are recorded separately and durably"],
+    ask:`<p>You wire up the ecosystem's tracing and get per-node timing, inputs, outputs and token counts.</p>
+    <p><b>What do you still need to build?</b></p>`,
+    sol:`<p><b>What tracing gives you, and it's a lot:</b> the run tree with every node, model call and tool call, inputs and outputs, latency, token counts and cost, plus the ability to inspect a specific run. Combined with checkpoint history you get most of the observability from the production track for free, which is a genuine argument for the framework.</p>
+    <p><b>What you still need:</b></p>
+    <ul>
+      <li><b>An effect log that is not the trace.</b> Traces are sampled, retained for a window, and stored for engineers. An audit record must be complete, append-only and retained for your dispute window. <span class="key">Logging the effect at the tool boundary into your own durable store is not redundant with tracing — they have different guarantees, and the one you'll be asked for in a dispute is the one tracing doesn't provide.</span></li>
+      <li><b>Entity-indexed lookup.</b> Traces are indexed by run and time. When a customer disputes a change you have a record id, not a run id. You need your own index from affected entity to run.</li>
+      <li><b>Business-level metrics</b> — task success, escalation rate, human correction rate. Tracing knows about nodes and tokens; it doesn't know whether the ticket was resolved.</li>
+      <li><b>Alerting on behavioural distributions</b> — step counts, tool mix, recursion-limit hits — rather than only on errors and latency.</li>
+      <li><b>PII discipline.</b> Traces contain full prompts, which means customer data in a third-party system with its own retention. That's a data-governance decision, not a default to accept silently.</li>
+    </ul>
+    <p><b>And a framework-specific control worth knowing:</b> what you send to tracing is configurable, and the default is generous. Decide deliberately what leaves your infrastructure.</p>`,
+    sig:[
+      ["Solid","Values the tracing and wants business metrics on top."],
+      ["Strong","Separates the audit trail from traces on the basis of retention and completeness."],
+      ["Exceptional","Requires an entity-to-run index for dispute handling, and treats prompt content in a third-party tracing system as a governance decision."]
+    ],
+    push:"'A customer disputes a change from six weeks ago. Is that trace still there? Can you find it by record id?'"
+  },
+  {
+    t:"Change it safely",
+    brk:"Versioning a live graph",
+    dif:"Hard",
+    pair:["Graph and prompts evolve","Live threads complete under a coherent configuration"],
+    ask:`<p>You're changing the graph shape, a prompt, and a tool schema. There are live threads and paused interrupts.</p>
+    <p><b>What's your release process?</b></p>`,
+    sol:`<p><b>The exposures, in order of nastiness:</b></p>
+    <ul>
+      <li><b>Paused interrupts</b> are the worst case. A thread paused for approval resumes into new code — possibly into a node that no longer exists, or a node whose pre-interrupt logic changed so the resumed decision applies to something different. <span class="key">A paused interrupt is a live thread with a human obligation attached, and it can sit there across many deploys.</span></li>
+      <li><b>Graph shape changes</b> — a removed or renamed node a checkpoint expects to resume into.</li>
+      <li><b>State schema changes</b>, per LG2.</li>
+      <li><b>Prompt and tool changes</b> mid-run, where the first half of a task ran under different instructions than the second.</li>
+    </ul>
+    <p><b>The process:</b></p>
+    <ul>
+      <li><b>Pin configuration per run</b> where the platform supports versioned assistants — a run started under version 3 completes under version 3. The cleanest answer, at the cost of keeping versions runnable.</li>
+      <li><b>Or drain:</b> stop accepting new runs, let in-flight ones finish, then deploy. Viable only if runs are short — and it is never viable for multi-day approvals, which is why those need pinning or explicit expiry.</li>
+      <li><b>Additive-only changes</b> to state and tool schemas; keep removed nodes as no-op passthroughs through a deprecation window rather than deleting them.</li>
+      <li><b>Enumerate paused threads before deploying</b> and decide explicitly: resume them under old code, expire them, or migrate them. Not deciding is the same as choosing the worst outcome.</li>
+      <li><b>Run the eval suite on the new configuration</b>, and treat a model upgrade as the same class of change as a code change.</li>
+    </ul>`,
+    sig:[
+      ["Solid","Wants to drain in-flight runs before deploying."],
+      ["Strong","Pins configuration per run and keeps schema changes additive."],
+      ["Exceptional","Identifies paused interrupts as the hardest case — a human obligation surviving many deploys — and requires an explicit decision for each before release."]
+    ],
+    push:"'Forty threads are paused awaiting approval. You delete a node. What happens when someone clicks approve?'"
+  },
+  {
+    t:"Getting out",
+    brk:"Lock-in",
+    dif:"Exceptional only",
+    pair:["Application is built on the framework","Domain logic is portable; only the wiring isn't"],
+    ask:`<p>Two years in, you want to move off LangGraph — or the ecosystem moves in a direction you don't want.</p>
+    <p><b>What's portable and what isn't?</b> And what would you have done differently on day one?</p>`,
+    sol:`<p><b>Portable, if you built it that way:</b> your tool implementations (plain functions with schemas), your prompts, your state schema as a data model, your eval suite, your business logic, and the checkpoint data as JSON if you can read the table format. Most of the actual value.</p>
+    <p><b>Not portable:</b> the graph topology and its scheduling semantics, reducer behaviour, interrupt/resume mechanics, the checkpoint format's internal structure, streaming shapes, and anything platform-specific — assistants, threads, hosted endpoints. Roughly: the wiring and the runtime, not the work.</p>
+    <p><b>What to do on day one to keep the exit cheap:</b></p>
+    <ul>
+      <li><b>Keep domain logic out of nodes.</b> A node should be a thin adapter calling a plain function that knows nothing about the framework. Then nodes are the only thing you rewrite — and as a bonus, those functions are trivially unit-testable today.</li>
+      <li><b>Own your tool layer.</b> Tools as ordinary functions with schemas, wrapped for the framework rather than defined by it.</li>
+      <li><b>Own the effect log and audit trail</b>, in your own database. Never let the checkpoint be your only record of what happened — for the reasons in LG4, and because it's the thing you can't export meaningfully.</li>
+      <li><b>Own the evals.</b> They're framework-independent and they're what tells you whether a replacement is as good.</li>
+      <li><b>Keep state schemas as plain data models</b> you'd be happy to serialise anywhere.</li>
+    </ul>
+    <p><span class="key">The judgement to reward: this is ordinary framework-dependency hygiene, and the right answer isn't to avoid the framework — it's to keep the boundary thin enough that the framework is doing orchestration rather than holding your domain. A candidate who says "we should avoid frameworks to stay portable" has usually not maintained a hand-rolled workflow engine.</span></p>`,
+    sig:[
+      ["Solid","Separates portable prompts and tools from framework-specific wiring."],
+      ["Strong","Keeps domain logic in plain functions with nodes as thin adapters."],
+      ["Exceptional","Owns the effect log and evals independently, and argues for a thin boundary rather than framework avoidance — with the reason that hand-rolled orchestration is worse."]
+    ],
+    push:"'How much of your codebase imports langgraph? Should it be that much?'"
+  }
+]});
+
+P.push({
   code:"Z1", track:"Frontier", tab:"Learning",
   title:"Getting better without training",
   tags:[["v","Self-improvement"],["t","Skill libraries · verification"],["","Exceptional only"]],
