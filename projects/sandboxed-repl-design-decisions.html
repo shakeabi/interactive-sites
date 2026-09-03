@@ -1,0 +1,1104 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>desco_repl — First Principles</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght,SOFT,WONK@0,9..144,300..700,0..100,0..1;1,9..144,300..700,0..100,0..1&family=Newsreader:ital,opsz,wght@0,6..72,200..700;1,6..72,200..600&family=JetBrains+Mono:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ground:#080a0d;
+  --ground-2:#0b0e12;
+  --panel:#10151a;
+  --panel-2:#141a20;
+  --rule:#232c35;
+  --rule-soft:#19212a;
+
+  --ink:#e6e6e1;
+  --ink-2:#aeb3b3;
+  --muted:#767d80;
+  --faint:#464d52;
+
+  /* IPython prompt colours, tuned */
+  --in:#6fd08c;      /* In  [n] */
+  --out:#e2705f;     /* Out [n] */
+
+  /* verdict semantics — shared across the analysis series */
+  --amber:#e6a13c;   /* chosen */
+  --rust:#d8604a;    /* would change */
+  --teal:#57cbb9;    /* right call */
+  --slate:#7f9bb5;   /* considered + rejected */
+
+  --mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  --serif:"Newsreader",Georgia,"Times New Roman",serif;
+  --display:"Fraunces","Newsreader",Georgia,serif;
+  --maxw:1180px;
+}
+
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;background:var(--ground);color:var(--ink);
+  font-family:var(--serif);font-size:17px;line-height:1.66;
+  -webkit-font-smoothing:antialiased;
+}
+/* engineering-paper grid + grain */
+body::before{
+  content:"";position:fixed;inset:0;pointer-events:none;z-index:9998;opacity:.055;
+  background-image:
+    linear-gradient(rgba(120,160,180,.55) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(120,160,180,.55) 1px,transparent 1px);
+  background-size:26px 26px;
+  mask-image:radial-gradient(ellipse 120% 80% at 50% 0%,#000 20%,transparent 78%);
+  -webkit-mask-image:radial-gradient(ellipse 120% 80% at 50% 0%,#000 20%,transparent 78%);
+}
+body::after{
+  content:"";position:fixed;inset:0;pointer-events:none;z-index:9999;opacity:.03;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+.wrap{max-width:var(--maxw);margin:0 auto;padding:0 30px;position:relative;z-index:1}
+
+a{color:var(--in);text-decoration:none;border-bottom:1px solid rgba(111,208,140,.28)}
+a:hover{color:var(--ink);border-bottom-color:var(--ink)}
+
+code,.m{font-family:var(--mono);font-size:.845em;letter-spacing:-.01em}
+.m-dim{color:var(--muted)}
+:not(pre)>code{background:rgba(127,155,181,.09);border:1px solid var(--rule-soft);
+  padding:.08em .38em;border-radius:3px;color:#cfd6d6}
+
+/* ─── header ─────────────────────────────────────────────── */
+header.hero{padding:78px 0 40px;border-bottom:1px solid var(--rule);position:relative}
+.crumb{font-family:var(--mono);font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;
+  color:var(--muted);margin-bottom:26px}
+.crumb .sep{color:var(--faint);margin:0 10px}
+h1{font-family:var(--display);font-weight:400;font-variation-settings:"SOFT" 20,"WONK" 1,"opsz" 120;
+  font-size:clamp(44px,7.6vw,88px);line-height:.94;letter-spacing:-.022em;margin:0}
+h1 em{font-style:italic;color:var(--in);font-variation-settings:"SOFT" 60,"WONK" 1}
+.sub{font-size:19.5px;color:var(--ink-2);max-width:70ch;margin:24px 0 0;font-weight:300}
+.sub strong{color:var(--ink);font-weight:500}
+.hero-meta{display:flex;flex-wrap:wrap;gap:10px;margin-top:30px}
+.chip{font-family:var(--mono);font-size:10.5px;letter-spacing:.13em;text-transform:uppercase;
+  color:var(--muted);border:1px solid var(--rule);padding:6px 11px;border-radius:2px;background:var(--ground-2)}
+.chip b{color:var(--ink-2);font-weight:500}
+
+/* ─── part headers ───────────────────────────────────────── */
+.part{margin:96px 0 34px;border-top:1px solid var(--rule);padding-top:30px}
+.part-num{font-family:var(--mono);font-size:10.5px;letter-spacing:.24em;text-transform:uppercase;color:var(--in);margin-bottom:14px}
+.part h2{font-family:var(--display);font-weight:400;font-variation-settings:"SOFT" 20,"WONK" 1,"opsz" 90;
+  font-size:clamp(29px,4.1vw,44px);line-height:1.06;letter-spacing:-.016em;margin:0;max-width:24ch}
+.part-lede{color:var(--ink-2);max-width:74ch;margin:16px 0 0;font-weight:300;font-size:18px}
+
+/* ─── notebook cells ─────────────────────────────────────── */
+.cell{margin:30px 0;border-left:2px solid var(--rule-soft);padding-left:0;transition:border-color .4s}
+.cell.done{border-left-color:rgba(111,208,140,.32)}
+
+.cell-in{display:grid;grid-template-columns:88px 1fr;gap:0;align-items:start}
+.prompt{font-family:var(--mono);font-size:12.5px;color:var(--in);padding:20px 14px 0 16px;
+  text-align:right;white-space:nowrap;user-select:none;opacity:.82}
+.prompt.o{color:var(--out)}
+.q{
+  width:100%;text-align:left;background:var(--panel);border:1px solid var(--rule);
+  border-radius:4px;padding:19px 22px;cursor:pointer;color:var(--ink);
+  font-family:var(--display);font-weight:400;font-variation-settings:"SOFT" 16,"WONK" 1,"opsz" 40;
+  font-size:clamp(19px,2.3vw,25px);line-height:1.3;letter-spacing:-.012em;
+  transition:background .18s,border-color .18s,transform .18s;
+  display:flex;justify-content:space-between;align-items:center;gap:20px;
+}
+.q:hover{background:var(--panel-2);border-color:#31404d;transform:translateX(2px)}
+.q:focus-visible{outline:2px solid var(--in);outline-offset:2px}
+.q .run{font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--muted);border:1px solid var(--rule);padding:5px 9px;border-radius:2px;flex:none;
+  transition:color .18s,border-color .18s}
+.q:hover .run{color:var(--in);border-color:rgba(111,208,140,.4)}
+.cell.done .q{background:var(--ground-2);border-color:var(--rule-soft)}
+.cell.done .q .run{color:var(--faint);border-color:var(--rule-soft)}
+.cell.done .q .run::after{content:" ✓"}
+
+.cell-out{display:grid;grid-template-columns:88px 1fr;gap:0;align-items:start;
+  overflow:hidden;max-height:0;opacity:0;transition:max-height .5s ease,opacity .38s ease}
+.cell.done .cell-out{max-height:9000px;opacity:1}
+.out-body{padding:16px 0 6px 4px;max-width:80ch}
+.out-body>p{margin:0 0 15px}
+.out-body>p:last-child{margin-bottom:0}
+.lead{font-size:18.5px;color:var(--ink)}
+.out-body .aside{color:var(--ink-2);font-size:16px}
+
+.kv{font-family:var(--mono);font-size:12px;color:var(--muted);margin:14px 0 0;
+  padding-top:11px;border-top:1px dashed var(--rule-soft)}
+.kv b{color:var(--ink-2);font-weight:400}
+
+/* ─── "rich output" = decision block ─────────────────────── */
+.rich{margin:22px 0 6px;border:1px solid var(--rule);border-radius:4px;background:var(--ground-2);overflow:hidden}
+.rich-h{display:flex;align-items:center;gap:12px;padding:9px 14px;border-bottom:1px solid var(--rule-soft);
+  background:rgba(127,155,181,.045)}
+.mime{font-family:var(--mono);font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--faint)}
+.rich-t{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-2)}
+
+.opts{display:grid;grid-template-columns:repeat(auto-fit,minmax(215px,1fr));gap:0}
+.opt{border-right:1px solid var(--rule-soft);border-bottom:1px solid var(--rule-soft);
+  padding:15px 16px;cursor:pointer;background:transparent;text-align:left;color:var(--ink);
+  font-family:var(--serif);transition:background .16s;position:relative;display:block;width:100%}
+.opt:last-child{border-right:none}
+.opt:hover{background:rgba(127,155,181,.055)}
+.opt:focus-visible{outline:2px solid var(--slate);outline-offset:-2px}
+.opt.sel{background:rgba(127,155,181,.075)}
+.opt.chosen::before{content:"";position:absolute;left:0;top:0;bottom:0;width:2px;background:var(--amber)}
+.opt-n{font-family:var(--mono);font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--faint);margin-bottom:7px;display:flex;justify-content:space-between;gap:8px}
+.opt.chosen .opt-n{color:var(--amber)}
+.opt-t{font-size:16.5px;line-height:1.32;color:var(--ink-2);font-weight:400}
+.opt.chosen .opt-t,.opt.sel .opt-t{color:var(--ink)}
+
+.opt-detail{padding:17px 18px;border-top:1px solid var(--rule-soft);background:var(--panel);
+  font-size:16px;color:var(--ink-2);min-height:70px}
+.opt-detail .dt{font-family:var(--mono);font-size:9.5px;letter-spacing:.15em;text-transform:uppercase;
+  color:var(--faint);margin-bottom:8px}
+.opt-detail p{margin:0 0 10px}
+.opt-detail p:last-child{margin-bottom:0}
+.opt-detail em{color:var(--ink);font-style:normal;font-weight:500}
+
+.verd{display:flex;align-items:flex-start;gap:13px;padding:14px 18px;border-top:1px solid var(--rule-soft);
+  background:rgba(0,0,0,.22)}
+.badge{font-family:var(--mono);font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;
+  padding:5px 9px;border-radius:2px;flex:none;margin-top:1px;white-space:nowrap}
+.b-right{color:var(--teal);border:1px solid rgba(87,203,185,.4);background:rgba(87,203,185,.07)}
+.b-def{color:var(--amber);border:1px solid rgba(230,161,60,.4);background:rgba(230,161,60,.07)}
+.b-chg{color:var(--rust);border:1px solid rgba(216,96,74,.4);background:rgba(216,96,74,.07)}
+.verd-x{font-size:15.5px;color:var(--ink-2);line-height:1.55}
+.verd-x b{color:var(--ink);font-weight:500}
+
+/* ─── topology switcher ──────────────────────────────────── */
+.topo{margin:30px 0;border:1px solid var(--rule);border-radius:4px;background:var(--ground-2);overflow:hidden}
+.topo-bar{display:flex;flex-wrap:wrap;border-bottom:1px solid var(--rule);background:rgba(0,0,0,.2)}
+.pv{flex:1;min-width:130px;font-family:var(--mono);font-size:11px;letter-spacing:.13em;text-transform:uppercase;
+  padding:14px 10px;background:transparent;border:none;border-right:1px solid var(--rule-soft);
+  color:var(--muted);cursor:pointer;transition:color .18s,background .18s;position:relative}
+.pv:last-child{border-right:none}
+.pv:hover{color:var(--ink-2);background:rgba(127,155,181,.05)}
+.pv:focus-visible{outline:2px solid var(--in);outline-offset:-2px}
+.pv.on{color:var(--ink);background:var(--panel)}
+.pv.on::after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:2px;background:var(--in)}
+.pv small{display:block;font-size:9px;letter-spacing:.1em;margin-top:5px;color:var(--faint);text-transform:none}
+.pv.on small{color:var(--muted)}
+
+.topo-body{display:grid;grid-template-columns:1.25fr .95fr;gap:0}
+@media(max-width:820px){.topo-body{grid-template-columns:1fr}}
+.diagram{padding:28px 26px;border-right:1px solid var(--rule-soft);min-height:400px}
+@media(max-width:820px){.diagram{border-right:none;border-bottom:1px solid var(--rule-soft)}}
+
+.box{border:1px solid var(--rule);border-radius:3px;padding:13px 15px;background:var(--panel);
+  transition:border-color .35s,background .35s}
+.box.host{border-style:solid}
+.box-l{font-family:var(--mono);font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--faint);margin-bottom:9px}
+.box-n{font-family:var(--mono);font-size:13px;color:var(--ink-2);line-height:1.85}
+.box-n .k{color:var(--ink)}
+
+.box.sbx{border-color:rgba(87,203,185,.45);background:rgba(87,203,185,.05)}
+.box.sbx .box-l{color:var(--teal)}
+.box.open{border-color:rgba(216,96,74,.38);background:rgba(216,96,74,.04)}
+.box.open .box-l{color:var(--rust)}
+
+.link{display:flex;flex-direction:column;align-items:center;gap:4px;padding:12px 0;color:var(--muted)}
+.link .ln{font-family:var(--mono);font-size:10px;letter-spacing:.11em;color:var(--slate);text-align:center;
+  border:1px dashed rgba(127,155,181,.3);padding:4px 10px;border-radius:2px;background:var(--ground)}
+.link .arr{font-family:var(--mono);font-size:15px;color:var(--faint);line-height:1}
+
+.iso{display:inline-block;font-family:var(--mono);font-size:9px;letter-spacing:.13em;text-transform:uppercase;
+  padding:3px 7px;border-radius:2px;margin-left:8px;vertical-align:middle}
+.iso-y{color:var(--teal);border:1px solid rgba(87,203,185,.42)}
+.iso-n{color:var(--rust);border:1px solid rgba(216,96,74,.42)}
+
+.facts{padding:26px 24px}
+.fact{border-bottom:1px dashed var(--rule-soft);padding:11px 0}
+.fact:last-of-type{border-bottom:none}
+.fact-k{font-family:var(--mono);font-size:9.5px;letter-spacing:.15em;text-transform:uppercase;color:var(--faint);margin-bottom:4px}
+.fact-v{font-size:15.5px;color:var(--ink-2);line-height:1.5}
+.fact-v b{color:var(--ink);font-weight:500}
+.fact-v code{font-size:12.5px}
+.whenuse{margin-top:18px;padding:13px 15px;border:1px solid var(--rule-soft);border-radius:3px;
+  background:rgba(230,161,60,.045);font-size:15.5px;color:var(--ink-2)}
+.whenuse .fact-k{color:var(--amber)}
+
+/* ─── deployment ─────────────────────────────────────────── */
+.chan{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin:26px 0}
+@media(max-width:820px){.chan{grid-template-columns:1fr}}
+.chan-c{border:1px solid var(--rule);border-radius:4px;background:var(--ground-2);padding:20px 21px}
+.chan-h{font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--in);margin-bottom:4px}
+.chan-t{font-family:var(--display);font-size:22px;font-variation-settings:"SOFT" 18,"WONK" 1;margin:0 0 15px;letter-spacing:-.01em}
+.step{display:grid;grid-template-columns:20px 1fr;gap:11px;padding:8px 0;font-size:15.5px;color:var(--ink-2)}
+.step .d{font-family:var(--mono);font-size:10px;color:var(--faint);padding-top:5px}
+.step b{color:var(--ink);font-weight:500}
+.step.warn{color:var(--rust)}
+.step.warn b{color:var(--rust)}
+
+table{width:100%;border-collapse:collapse;margin:22px 0;font-size:15px}
+th{font-family:var(--mono);font-size:9.5px;letter-spacing:.15em;text-transform:uppercase;color:var(--faint);
+  text-align:left;padding:9px 12px 9px 0;border-bottom:1px solid var(--rule);font-weight:400}
+td{padding:11px 12px 11px 0;border-bottom:1px solid var(--rule-soft);color:var(--ink-2);vertical-align:top}
+td b{color:var(--ink);font-weight:500}
+td code{font-size:12px}
+
+/* ─── ledger ─────────────────────────────────────────────── */
+.filt{display:flex;flex-wrap:wrap;gap:8px;margin:22px 0 18px}
+.fb{font-family:var(--mono);font-size:10px;letter-spacing:.13em;text-transform:uppercase;
+  padding:7px 12px;border:1px solid var(--rule);border-radius:2px;background:transparent;
+  color:var(--muted);cursor:pointer;transition:all .16s}
+.fb:hover{color:var(--ink-2);border-color:#31404d}
+.fb:focus-visible{outline:2px solid var(--in);outline-offset:2px}
+.fb.on{color:var(--ink);border-color:var(--ink-2);background:rgba(230,230,225,.05)}
+.led{border:1px solid var(--rule);border-radius:4px;overflow:hidden;background:var(--ground-2)}
+.lrow{display:grid;grid-template-columns:58px 1fr 1.5fr 128px;gap:16px;padding:14px 18px;
+  border-bottom:1px solid var(--rule-soft);align-items:start;font-size:15px;
+  width:100%;text-align:left;background:transparent;border-left:none;border-right:none;border-top:none;
+  color:inherit;font-family:var(--serif);cursor:pointer;transition:background .16s}
+.lrow:last-child{border-bottom:none}
+button.lrow:hover{background:rgba(127,155,181,.055)}
+button.lrow:focus-visible{outline:2px solid var(--slate);outline-offset:-2px}
+.lgroup:last-child .lrow{border-bottom:none}
+.lgroup.open .lrow{background:rgba(127,155,181,.075);border-bottom-color:var(--rule-soft)}
+.lgroup .nm::after{content:" ▸";color:var(--faint);font-size:11px}
+.lgroup.open .nm::after{content:" ▾";color:var(--in)}
+.ldet{max-height:0;overflow:hidden;opacity:0;transition:max-height .45s ease,opacity .3s ease}
+.lgroup.open .ldet{max-height:3000px;opacity:1;border-bottom:1px solid var(--rule-soft)}
+.ldet .rich{margin:0;border:none;border-radius:0;background:var(--ground)}
+.ldet .rich-h{display:none}
+.lrow.hd{background:rgba(0,0,0,.24);font-family:var(--mono);font-size:9.5px;letter-spacing:.15em;
+  text-transform:uppercase;color:var(--faint)}
+.lrow .id{font-family:var(--mono);font-size:11px;color:var(--faint);padding-top:2px}
+.lrow .nm{color:var(--ink);font-weight:500}
+.lrow .wy{color:var(--ink-2);font-size:14.5px;line-height:1.5}
+@media(max-width:760px){
+  .lrow{grid-template-columns:44px 1fr;gap:6px}
+  .lrow .wy,.lrow .vd{grid-column:2}
+  .lrow.hd{display:none}
+}
+.lgroup[hidden]{display:none}
+
+footer{margin:100px 0 70px;padding-top:28px;border-top:1px solid var(--rule);
+  font-family:var(--mono);font-size:11.5px;color:var(--muted);line-height:2}
+footer b{color:var(--ink-2);font-weight:400}
+
+.runall{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;
+  padding:9px 15px;border:1px solid var(--rule);border-radius:2px;background:var(--panel);
+  color:var(--ink-2);cursor:pointer;transition:all .16s}
+.runall:hover{color:var(--in);border-color:rgba(111,208,140,.45)}
+.runall:focus-visible{outline:2px solid var(--in);outline-offset:2px}
+
+.note{border-left:2px solid var(--slate);padding:3px 0 3px 16px;margin:18px 0;
+  color:var(--ink-2);font-size:16px}
+.note b{color:var(--ink);font-weight:500}
+
+@media(max-width:640px){
+  .cell-in,.cell-out{grid-template-columns:56px 1fr}
+  .prompt{padding:17px 8px 0 8px;font-size:11px}
+  .opts{grid-template-columns:1fr}
+  .opt{border-right:none}
+}
+@media(prefers-reduced-motion:reduce){
+  *{transition:none!important;animation:none!important}
+  html{scroll-behavior:auto}
+}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+<header class="hero">
+  <div class="crumb">
+    desco_repl <span class="sep">/</span> first principles
+    <span class="sep">/</span> desco-llm @ 19cb1fcb
+    <span class="sep">/</span> gai-tech-claude-plugins @ c476410
+  </div>
+  <h1>Every design choice<br>follows from <em>one sentence</em>.</h1>
+  <p class="sub">
+    <strong>“An agent needs to run Python, and the second command shouldn’t re-pay for the first.”</strong>
+    That is the whole requirement. This page derives the rest of the system from it — one question at a
+    time, each forced by the answer before it. At every fork: the alternatives, what each one costs, and
+    which was taken. Some of those forks are documented in tickets; others are reconstructed. The
+    footer says which.
+  </p>
+  <div class="hero-meta">
+    <span class="chip"><b>3,095</b> LOC library</span>
+    <span class="chip"><b>4</b> execution substrates</span>
+    <span class="chip"><b>0</b> listening sockets</span>
+    <span class="chip"><b>12</b> decisions</span>
+  </div>
+</header>
+
+<!-- ═══════════════ PART I ═══════════════ -->
+<div class="part">
+  <div class="part-num">Part I · the chain</div>
+  <h2>Ask why until it bottoms out</h2>
+  <p class="part-lede">
+    Run the cells in any order you like — the counters increment as <em>you</em> execute them, not as they
+    appear. That is not decoration: it is precisely how the runtime this page describes behaves. There are
+    no cells to re-run, only history to append.
+  </p>
+  <p style="margin-top:22px"><button class="runall" id="runall">▶ run all cells</button></p>
+</div>
+
+<!-- Q1 -->
+<section class="cell" id="c1">
+  <div class="cell-in">
+    <div class="prompt" data-p="in">In [<span class="ctr"> </span>]:</div>
+    <button class="q" data-cell="c1">
+      <span>An agent can already shell out to <code>python -c</code>. Why build anything?</span>
+      <span class="run">run</span>
+    </button>
+  </div>
+  <div class="cell-out">
+    <div class="prompt o" data-p="out">Out[<span class="ctr"> </span>]:</div>
+    <div class="out-body">
+      <p class="lead">Because the second command throws away everything the first one earned.</p>
+      <p>An analyst agent runs <code>import pandas; df = read_parquet(...)</code>, then asks twenty follow-up
+      questions about <code>df</code>. Statelessly, each question re-pays the imports and the I/O. The work is
+      not the computation — it is the setup, and the setup is what gets discarded.</p>
+      <p>The ticket that started this says it in one clause: <em>“…so an agent can execute python code
+      <strong>without paying the data loading/import costs</strong>.”</em> Note what it does <em>not</em> say. It
+      does not ask for sandboxing, images, or a notebook. Those all arrive later, as consequences.</p>
+      <div class="rich" data-dec="d1">
+        <div class="rich-h"><span class="mime">application/decision+json</span><span class="rich-t">D1 · unit of execution</span></div>
+        <div class="opts"></div><div class="opt-detail"></div><div class="verd"></div>
+      </div>
+      <p class="kv"><b>source</b> GAITech#5635 Update#1 · logged 2025-11-04 by udoff</p>
+    </div>
+  </div>
+</section>
+
+<!-- Q2 -->
+<section class="cell" id="c2">
+  <div class="cell-in">
+    <div class="prompt" data-p="in">In [<span class="ctr"> </span>]:</div>
+    <button class="q" data-cell="c2">
+      <span>Fine — keep a Python process alive. How do you talk to a live process?</span>
+      <span class="run">run</span>
+    </button>
+  </div>
+  <div class="cell-out">
+    <div class="prompt o" data-p="out">Out[<span class="ctr"> </span>]:</div>
+    <div class="out-body">
+      <p class="lead">You need more than “send string, get string.”</p>
+      <p>Write down what the channel must actually carry and the problem stops looking easy: send code; stream
+      stdout and stderr <em>as it happens</em>; return structured errors with tracebacks; return <em>images</em>
+      and HTML, not just text; interrupt a running statement without killing the process; and answer “are you
+      still alive?” independently of whether you’re busy.</p>
+      <p>That is five separate concerns, and one of them — interrupt-while-busy — is the reason a single pipe
+      cannot do the job. You need a control path that isn’t blocked behind the work.</p>
+      <p>Jupyter’s kernel protocol is exactly this, and has been for a decade: five ZeroMQ sockets
+      (<code>shell</code>, <code>iopub</code>, <code>stdin</code>, <code>control</code>, <code>hb</code>),
+      HMAC-signed messages, MIME-bundle outputs. And the server side already exists as <code>ipykernel</code>.</p>
+      <div class="rich" data-dec="d2">
+        <div class="rich-h"><span class="mime">application/decision+json</span><span class="rich-t">D2 · the protocol</span></div>
+        <div class="opts"></div><div class="opt-detail"></div><div class="verd"></div>
+      </div>
+      <p class="kv"><b>evidence</b> the library never imports <code>zmq</code>, never signs a message, never frames one — one protocol call exists, <code>client.execute()</code> at <code>session.py:313</code></p>
+    </div>
+  </div>
+</section>
+
+<!-- Q3 -->
+<section class="cell" id="c3">
+  <div class="cell-in">
+    <div class="prompt" data-p="in">In [<span class="ctr"> </span>]:</div>
+    <button class="q" data-cell="c3">
+      <span>If Jupyter supplies both ends, what is there left to build?</span>
+      <span class="run">run</span>
+    </button>
+  </div>
+  <div class="cell-out">
+    <div class="prompt o" data-p="out">Out[<span class="ctr"> </span>]:</div>
+    <div class="out-body">
+      <p class="lead">The question Jupyter deliberately leaves open: <em>where does the process run?</em></p>
+      <p>An agent writes the code. Nobody reviewed it. Running it on the user’s host, as the user, with the
+      user’s credentials and filesystem, is the default — and the default is wrong for autonomous work. But it
+      is also exactly right for a human sitting there watching. Both are real requirements.</p>
+      <p>Then a third arrives: some work needs 20&nbsp;GB and a GPU, which the dev host does not have. And a
+      fourth: the sandbox may be a different machine entirely.</p>
+      <p>So “where” has at least four answers, and the code that <em>uses</em> a kernel should not have to know
+      which. That is the seam — and <code>jupyter_client</code> already defines it as
+      <code>KernelProvisionerBase</code>.</p>
+      <div class="rich" data-dec="d3">
+        <div class="rich-h"><span class="mime">application/decision+json</span><span class="rich-t">D3 · placement</span></div>
+        <div class="opts"></div><div class="opt-detail"></div><div class="verd"></div>
+      </div>
+      <p class="kv"><b>see</b> Part II — the same session API against all four substrates</p>
+    </div>
+  </div>
+</section>
+
+<!-- Q4 -->
+<section class="cell" id="c4">
+  <div class="cell-in">
+    <div class="prompt" data-p="in">In [<span class="ctr"> </span>]:</div>
+    <button class="q" data-cell="c4">
+      <span>A kernel on another machine can’t use a local socket. How is that hidden?</span>
+      <span class="run">run</span>
+    </button>
+  </div>
+  <div class="cell-out">
+    <div class="prompt o" data-p="out">Out[<span class="ctr"> </span>]:</div>
+    <div class="out-body">
+      <p class="lead">By lying to the client, carefully.</p>
+      <p>The remote bootstrap starts a real kernel on the far host and ships its connection dict back over SSH
+      stdout as a single <code>CONN:{…}</code> line. The provisioner then forwards all five ZMQ ports to fresh
+      local ports and <em>rewrites the connection info</em> — ports swapped, <code>ip</code> set to
+      <code>127.0.0.1</code>. The <code>BlockingKernelClient</code> above it cannot tell.</p>
+      <p>Two details make it hold up. SSH <code>ControlMaster</code> pins every subsequent operation to the same
+      host, because the sandbox pool is one DNS name that resolves differently each lookup. And liveness is the
+      stdin pipe: the remote blocks on a read, so SSH dropping produces EOF and a clean shutdown — no heartbeat
+      protocol invented, none needed.</p>
+      <div class="note"><b>The honest cost, stated in the source itself.</b> Forwarded ports bind
+      <code>127.0.0.1</code>, which stops remote access but not <em>other local users</em>. The HMAC key prevents
+      forging messages; it does not encrypt them. A local user who connects to the iopub port reads execution
+      output in plaintext. Filed as InfoSec#8237 and written at the top of <code>ssh.py</code> rather than
+      buried.</div>
+      <div class="rich" data-dec="d4">
+        <div class="rich-h"><span class="mime">application/decision+json</span><span class="rich-t">D4 · remote transport</span></div>
+        <div class="opts"></div><div class="opt-detail"></div><div class="verd"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Q5 -->
+<section class="cell" id="c5">
+  <div class="cell-in">
+    <div class="prompt" data-p="in">In [<span class="ctr"> </span>]:</div>
+    <button class="q" data-cell="c5">
+      <span>You asked for a sandbox. How do you know you got one?</span>
+      <span class="run">run</span>
+    </button>
+  </div>
+  <div class="cell-out">
+    <div class="prompt o" data-p="out">Out[<span class="ctr"> </span>]:</div>
+    <div class="out-body">
+      <p class="lead">You don’t ask the request. You ask the kernel.</p>
+      <p>The tempting check is <code>if provisioner == "termshell"</code>. It is also wrong, and wrong in the
+      case that matters most. When the controller is <em>already</em> inside a sandbox, the termshell provisioner
+      returns <code>None</code> — you get a plain local kernel, because nesting isn’t supported and the kernel
+      will inherit the existing sandbox anyway. The recorded label still says <code>termshell</code>.</p>
+      <p>So the label is legitimately false, and the static gate would wave it through. What actually keeps this
+      safe is that <code>safe_execute</code> executes a probe <em>inside the kernel</em> that stats
+      <code>/etc/claude-code/in-sandbox</code> and fails closed. Ground truth, from the only vantage point that
+      can observe it.</p>
+      <p>The codebase refuses to overclaim about this. The docstring on the “safe” set reads: <em>“Set of
+      <strong>likely</strong> sandboxed provisioners. Downstream uses <strong>MUST</strong> still verify…”</em></p>
+      <div class="rich" data-dec="d5">
+        <div class="rich-h"><span class="mime">application/decision+json</span><span class="rich-t">D5 · trust model</span></div>
+        <div class="opts"></div><div class="opt-detail"></div><div class="verd"></div>
+      </div>
+      <p class="kv"><b>residual</b> the probe is bypassable — an agent can call <code>execute</code> instead. The real control is the permission allow-list, and the README says so explicitly.</p>
+    </div>
+  </div>
+</section>
+
+<!-- Q6 -->
+<section class="cell" id="c6">
+  <div class="cell-in">
+    <div class="prompt" data-p="in">In [<span class="ctr"> </span>]:</div>
+    <button class="q" data-cell="c6">
+      <span>Who owns the kernel’s lifetime?</span>
+      <span class="run">run</span>
+    </button>
+  </div>
+  <div class="cell-out">
+    <div class="prompt o" data-p="out">Out[<span class="ctr"> </span>]:</div>
+    <div class="out-body">
+      <p class="lead">Whoever survives long enough — and in one deployment, nobody does.</p>
+      <p>The obvious answer is the process that started it. Hold the <code>KernelManager</code> in memory; when
+      the MCP server dies, the kernel dies. Simple, fast, and self-reaping.</p>
+      <p>Then Omni: Claude Code is <strong>torn down after every conversational turn</strong> while the sandbox
+      stays warm. An in-process kernel cannot survive a single turn, and the entire value proposition —
+      persistence — evaporates for that platform.</p>
+      <p>Hence a second model: a detached daemon that outlives its caller and watches a PID for auto-shutdown.
+      And because a daemon nobody watches is a leak with no reaper, <code>watch_pid</code> is a
+      <em>mandatory positional argument</em> with no default. You can pass <code>None</code>; you cannot forget to
+      think about it.</p>
+      <div class="rich" data-dec="d6">
+        <div class="rich-h"><span class="mime">application/decision+json</span><span class="rich-t">D6 · ownership</span></div>
+        <div class="opts"></div><div class="opt-detail"></div><div class="verd"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Q7 -->
+<section class="cell" id="c7">
+  <div class="cell-in">
+    <div class="prompt" data-p="in">In [<span class="ctr"> </span>]:</div>
+    <button class="q" data-cell="c7">
+      <span>Two unrelated processes, one kernel. What do they coordinate through?</span>
+      <span class="run">run</span>
+    </button>
+  </div>
+  <div class="cell-out">
+    <div class="prompt o" data-p="out">Out[<span class="ctr"> </span>]:</div>
+    <div class="out-body">
+      <p class="lead">Four JSON files in a <code>0700</code> directory. That’s the entire control plane.</p>
+      <p><code>daemon_info.json</code>, <code>kernel_info.json</code>, <code>server_info.json</code>,
+      <code>daemon.log</code>. No socket, no registry service, no database. A cold
+      <code>DetachedKernelSession(kernel_id=…)</code> in a brand-new process reads those files and can find,
+      drive, and stop a running kernel.</p>
+      <p>The clever part is that the filesystem also supplies the lock. Racing daemons resolve via
+      <code>O_EXCL</code>: exactly one creates <code>daemon_info.json</code>, the losers check whether the winner
+      is alive and exit <code>0</code>. Liveness is <code>(pid, create_time)</code> — a durable process identity,
+      not a reusable integer.</p>
+      <div class="note"><b>Where that discipline lapses.</b> The daemon checks its <em>watched parent</em> with a
+      bare PID and no create-time. Combine with the CLI deriving <code>kernel_id</code> from the grandparent PID
+      and you get a chain: PID is reused → daemon thinks its parent lives → a new session computes the same
+      kernel id → it attaches to the <em>previous</em> session’s namespace. Same user, so not a breach; deeply
+      confusing all the same.</div>
+      <div class="rich" data-dec="d7">
+        <div class="rich-h"><span class="mime">application/decision+json</span><span class="rich-t">D7 · control plane</span></div>
+        <div class="opts"></div><div class="opt-detail"></div><div class="verd"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Q8 -->
+<section class="cell" id="c8">
+  <div class="cell-in">
+    <div class="prompt" data-p="in">In [<span class="ctr"> </span>]:</div>
+    <button class="q" data-cell="c8">
+      <span>The agent writes an infinite loop. Now what?</span>
+      <span class="run">run</span>
+    </button>
+  </div>
+  <div class="cell-out">
+    <div class="prompt o" data-p="out">Out[<span class="ctr"> </span>]:</div>
+    <div class="out-body">
+      <p class="lead">Interrupt the statement. Never kill the kernel.</p>
+      <p>Killing is easier and more certain. It is also self-defeating: the kernel holds the loaded dataframe,
+      the fitted model, the open connection — the accumulated state that is the <em>only reason</em> this system
+      exists. Killing to escape one bad cell throws away everything the agent built.</p>
+      <p>So a timeout sends <code>SIGINT</code>, synthesises a <code>TimeoutError</code> event, and then drains
+      iopub until <code>status/idle</code> so the next call isn’t polluted by the dead cell’s tail. The kernel
+      survives; the namespace survives.</p>
+      <div class="note"><b>Two sharp edges.</b> A cell blocked in a C extension or a syscall may ignore
+      <code>SIGINT</code> entirely. And with several clients on one detached kernel, the timeout clock starts at
+      <em>submission</em>, not at execution — so a queued cell burns its budget waiting, and the interrupt it
+      eventually fires is kernel-wide and can land on somebody else’s statement.</div>
+      <div class="rich" data-dec="d8">
+        <div class="rich-h"><span class="mime">application/decision+json</span><span class="rich-t">D8 · timeout</span></div>
+        <div class="opts"></div><div class="opt-detail"></div><div class="verd"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Q9 -->
+<section class="cell" id="c9">
+  <div class="cell-in">
+    <div class="prompt" data-p="in">In [<span class="ctr"> </span>]:</div>
+    <button class="q" data-cell="c9">
+      <span>A cell emits a chart. What does the agent actually receive?</span>
+      <span class="run">run</span>
+    </button>
+  </div>
+  <div class="cell-out">
+    <div class="prompt o" data-p="out">Out[<span class="ctr"> </span>]:</div>
+    <div class="out-body">
+      <p class="lead">Whatever each surface decides it should — which is the point.</p>
+      <p>One <code>display_data</code> message may carry <code>text/plain</code>, <code>text/html</code>,
+      <code>image/png</code> and <code>application/json</code> for the same object. The original code flattened
+      it: <code>text/plain</code> became stdout, everything else became a “rich output.” So the agent received
+      both — the same content twice, in two formats, one of them useless to it.</p>
+      <p>The fix was to stop flattening. The runtime now preserves the bundle as one typed event
+      (<code>StreamEvent | ErrorEvent | DisplayEvent | ClearOutputEvent</code>) and lets each consumer project
+      it. The ticket phrases the principle exactly: <em>“let each surface keep its own policy for what it
+      shows.”</em></p>
+      <p>So the MCP server sends the model a concise text plus an inline PNG, and suppresses
+      <code>text/plain</code> when an image is already going — because the plain-text fallback of an image is
+      worthless to a model that can see. Meanwhile a DJS chart is <em>withheld</em> from the agent entirely and
+      published to the browser viewer, with a one-line note in its place. The human gets the chart; the context
+      window doesn’t get the JSON.</p>
+      <div class="rich" data-dec="d9">
+        <div class="rich-h"><span class="mime">application/decision+json</span><span class="rich-t">D9 · output model</span></div>
+        <div class="opts"></div><div class="opt-detail"></div><div class="verd"></div>
+      </div>
+      <p class="kv"><b>unfinished</b> <code>clear_output</code> and <code>update_display_data</code> are captured as events but the MCP renderer appends <code>[output cleared]</code> / <code>[display updated]</code> and keeps the superseded content — so a progress-bar loop <em>adds</em> context instead of replacing it</p>
+    </div>
+  </div>
+</section>
+
+<!-- Q10 -->
+<section class="cell" id="c10">
+  <div class="cell-in">
+    <div class="prompt" data-p="in">In [<span class="ctr"> </span>]:</div>
+    <button class="q" data-cell="c10">
+      <span>How does an agent invoke any of this?</span>
+      <span class="run">run</span>
+    </button>
+  </div>
+  <div class="cell-out">
+    <div class="prompt o" data-p="out">Out[<span class="ctr"> </span>]:</div>
+    <div class="out-body">
+      <p class="lead">Two interfaces were built, shipped simultaneously, and then measured.</p>
+      <p>An MCP server exposing six tools, and a Claude Code skill wrapping CLI scripts. Both call the same
+      library. Both were published to the plugin marketplace. Both emit
+      <code>log_usage(…, {"interface": "mcp"|"cli"})</code> — the comparison was instrumented from the start.</p>
+      <p>MCP won on two measured grounds: it avoids re-importing the library on every call (<strong>~1
+      second</strong>, per invocation, forever) and it can return a PNG inline as <code>ImageContent</code> so the
+      agent simply sees the plot. CLI won on three: Claude Code spills oversized Bash output to a file for free,
+      multi-line code reads better than escaped JSON arguments, and its detached daemon survives Omni’s per-turn
+      teardown.</p>
+      <p>The written conclusion is the right one — fold the daemon into the MCP plugin and retire the CLI. The
+      library half shipped. The plugin half did not.</p>
+      <div class="rich" data-dec="d10">
+        <div class="rich-h"><span class="mime">application/decision+json</span><span class="rich-t">D10 · agent interface</span></div>
+        <div class="opts"></div><div class="opt-detail"></div><div class="verd"></div>
+      </div>
+      <p class="kv"><b>state today</b> both plugins still published · MCP labelled “(preferred)” · <code>output_server.py</code> duplicated across them at 511 and 494 lines, <b>different checksums</b></p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ PART II ═══════════════ -->
+<div class="part">
+  <div class="part-num">Part II · the seam</div>
+  <h2>One API, four machines</h2>
+  <p class="part-lede">
+    D3 is the load-bearing decision, so it deserves to be seen rather than described. The caller writes
+    <code>session.execute(code)</code> in every case below. Only the string passed to
+    <code>provisioner=</code> changes.
+  </p>
+</div>
+
+<div class="topo">
+  <div class="topo-bar" role="tablist" aria-label="Provisioner">
+    <button class="pv on" role="tab" aria-selected="true" data-pv="local">local<small>no isolation</small></button>
+    <button class="pv" role="tab" aria-selected="false" data-pv="termshell">termshell<small>the default</small></button>
+    <button class="pv" role="tab" aria-selected="false" data-pv="maestro">maestro<small>grid node</small></button>
+    <button class="pv" role="tab" aria-selected="false" data-pv="ssh">ssh<small>remote pool</small></button>
+  </div>
+  <div class="topo-body">
+    <div class="diagram" id="diagram"></div>
+    <div class="facts" id="facts"></div>
+  </div>
+</div>
+
+<!-- ═══════════════ PART III ═══════════════ -->
+<div class="part">
+  <div class="part-num">Part III · shipping it</div>
+  <h2>There is no service to deploy</h2>
+  <p class="part-lede">
+    The library contains no listening socket — one ephemeral <code>bind()</code> that closes immediately, and
+    that is all. No fleet, no endpoint, no shared state. Which means there is nobody to page, and also no
+    central switch to flip when something is wrong.
+  </p>
+</div>
+
+<div class="chan">
+  <div class="chan-c">
+    <div class="chan-h">Channel 1 · slow</div>
+    <h3 class="chan-t">The library</h3>
+    <div class="step"><span class="d">01</span><span>git tag <code>v&lt;M.m.p&gt;</code> on <b>genai/desco-llm</b></span></div>
+    <div class="step"><span class="d">02</span><span><code>python -m build</code> → <b>Artifactory</b> <code>pypi-genai-prod</code></span></div>
+    <div class="step"><span class="d">03</span><span><code>sleep 180s</code> — a literal CI step, because <b>pydeploy would otherwise race Artifactory’s own replication</b></span></div>
+    <div class="step"><span class="d">04</span><span><code>pydeploy</code> → <b>experimental</b> + <b>QA</b> interpreters, automatically</span></div>
+    <div class="step warn"><span class="d">05</span><span><b>Production is out of band.</b> “After next base release, these changes would move to all production hosts.” The team does not control that schedule.</span></div>
+  </div>
+  <div class="chan-c">
+    <div class="chan-h">Channel 2 · fast</div>
+    <h3 class="chan-t">The consumer</h3>
+    <div class="step"><span class="d">01</span><span><code>/plugin marketplace add …/gai-tech-claude-plugins.git</code></span></div>
+    <div class="step"><span class="d">02</span><span><code>/plugin install desco-repl@…</code> — a <b>git clone</b> into the user’s plugin cache</span></div>
+    <div class="step"><span class="d">03</span><span><code>.mcp.json</code> registers a stdio server; <code>start-mcp.sh</code> launches the <b>system interpreter</b>, deliberately bypassing venvs</span></div>
+    <div class="step"><span class="d">04</span><span>Updates arrive on the next marketplace refresh — <b>immediately</b></span></div>
+    <div class="step warn"><span class="d">05</span><span><b>No compatibility floor.</b> <code>plugin.json</code> declares no minimum library version. The fast half can outrun the slow half, and nothing detects it until a tool call fails.</span></div>
+  </div>
+</div>
+
+<p class="note" style="margin-top:26px"><b>Observed skew, right now.</b> Repo pin declares <code>desco-llm 4.4.0</code>; the
+<code>std</code> interpreter carries <code>4.6.0</code>. The termshell provisioner mirrors an internal computation from
+<code>desco_jupyter_extensions</code>, was last repaired for version <b>2.37.6</b>, and <code>std</code> now ships
+<b>2.37.8</b>. That coupling is to another team’s release train — and the tests that would catch the drift are
+excluded from CI.</p>
+
+<h3 style="font-family:var(--display);font-weight:400;font-size:27px;margin:52px 0 6px;letter-spacing:-.012em">What breaks first — and it isn’t capacity</h3>
+<p style="color:var(--ink-2);max-width:76ch;margin-top:6px">Reclamation. Three mechanisms, each partial, and the gaps line up
+badly with the one deployment that needs them most.</p>
+
+<table>
+  <thead><tr><th style="width:26%">Reaper</th><th style="width:37%">How it works</th><th>Where it fails</th></tr></thead>
+  <tbody>
+    <tr><td><b>watch_pid</b></td><td>Daemon polls the watched PID at 1&nbsp;Hz and exits when it disappears</td>
+      <td>Bare PID, no create-time check → <b>PID reuse keeps it alive forever</b>. And it is off by construction in the <code>watch_pid=None</code> mode Omni requires.</td></tr>
+    <tr><td><b>stale sweep</b></td><td>Removes kernel dirs whose daemon is dead, with an age guard against racing a concurrent start</td>
+      <td><b>Only runs when a kernel starts.</b> Stop starting kernels and you stop sweeping. No timer, no cron, no reaper.</td></tr>
+    <tr><td><b>explicit stop()</b></td><td>Kills the daemon, removes metadata</td>
+      <td>Requires a caller that remembers — the exact thing a torn-down per-turn process cannot do.</td></tr>
+    <tr><td><b>quota</b></td><td colspan="2"><span style="color:var(--rust)">Does not exist.</span> Nothing caps kernels per user, per host, or per pool. A Maestro kernel defaults to <b>20&nbsp;GB</b> under a <b>24-hour</b> health-check window.</td></tr>
+  </tbody>
+</table>
+
+<!-- ═══════════════ PART IV ═══════════════ -->
+<div class="part">
+  <div class="part-num">Part IV · the ledger</div>
+  <h2>Twelve decisions, scored</h2>
+  <p class="part-lede">
+    Everything above, plus the two that never got made explicitly. Filter by verdict.
+  </p>
+</div>
+
+<div class="filt">
+  <button class="fb on" data-f="all">all 12</button>
+  <button class="fb" data-f="right" style="color:var(--teal)">right call</button>
+  <button class="fb" data-f="def" style="color:var(--amber)">defensible</button>
+  <button class="fb" data-f="chg" style="color:var(--rust)">would change</button>
+</div>
+<div class="led" id="ledger"></div>
+
+<footer>
+  <b>desco_repl — first principles.</b> Companion to <b>desco-repl-architecture-analysis.md</b>.<br>
+  Sources: <b>genai/desco-llm</b> @ 19cb1fcb · <b>genai/gai-tech-claude-plugins</b> @ c476410 ·
+  GAITech#5635, #10652, #10781 · Confluence DJS#27354.<br>
+  Every factual claim is traceable to a <b>file:line</b>, a commit, or a ticket in that document.
+  InfoSec#8237 is referenced but was not readable.<br>
+  <b>Deliberation is documented</b> for D1, D3, D5, D6, D9, D10 — those alternatives were written down by the
+  authors. <b>D2, D4, D7, D8 are reconstructed</b>: the choice is in the code, the alternatives are the
+  analyst’s framing of what else it could have been. <b>D11 and D12 were never decided explicitly</b> —
+  they are omissions, presented as the choices they implicitly made.<br>
+  Verdicts throughout are the analyst’s, not the authors’.
+</footer>
+
+</div>
+
+<script>
+"use strict";
+
+/* ── decision data ─────────────────────────────────────── */
+const DEC = {
+ d1:{chosen:1,verdict:"right",vtext:"<b>This is the premise, not a preference.</b> Every other decision on this page is downstream of refusing to throw the process away.",
+  opts:[
+   {n:"Subprocess per call",t:"Spawn <code>python -c</code>, capture stdout, exit.",
+    d:"<p>Trivially isolated, trivially reaped, zero lifecycle code. It is also what <em>descobench</em> still does today, and it is the right answer for one-shot evaluation.</p><p><em>Why not here:</em> state dies with the process. Every follow-up question re-pays imports and I/O — precisely the cost the ticket was raised to remove.</p>"},
+   {n:"Persistent kernel",t:"One long-lived process; send code into it repeatedly.",
+    d:"<p><em>Chosen.</em> The namespace accumulates, so setup is paid once and every subsequent question is nearly free.</p><p><em>What it costs:</em> everything hard on this page. Lifecycle, reclamation, crash detection, sandbox verification, concurrent access — none of which a subprocess needs, all of which a resident process forces you to solve.</p>"},
+   {n:"Container per call",t:"Fresh container each time, image pre-warmed with deps.",
+    d:"<p>Fixes the <em>import</em> half — a baked image imports fast — and gives strong isolation for free.</p><p><em>Why not:</em> it does not fix the <em>data</em> half at all. A 40&nbsp;GB parquet load is re-paid on every call, and that is usually the dominant cost. Container start also exceeds the latency budget for interactive turn-taking.</p>"}
+  ]},
+
+ d2:{chosen:1,verdict:"right",vtext:"<b>The single highest-leverage act of not-building.</b> Adopting the protocol also bought the provisioner seam, which is the thing that made D3 possible at all.",
+  opts:[
+   {n:"Hand-rolled RPC",t:"A JSON protocol over a pipe or socket, written for this purpose.",
+    d:"<p>Total control, no dependency, exactly the surface needed and no more.</p><p><em>Why not:</em> you must re-invent streamed partial output, out-of-band interrupt, structured tracebacks, heartbeat, and a rich-output format — then write the kernel-side agent to serve it, and keep both ends compatible forever. All of it already exists, tested, in a protocol the ecosystem speaks.</p>"},
+   {n:"Jupyter kernel protocol",t:"<code>jupyter_client</code> speaking ZMQ directly to <code>ipykernel</code>.",
+    d:"<p><em>Chosen.</em> Five sockets, HMAC-signed, MIME-bundle outputs, control channel independent of the busy shell channel. The kernel side is <code>ipykernel</code> — nothing written.</p><p><em>Decisive detail:</em> <code>KernelProvisionerBase</code> lives at exactly this layer. Choosing the protocol is what made “where does the kernel run” a pluggable question.</p>"},
+   {n:"Jupyter Server REST + WS",t:"Run a Jupyter Server; drive kernels over its HTTP/websocket API.",
+    d:"<p>Familiar, firewall-friendly, and gives you a session model and auth surface for free.</p><p><em>Why not:</em> an entire HTTP server, its auth, and its lifecycle for a local-process problem. Worse — the provisioner API is <em>below</em> that layer, so wrapping it would have forfeited the extension point the whole design turns on.</p>"}
+  ]},
+
+ d3:{chosen:2,verdict:"right",vtext:"<b>The best idea in the system.</b> Four substrates, added incrementally over nine months, each absorbing its own constraint without leaking upward.",
+  opts:[
+   {n:"Always local",t:"One code path. The kernel is a child process, full stop.",
+    d:"<p>Where the original prototype started, and correct for a human watching their own terminal.</p><p><em>Why not:</em> unusable for autonomous agents, and it caps you at the dev host’s memory. Two independent dead ends.</p>"},
+   {n:"Always sandboxed",t:"Force termshell for everything; refuse to run unsandboxed.",
+    d:"<p>Strongest default, no footgun, no label to get wrong.</p><p><em>Why not:</em> the stated plan was human-in-the-loop first, sandbox wrapper second — and termshell cannot nest, so a controller already inside a sandbox would be unable to start anything. It also forecloses Maestro, where the point is grid resources rather than isolation.</p>"},
+   {n:"Provisioner seam",t:"<code>KernelProvisionerBase</code> as the substitutability boundary.",
+    d:"<p><em>Chosen.</em> <code>local</code>, <code>termshell</code>, <code>maestro</code>, <code>ssh</code> behind one <code>execute()</code>. Callers change a string; the test suite runs identical assertions across all four.</p><p><em>What it costs:</em> the uniform API hides wildly non-uniform behaviour — a 30&nbsp;s versus 120&nbsp;s startup budget, four unrelated failure modes, and only one of the four actually isolated. A caller reading <code>session.execute(...)</code> has no local signal which world they are in.</p>"}
+  ]},
+
+ d4:{chosen:2,verdict:"def",vtext:"<b>Right shape, documented weakness.</b> The client-transparency is elegant; the plaintext ZMQ on shared hosts is a real residual, and the source says so on line 9 rather than hiding it.",
+  opts:[
+   {n:"Custom remote agent",t:"Write a small daemon for the far host; speak your own protocol to it.",
+    d:"<p>Full control of framing, auth, and encryption — you could mandate TLS.</p><p><em>Why not:</em> a second protocol to version, and something to install and keep updated on every pool host. The bootstrap deliberately avoids this: it is shipped <em>inline</em> as a base64 <code>python3 -c</code> payload, so the remote host needs no deployment of this project at all.</p>"},
+   {n:"A gateway service",t:"Central service brokering kernels; controller talks only to it.",
+    d:"<p>One auth surface, natural place for quota and a fleet view — the two things Part III says are missing.</p><p><em>Why not:</em> it is a service, with uptime, capacity, and an on-call rotation. For per-user interactive kernels that is a large standing cost to solve a problem each user already has the credentials to solve directly. (Maestro <em>is</em> this, for the case where it pays.)</p>"},
+   {n:"SSH + port forward + rewrite",t:"ControlMaster-pinned SSH, five forwarded ports, connection info rewritten to loopback.",
+    d:"<p><em>Chosen.</em> The stock <code>BlockingKernelClient</code> works unmodified — it believes the kernel is local. Auth is Kerberos/GSSAPI, so disabling host-key checking (the pool’s keys churn) does not mean disabling authentication.</p><p><em>What it costs:</em> ZMQ is unencrypted. Ports bind loopback, which excludes the network but not other users on that host. Documented as InfoSec#8237.</p>"}
+  ]},
+
+ d5:{chosen:2,verdict:"right",vtext:"<b>Load-bearing, and correctly ranked.</b> The design treats prompt and metadata as advisory and the in-kernel probe as evidence — which is the right ordering, because the metadata is genuinely wrong in the sandboxed-controller case.",
+  opts:[
+   {n:"Trust the argument",t:"Caller asked for <code>termshell</code>, so it is sandboxed.",
+    d:"<p>Free, and true most of the time.</p><p><em>Why not — concretely:</em> when the controller is already sandboxed the provisioner returns <code>None</code> and a plain local kernel starts, while the entry still records <code>termshell</code>. The check would pass on a kernel it never actually wrapped.</p>"},
+   {n:"Check an env var",t:"Inspect the controller’s own environment for sandbox markers.",
+    d:"<p>Cheap, no round trip, and the code does use this — but only to decide <em>strategy</em>, never to authorise execution.</p><p><em>Why not for safety:</em> it observes the wrong process. The controller’s environment says nothing reliable about the environment the <em>kernel</em> ended up in, which may be another container or another machine entirely.</p>"},
+   {n:"Probe inside the kernel",t:"Execute code in the kernel that stats the sandbox marker; fail closed.",
+    d:"<p><em>Chosen.</em> The only vantage point that can observe the truth is the kernel itself, so the check runs there and the controller reads the result off iopub.</p><p><em>Honest limit,</em> annotated in the source as “bypassable, but catches misconfigurations”: an agent can simply call <code>execute</code> instead. The enforcement boundary is the permission allow-list, not the code.</p>"}
+  ]},
+
+ d6:{chosen:2,verdict:"def",vtext:"<b>Correct analysis, half-executed.</b> The written plan — one plugin, detached backend selected by context — is right. The library shipped <code>watch_pid=None</code>; the MCP plugin still constructs in-process sessions only.",
+  opts:[
+   {n:"In-process only",t:"The MCP server holds the <code>KernelManager</code>; kernel dies with it.",
+    d:"<p>Simplest lifecycle in the system and self-reaping — no daemon, no watched PID, no orphans. Saves the ~1&nbsp;s library import on every call.</p><p><em>Why insufficient:</em> Omni tears down Claude Code every turn. Persistence — the entire product — does not survive one reply.</p>"},
+   {n:"Detached only",t:"Always spawn a daemon; always coordinate through files.",
+    d:"<p>Uniform, survives anything, and any process can attach to any kernel.</p><p><em>Why not:</em> you pay a daemon, a watched PID, and file coordination in the common case that needs none of it — plus the library re-import per CLI invocation. Overhead on the 95% to serve the 5%.</p>"},
+   {n:"Both, caller decides",t:"Two session classes over one shared execution path.",
+    d:"<p><em>Chosen.</em> The classes differ <em>only</em> in how a kernel is found and signalled; <code>execute()</code> is byte-identical. <code>watch_pid</code> is mandatory-positional so an unreapable kernel must be a deliberate act.</p><p><em>What it cost:</em> two plugins shipped to prove which interface users preferred, and the convergence never landed — <code>output_server.py</code> now exists twice, drifted.</p>"}
+  ]},
+
+ d7:{chosen:1,verdict:"right",vtext:"<b>Right for the scale, with visible seams.</b> Filesystem races are individually addressed and commented; the one gap is applying create-time identity to the watched parent as rigorously as to the daemon.",
+  opts:[
+   {n:"A control socket",t:"Daemon listens on a Unix socket; callers send commands.",
+    d:"<p>Structured, synchronous, no polling, and command semantics are explicit rather than implied by file contents.</p><p><em>Why not:</em> the socket dies with the daemon, taking discoverability with it — you can no longer tell a crashed kernel from an absent one, or find an orphan to clean up. It also needs its own request/response protocol, versioned.</p>"},
+   {n:"Files in a 0700 dir",t:"Four JSON files plus a log; <code>O_EXCL</code> as the lock.",
+    d:"<p><em>Chosen.</em> Discoverable cold from any process, survives the controller crashing, debuggable with <code>cat</code>, and the atomic-create gives a distributed lock for free — tested against a four-way concurrent start.</p><p><em>What it costs:</em> filesystem races, each handled by hand — a stale <code>kernel_info.json</code> removed before spawn, an age guard so the sweeper cannot race a concurrent start, ownership verified before connecting.</p>"},
+   {n:"A registry service",t:"A per-host or per-user daemon tracking all kernels.",
+    d:"<p>Would deliver the fleet view and the quota that Part III identifies as missing, and could run a real reaper on a timer.</p><p><em>Why not:</em> a service to deploy, monitor, and keep alive, for a system whose defining property is that it has none. Justified only once kernel volume makes leaks a shared problem rather than a personal one.</p>"}
+  ]},
+
+ d8:{chosen:1,verdict:"right",vtext:"<b>The only defensible answer.</b> Killing to escape a bad cell destroys the accumulated state the system exists to preserve — it trades the product for tidiness.",
+  opts:[
+   {n:"Kill and restart",t:"Terminate the kernel, bring up a fresh one.",
+    d:"<p>Certain. Works against C loops and blocked syscalls that ignore <code>SIGINT</code>, which interrupting does not.</p><p><em>Why not:</em> it discards the loaded data, fitted models and open handles — the whole point. A user who hits one slow cell should not lose an hour of setup.</p>"},
+   {n:"Interrupt, then drain",t:"<code>SIGINT</code>, synthesise a timeout event, drain iopub to <code>status/idle</code>.",
+    d:"<p><em>Chosen.</em> Kernel and namespace survive; the next call starts on a clean channel. Verified by tests across every provisioner.</p><p><em>What it costs:</em> <code>SIGINT</code>-immune cells keep running, and the drain gives up after 5&nbsp;s. With concurrent clients the timeout clock starts at submission rather than execution, so the interrupt can land on a different client’s statement.</p>"},
+   {n:"No timeout",t:"Let it run; the caller decides when to give up.",
+    d:"<p>Honest — the runtime genuinely cannot know whether 90 seconds is a hang or a legitimate join.</p><p><em>Why not:</em> an agent has no reliable way to give up. A hung tool call stalls the loop indefinitely with no output and no error, which is the worst failure shape available.</p>"}
+  ]},
+
+ d9:{chosen:2,verdict:"right",vtext:"<b>The right abstraction, arrived at by correcting a real symptom.</b> Preserve the bundle centrally; let each surface project it. Two consumers already disagree about what to show, and now they can.",
+  opts:[
+   {n:"Everything to text",t:"Flatten every output into one stdout string.",
+    d:"<p>Simplest possible contract; every consumer handles one type.</p><p><em>Why not:</em> throws away images entirely. An agent that cannot see the plot it just drew cannot check its own work — and verifying plots is a stated use case.</p>"},
+   {n:"stdout + a rich list",t:"Text to stdout; anything non-text into a side list.",
+    d:"<p>The original design, and it did carry images through.</p><p><em>Why it broke:</em> a DJS chart emits <code>text/plain</code> <em>and</em> <code>text/html</code> for the same object, so the agent received both — duplicated content, one copy useless. Consumers could not opt out, because the split was decided before they saw it.</p>"},
+   {n:"Typed event union",t:"A discriminated union preserving full MIME bundles; legacy fields derived.",
+    d:"<p><em>Chosen.</em> One logical output stays one event. Each surface picks its projection — concise text plus an inline image for the model, full HTML for the browser, a DJS chart withheld from the agent and published to the viewer.</p><p><em>What it costs:</em> two representations coexisting during migration, behind a TODO. And the renderer still does not <em>act</em> on <code>clear_output</code> or <code>update_display_data</code> — it annotates and appends, so progress loops inflate context.</p>"}
+  ]},
+
+ d10:{chosen:2,verdict:"def",vtext:"<b>Excellent process, unfinished outcome.</b> Shipping both and instrumenting the comparison is exactly right. Leaving both shipped — with a 500-line file duplicated and drifted between them — is the cost of stopping at the analysis.",
+  opts:[
+   {n:"MCP only",t:"Six stdio tools; kernels held in the server process.",
+    d:"<p>Faster (no per-call re-import), and images return inline as <code>ImageContent</code>. Simplest lifecycle.</p><p><em>Gap:</em> kernel lifetime is tied to the client process, which Omni destroys every turn.</p>"},
+   {n:"CLI skill only",t:"Bash-invoked scripts over a detached daemon.",
+    d:"<p>Inherits Claude Code’s output spilling for free, reads better for multi-line code, and the daemon survives Omni.</p><p><em>Gap:</em> pays ~1&nbsp;s of library import per invocation and needs a second tool call to show the agent an image.</p>"},
+   {n:"Ship both, then measure",t:"Publish both; tag usage by interface; decide from the logs.",
+    d:"<p><em>Chosen.</em> A real A/B on a genuinely uncertain question, instrumented from day one. MCP won on usage and was labelled preferred.</p><p><em>What it costs:</em> the follow-through. Both plugins remain published, the plugin-specific code is duplicated rather than shared, and the detached backend the analysis called for is built in the library but unused by the preferred plugin.</p>"}
+  ]},
+
+ d11:{chosen:1,verdict:"chg",vtext:"<b>Would change.</b> An optional <code>desco-llm[repl]</code> extra plus one clean-venv CI job. The launcher hard-coding the system interpreter is a workaround that became load-bearing.",
+  opts:[
+   {n:"Declare dependencies",t:"List <code>jupyter_client</code>, <code>ipykernel</code>, <code>psutil</code>, <code>pyflyby</code> … as an extra.",
+    d:"<p>Makes the requirement checkable, installable, and version-bounded — including the <code>desco_jupyter_extensions</code> coupling that has already broken twice.</p><p><em>Not done.</em></p>"},
+   {n:"Rely on the distribution",t:"Assume the firm’s standard interpreter already provides them.",
+    d:"<p><em>What happens today,</em> by omission rather than argument. Every runtime dependency is absent from the dependency list, and it works because the standard interpreter ships them.</p><p><em>What it costs:</em> installing into a clean venv yields a package that imports and then fails at the first REPL call — and a missing <code>pyflyby</code> surfaces as “Kernel preexec failed,” which reads like a kernel bug. It is also why the plugin launcher must invoke the system Python directly.</p>"}
+  ]},
+
+ d12:{chosen:0,verdict:"chg",vtext:"<b>Would change.</b> The gaps align exactly with the deployment that needs reclamation most: under Omni nothing survives to be watched, and a start-triggered sweeper never fires for a user who has stopped starting kernels.",
+  opts:[
+   {n:"Watch a PID",t:"Daemon polls a parent PID and exits when it dies.",
+    d:"<p><em>What was built,</em> plus an opportunistic sweep on kernel start.</p><p><em>What it costs:</em> the check uses a bare PID with no create-time guard, so reuse keeps a dead session’s daemon alive indefinitely — and it is disabled by construction in the <code>watch_pid=None</code> mode Omni requires.</p>"},
+   {n:"TTL on the kernel",t:"Every kernel gets a deadline; extend on use.",
+    d:"<p>Bounds the leak regardless of what happens to the parent, and needs no process to watch — which is precisely the Omni condition.</p><p><em>Not implemented.</em> Maestro applies something like it externally with a 24-hour health-check window; nothing equivalent exists for local or termshell kernels.</p>"},
+   {n:"A real reaper",t:"A user-level timer sweeping dead kernel dirs on a schedule.",
+    d:"<p>Decouples cleanup from the accident of someone starting another kernel. The scan already exists — it is simply only ever called from <code>start()</code>.</p><p><em>Not implemented.</em> Combined with a per-user quota at <code>start()</code>, this is the smallest change that makes the scaling story sound.</p>"}
+  ]}
+};
+
+const LEDGER = [
+ ["D1","Unit of execution","Persistent kernel over subprocess — a container fixes imports but not the data load","right"],
+ ["D2","The protocol","Adopt Jupyter's kernel protocol; it also carries the provisioner seam","right"],
+ ["D3","Placement","Provisioner abstraction over four substrates instead of one hard-coded location","right"],
+ ["D4","Remote transport","SSH + port forward + connection rewrite, so the stock client stays unmodified","def"],
+ ["D5","Trust model","Probe the kernel for ground truth; the provisioner label is legitimately unreliable","right"],
+ ["D6","Ownership","In-process and detached, sharing one execution path; Omni forced the second","def"],
+ ["D7","Control plane","Four JSON files in a 0700 dir, with O_EXCL as the lock — no socket, no service","right"],
+ ["D8","Timeout","Interrupt the statement, never kill the kernel","right"],
+ ["D9","Output model","Typed event union preserving MIME bundles; each surface picks its projection","right"],
+ ["D10","Agent interface","Ship MCP and CLI, instrument both, decide from usage logs","def"],
+ ["D11","Dependencies","Rely on the ambient standard distribution — by omission, not by argument","chg"],
+ ["D12","Reclamation","Watch a PID, sweep opportunistically, no TTL and no quota","chg"]
+];
+
+const TOPO = {
+ local:{
+  loc:"CONTROLLER HOST", wrap:null, iso:false,
+  link:"IPC · unix socket inside the 0700 kernel dir",
+  facts:[
+   ["Kernel process","Child of the controller, same host, same uid"],
+   ["Transport","<b>IPC</b> — a unix socket, not a port. Faster than loopback TCP and protected by directory permissions rather than by nobody guessing the port."],
+   ["Isolation","<b>None.</b> The agent's code runs with the user's full credentials and filesystem access."],
+   ["Startup budget","30 s"],
+   ["Liveness","<code>KernelManager.is_alive()</code> — direct, in-process"],
+   ["Distinctive failure","No isolation to fail. What fails is judgment: this provisioner is one string away from the default."]
+  ],
+  use:"A human is watching, the code is trusted, and you want the lowest possible latency."
+ },
+ termshell:{
+  loc:"CONTROLLER HOST", wrap:"termshell sandbox", iso:true,
+  link:"IPC · socket relocated into the termshell-writable runtime dir",
+  facts:[
+   ["Kernel process","Same host, wrapped by termshell — the firm's existing agent sandbox"],
+   ["How it is requested","No provisioner class. A <code>KernelSpec</code> is <b>fabricated in memory</b> carrying <code>metadata.sandbox</code>, and assigned to a private attribute so Jupyter's on-disk spec discovery is bypassed entirely."],
+   ["Isolation","<b>Yes</b> — and verified at runtime, not assumed. See D5."],
+   ["Startup budget","30 s"],
+   ["Nesting","Unsupported. Inside a non-sandboxed termshell this raises with an actionable message; inside a sandboxed controller it silently falls back to a local kernel that inherits the existing sandbox."],
+   ["Distinctive failure","<b>Coupling.</b> The runtime-directory location is recomputed from another package's internals — already repaired twice, and that package has moved again since."]
+  ],
+  use:"The default, and the answer unless someone gives a specific reason otherwise."
+ },
+ maestro:{
+  loc:"MAESTRO GRID NODE", wrap:"gateway provisioner", iso:false,
+  link:"TCP · bound 0.0.0.0, response-address handshake",
+  facts:[
+   ["Kernel process","A scheduled grid node — a different machine, allocated on demand"],
+   ["How it is requested","Also spec fabrication, but delegated to Jupyter's provisioner <em>factory</em> rather than injected: resources ride in <code>metadata.kernel_provisioner.config</code>."],
+   ["Isolation","<b>None.</b> Grid scheduling is not sandboxing; this buys capacity, not safety."],
+   ["Startup budget","<b>120 s</b> — four times the others. Scheduling, not launching, dominates."],
+   ["Defaults","<b>20 GB</b>, 2 CPU, 1 GB disk, 1 GB tmpfs, scheduler <code>public</code>, health-check TTL <b>24 hours</b>."],
+   ["Distinctive failure","<b>Expensive to forget.</b> A leaked kernel here is 20 GB held for a day, on shared infrastructure."]
+  ],
+  use:"The work genuinely needs grid memory or a GPU, and the user asked for it explicitly."
+ },
+ ssh:{
+  loc:"SANDBOX HOST POOL", wrap:"ssh_bootstrap.py → KernelManager", iso:null,
+  link:"TCP · 5 ZMQ ports forwarded to fresh loopback ports",
+  facts:[
+   ["Kernel process","A pool host reached over SSH. One DNS name that resolves differently per lookup — hence <b>ControlMaster</b>, which pins every later operation to the host the kernel actually landed on."],
+   ["Bootstrap","Shipped inline as a base64 <code>python3 -c</code> payload, so the remote needs no deployment of this project. It waits for all five ZMQ ports to accept connections before reporting readiness."],
+   ["Authentication","<b>Kerberos / GSSAPI.</b> Host-key checking is off because pool keys churn — but authentication is not dropped, it moves to the KDC, with DNS-derived principals refused and credential delegation off by default."],
+   ["Liveness","<b>The stdin pipe.</b> The remote blocks on a read; SSH dropping yields EOF and a clean shutdown. No heartbeat protocol was invented."],
+   ["Isolation","Whatever the pool host enforces — not established by this code path."],
+   ["Distinctive failure","<b>Plaintext ZMQ.</b> Loopback binding excludes the network but not other local users; the HMAC key prevents forgery, not reading. InfoSec#8237."]
+  ],
+  use:"The sandbox is another machine — or the kernel must run as a different account, via sudo-before-SSH."
+ }
+};
+
+/* ── notebook execution counter ─────────────────────────── */
+let counter = 0;
+function runCell(id){
+  const cell = document.getElementById(id);
+  if(!cell || cell.classList.contains("done")) return;
+  counter += 1;
+  cell.querySelectorAll(".ctr").forEach(el => el.textContent = counter);
+  cell.classList.add("done");
+  const dec = cell.querySelector(".rich");
+  if(dec) buildDecision(dec);
+}
+document.querySelectorAll(".q").forEach(btn=>{
+  btn.addEventListener("click",()=>runCell(btn.dataset.cell));
+});
+document.getElementById("runall").addEventListener("click",()=>{
+  document.querySelectorAll(".cell").forEach(c=>runCell(c.id));
+});
+
+/* ── decision blocks ────────────────────────────────────── */
+const VMAP={right:["b-right","right call"],def:["b-def","defensible"],chg:["b-chg","would change"]};
+
+function buildDecision(node){
+  if(node.dataset.built) return;
+  node.dataset.built = "1";
+  const d = DEC[node.dataset.dec];
+  if(!d) return;
+
+  const optsEl = node.querySelector(".opts");
+  const detEl  = node.querySelector(".opt-detail");
+  const verdEl = node.querySelector(".verd");
+
+  d.opts.forEach((o,i)=>{
+    const b=document.createElement("button");
+    b.className="opt"+(i===d.chosen?" chosen":"")+(i===d.chosen?" sel":"");
+    b.type="button";
+    b.innerHTML='<span class="opt-n"><span>Option '+(i+1)+'</span>'+
+      (i===d.chosen?'<span>◆ chosen</span>':'')+'</span>'+
+      '<span class="opt-t">'+o.n+' — '+o.t+'</span>';
+    b.addEventListener("click",()=>{
+      optsEl.querySelectorAll(".opt").forEach(x=>x.classList.remove("sel"));
+      b.classList.add("sel");
+      detEl.innerHTML='<div class="dt">'+o.n+(i===d.chosen?' · the choice made':'')+'</div>'+o.d;
+    });
+    optsEl.appendChild(b);
+  });
+
+  const c=d.opts[d.chosen];
+  detEl.innerHTML='<div class="dt">'+c.n+' · the choice made</div>'+c.d;
+
+  const v=VMAP[d.verdict];
+  verdEl.innerHTML='<span class="badge '+v[0]+'">'+v[1]+'</span><span class="verd-x">'+d.vtext+'</span>';
+}
+
+/* ── topology switcher ──────────────────────────────────── */
+function renderTopo(key){
+  const t=TOPO[key];
+  const diag=document.getElementById("diagram");
+  const facts=document.getElementById("facts");
+
+  let isoTag="";
+  if(t.iso===true)  isoTag='<span class="iso iso-y">sandboxed</span>';
+  if(t.iso===false) isoTag='<span class="iso iso-n">not sandboxed</span>';
+  if(t.iso===null)  isoTag='<span class="iso iso-n">host policy</span>';
+
+  const kernelCls = t.iso===true ? "box sbx" : "box open";
+
+  diag.innerHTML =
+   '<div class="box host">'+
+     '<div class="box-l">Controller host</div>'+
+     '<div class="box-n">'+
+       '<span class="k">Claude Code</span><br>'+
+       '&nbsp;&nbsp;└─ MCP server <span class="m-dim">(stdio child)</span><br>'+
+       '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└─ <span class="k">KernelSession</span>'+
+     '</div>'+
+   '</div>'+
+   '<div class="link"><div class="arr">│</div><div class="ln">'+t.link+'</div><div class="arr">▼</div></div>'+
+   '<div class="'+kernelCls+'">'+
+     '<div class="box-l">'+t.loc+isoTag+'</div>'+
+     '<div class="box-n">'+
+       (t.wrap?'<span class="m-dim">'+t.wrap+'</span><br>&nbsp;&nbsp;└─ ':'')+
+       '<span class="k">ipykernel</span> <span class="m-dim">(a real IPython kernel — never emulated)</span>'+
+     '</div>'+
+   '</div>';
+
+  facts.innerHTML =
+    t.facts.map(f=>'<div class="fact"><div class="fact-k">'+f[0]+'</div><div class="fact-v">'+f[1]+'</div></div>').join('')+
+    '<div class="whenuse"><div class="fact-k">Reach for it when</div>'+t.use+'</div>';
+}
+
+document.querySelectorAll(".pv").forEach(b=>{
+  b.addEventListener("click",()=>{
+    document.querySelectorAll(".pv").forEach(x=>{x.classList.remove("on");x.setAttribute("aria-selected","false");});
+    b.classList.add("on"); b.setAttribute("aria-selected","true");
+    renderTopo(b.dataset.pv);
+  });
+});
+renderTopo("local");
+
+/* ── ledger ─────────────────────────────────────────────── */
+const led=document.getElementById("ledger");
+led.innerHTML='<div class="lrow hd"><span>id</span><span>decision</span><span>what was chosen</span><span>verdict</span></div>'+
+  LEDGER.map(r=>{
+    const v=VMAP[r[3]], k=r[0].toLowerCase();
+    return '<div class="lgroup" data-v="'+r[3]+'">'+
+      '<button type="button" class="lrow" aria-expanded="false" data-dk="'+k+'">'+
+        '<span class="id">'+r[0]+'</span>'+
+        '<span class="nm">'+r[1]+'</span><span class="wy">'+r[2]+'</span>'+
+        '<span class="vd"><span class="badge '+v[0]+'">'+v[1]+'</span></span>'+
+      '</button>'+
+      '<div class="ldet"><div class="rich" data-dec="'+k+'">'+
+        '<div class="rich-h"></div><div class="opts"></div>'+
+        '<div class="opt-detail"></div><div class="verd"></div>'+
+      '</div></div>'+
+    '</div>';
+  }).join('');
+
+led.querySelectorAll("button.lrow").forEach(btn=>{
+  btn.addEventListener("click",()=>{
+    const grp=btn.parentElement;
+    const open=grp.classList.toggle("open");
+    btn.setAttribute("aria-expanded", open?"true":"false");
+    if(open) buildDecision(grp.querySelector(".rich"));
+  });
+});
+
+document.querySelectorAll(".fb").forEach(b=>{
+  b.addEventListener("click",()=>{
+    document.querySelectorAll(".fb").forEach(x=>x.classList.remove("on"));
+    b.classList.add("on");
+    const f=b.dataset.f;
+    led.querySelectorAll(".lgroup").forEach(g=>{
+      g.hidden = !(f==="all" || g.dataset.v===f);
+    });
+  });
+});
+</script>
+</body>
+</html>
