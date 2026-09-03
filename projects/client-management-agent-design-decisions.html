@@ -1,0 +1,1077 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Panorama — an interrogation of the design</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,300;1,6..72,400;1,6..72,500&family=Spectral:ital,wght@0,300;0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ─────────────────────────────────────────────────────────────
+   Panorama — design interrogation
+   Aesthetic: technical manuscript. Warm paper, ink, red pen.
+   ───────────────────────────────────────────────────────────── */
+
+:root{
+  --paper:      #f4f0e8;
+  --paper-2:    #eae4d8;
+  --paper-3:    #e2dbcb;
+  --ink:        #191714;
+  --ink-2:      #46413a;
+  --ink-3:      #7d7568;
+  --ink-4:      #a89f90;
+  --rule:       #d3cabb;
+  --rule-2:     #c2b8a5;
+  --red:        #b23a2b;
+  --red-wash:   #f2e0dc;
+  --blue:       #2d5470;
+  --blue-wash:  #dde5ec;
+  --ochre:      #8a6a24;
+  --ochre-wash: #f0e7d1;
+  --green:      #4f6641;
+  --green-wash: #e2e8db;
+
+  --serif: "Spectral", "Iowan Old Style", Georgia, "Times New Roman", serif;
+  --display: "Newsreader", "Iowan Old Style", Georgia, serif;
+  --mono: "IBM Plex Mono", "SFMono-Regular", Menlo, Consolas, monospace;
+
+  --measure: 68ch;
+  --pad: clamp(1.25rem, 4vw, 3.5rem);
+}
+
+*,*::before,*::after{ box-sizing:border-box; }
+
+html{ scroll-behavior:smooth; scroll-padding-top:5.5rem; }
+
+body{
+  margin:0;
+  background:var(--paper);
+  color:var(--ink);
+  font-family:var(--serif);
+  font-size:17px;
+  line-height:1.66;
+  -webkit-font-smoothing:antialiased;
+  text-rendering:optimizeLegibility;
+}
+
+/* paper grain */
+body::before{
+  content:"";
+  position:fixed; inset:0; z-index:9999; pointer-events:none;
+  opacity:.42; mix-blend-mode:multiply;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='260' height='260'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.82' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='260' height='260' filter='url(%23n)' opacity='.09'/%3E%3C/svg%3E");
+}
+
+/* ── type ─────────────────────────────────────────────── */
+h1,h2,h3,h4{ font-family:var(--display); font-weight:400; letter-spacing:-.012em; margin:0; }
+p{ margin:0 0 1.05em; }
+a{ color:var(--blue); text-decoration-thickness:1px; text-underline-offset:2.5px; }
+a:hover{ color:var(--red); }
+code,.mono{ font-family:var(--mono); font-size:.855em; font-variant-ligatures:none; }
+code{ background:var(--paper-2); padding:.08em .34em; border-radius:2px; color:var(--ink-2); }
+em{ font-style:italic; }
+strong{ font-weight:600; }
+hr{ border:0; border-top:1px solid var(--rule); margin:3rem 0; }
+
+.wrap{ max-width:1320px; margin:0 auto; padding:0 var(--pad); }
+.col{ max-width:var(--measure); }
+
+/* ── masthead ─────────────────────────────────────────── */
+.mast{
+  border-bottom:2px solid var(--ink);
+  padding:clamp(3rem,7vw,6rem) 0 2.2rem;
+  position:relative;
+}
+.mast::after{
+  content:""; position:absolute; left:0; right:0; bottom:-6px; height:1px; background:var(--ink);
+}
+.eyebrow{
+  font-family:var(--mono); font-size:.7rem; letter-spacing:.19em; text-transform:uppercase;
+  color:var(--red); margin-bottom:1.6rem; display:flex; gap:1.1rem; flex-wrap:wrap; align-items:baseline;
+}
+.eyebrow span:not(:first-child){ color:var(--ink-3); }
+.mast h1{
+  font-size:clamp(2.7rem,7.5vw,5.4rem); line-height:.98; letter-spacing:-.03em; font-weight:300;
+  max-width:16ch;
+}
+.mast h1 em{ font-style:italic; color:var(--red); }
+.mast .sub{
+  margin-top:1.7rem; max-width:56ch; font-size:1.12rem; color:var(--ink-2); line-height:1.6;
+}
+.mast .meta{
+  margin-top:2.4rem; display:flex; gap:2.5rem; flex-wrap:wrap;
+  font-family:var(--mono); font-size:.73rem; color:var(--ink-3); letter-spacing:.03em;
+}
+.mast .meta b{ display:block; color:var(--ink); font-weight:500; letter-spacing:.09em; text-transform:uppercase; font-size:.66rem; margin-bottom:.3rem; }
+
+/* staggered entrance */
+.rise{ opacity:0; transform:translateY(14px); animation:rise .85s cubic-bezier(.2,.7,.3,1) forwards; }
+@keyframes rise{ to{ opacity:1; transform:none; } }
+.d1{animation-delay:.05s}.d2{animation-delay:.16s}.d3{animation-delay:.28s}.d4{animation-delay:.4s}
+
+/* ── sticky nav ───────────────────────────────────────── */
+.nav{
+  position:sticky; top:0; z-index:60;
+  background:color-mix(in srgb, var(--paper) 92%, transparent);
+  backdrop-filter:blur(9px) saturate(1.1);
+  border-bottom:1px solid var(--rule);
+}
+.nav-in{ display:flex; gap:.2rem; align-items:center; overflow-x:auto; padding:.55rem var(--pad); scrollbar-width:none; }
+.nav-in::-webkit-scrollbar{ display:none; }
+.nav a{
+  font-family:var(--mono); font-size:.7rem; letter-spacing:.1em; text-transform:uppercase;
+  color:var(--ink-3); text-decoration:none; padding:.42rem .75rem; white-space:nowrap; border-radius:2px;
+  transition:color .18s, background .18s;
+}
+.nav a:hover{ color:var(--ink); background:var(--paper-2); }
+.nav a.on{ color:var(--red); background:var(--red-wash); }
+.nav .brand{
+  font-family:var(--mono); font-size:.7rem; letter-spacing:.1em; text-transform:uppercase;
+  color:var(--ink); font-weight:600; padding-right:1.2rem; margin-right:.6rem;
+  border-right:1px solid var(--rule); white-space:nowrap;
+}
+
+/* ── section furniture ────────────────────────────────── */
+section{ padding:clamp(3.5rem,8vw,7rem) 0; border-bottom:1px solid var(--rule); }
+.sec-head{ display:flex; gap:1.6rem; align-items:flex-start; margin-bottom:2.6rem; }
+.sec-num{
+  font-family:var(--mono); font-size:.72rem; color:var(--red); letter-spacing:.14em;
+  padding-top:.85rem; white-space:nowrap; border-top:2px solid var(--red);
+}
+.sec-head h2{ font-size:clamp(1.9rem,4.2vw,3rem); line-height:1.08; letter-spacing:-.022em; max-width:20ch; font-weight:300; }
+.sec-head h2 em{ font-style:italic; }
+.lede{ font-size:1.09rem; color:var(--ink-2); max-width:64ch; }
+.lede.big{ font-size:1.2rem; }
+
+/* margin note */
+.note{
+  border-left:2px solid var(--red); padding:.15rem 0 .15rem 1rem; margin:1.6rem 0;
+  font-size:.95rem; color:var(--ink-2); max-width:60ch;
+}
+.note b{ color:var(--red); font-weight:600; }
+
+/* ── PART I : diagram ─────────────────────────────────── */
+.diagram{
+  margin:2.5rem 0 0;
+  background:
+    linear-gradient(var(--paper-2) 1px, transparent 1px) 0 0/100% 22px,
+    linear-gradient(90deg, var(--paper-2) 1px, transparent 1px) 0 0/22px 100%,
+    var(--paper);
+  border:1px solid var(--rule-2);
+  padding:clamp(1rem,2.6vw,2rem);
+  position:relative;
+}
+.diagram::after{
+  content:"fig. 1 — production topology";
+  position:absolute; right:.9rem; bottom:.55rem;
+  font-family:var(--mono); font-size:.62rem; color:var(--ink-4); letter-spacing:.1em;
+}
+
+.plane{
+  border:1px solid var(--rule-2); background:var(--paper);
+  padding:.85rem .95rem 1rem; position:relative; margin-bottom:0;
+}
+.plane + .conn{ margin:0; }
+.plane-tag{
+  position:absolute; top:-.62rem; left:.85rem; background:var(--paper);
+  font-family:var(--mono); font-size:.61rem; letter-spacing:.13em; text-transform:uppercase;
+  color:var(--ink-3); padding:0 .45rem;
+}
+.plane.p1{ border-color:var(--blue); box-shadow:inset 0 0 0 3px var(--blue-wash); }
+.plane.p1 .plane-tag{ color:var(--blue); }
+.plane.p2{ border-color:var(--green); box-shadow:inset 0 0 0 3px var(--green-wash); }
+.plane.p2 .plane-tag{ color:var(--green); }
+.plane.p3{ border-color:var(--red); box-shadow:inset 0 0 0 3px var(--red-wash); }
+.plane.p3 .plane-tag{ color:var(--red); }
+
+.row{ display:flex; gap:.55rem; flex-wrap:wrap; }
+.row.g2{ display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:.55rem; }
+
+.node{
+  font-family:var(--mono); font-size:.735rem; line-height:1.35;
+  background:var(--paper); border:1px solid var(--rule-2); color:var(--ink-2);
+  padding:.55rem .65rem; text-align:left; cursor:pointer; flex:1 1 auto; min-width:0;
+  transition:all .17s cubic-bezier(.2,.7,.3,1); position:relative;
+  border-radius:2px;
+}
+.node b{ display:block; color:var(--ink); font-weight:600; font-size:.775rem; margin-bottom:.14rem; letter-spacing:-.01em; }
+.node s{ display:block; text-decoration:none; color:var(--ink-4); font-size:.665rem; letter-spacing:.02em; margin-top:.22rem; }
+.node:hover{ border-color:var(--ink-3); transform:translateY(-1.5px); box-shadow:0 3px 0 -1px var(--rule-2); }
+.node.on{ border-color:var(--red); background:var(--red-wash); color:var(--ink); box-shadow:0 0 0 1px var(--red); }
+.node.on b{ color:var(--red); }
+.node.dim{ opacity:.42; }
+.node.hl{ border-color:var(--red); background:var(--red-wash); }
+
+.conn{ display:flex; justify-content:center; padding:.1rem 0; }
+.conn i{
+  font-family:var(--mono); font-style:normal; font-size:.62rem; color:var(--ink-4);
+  letter-spacing:.08em; display:flex; flex-direction:column; align-items:center; gap:.05rem;
+}
+.conn i::before{ content:"│"; line-height:.8; }
+.conn i::after{ content:"▼"; font-size:.55rem; line-height:1; }
+
+.inspect{
+  margin-top:1rem; border:1px solid var(--rule-2); border-left:3px solid var(--red);
+  background:var(--paper); padding:1.1rem 1.25rem; min-height:150px;
+}
+.inspect h4{ font-size:1.22rem; margin-bottom:.15rem; }
+.inspect .path{ font-family:var(--mono); font-size:.68rem; color:var(--red); letter-spacing:.05em; margin-bottom:.75rem; }
+.inspect p{ font-size:.96rem; margin-bottom:.7rem; max-width:74ch; }
+.inspect p:last-child{ margin-bottom:0; }
+.inspect .why{ color:var(--ink-2); }
+.inspect .why::before{ content:"why "; font-family:var(--mono); font-size:.62rem; letter-spacing:.14em; text-transform:uppercase; color:var(--red); margin-right:.5rem; }
+.inspect .idle{ color:var(--ink-3); font-style:italic; }
+
+/* ── PART II : stepper ────────────────────────────────── */
+.steps{ display:flex; gap:.28rem; flex-wrap:wrap; margin:2rem 0 1.4rem; }
+.step{
+  flex:1 1 auto; min-width:52px; border:0; cursor:pointer; background:var(--paper-2);
+  border-top:3px solid var(--rule-2); padding:.5rem .3rem .45rem; text-align:left;
+  font-family:var(--mono); font-size:.63rem; color:var(--ink-3); letter-spacing:.05em;
+  transition:all .2s;
+}
+.step:hover{ background:var(--paper-3); color:var(--ink); }
+.step.on{ border-top-color:var(--red); background:var(--red-wash); color:var(--red); font-weight:600; }
+.step.done{ border-top-color:var(--ink-4); }
+
+.stage{
+  border:1px solid var(--rule-2); background:var(--paper); padding:1.4rem 1.5rem;
+  display:grid; grid-template-columns:1fr; gap:1.1rem;
+}
+@media(min-width:800px){ .stage{ grid-template-columns:1.35fr .85fr; } }
+.stage h4{ font-size:1.5rem; line-height:1.15; margin-bottom:.5rem; }
+.stage .t{ font-family:var(--mono); font-size:.68rem; color:var(--red); letter-spacing:.1em; text-transform:uppercase; margin-bottom:.6rem; }
+.stage p{ font-size:1rem; }
+.stage .facts{ border-left:1px solid var(--rule); padding-left:1.2rem; }
+.stage .facts dl{ margin:0; font-family:var(--mono); font-size:.72rem; }
+.stage .facts dt{ color:var(--ink-4); letter-spacing:.1em; text-transform:uppercase; font-size:.6rem; margin-top:.75rem; }
+.stage .facts dt:first-child{ margin-top:0; }
+.stage .facts dd{ margin:.14rem 0 0; color:var(--ink); }
+.stepnav{ display:flex; gap:.5rem; margin-top:1.2rem; align-items:center; }
+
+/* ── buttons ──────────────────────────────────────────── */
+.btn{
+  font-family:var(--mono); font-size:.7rem; letter-spacing:.11em; text-transform:uppercase;
+  background:transparent; border:1px solid var(--ink); color:var(--ink); cursor:pointer;
+  padding:.55rem 1.05rem; border-radius:2px; transition:all .18s;
+}
+.btn:hover{ background:var(--ink); color:var(--paper); }
+.btn:disabled{ opacity:.3; cursor:not-allowed; }
+.btn:disabled:hover{ background:transparent; color:var(--ink); }
+.btn.red{ border-color:var(--red); color:var(--red); }
+.btn.red:hover{ background:var(--red); color:var(--paper); }
+.btn.sm{ font-size:.63rem; padding:.4rem .75rem; }
+.hint{ font-family:var(--mono); font-size:.66rem; color:var(--ink-4); letter-spacing:.05em; }
+
+/* ── PART III : questions ─────────────────────────────── */
+.qgroup{ margin-top:3.2rem; }
+.qgroup > h3{
+  font-family:var(--mono); font-size:.7rem; letter-spacing:.17em; text-transform:uppercase;
+  color:var(--red); border-bottom:1px solid var(--rule); padding-bottom:.6rem; margin-bottom:2rem;
+}
+.q{ margin-bottom:3.4rem; scroll-margin-top:5.5rem; }
+.q-head{ display:flex; gap:1.4rem; align-items:flex-start; }
+.q-num{
+  font-family:var(--mono); font-size:1.55rem; color:var(--rule-2); line-height:1; padding-top:.28rem;
+  font-weight:600; letter-spacing:-.03em; flex:0 0 auto;
+}
+.q.answered .q-num{ color:var(--red); }
+.q-head h4{ font-size:clamp(1.4rem,3vw,2rem); line-height:1.16; font-style:italic; font-weight:300; max-width:26ch; letter-spacing:-.018em; }
+.q-frame{ margin:1rem 0 0 0; font-size:1.02rem; color:var(--ink-2); max-width:66ch; }
+.q-body{ margin-left:0; }
+@media(min-width:700px){ .q-body{ margin-left:3.3rem; } }
+
+.opts{ display:grid; grid-template-columns:repeat(auto-fit,minmax(215px,1fr)); gap:.7rem; margin:1.6rem 0 1.1rem; }
+.opt{
+  text-align:left; background:var(--paper); border:1px solid var(--rule-2); cursor:pointer;
+  padding:.85rem .95rem; font-family:var(--serif); font-size:.93rem; color:var(--ink-2);
+  transition:all .17s cubic-bezier(.2,.7,.3,1); position:relative; line-height:1.5; border-radius:2px;
+}
+.opt .k{
+  font-family:var(--mono); font-size:.63rem; letter-spacing:.14em; color:var(--ink-4);
+  display:block; margin-bottom:.4rem; text-transform:uppercase;
+}
+.opt strong{ display:block; color:var(--ink); font-weight:600; margin-bottom:.25rem; font-size:.97rem; }
+.opt:hover{ border-color:var(--ink-3); transform:translateY(-1.5px); }
+.opt.picked{ border-color:var(--blue); background:var(--blue-wash); }
+.opt.picked .k::after{ content:" ← your call"; color:var(--blue); letter-spacing:.06em; }
+.q.answered .opt{ cursor:default; transform:none; }
+.q.answered .opt.chosen{ border-color:var(--red); border-width:1px; background:var(--red-wash); box-shadow:0 0 0 1px var(--red); }
+.q.answered .opt.chosen .k::before{ content:"✓ built this  "; color:var(--red); font-weight:600; }
+.q.answered .opt:not(.chosen){ opacity:.55; }
+.q.answered .opt.picked:not(.chosen){ opacity:.8; }
+
+.verdict{
+  font-family:var(--mono); font-size:.68rem; letter-spacing:.1em; text-transform:uppercase;
+  padding:.4rem .7rem; display:inline-block; margin-bottom:1.1rem; border-radius:2px;
+}
+.verdict.hit{ background:var(--green-wash); color:var(--green); }
+.verdict.miss{ background:var(--ochre-wash); color:var(--ochre); }
+
+.answer{ overflow:hidden; }
+.answer-in{ border-top:1px solid var(--rule); padding-top:1.4rem; margin-top:.4rem; }
+.blk{ margin-bottom:1.3rem; max-width:70ch; }
+.blk:last-child{ margin-bottom:0; }
+.blk .lbl{
+  font-family:var(--mono); font-size:.62rem; letter-spacing:.16em; text-transform:uppercase;
+  display:block; margin-bottom:.45rem;
+}
+.blk.why .lbl{ color:var(--red); }
+.blk.cost .lbl{ color:var(--ochre); }
+.blk.deep .lbl{ color:var(--blue); }
+.blk.cost{ background:var(--ochre-wash); border-left:2px solid var(--ochre); padding:.85rem 1rem; }
+.blk.cost p:last-child{ margin-bottom:0; }
+.blk p{ font-size:.99rem; }
+.cite{
+  font-family:var(--mono); font-size:.65rem; color:var(--ink-4); letter-spacing:.03em;
+  margin-top:.9rem; display:block;
+}
+
+/* ── PART IV : open ───────────────────────────────────── */
+.open-grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:1.1rem; margin-top:2.2rem; }
+.open{
+  border:1px solid var(--rule-2); border-top:3px solid var(--ochre); background:var(--paper);
+  padding:1.15rem 1.2rem;
+}
+.open h4{ font-size:1.18rem; margin-bottom:.5rem; line-height:1.2; }
+.open p{ font-size:.93rem; color:var(--ink-2); }
+.open p:last-child{ margin-bottom:0; }
+.open .tag{
+  font-family:var(--mono); font-size:.6rem; letter-spacing:.13em; text-transform:uppercase;
+  color:var(--ochre); display:block; margin-bottom:.5rem;
+}
+
+/* ── tables ───────────────────────────────────────────── */
+table{ border-collapse:collapse; width:100%; margin:1.6rem 0; font-size:.9rem; }
+th,td{ text-align:left; padding:.55rem .7rem; border-bottom:1px solid var(--rule); vertical-align:top; }
+th{
+  font-family:var(--mono); font-size:.63rem; letter-spacing:.11em; text-transform:uppercase;
+  color:var(--ink-3); border-bottom:1px solid var(--ink-4); font-weight:500;
+}
+td code{ background:transparent; padding:0; color:var(--ink-2); }
+tbody tr:hover{ background:var(--paper-2); }
+
+/* ── colophon ─────────────────────────────────────────── */
+.colophon{ border-bottom:0; }
+.colophon .wrap{ display:grid; grid-template-columns:repeat(auto-fit,minmax(230px,1fr)); gap:2rem; }
+.colophon h4{
+  font-family:var(--mono); font-size:.65rem; letter-spacing:.15em; text-transform:uppercase;
+  color:var(--red); margin-bottom:.7rem;
+}
+.colophon p, .colophon li{ font-size:.9rem; color:var(--ink-2); }
+.colophon ul{ margin:0; padding-left:1.05rem; }
+.colophon li{ margin-bottom:.35rem; }
+
+.reveal-on-scroll{ opacity:0; transform:translateY(18px); transition:opacity .7s cubic-bezier(.2,.7,.3,1), transform .7s cubic-bezier(.2,.7,.3,1); }
+.reveal-on-scroll.in{ opacity:1; transform:none; }
+
+@media (prefers-reduced-motion:reduce){
+  *{ animation:none!important; transition:none!important; }
+  .reveal-on-scroll{ opacity:1; transform:none; }
+}
+</style>
+</head>
+<body>
+
+<!-- ══════════════ MASTHEAD ══════════════ -->
+<header class="mast">
+  <div class="wrap">
+    <div class="eyebrow rise d1">
+      <span>Architecture interrogation</span>
+      <span>mbo/investor360 @ b5f4525</span>
+      <span>108 commits · Oct 2025 – Aug 2026</span>
+    </div>
+    <h1 class="rise d2">Panorama, taken <em>apart</em></h1>
+    <p class="sub rise d3">
+      An investor-relations agent that answers questions by writing Python against
+      live client data. Below: what it is, how it runs — and at every load-bearing
+      decision, the alternatives it passed over, with the price it paid for choosing
+      as it did.
+    </p>
+    <div class="meta rise d4">
+      <div><b>Method</b>Commit before you read on.<br>Each question hides its answer.</div>
+      <div><b>Evidence</b>Every claim cites <code>file:line</code>.<br>Inference is labelled.</div>
+      <div><b>Companions</b>architecture-analysis.md<br>system-design.md</div>
+    </div>
+  </div>
+</header>
+
+<nav class="nav">
+  <div class="nav-in wrap" style="max-width:1320px;">
+    <span class="brand">Panorama</span>
+    <a href="#machine">I · The machine</a>
+    <a href="#request">II · One request</a>
+    <a href="#questions">III · Twelve questions</a>
+    <a href="#open">IV · Still open</a>
+  </div>
+</nav>
+
+<!-- ══════════════ PART I ══════════════ -->
+<section id="machine">
+  <div class="wrap">
+    <div class="sec-head reveal-on-scroll">
+      <div class="sec-num">PART I</div>
+      <h2>The machine, and <em>where each piece actually runs</em></h2>
+    </div>
+    <p class="lede big col reveal-on-scroll">
+      Most diagrams of this system show two boxes: a service and a sandbox. There are
+      three. The third one is easy to miss and it is the one with no ceiling on it.
+    </p>
+    <p class="lede col reveal-on-scroll" style="margin-top:1rem;">
+      Click any component to interrogate it.
+    </p>
+
+    <div class="diagram reveal-on-scroll">
+
+      <div class="row g2" style="margin-bottom:.1rem;">
+        <button class="node" data-n="ui"><b>Investor360 UI</b>irpanorama.deshaw.com<s>DJSChat · separate repo</s></button>
+        <button class="node" data-n="deschat"><b>DESChat</b>chat.deshaw.com<s>calls as deschatusr</s></button>
+      </div>
+
+      <div class="conn"><i>HTTPS + Kerberos</i></div>
+
+      <button class="node" data-n="nginx" style="width:100%;"><b>Service Director / nginx</b>u-invstr360usr-i360--chatbot--dpysrv.sdlb.deshaw.com<s>proxy timeout 1800 s · CORS: irpanorama only</s></button>
+
+      <div class="conn"><i></i></div>
+
+      <div class="plane p1">
+        <span class="plane-tag">Plane 1 — DPySrv host · runs as invstr360usr</span>
+        <div class="row g2">
+          <button class="node" data-n="skill"><b>Investor360Skill</b>per-request instance<s>skill.py:45</s></button>
+          <button class="node" data-n="qe"><b>QueryEnhancer</b>FAISS → Haiku 4.5<s>query_enhancer/core.py</s></button>
+          <button class="node" data-n="agent"><b>PyInfAgent</b>Opus 4.8 · ReAct<s>agent_core/agent.py</s></button>
+          <button class="node" data-n="pool"><b>SandboxPool</b>4 warm / worker<s>sandbox_pool.py</s></button>
+          <button class="node" data-n="mongo"><b>ChatService</b>→ MongoDB<s>persistence/</s></button>
+        </div>
+      </div>
+
+      <div class="conn"><i>termshell fork &nbsp;·&nbsp; ≤2 per request</i></div>
+
+      <div class="plane p3">
+        <span class="plane-tag">Plane 3 — same host! · runs as agt-i360chatprod</span>
+        <div class="row g2">
+          <button class="node" data-n="termshell"><b>sandboxed claude CLI</b>--role=agt-i360chatprod<s>claude_sdk.py</s></button>
+          <button class="node" data-n="desflow"><b>DESFlow CLI → API</b>IRMktg only · Kerberos<s>read-only</s></button>
+        </div>
+      </div>
+
+      <div class="conn"><i>SSH · sudo → agt-i360chatprod</i></div>
+
+      <div class="plane p2">
+        <span class="plane-tag">Plane 2 — k8s cluster sbx · ns ir-panorama-sandbox</span>
+        <div class="row g2">
+          <button class="node" data-n="pods"><b>SSHSandbox pods</b>10 × 8 Gi · 2 Gi shm<s>cleanup: skip</s></button>
+          <button class="node" data-n="kernel"><b>IPython kernel</b>one per request<s>destroyed after</s></button>
+        </div>
+      </div>
+
+      <div class="conn"><i>egress as agt-i360chatprod</i></div>
+
+      <div class="row g2">
+        <button class="node" data-n="clientlib"><b>ClientLib</b>capital · PnL · flows<s>DESIM + DESCO</s></button>
+        <button class="node" data-n="irds"><b>IR Data Store</b>events · contacts<s>SPyC app</s></button>
+        <button class="node" data-n="doclab"><b>DocLab v2</b>emails · event bodies<s>SQL + Milvus</s></button>
+        <button class="node" data-n="conf"><b>Confluence</b>color reports<s>REST · figures→text</s></button>
+      </div>
+
+      <div class="inspect" id="inspect">
+        <p class="idle">Select a component above. Each one answers: what it does, and why it is where it is.</p>
+      </div>
+    </div>
+
+    <div class="col" style="margin-top:2.6rem;">
+      <div class="note reveal-on-scroll">
+        <b>The thing to notice.</b> The DESFlow sub-agent does not run in the Kubernetes
+        sandbox. It forks a local process on the service host —
+        <code>constants.py:57</code> says so outright: <em>"a separate sandboxed claude
+        process <strong>on this host</strong>."</em> Question 08 works out what that costs.
+      </div>
+    </div>
+
+    <h3 style="font-family:var(--mono);font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;color:var(--red);margin:3rem 0 0;">Which identity reaches which system</h3>
+    <table class="reveal-on-scroll">
+      <thead><tr><th>Egress</th><th>From</th><th>Acting as</th></tr></thead>
+      <tbody>
+        <tr><td>LLM Gateway — Opus agent, Haiku enhancer</td><td>Plane 1</td><td><code>invstr360usr</code> / <code>prod-mbo-investor360</code></td></tr>
+        <tr><td>MongoDB, Turnstile, Vault, Langfuse</td><td>Plane 1</td><td><code>invstr360usr</code></td></tr>
+        <tr><td>DESFlow API</td><td>Plane 3</td><td><code>agt-i360chatprod</code> (Kerberos)</td></tr>
+        <tr><td>ClientLib, IR Data Store, DocLab</td><td>Plane 2</td><td><code>agt-i360chatprod</code></td></tr>
+        <tr><td>Confluence REST + attachments</td><td>Plane 2</td><td><code>agt-i360chatprod</code>, preemptive Kerberos</td></tr>
+        <tr><td>LLM Gateway — <em>figure transcription</em></td><td><strong>Plane 2</strong></td><td>sandbox account's own Gateway project</td></tr>
+      </tbody>
+    </table>
+    <p class="col" style="font-size:.93rem;color:var(--ink-2);">
+      That last row is the one people get wrong. Chart transcription runs
+      <em>inside the kernel</em>, so it bills the sandbox account's project, not the
+      service's — <code>fetch.py:221-233</code> reads <code>LLM_PROJECT_NAME</code> out of
+      the sandbox environment, which was set at warm-up by <code>agent.py:245</code>.
+    </p>
+  </div>
+</section>
+
+<!-- ══════════════ PART II ══════════════ -->
+<section id="request">
+  <div class="wrap">
+    <div class="sec-head reveal-on-scroll">
+      <div class="sec-num">PART II</div>
+      <h2>One request, <em>end to end</em></h2>
+    </div>
+    <p class="lede col reveal-on-scroll">
+      Step through it. The unit of latency to keep in your head is
+      <strong>~8 seconds per agent turn</strong> — stated in the system note itself
+      (<code>context.py:47</code>). Almost every optimisation in this system is
+      an attack on turn count.
+    </p>
+
+    <div class="steps" id="steps"></div>
+    <div class="stage" id="stage"></div>
+    <div class="stepnav">
+      <button class="btn sm" id="prev">← Prev</button>
+      <button class="btn sm red" id="next">Next →</button>
+      <span class="hint" id="stepcount"></span>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════ PART III ══════════════ -->
+<section id="questions">
+  <div class="wrap">
+    <div class="sec-head reveal-on-scroll">
+      <div class="sec-num">PART III</div>
+      <h2>Twelve questions, <em>each with a road not taken</em></h2>
+    </div>
+    <p class="lede big col reveal-on-scroll">
+      The options below are written to be genuinely defensible — several are what
+      a sensible team would in fact do. Pick one before you reveal. Where your pick
+      differs from theirs, that gap is the thing worth understanding.
+    </p>
+    <div id="qs"></div>
+  </div>
+</section>
+
+<!-- ══════════════ PART IV ══════════════ -->
+<section id="open">
+  <div class="wrap">
+    <div class="sec-head reveal-on-scroll">
+      <div class="sec-num">PART IV</div>
+      <h2>Still open — <em>no reveal available</em></h2>
+    </div>
+    <p class="lede col reveal-on-scroll">
+      These have no answer in the repository. Not because nobody thought about them —
+      three are explicitly ticketed — but because they are unresolved today.
+    </p>
+    <div class="open-grid reveal-on-scroll">
+
+      <div class="open">
+        <span class="tag">Verification</span>
+        <h4>Nothing measures whether the answers are right</h4>
+        <p>Four unit-test files, 1,261 lines, every dependency mocked, no model
+        invoked. One synthetic health query graded by a classifier for
+        <em>reachability</em>. The firm's benchmark repo has entries for DPA, DESFlow,
+        email and deep research — and none for this.</p>
+        <p>The 124/137 incident is the argument: that failure was invisible to
+        everything currently in place.</p>
+      </div>
+
+      <div class="open">
+        <span class="tag">Identity · DFlow#47079</span>
+        <h4>Every user is the same user</h4>
+        <p>No on-behalf-of flow. All data access runs as
+        <code>agt-i360chatprod</code>, gated by one binary Turnstile grant with no
+        row-level filtering. Access to Panorama is access to the union of everything
+        the agent can read.</p>
+        <p>Ticketed, known, and the main constraint on how widely the tool can be
+        handed out.</p>
+      </div>
+
+      <div class="open">
+        <span class="tag">Capacity</span>
+        <h4>Two brakes, both per-request</h4>
+        <p>The sub-agent cap is enforced against a registry constructed per
+        <code>PyInfAgent</code> — so global concurrency is
+        <code>2 × concurrent_requests</code> full CLI processes on one host, with no
+        semaphore above it.</p>
+        <p>Meanwhile <code>recursion_limit=500</code> × 8 s ≈ 4,000 s sits well past the
+        1,800 s nginx ceiling, so it never fires. Nginx is the real bound, and it
+        expresses itself as a dropped connection.</p>
+      </div>
+
+      <div class="open">
+        <span class="tag">Operations</span>
+        <h4>Production runs from a personal directory</h4>
+        <p>The DESFlow CLI path is
+        <code>/data/desim-mbo-tech-nb/shahdeve/desflow-claude-plugin</code>, with a TODO
+        to move back to <code>/prod</code> "once mounts are fixed"
+        (<code>claude_sdk.py:74,82</code>).</p>
+        <p>Two termshell commits were shipped and reverted within three days in August;
+        this workaround is what remained.</p>
+      </div>
+
+      <div class="open">
+        <span class="tag">Readiness</span>
+        <h4>A worker can be healthy and broken at once</h4>
+        <p>Pool warm-up failure is caught and logged — but
+        <code>acquire()</code> raises when <code>start()</code> never completed. The
+        process comes up reporting healthy and fails every agent request.</p>
+        <p>Only the periodic health check would notice.</p>
+      </div>
+
+      <div class="open">
+        <span class="tag">Documentation</span>
+        <h4>The published architecture doc is wrong</h4>
+        <p><code>docs/…/Architecture Overview.md</code> still describes the pre-April
+        design — RapidFuzz fuzzy validation, <code>LangfuseInitializer</code>,
+        <code>PersistentPythonInterpreter</code> — with no mention of DocLab,
+        Confluence, the agent SDK or the pool.</p>
+        <p>The Influence pipeline syncs it to Confluence on every merge, faithfully.
+        Docs-as-code buys review and history. It does not buy accuracy.</p>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════ COLOPHON ══════════════ -->
+<section class="colophon">
+  <div class="wrap">
+    <div>
+      <h4>Source</h4>
+      <p><code>github.deshaw.com/mbo/investor360</code> at <code>b5f4525</code>
+      (2026-08-17), full history. Cloned read-only.</p>
+    </div>
+    <div>
+      <h4>Evidence standard</h4>
+      <p>Claims cite <code>file:line</code>. Where the repository does not determine
+      something — per-pod kernel limits, host sizing, cron schedules, the frontend —
+      it is marked as undetermined rather than guessed.</p>
+    </div>
+    <div>
+      <h4>Companion documents</h4>
+      <ul>
+        <li><a href="investor360-architecture-analysis.md">architecture-analysis.md</a> — what and why</li>
+        <li><a href="investor360-system-design.md">system-design.md</a> — how it runs</li>
+        <li><a href="README.md">README.md</a> — workspace index</li>
+      </ul>
+    </div>
+    <div>
+      <h4>A caution</h4>
+      <p>Of the twelve decisions below, exactly one is backed by a published
+      measurement. The rest are reasoned, plausible, and unverified — which is
+      itself the finding.</p>
+    </div>
+  </div>
+</section>
+
+<script>
+/* ══════════════════════════════════════════════════════════
+   1. Component inspector
+   ══════════════════════════════════════════════════════════ */
+const NODES = {
+  ui:{t:"Investor360 UI (DJSChat)", p:"irpanorama.deshaw.com · separate repo",
+    d:"The product surface. Sends the full message history plus <code>skill_kwargs</code> carrying <code>application:\"investor360_ui\"</code> and any existing <code>chat_id</code>.",
+    w:"That one string is load-bearing: it is the sole switch deciding both whether chat history is persisted and whether file-download features are enabled. Two unrelated capabilities, one boolean — see question 12's cousin in the analysis."},
+  deschat:{t:"DESChat", p:"chat.deshaw.com · calls as deschatusr",
+    d:"The firm-wide assistant surface. Reaches the same skill as a registered superuser, so it can set the effective user. Not an OBO token flow — the code is explicit about that at <code>skill.py:36-37</code>.",
+    w:"DESChat can render downloadable artifacts and DJSChat cannot. So the richer capability — prep notes, attached documents — is available <em>only</em> through DESChat, and the native UI shows users a note redirecting them there."},
+  nginx:{t:"Service Director / nginx", p:"proxy timeout 1800 s",
+    d:"Front door. CORS is locked to <code>irpanorama.deshaw.com</code> in production; each environment allowlists only its own origins.",
+    w:"The 1800 s timeout is the true request ceiling. The agent's own <code>recursion_limit=500</code> would allow ~4,000 s of turns, so nginx cuts first — and it does so by dropping the connection rather than returning a partial answer."},
+  skill:{t:"Investor360Skill", p:"skill.py:45 · SkillBaseChain",
+    d:"DPySrv constructs a <strong>fresh instance per request</strong>, so nothing is shared across concurrent calls. It windows history to 5 turn-pairs, opens the Langfuse trace, runs the enhancer, streams agent events, and persists at the end.",
+    w:"Per-request instantiation is what forces the process-wide extractor cache: without it, every request would rebuild SentenceTransformer models and FAISS indexes — ~2.7 s of event-loop blocking and ~340 MB retained, each time."},
+  qe:{t:"QueryEnhancer", p:"query_enhancer/core.py · two-stage chain",
+    d:"FAISS narrows each entity's allowed values to the top 200, Haiku 4.5 extracts structured entities from the shortlist, then post-processing derives child entities, maps names to usernames, and tags every value with the sources that actually contain it.",
+    w:"The source tags are the payload. <code>'AE' ∈ CLIENTLIB_DESIM</code> is a set lookup — microseconds, deterministic, always right. Making Opus discover the same fact costs a full ~8 s turn and can be wrong."},
+  agent:{t:"PyInfAgent", p:"agent_core/agent.py · Claude Opus 4.8, 1M ctx",
+    d:"One instance per request. Assembles a system note from six business-overview documents, seeds a forged warm-start exchange, and drives a ReAct loop over <code>ipython</code>, <code>restart</code>, the two agent-SDK job tools, and <code>attach_document</code>.",
+    w:"Each library owns the prose describing itself — <code>get_business_overview_docs()</code> lives next to the code it documents. The prompt cannot drift away from the node list it describes, because they are edited in the same file."},
+  pool:{t:"SandboxPool", p:"sandbox_pool.py · 4 warm per worker",
+    d:"Singleton pool of pre-warmed kernels, filled at startup and replenished in the background. Two separate bounded thread pools of width 4 — one for creation, one for cleanup.",
+    w:"Two pools, not one, because kernel release must never queue behind a multi-second SSH connect. And acquired kernels are never returned: the pool is a <em>latency buffer</em>, not a reuse pool. Reuse would leak one user's variables into another's session."},
+  mongo:{t:"ChatService → MongoDB", p:"persistence/ · investor360.chatbot_storage",
+    d:"Chat history for the Investor360 UI only. Three indexes, ensured idempotently at startup and rebuilt if the spec drifted. Sharing uses a 32-byte token <em>plus</em> explicit grant lists for employees, software users and mailing lists.",
+    w:"Writes happen once, at end of turn, pairing the user message with the assistant reply. If the agent never produces output, nothing is written — so a failure can never leave a dangling user message in storage."},
+  termshell:{t:"Sandboxed claude CLI — Plane 3", p:"claude_sdk.py · TermshellTransport",
+    d:"A full nested Claude Code session, launched as <code>termshell --role=agt-i360chatprod --claude -c '…'</code>. Runs on the <strong>DPySrv host</strong>, not in Kubernetes. Host and child exchange newline-delimited JSON over stdin/stdout.",
+    w:"One string buys two things at once: the role bounds filesystem and network, and its <code>runas</code> attribute decides who the process is. Flags can narrow that bound, never widen it. Getting isolation and identity from one declarative value beats assembling them separately."},
+  desflow:{t:"DESFlow CLI → API", p:"IRMktg business area only · read-only",
+    d:"Reached by the nested session via Bash, authenticated with the caller's Kerberos ticket — which is the <code>agt-</code> user's, not the end user's.",
+    w:"The sub-agent's brief is a latency document, not a capability document. Two routes are 10–20× apart: structured <code>dql_search</code> at 0.3–3 s versus semantic <code>query</code> at 30–120 s. The prompt teaches it to background the slow one and answer without it if the fast one arrives first."},
+  pods:{t:"SSHSandbox pods — Plane 2", p:"sbx cluster · 10 replicas · 8 Gi + 2 Gi shm",
+    d:"Declared by a CRD, labelled <code>cleanup: \"skip\"</code> so the platform reaper leaves them alone. The service SSHes to a Kubernetes Service name that load-balances across the replicas.",
+    w:"Scaling this is disruptive, not rolling: the sandbox API's update guard rejects in-place edits, so changing <code>replicas</code> means deleting the resource and re-applying it."},
+  kernel:{t:"IPython kernel", p:"one per request · destroyed after",
+    d:"Holds six bound names after warm-up: <code>desim_lib</code>, <code>desco_lib</code>, <code>data_store_app</code>, <code>doclab_events_ds</code>, <code>doclab_emails_ds</code>, <code>confluence_lib</code>. Agent-written files live in a per-request UUID directory under <code>/tmp</code>.",
+    w:"Artifacts never touch a host partition — deliberately. Content crosses to the host only as base64 over the interpreter channel, size-capped at 5 MiB, and the whole directory is one <code>rmtree</code> at teardown."},
+  clientlib:{t:"ClientLib", p:"deshaw.clientdata · DESIM + DESCO universes",
+    d:"Capital, PnL, returns, flows, fees, benchmark returns, account metadata. The chatbot facade restricts the pairing to DESIM+LATEST and DESCO+FINAL, coercing anything else back with a warning.",
+    w:"DESCO month-end finalisation is probed by checking six hard-coded sentinel feeder legal-entity IDs for both capital and returns. Fragile by admission — there is a TODO to move this upstream to ClientWeb once the utility ships."},
+  irds:{t:"IR Data Store", p:"SPyC app · companies, contacts, events",
+    d:"Structured IR data. The agent sees a filtered node list — around twenty regex patterns — rather than the whole schema.",
+    w:"Node filtering is context economy. Two of the patterns exist purely so the agent can resolve an ID to a name; without <code>fund.data</code> and <code>fund_family.data</code> it retrieves a <code>source_fund_id</code> and then goes hunting for a node to translate it, burning turns."},
+  doclab:{t:"DocLab v2", p:"SQL Server + Milvus, behind a Sonic service",
+    d:"Two datasets: IR Events (meeting bodies) and IR Emails (conversation threads). Email threads are chunked at 2,400 characters with 30% overlap, splitting on the email-block separator first.",
+    w:"There is a hard routing rule: meeting bodies come from the IR Data Store when you have IDs, but email content <em>must</em> come from DocLab and never from <code>event.body.text</code>. Structured store to identify, DocLab to read."},
+  conf:{t:"Confluence connector", p:"confluence/ · runs inside the kernel",
+    d:"Exactly three capabilities: monthly HF color reports, one page by ID, one space listing. Bodies come from <code>export_view</code> converted to Markdown, with <code>&lt;table&gt;</code> left as raw HTML.",
+    w:"Tables stay HTML because Markdown cannot express <code>colspan</code>/<code>rowspan</code>, which the Flows and Headcount tables use — converting would silently drop the column hierarchy. Figures are transcribed to text at fetch by a cheap vision model, so raw image bytes never re-enter the orchestrator's context."}
+};
+
+const inspect = document.getElementById('inspect');
+document.querySelectorAll('.node').forEach(n=>{
+  n.addEventListener('click',()=>{
+    document.querySelectorAll('.node').forEach(x=>x.classList.remove('on'));
+    n.classList.add('on');
+    const d = NODES[n.dataset.n];
+    inspect.innerHTML =
+      '<h4>'+d.t+'</h4><div class="path">'+d.p+'</div><p>'+d.d+'</p><p class="why">'+d.w+'</p>';
+  });
+});
+
+/* ══════════════════════════════════════════════════════════
+   2. Request lifecycle stepper
+   ══════════════════════════════════════════════════════════ */
+const STAGES = [
+  {k:"Authorise", t:"t = 0",  h:"One binary gate, before any skill code runs",
+   b:"DPySrv's instance authorizer checks Turnstile <code>USE</code> on <code>_.apps.mbo.investor360.app</code>, scoped to the environment by an <code>ENV</code> resource specifier. That is the <em>entire</em> authorisation model. There is no row-level filtering anywhere downstream, and the system note actively tells the agent <strong>not</strong> to scope results to the querying user.",
+   f:{"Check":"TurnstileAuth USE","Resource":"_.apps.mbo.investor360.app","Specifier":"ENV: *.production","Granularity":"binary"}},
+
+  {k:"Construct", t:"per request", h:"Everything stateful is built fresh",
+   b:"A new <code>Investor360Skill</code>, a new <code>QueryEnhancer</code>, a new <code>ChatService</code>. All the expensive parts behind them are memoised or cached at process scope, so construction is cheap — the entity repository, the FAISS extractor and the Mongo client are all shared.",
+   f:{"Skill":"new instance","Extractor":"process cache hit","Entity repo":"memoised","Mongo":"lru_cache(1)"}},
+
+  {k:"Resolve", t:"1 Haiku call", h:"Work out what the user meant, cheaply",
+   b:"FAISS narrows each entity to its 200 nearest allowed values; Haiku 4.5 extracts structured entities from that shortlist; post-processing derives children, converts names to usernames, and tags each value with the data sources that hold it. The result is appended to the user turn as text.",
+   f:{"Prefilter":"top 200 / entity","Model":"Claude-4.5-Haiku-200K","Entities":"11 definitions","Output":"value + source tags"}},
+
+  {k:"Acquire", t:"≈ 0 s (warm)", h:"Take a kernel that is already loaded",
+   b:"<code>SandboxPool.acquire()</code> pops a pre-warmed interpreter, checks it is alive, and schedules a background replenish. On a pool miss it creates one on demand — SSH, IPython boot, and the full library import, all on the request path.",
+   f:{"Pool hit":"≈ 0 s","Pool miss":"SSH + boot + imports","Warm depth":"4 per worker","Returned?":"no — destroyed after"}},
+
+  {k:"Forge", t:"0 s · 0 tokens", h:"Convince the model it already ran the imports",
+   b:"The history is seeded with a synthetic <code>AIMessage</code> carrying an <code>ipython</code> tool call, plus the <code>ToolMessage</code> holding the warm-up output captured at pool-fill time. Opus opens turn one believing it already explored the environment. Neither message ever happened.",
+   f:{"Seeded":"AIMessage + ToolMessage","Content":"real stdout from warm-up","Cost":"zero round trips","Guard":"pool rejects a second warmup string"}},
+
+  {k:"Reason", t:"~8 s / turn", h:"The ReAct loop, and the whole latency budget",
+   b:"Tools: <code>ipython</code>, <code>restart</code>, <code>query_agent_sdk</code>, <code>get_agent_sdk_result</code>, and — for DESChat traffic only — <code>attach_document</code>. Seven lines of the system note are spent teaching the model to minimise turns, including the memorable rule: <em>\"Wanting to look at a result before deciding is not a dependency.\"</em>",
+   f:{"Model":"Claude-4.8-Opus-1M","Max output":"64,000 tokens","Per cell":"≤ 120 s","Recursion":"500 (never binds)"}},
+
+  {k:"Delegate", t:"1–3 min, overlapped", h:"The slow call, moved off the critical path",
+   b:"<code>query_agent_sdk</code> returns a job id in about zero seconds and spawns a nested Claude session on the service host. The agent carries on with its own data work and collects later. A bounded 20-second wait inside the collect call makes premature collection productive rather than a tight poll.",
+   f:{"Returns":"job id, immediately","Typical":"1–3 min","Hard cap":"600 s","Concurrent":"2 — per request"}},
+
+  {k:"Stream", t:"continuous", h:"Three channels out, one of them sanitised",
+   b:"Every <code>AIMessage</code> with text is emitted as a <code>THOUGHT</code>. The last one is <em>also</em> emitted as <code>OUTPUT</code> — and only the <code>OUTPUT</code> path runs the link allowlist. Attached documents go out as <code>ARTIFACT</code> events after the answer, so the chat reply renders before the download.",
+   f:{"THOUGHT":"not sanitised","OUTPUT":"link-allowlisted","ARTIFACT":"DESFlow regex only","Keep-alive":"every 250 s"}},
+
+  {k:"Clean", t:"off the hot path", h:"Cancel, delete, release — in that order",
+   b:"Unfinished sub-agent jobs are cancelled and awaited so nested sessions actually tear down; the request's artifact directory is <code>rmtree</code>'d inside the sandbox; the kernel is released on the dedicated cleanup executor. Every step is individually guarded so one failure cannot mask another.",
+   f:{"Jobs":"cancel + gather","Artifacts":"rmtree in sandbox","Kernel":"cleanup executor","Errors":"logged, never raised"}},
+
+  {k:"Persist", t:"2 Mongo ops", h:"Only for the native UI, only if there was an answer",
+   b:"User message and assistant reply are written together as one end-of-turn operation, so storage never holds half a turn. Any earlier turns whose persistence failed are backfilled in the same write. A failure here produces a warning banner — the answer still reaches the user.",
+   f:{"Scope":"investor360_ui only","Shape":"paired write","Recovery":"backfills prior gaps","On failure":"banner, not an error"}}
+];
+
+let cur = 0;
+const stepsEl = document.getElementById('steps');
+const stageEl = document.getElementById('stage');
+const countEl = document.getElementById('stepcount');
+
+STAGES.forEach((s,i)=>{
+  const b=document.createElement('button');
+  b.className='step'; b.textContent=(i+1)+'. '+s.k;
+  b.addEventListener('click',()=>{cur=i;draw();});
+  stepsEl.appendChild(b);
+});
+
+function draw(){
+  [...stepsEl.children].forEach((b,i)=>{
+    b.classList.toggle('on', i===cur);
+    b.classList.toggle('done', i<cur);
+  });
+  const s = STAGES[cur];
+  let dl='';
+  for(const k in s.f){ dl += '<dt>'+k+'</dt><dd>'+s.f[k]+'</dd>'; }
+  stageEl.innerHTML =
+    '<div><div class="t">'+s.t+'</div><h4>'+s.h+'</h4><p>'+s.b+'</p></div>'+
+    '<div class="facts"><dl>'+dl+'</dl></div>';
+  countEl.textContent = 'stage '+(cur+1)+' of '+STAGES.length;
+  document.getElementById('prev').disabled = cur===0;
+  document.getElementById('next').disabled = cur===STAGES.length-1;
+}
+document.getElementById('prev').addEventListener('click',()=>{if(cur>0){cur--;draw();}});
+document.getElementById('next').addEventListener('click',()=>{if(cur<STAGES.length-1){cur++;draw();}});
+draw();
+
+/* ══════════════════════════════════════════════════════════
+   3. The twelve questions
+   ══════════════════════════════════════════════════════════ */
+const GROUPS = [
+  {g:"A — What shape should the thing be?", qs:[
+
+  {q:"The data lives in six systems. How does one question cross all of them?",
+   frame:"ClientLib holds capital and flows. The IR Data Store holds events and contacts. Two DocLab datasets hold email and meeting text. Confluence holds written commentary. DESFlow holds tickets. A relationship manager preparing for a meeting needs all six, and the joins between them are undocumented anywhere except in people's heads.",
+   opts:[
+     {k:"A", h:"Build a semantic layer", d:"Unify the schemas, then text-to-SQL over the unified model."},
+     {k:"B", h:"RAG over exports", d:"Export everything to documents, embed, retrieve, and let the model answer from passages."},
+     {k:"C", h:"Parameterised reports", d:"Enumerate the questions RMs actually ask and pre-build each as a report."},
+     {k:"D", h:"Give it a Python REPL", d:"Load the firm's existing data libraries into a sandboxed kernel and let the model write code."}],
+   ans:"D",
+   why:"<p>Three properties of the problem push the same way. The question space is <em>open</em> — \"which investors did we discuss Alkali VI with last quarter who aren't already in it\" is a three-source join with a negation, and every RM has a different version of it. The answers require <em>computation</em>, not retrieval: no passage contains capital-per-fund-family as of the correct finalisation date. And the libraries <em>already exist</em>, are documented for machines via <code>_ai_repr_()</code> and <code>internal_docs</code>, and are already what analysts use in notebooks.</p><p>Option A founders on the fact that no unified schema exists: <code>event_id</code> is a <code>long</code> in SPyC and a <code>str</code> in DocLab; <code>company_id</code> equals <code>investor_id</code> equals nothing you could infer from a name. Option B cannot compute. Option C is a treadmill.</p>",
+   cost:"<p>You inherit two problems you did not have before. The model can write <em>wrong</em> code — and wrong code produces a confidently formatted wrong number, which is harder to catch than a missing one. And you now need an execution sandbox with a real security boundary, which is most of Planes 2 and 3 existing at all.</p>",
+   cite:"Inferred from structure — no RFC in the repo. Cross-source ID mappings: context.py:41-45."},
+
+  {q:"The user types “john in ae”. Who works out what that means?",
+   frame:"Somewhere between the keystroke and the answer, that has to become an investor name and a product code — and, ideally, a decision about which of the six systems to look in. The question is which component does it, and how much it costs.",
+   opts:[
+     {k:"A", h:"Let the agent do it", d:"It has the data. Give it a search tool and let it figure out who John is."},
+     {k:"B", h:"Embeddings, then a small model, then set lookups", d:"FAISS shortlists candidates, Haiku picks, and plain code tags which sources hold each value."},
+     {k:"C", h:"Fuzzy match", d:"RapidFuzz token_sort_ratio against the known value sets."},
+     {k:"D", h:"Make the user disambiguate", d:"Typeahead and dropdowns in the UI. No guessing."}],
+   ans:"B",
+   why:"<p>The domain vocabulary is <em>closed</em>: there is a finite, knowable set of investors, products and employees. That is exactly the kind of problem where a frontier model's open-ended reasoning is the wrong tool, and retrieval plus constrained extraction is the right one.</p><p>The genuinely clever part is the third step. <code>'AE' ∈ CLIENTLIB_DESIM</code> is a set-membership question — microseconds, deterministic, never wrong. Making Opus discover the same fact costs a full ~8 s turn, may return empty, and then costs <em>another</em> turn to interpret the emptiness. So the pipeline hands the agent a pre-answered routing question, as data.</p><p>The negative information is worth as much as the positive: knowing a value is <em>absent</em> from DESCO prevents a fruitless query. Note also that C was the original design, replaced in April — fuzzy matching handles typos but not semantics; “the Asia fund” token-sort-matches nothing.</p>",
+   cost:"<p>Failure is <strong>silent</strong> and unmeasured. No confidence score, no “did you mean”, no fallback, no metric counting misses. And because resolved entities are injected straight into the user turn, a <em>wrong</em> resolution is worse than none — it actively misdirects an agent that will then answer confidently about the wrong investor. <code>top_k = 200</code> is an unvalidated dial silently trading recall for prompt size.</p>",
+   cite:"query_enhancer/core.py:92-379 · PR #38 replaced RapidFuzz, 2026-04-13."},
+
+  {q:"Loading the libraries takes seconds. How do you tell the model what's loaded?",
+   frame:"Before it can do anything, the agent needs to know that six objects are bound in its kernel and what their schemas look like. That knowledge has to get into the context somehow.",
+   opts:[
+     {k:"A", h:"Let it run the imports", d:"Expose the bootstrap and let the agent call it as its first action."},
+     {k:"B", h:"Put the schema in the system prompt", d:"Snapshot the schema dump as text in the system note."},
+     {k:"C", h:"Pre-warm, then forge the exchange", d:"Run it at startup, then seed the history with a synthetic tool call and its real output."},
+     {k:"D", h:"Lazy-load on first use", d:"Import on demand the first time the agent touches a library."}],
+   ans:"C",
+   why:"<p>There are two separate costs here and it pays to keep them apart. <strong>Execution</strong> — SSH, kernel boot, imports — is killed by the pool. <strong>Conversation</strong> — the model emitting a call, reading the observation, deciding again — is a full ~8 s turn, and the pool does nothing about it. A and D pay the conversation cost; the forge is what removes it.</p><p>But B <em>also</em> avoids the round trip, so round-trip avoidance alone doesn't justify forging. The real reason is that this content is an <strong>observation about live state</strong>, not documentation. Three consequences: models treat tool results as current ground truth and prompt text as overridable background; the forged <code>AIMessage</code> carries the actual bootstrap source, so the agent can read off that <code>desco_lib</code> is on <code>tag='FINAL'</code> rather than trust prose that may have drifted; and the content is real stdout from the real libraries at warm time, so it cannot go stale the way a snapshot would.</p><p>They use both channels, split along that seam: stable domain policy in the system note, live environment state in the forged observation.</p>",
+   deep:"<p>The dependency runs one way. Pre-warming without forging is merely slower. <strong>Forging without pre-warming is broken</strong> — the model would reference <code>desim_lib</code> and get a <code>NameError</code>. Pre-warming is what makes the lie truthful, which is why the pool refuses to be configured with two different warm-up strings and raises instead. That guard exists to protect the licence.</p><p>A free bonus: the model's first example of the <code>ipython</code> contract is one it believes it wrote.</p>",
+   cost:"<p>You are lying to the model about its own history. Benign here, because the claim is true of the kernel it holds. The general hazard is forged history drifting from actual state — mitigated only because both derive from the same string and the mismatch case fails loudly.</p>",
+   cite:"agent.py:130-146, :230-271 · sandbox_pool.py:129-136, :411-418."}
+  ]},
+
+  {g:"B — Making it fast, and making it not lie", qs:[
+
+  {q:"Kernels are expensive to create. Do you reuse them?",
+   frame:"Each kernel costs an SSH connect, an IPython boot, and a full library import. You have ten pods. Requests arrive continuously.",
+   opts:[
+     {k:"A", h:"Return to the pool", d:"Classic pooling — hand it back after each request and reuse it."},
+     {k:"B", h:"One shared kernel", d:"A single long-lived interpreter serving everyone."},
+     {k:"C", h:"One per user session", d:"Reuse within a conversation, discard between conversations."},
+     {k:"D", h:"One per request, destroyed after", d:"The pool is a latency buffer, not a reuse pool."}],
+   ans:"D",
+   why:"<p>A reused kernel carries variables. In a system where one user's session may hold a DataFrame of another investor's capital positions, that is not a performance trade-off — it is a data-segregation failure. B is the same problem at maximum blast radius. C is defensible and narrower, but conversations here are long-lived and the leak window becomes hours.</p><p>So the pool buys the latency win without taking the isolation loss: it front-loads creation to startup and to background replenishment, and every request still gets a kernel nobody else has touched.</p>",
+   cost:"<p>Every request pays a full kernel creation — just not on its own critical path. And eight kernels sit resident before a single user arrives (<code>2 workers × 4</code>). When the pool empties, <code>acquire()</code> creates on demand and the cost lands back on the request. There is <strong>no admission control</strong>: the degradation curve is warm → cold-start → failure, with nothing queueing or shedding in between.</p>",
+   cite:"sandbox_pool.py:221-271 · context.py:165-180."},
+
+  {q:"The agent produced a 137-row table. 124 of the IDs were fabricated. Now what?",
+   frame:"This actually happened. Not a near miss, not a spot check — 90.5% of the event IDs in a delivered table were invented. Everything else in the table, the company names and dates and product names, was correct. Which is what made it dangerous.",
+   opts:[
+     {k:"A", h:"Strengthen the prompt", d:"“Never fabricate. Copy IDs exactly. Double-check every value against the source.”"},
+     {k:"B", h:"Delete the content parameter", d:"Make the attachment tool accept a file path. The model writes the file in code and passes a pointer."},
+     {k:"C", h:"Validate after the fact", d:"Extract every ID from the output, check each against the source data, and retry on mismatch."},
+     {k:"D", h:"Chunk the output", d:"Cap tables at 20 rows and paginate, so the model never has to reproduce a long list at once."}],
+   ans:"B",
+   why:"<p>At a 90% error rate the model is not <em>failing</em> to copy — it isn't copying at all. Event IDs are high-entropy and semantically empty; there is nothing to derive them from, so they must be reproduced exactly from context. As output grows, retrieval pressure on each source row grows with it, and past some length the model samples from “things shaped like an event ID here”. Names and dates survive because they carry redundancy. IDs don't.</p><p>You cannot prompt your way out of that. A adds no attention capacity. D shrinks the problem without removing it, and fragments the deliverable. C is <em>genuinely good</em> — and notably it is not what they built, though it is exactly what the missing evaluation would do.</p><p>What makes B structural is the tool signature: <code>attach_document(file_name, file_path)</code> has no <code>content</code> field. Delete every prompt line tomorrow and the failure is still unreachable, because 137 rows physically cannot traverse that interface. The generalisation: <strong>the model emits references, never payloads.</strong></p>",
+   cost:"<p>The deliverable is now exactly as good as the code the agent writes. A silently wrong join yields a beautifully formatted, correctly-ID'd, <em>wrong</em> document. Fabrication is solved; miscomputation is not — and the replacement failure mode is <em>more</em> credible-looking than the one it replaced.</p>",
+   cite:"constants.py:109-142 · attach_document.py:48-66 · DESIMMBOTech#5986, #5922."},
+
+  {q:"DESFlow tickets aren't in the sandbox. How does the agent reach them?",
+   frame:"Fee proposals, prospecting approvals, side letters — all in DESFlow, all outside the kernel. Everything else the agent touches is a Python object it already holds.",
+   opts:[
+     {k:"A", h:"Write a client library", d:"Build a Python wrapper and load it into the sandbox like ClientLib and the rest."},
+     {k:"B", h:"An MCP server", d:"Expose DESFlow as tools over MCP and wire it into the agent."},
+     {k:"C", h:"Spawn a nested Claude session", d:"Launch a whole sandboxed claude CLI over termshell and let it drive the existing DESFlow CLI."},
+     {k:"D", h:"Call REST from the worker", d:"A plain HTTP client in the service process, surfaced as a tool."}],
+   ans:"C",
+   why:"<p>The alternatives all require re-implementing something that already exists. DESFlow ships a CLI with a natural-language-to-DQL endpoint that knows the exact field and category values. Wrapping it means owning query generation, routing between the fast structured route and the slow semantic one, and keeping category names in sync as they change.</p><p>The nested session gets all of that free, plus the thing that actually decided it: <strong>one string supplies both isolation and identity</strong>. <code>--role=agt-i360chatprod</code> bounds the filesystem and network, and the scope's <code>runas</code> attribute determines who the process is. Flags can narrow that bound, never widen it, and Terminus hard-codes which software users may use each scope. Assembling equivalent guarantees around option D means doing sandboxing and identity separately, by hand.</p><p>Note what they deliberately did <em>not</em> put in the brief: DQL syntax. It delegates to <code>query --to-dql</code> so the prompt stays free of DESFlow specifics that would drift.</p>",
+   cost:"<p>Heavyweight. Every job is a full CLI process starting its own MCP servers. It runs on the service host rather than in Kubernetes — see the next question — and it is the least observable component in the system, with Langfuse tracing still pending.</p>",
+   cite:"claude_sdk.py:20-31, :59-134 · context.py:225-251."},
+
+  {q:"That call takes 1–3 minutes, and a ReAct loop is serial. What do you do?",
+   frame:"A blocking tool call stops the loop dead. The agent has its own ClientLib and IR work to do — four or five cells, thirty-odd seconds — and no way to do it while it waits.",
+   opts:[
+     {k:"A", h:"Just block", d:"It's one call. Accept the wait and keep the tool simple."},
+     {k:"B", h:"Start it speculatively", d:"Fire the DESFlow query at request start, before knowing whether it's needed."},
+     {k:"C", h:"Run it beside the enhancer", d:"Kick it off in parallel with query enhancement, before the agent begins."},
+     {k:"D", h:"Hand out a job handle", d:"One tool starts it and returns an id; a second collects the result later."}],
+   ans:"D",
+   why:"<p>The arithmetic is straightforward — a 3-minute call plus eight agent turns is ~4:04 serialised and ~3:00 overlapped. But the interesting part is a constraint that does not exist in ordinary async programming.</p><p><strong>You cannot schedule an agent.</strong> Normally you own the continuation and decide when to await. Here the continuation is a sampling decision by a model. The only scheduling lever available is the tool description — which is why the descriptions in this file are unusually long and directive. They are not documentation. They <em>are</em> the scheduler, written in English and executed probabilistically.</p><p>Once you accept that, the rest follows: <code>wait_until_done</code> gives a model with nothing left to do an alternative to polling; the 20-second bounded wait makes premature collection <em>productive</em> instead of a tight loop; <code>asyncio.shield</code> means cancelling a wait never cancels the job; and the 2-job cap returns an instruction rather than an error. Every failure path is written as guidance the model can act on.</p>",
+   deep:"<p>The same pattern recurs one level down, in a different substrate. The sub-agent's own brief tells it to background the slow semantic search with <code>&gt; /tmp/df_semantic.txt 2&gt;&amp;1 &amp;</code>, do the cheap field lookups, and answer without it if those suffice. Host backgrounds sub-agent via asyncio; sub-agent backgrounds its slow call via shell job control. One idea, two layers.</p>",
+   cost:"<p>Correctness depends on the model complying with prose. A job started and never collected is <strong>silently dropped</strong> — cancelled at teardown, with the user receiving an answer quietly missing its DESFlow input and no signal that anything went missing. The state is tracked; nobody reads it at the one moment it matters.</p>",
+   cite:"query_claude_sdk.py:19-22, :140-166, :182-261 · constants.py:60-68."},
+
+  {q:"The sub-agent cap is 2. Two <em>what</em>?",
+   frame:"<code>AGENT_SDK_MAX_CONCURRENT_JOBS = 2</code>, and the comment beside it calls this “the main brake on how much load a single question can generate”. Before revealing: where is that limit actually enforced?",
+   opts:[
+     {k:"A", h:"Two per service", d:"A global semaphore across the whole deployment."},
+     {k:"B", h:"Two per worker process", d:"Each of the two ASGI workers may run two."},
+     {k:"C", h:"Two per request", d:"Each in-flight question may run two, independently of every other."},
+     {k:"D", h:"Two per user", d:"Rate-limited by the calling principal."}],
+   ans:"C",
+   why:"<p>The check runs against <code>job_registry</code>, which is <code>self._agent_sdk_jobs</code> — constructed fresh in every <code>PyInfAgent</code>, and there is one of those per request. So the cap is per-question, and global concurrency is <code>2 × concurrent_requests</code>.</p><p>Now recall where those processes live. Not in Kubernetes — on the <strong>DPySrv host</strong>, alongside the service itself. Ten concurrent DESFlow-heavy questions is up to twenty full <code>claude</code> CLI processes, each starting its own MCP servers as children, competing with the service for the same host.</p><p>The comment is not wrong, exactly. Two <em>is</em> the brake on a single question. It is just not a brake on the system.</p>",
+   cost:"<p>This is the only genuinely <strong>unbounded</strong> resource in the deployment. The kernel pool at least has a pod-count ceiling; this has nothing above it. A process-wide <code>asyncio.Semaphore</code> sized to the host would close it in a few lines, and it is the first thing I would add.</p>",
+   cite:"agent.py:172-176 · query_claude_sdk.py:169-204 · constants.py:57-60."}
+  ]},
+
+  {g:"C — What it costs you", qs:[
+
+  {q:"Who is the agent when it reads investor capital?",
+   frame:"A user asks about an investor. Code runs, data is read. Under whose authority?",
+   opts:[
+     {k:"A", h:"The end user, via OBO", d:"Token exchange, so every downstream system applies that user's own permissions."},
+     {k:"B", h:"The service, filtered in code", d:"One service identity, with row-level filters applied per caller before results return."},
+     {k:"C", h:"The service, one binary grant", d:"A single Turnstile check on the app. Past that gate, everything is reachable."},
+     {k:"D", h:"Per-universe grants", d:"Separate entitlements for DESIM and DESCO, checked at the library boundary."}],
+   ans:"C",
+   why:"<p>This one is a “not yet” rather than a considered choice, and the code says so plainly at <code>claude_sdk.py:29-31</code>: <em>“There is no on-behalf-of flow yet (DFlow#47079) — every end user's question is answered with the service's agent identity, not their own.”</em></p><p>It is broader than DESFlow. The kernel runs as <code>agt-i360chatprod</code>, so ClientLib, the IR Data Store, DocLab and Confluence all see one principal. The only user-level gate is Turnstile <code>USE</code> on the app — and the system note actively instructs the agent <em>not</em> to scope results to the current user, since “we” and “our” are meant to refer to the firm.</p>",
+   cost:"<p>A Panorama grant is equivalent to a grant over the union of everything the agent can read, for every user who holds it. For IR data carrying insider distinctions and investor confidentiality obligations, that is a significant coarsening — and it is the single largest constraint on how widely the tool can be deployed. It also gets harder to retrofit the longer the binary model stays in place.</p>",
+   cite:"authorizer.py:13-17 · claude_sdk.py:29-31 · context.py:39 · DFlow#47079."},
+
+  {q:"<code>is_insider=False</code> must always be applied. Where do you enforce it?",
+   frame:"The system note says: apply this filter on every node that has the field — <em>“Even if user asking for insider data, you need to set is_insider: False.”</em> That phrasing tells you the authors expect users to ask.",
+   opts:[
+     {k:"A", h:"In the prompt", d:"State the rule in the system note and rely on the agent to include the filter."},
+     {k:"B", h:"In the library", d:"Don't expose insider rows through the chatbot facade at all. Make omission impossible."},
+     {k:"C", h:"Validate the query", d:"Inspect each generated query before execution; reject any that omits the filter."},
+     {k:"D", h:"Filter the results", d:"Let the query run, strip insider rows from what comes back."}],
+   ans:"A",
+   why:"<p>Consistent with how most domain policy is handled here — the cross-source ID mappings, the meeting-versus-email routing rule, the five-year lookback bound, the instruction that “we” means the firm. All of it is prose in the system note, and most of it belongs there: it is guidance, and guidance is what prompts are for.</p><p>The problem is that this particular rule is not guidance. It reads like a compliance boundary, and it is enforced only by a probabilistic system choosing to include a predicate.</p><p>Note the tension with question 05, where the same team correctly concluded that a prompt rule was insufficient and moved the constraint into a tool signature. The instinct exists in this codebase. It just wasn't applied here.</p>",
+   cost:"<p>Nothing in <code>ChatbotClientLib</code> or the exposed SPyC node surface prevents the agent from omitting the filter. If this is genuinely a boundary rather than a default, it belongs in option B — where the rows simply are not reachable, and the prompt line becomes redundant rather than load-bearing.</p>",
+   cite:"library.py:294-298 · context.py:31-83."},
+
+  {q:"Ingested content flows into the answer. What do you sanitise?",
+   frame:"The agent reads investor emails, Confluence pages and DESFlow tickets — content that other people wrote. Any of it could carry an instruction to emit a link. There is a link allowlist: IR CRM entity URLs, Confluence pages, DESFlow requests. The question is where it runs.",
+   opts:[
+     {k:"A", h:"Everything leaving the skill", d:"One sanitiser at the event boundary, covering every channel by construction."},
+     {k:"B", h:"The final answer only", d:"Sanitise OUTPUT. Intermediate status text is ephemeral UI chrome."},
+     {k:"C", h:"At the source", d:"Scrub links out of retrieved content before it ever reaches the model."},
+     {k:"D", h:"Nothing", d:"The agent is instructed which URL formats to use. Trust it."}],
+   ans:"B",
+   why:"<p>The allowlist itself is carefully built — the DESFlow host pattern is written as <code>https?://desflow(?:(?:\\.[a-z0-9-]+)*\\.deshaw\\.com)?/Q/…</code> with a comment explaining that making <code>.deshaw.com</code> independently optional <em>“would admit desflow.&lt;anything&gt;.&lt;tld&gt;”</em>. Someone thought properly about regex anchoring.</p><p>It runs at exactly one call site: the <code>OUTPUT</code> event. But the agent emits <strong>every</strong> <code>AIMessage</code> with text as a <code>THOUGHT</code> first, including the last one — so the final answer reaches the client twice, once unsanitised and once sanitised. <code>ARTIFACT</code> content gets only a DESFlow-link regex, never the allowlist.</p><p>How exploitable that is depends on how the two UIs render thought events, which is in a different repository and I could not verify. But a sanitiser exists to be the last line of defence, and this one currently guards one of three exits.</p>",
+   cost:"<p>The fix is small: move the call from the single <code>OUTPUT</code> site into a helper applied where events leave the skill, so a future fourth event type is covered without anyone remembering to. Option A is the same code in a better place.</p>",
+   cite:"skill.py:397-416 · context.py:325-370."},
+
+  {q:"How would you know it stopped being correct?",
+   frame:"The prompts in <code>constants.py</code> and <code>context.py</code> change frequently and are the highest-leverage surface in the system. The model has been upgraded at least once. The 124/137 fix is enforced by a tool signature and three prompt sections. What tells you it still holds?",
+   opts:[
+     {k:"A", h:"Golden questions in CI", d:"Curate real questions with computable ground truth; check answers by execution; gate merges on it."},
+     {k:"B", h:"Judge production traces", d:"Sample Langfuse traces and score them with a model against a rubric."},
+     {k:"C", h:"A synthetic health query", d:"One probe question per cycle, LLM-classified for source reachability, emailed on failure."},
+     {k:"D", h:"Mocked unit tests", d:"Test the deterministic components in isolation with every dependency stubbed."}],
+   ans:"C",
+   why:"<p>C and D are both present; neither measures correctness. The four test files total 1,261 lines with every external dependency mocked and no model invoked. The health check answers “can the agent reach all four sources right now?” — real operational value, and it caught enough to justify itself — but it is a liveness check wearing a correctness check's clothes.</p><p>The firm's benchmark repository has <code>dpa-eval</code>, <code>descobench</code>, <code>desflow_eval</code>, <code>email_eval</code>, <code>deep-research-eval</code>, <code>context-eval</code>. A case-insensitive search for this system returns nothing. There is one tantalising reference — <code>confluence/library.py:7</code> mentions <em>“the eval-validated tool surface”</em> — but whatever that was, it is in neither repository.</p><p>Neither CI workflow runs the tests that do exist.</p>",
+   cost:"<p>This system reports investor capital and flows, and its one documented failure was <em>silent fabrication inside plausible output</em>. The architectural fix for it is verified by nothing. Much of the ground truth here is computable — capital as of a date, event counts in a window, participant lists — so a large share of an evaluation could be execution-checked rather than model-judged. And an ID-existence check, which targets the exact known failure, is purely mechanical.</p><p>Langfuse already holds the corpus of real questions to mine. The methodology already exists next door.</p>",
+   cite:"Verified by grep across desco-llm-benchmarks — zero matches for investor360, panorama, irmktg."}
+  ]}
+];
+
+const qsEl = document.getElementById('qs');
+let qn = 0;
+
+GROUPS.forEach(group=>{
+  const g = document.createElement('div');
+  g.className='qgroup';
+  g.innerHTML = '<h3>'+group.g+'</h3>';
+  group.qs.forEach(item=>{
+    qn++;
+    const num = String(qn).padStart(2,'0');
+    const art = document.createElement('article');
+    art.className='q reveal-on-scroll';
+    art.id='q'+num;
+
+    let optsHtml='';
+    item.opts.forEach(o=>{
+      optsHtml += '<button class="opt" data-k="'+o.k+'"><span class="k">'+o.k+'</span>'+
+                  '<strong>'+o.h+'</strong>'+o.d+'</button>';
+    });
+
+    let ansHtml = '<div class="answer-in">'+
+      '<div class="verdict" hidden></div>'+
+      '<div class="blk why"><span class="lbl">Why this one</span>'+item.why+'</div>';
+    if(item.deep) ansHtml += '<div class="blk deep"><span class="lbl">One level deeper</span>'+item.deep+'</div>';
+    ansHtml += '<div class="blk cost"><span class="lbl">What it costs</span>'+item.cost+'</div>'+
+               '<span class="cite">'+item.cite+'</span></div>';
+
+    art.innerHTML =
+      '<div class="q-head"><span class="q-num">'+num+'</span>'+
+        '<div><h4>'+item.q+'</h4></div></div>'+
+      '<div class="q-body">'+
+        '<p class="q-frame">'+item.frame+'</p>'+
+        '<div class="opts">'+optsHtml+'</div>'+
+        '<button class="btn red reveal">Reveal the decision</button> '+
+        '<span class="hint pickhint">— pick one first, or reveal anyway</span>'+
+        '<div class="answer" style="height:0" hidden>'+ansHtml+'</div>'+
+      '</div>';
+
+    g.appendChild(art);
+
+    let picked = null;
+    const opts = art.querySelectorAll('.opt');
+    opts.forEach(o=>{
+      o.addEventListener('click',()=>{
+        if(art.classList.contains('answered')) return;
+        opts.forEach(x=>x.classList.remove('picked'));
+        o.classList.add('picked');
+        picked = o.dataset.k;
+        art.querySelector('.pickhint').textContent = '— locked in '+picked+'. Now reveal.';
+      });
+    });
+
+    art.querySelector('.reveal').addEventListener('click', e=>{
+      if(art.classList.contains('answered')) return;
+      art.classList.add('answered');
+      opts.forEach(o=>{ if(o.dataset.k===item.ans) o.classList.add('chosen'); });
+
+      const v = art.querySelector('.verdict');
+      if(picked){
+        v.hidden=false;
+        if(picked===item.ans){ v.className='verdict hit'; v.textContent='You matched — '+item.ans; }
+        else { v.className='verdict miss'; v.textContent='You said '+picked+' · they built '+item.ans; }
+      }
+
+      const ans = art.querySelector('.answer');
+      ans.hidden=false;
+      const h = ans.scrollHeight;
+      ans.style.transition='height .55s cubic-bezier(.2,.7,.3,1)';
+      requestAnimationFrame(()=>{ ans.style.height=h+'px'; });
+      setTimeout(()=>{ ans.style.height='auto'; },600);
+
+      e.target.remove();
+      art.querySelector('.pickhint').remove();
+    });
+  });
+  qsEl.appendChild(g);
+});
+
+/* ══════════════════════════════════════════════════════════
+   4. Scroll reveal + nav scrollspy
+   ══════════════════════════════════════════════════════════ */
+const io = new IntersectionObserver(es=>{
+  es.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } });
+},{threshold:.08, rootMargin:'0px 0px -40px 0px'});
+document.querySelectorAll('.reveal-on-scroll').forEach(el=>io.observe(el));
+
+const links = [...document.querySelectorAll('.nav a')];
+const spy = new IntersectionObserver(es=>{
+  es.forEach(e=>{
+    if(e.isIntersecting){
+      links.forEach(l=>l.classList.toggle('on', l.getAttribute('href')==='#'+e.target.id));
+    }
+  });
+},{rootMargin:'-15% 0px -70% 0px'});
+['machine','request','questions','open'].forEach(id=>{
+  const el=document.getElementById(id); if(el) spy.observe(el);
+});
+
+/* keyboard: ← → step the lifecycle when it's on screen */
+document.addEventListener('keydown', e=>{
+  const sec = document.getElementById('request').getBoundingClientRect();
+  const visible = sec.top < window.innerHeight*.6 && sec.bottom > window.innerHeight*.3;
+  if(!visible) return;
+  if(e.key==='ArrowLeft' && cur>0){ cur--; draw(); }
+  if(e.key==='ArrowRight' && cur<STAGES.length-1){ cur++; draw(); }
+});
+</script>
+</body>
+</html>
