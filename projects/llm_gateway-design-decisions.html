@@ -1,0 +1,630 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>LLM Gateway — Architecture &amp; the Decisions Behind It</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Newsreader:ital,opsz,wght@0,6..72,200..700;1,6..72,200..600&family=JetBrains+Mono:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ground:#0a0c0e; --ground-2:#0e1114; --panel:#13171b;
+  --rule:#262c33; --rule-soft:#1c2126;
+  --ink:#e9e4d8; --ink-2:#b7b1a4; --muted:#7d7768; --faint:#4b4841;
+  --amber:#e6a13c;   /* chosen */
+  --rust:#d8604a;    /* would change */
+  --teal:#57cbb9;    /* never considered / right call */
+  --slate:#7f9bb5;   /* documented + rejected */
+  --mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  --serif:"Newsreader",Georgia,"Times New Roman",serif;
+  --display:"Instrument Serif",Georgia,serif;
+  --maxw:1240px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--ground);color:var(--ink);font-family:var(--serif);font-size:17px;line-height:1.62;-webkit-font-smoothing:antialiased}
+body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:9999;opacity:.035;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.82' numOctaves='3'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E")}
+.wrap{max-width:var(--maxw);margin:0 auto;padding:0 30px;position:relative;z-index:1}
+
+/* header */
+header.hero{padding:70px 0 38px;border-bottom:1px solid var(--rule)}
+.crumb{font-family:var(--mono);font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);margin-bottom:24px}
+.crumb a{color:var(--amber);text-decoration:none;border-bottom:1px solid rgba(230,161,60,.35)}
+.crumb a:hover{color:var(--ink)}
+.crumb .sep{color:var(--faint);margin:0 10px}
+h1{font-family:var(--display);font-weight:400;font-size:clamp(42px,7.4vw,84px);line-height:.95;letter-spacing:-.018em;margin:0}
+h1 em{font-style:italic;color:var(--amber)}
+.sub{font-size:19px;color:var(--ink-2);max-width:72ch;margin:22px 0 0;font-weight:300}
+.sub strong{color:var(--ink);font-weight:500}
+
+/* section headings */
+.part{padding:78px 0 0}
+.part-num{font-family:var(--mono);font-size:10.5px;letter-spacing:.24em;text-transform:uppercase;color:var(--amber);margin-bottom:12px}
+.part h2{font-family:var(--display);font-size:clamp(32px,5vw,54px);line-height:1.02;margin:0 0 16px;font-weight:400;letter-spacing:-.015em}
+.part h2 em{font-style:italic;color:var(--ink-2)}
+.part-lede{font-size:17.5px;color:var(--ink-2);max-width:70ch;font-weight:300;margin:0}
+
+/* ── zoom control ── */
+.zoombar{display:flex;gap:1px;background:var(--rule);border:1px solid var(--rule);margin:36px 0 0;width:fit-content}
+.zoombtn{font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;padding:9px 18px;background:var(--ground-2);color:var(--muted);border:none;cursor:pointer;transition:all .2s}
+.zoombtn:hover{color:var(--ink-2)}
+.zoombtn.on{background:rgba(230,161,60,.12);color:var(--amber)}
+.zoomwrap{border:1px solid var(--rule);border-top:none;background:linear-gradient(180deg,#0d1013,#101418);padding:26px 20px}
+.zoomview{display:none}
+.zoomview.on{display:block;animation:fade .35s ease}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+.zoomview svg{display:block;width:100%;height:auto}
+.zcap{font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:.08em;margin-top:16px;line-height:1.85;border-top:1px solid var(--rule-soft);padding-top:14px}
+.zcap b{color:var(--amber);font-weight:400}
+
+.bx{fill:#161c21;stroke:#39434c;stroke-width:1}
+.bx-acc{fill:#241c0f;stroke:#e6a13c}
+.bx-st{fill:#131a1e;stroke:#3a4a52}
+.lb{font-family:"JetBrains Mono",monospace;font-size:11px;fill:#cbd3da;letter-spacing:.1em}
+.lb-s{font-family:"JetBrains Mono",monospace;font-size:8.5px;fill:#6f7a84;letter-spacing:.04em}
+.lb-a{fill:#e6a13c}
+.ar{stroke:#4a555f;stroke-width:1.2;fill:none;marker-end:url(#hd)}
+.ar-d{stroke:#5c4a2c;stroke-dasharray:3 3}
+.ttl{font-family:"JetBrains Mono",monospace;font-size:9px;fill:#57cbb9;letter-spacing:.18em}
+
+/* ── decisions ── */
+.lensbar{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin:52px 0 4px;padding-bottom:18px;border-bottom:1px solid var(--rule-soft)}
+.lens-l{font-family:var(--mono);font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted)}
+.tgl{display:flex;gap:1px;background:var(--rule);border:1px solid var(--rule)}
+.tgl button{font-family:var(--mono);font-size:10px;letter-spacing:.09em;padding:7px 14px;background:var(--ground-2);color:var(--muted);border:none;cursor:pointer;transition:all .18s}
+.tgl button:hover{color:var(--ink-2)}
+.tgl button.on{background:rgba(87,203,185,.12);color:var(--teal)}
+.legend{display:flex;gap:16px;flex-wrap:wrap;font-family:var(--mono);font-size:9.5px;letter-spacing:.08em;color:var(--muted);margin-left:auto}
+.legend i{display:inline-block;width:9px;height:9px;margin-right:5px;vertical-align:-1px}
+
+.dec{padding:56px 0;border-bottom:1px solid var(--rule-soft);transition:opacity .3s}
+.dec.hide{display:none}
+.dec-head{display:flex;gap:24px;align-items:flex-start;flex-wrap:wrap;margin-bottom:12px}
+.dec-n{font-family:var(--mono);font-size:11px;color:var(--faint);letter-spacing:.16em;padding-top:11px;min-width:38px}
+.dec-t{flex:1;min-width:280px}
+.dec-q{font-family:var(--display);font-size:clamp(26px,3.6vw,38px);line-height:1.08;margin:0;font-weight:400;letter-spacing:-.012em}
+.dec-q em{font-style:italic;color:var(--ink-2)}
+.dec-ctx{font-size:16.5px;color:var(--ink-2);max-width:74ch;margin:14px 0 0;font-weight:300}
+.dec-ctx code,.opt code,.verd code{font-family:var(--mono);font-size:.845em;color:var(--ink);background:rgba(255,255,255,.045);padding:1px 5px;border-radius:2px}
+
+.opts{margin-top:28px;border:1px solid var(--rule);background:var(--ground-2)}
+.opt{display:grid;grid-template-columns:minmax(160px,190px) 1fr;border-bottom:1px solid var(--rule-soft);transition:opacity .25s}
+.opt:last-child{border-bottom:none}
+.opt.faded{opacity:.22}
+.opt-l{padding:16px 18px;border-right:1px solid var(--rule-soft);border-left:2px solid transparent}
+.opt-b{padding:16px 20px}
+.opt.chosen .opt-l{border-left-color:var(--amber);background:rgba(230,161,60,.05)}
+.opt.rejected .opt-l{border-left-color:var(--slate)}
+.opt.never .opt-l{border-left-color:var(--teal);background:rgba(87,203,185,.04)}
+.opt-name{font-family:var(--mono);font-size:12px;color:var(--ink);letter-spacing:.03em;display:block;margin-bottom:7px;line-height:1.4}
+.opt.chosen .opt-name{color:var(--amber)}
+.opt-tag{font-family:var(--mono);font-size:8.5px;letter-spacing:.15em;text-transform:uppercase;padding:2px 6px;display:inline-block;border:1px solid currentColor}
+.opt.chosen .opt-tag{color:var(--amber)}
+.opt.rejected .opt-tag{color:var(--slate)}
+.opt.never .opt-tag{color:var(--teal)}
+.opt-b p{margin:0;font-size:15.5px;color:var(--ink-2);font-weight:300;line-height:1.55}
+.opt-cost{font-family:var(--mono);font-size:11px;color:var(--muted);margin-top:9px;letter-spacing:.02em;line-height:1.7}
+.opt-cost b{color:var(--slate);font-weight:400}
+.opt-cost .pro{color:#7fbf8f}
+.opt-cost .con{color:#cf8b7c}
+
+.verd{margin-top:24px;border:1px solid var(--rule);border-left-width:2px;padding:20px 22px;background:#0f1316}
+.verd.keep{border-left-color:var(--teal)}
+.verd.reason{border-left-color:var(--amber)}
+.verd.change{border-left-color:var(--rust)}
+.verd-h{font-family:var(--mono);font-size:9.5px;letter-spacing:.2em;text-transform:uppercase;margin-bottom:11px;font-weight:500}
+.verd.keep .verd-h{color:var(--teal)}
+.verd.reason .verd-h{color:var(--amber)}
+.verd.change .verd-h{color:var(--rust)}
+.verd p{margin:0 0 11px;font-size:16px;color:var(--ink-2);font-weight:300}
+.verd p:last-child{margin-bottom:0}
+.verd strong{color:var(--ink);font-weight:500}
+
+/* scorecard */
+.score{margin-top:40px;border:1px solid var(--rule)}
+.score-r{display:grid;grid-template-columns:44px minmax(200px,1.6fr) 168px 2.2fr;border-bottom:1px solid var(--rule-soft);font-size:15px}
+.score-r:last-child{border-bottom:none}
+.score-r.h{background:#0f1316;font-family:var(--mono);font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
+.score-r>div{padding:12px 15px;border-right:1px solid var(--rule-soft)}
+.score-r>div:last-child{border-right:none}
+.score-r .n{font-family:var(--mono);font-size:10.5px;color:var(--faint)}
+.score-r .d{color:var(--ink);font-weight:400;font-size:15px}
+.score-r .v{font-family:var(--mono);font-size:10px;letter-spacing:.08em}
+.score-r .v.keep{color:var(--teal)}
+.score-r .v.reason{color:var(--amber)}
+.score-r .v.change{color:var(--rust)}
+.score-r .w{color:var(--ink-2);font-weight:300;font-size:15px}
+@media(max-width:900px){.score-r{grid-template-columns:1fr}.score-r>div{border-right:none}.score-r.h{display:none}}
+
+footer{border-top:1px solid var(--rule);margin-top:80px;padding:36px 0 70px;font-family:var(--mono);font-size:10.5px;color:var(--faint);letter-spacing:.06em;line-height:2}
+footer b{color:var(--muted);font-weight:400}
+footer a{color:var(--amber);text-decoration:none}
+
+@media(max-width:820px){.opt{grid-template-columns:1fr}.opt-l{border-right:none;border-bottom:1px solid var(--rule-soft)}.dec-n{display:none}body{font-size:16px}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}html{scroll-behavior:auto}}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+<header class="hero">
+  <div class="crumb">
+    LLM Gateway <span class="sep">·</span> genai/llm-gateway @ c7fdca19
+    <span class="sep">·</span> <a href="llm-gateway-system-design-timeline.html">← the timeline</a>
+  </div>
+  <h1>The architecture,<br>and the roads<br><em>not taken</em></h1>
+  <p class="sub">
+    Part I strips the system down to something you can hold in your head, at three levels of zoom.
+    Part II takes the twelve decisions that shaped it and lays out the <strong>full option space</strong>
+    for each — what was chosen, what was written down and rejected, and
+    <strong>what was never on the table at all</strong>. That last category is the interesting one:
+    the gap between a team's documented alternatives and the real menu is usually where the
+    unexamined assumptions live.
+  </p>
+</header>
+
+<!-- ══════════════ PART I ══════════════ -->
+<section class="part">
+  <div class="part-num">Part I</div>
+  <h2>The system, <em>simplified</em></h2>
+  <p class="part-lede">
+    Three zoom levels. Each is complete at its own resolution — start at the top and stop
+    wherever you have enough.
+  </p>
+
+  <div class="zoombar">
+    <button class="zoombtn on" data-z="1">1 · In one line</button>
+    <button class="zoombtn" data-z="2">2 · The request path</button>
+    <button class="zoombtn" data-z="3">3 · With storage &amp; failure</button>
+  </div>
+
+  <div class="zoomwrap">
+    <svg width="0" height="0" style="position:absolute">
+      <defs><marker id="hd" markerWidth="7" markerHeight="7" refX="6" refY="3" orient="auto">
+        <path d="M0,0 L6,3 L0,6 z" fill="#4a555f"/></marker></defs>
+    </svg>
+
+    <!-- L1 -->
+    <div class="zoomview on" data-zv="1">
+      <svg viewBox="0 0 1000 118" preserveAspectRatio="xMidYMid meet">
+        <text class="ttl" x="0" y="12">ZOOM 1 — WHAT IT DOES</text>
+        <g>
+          <rect class="bx" x="0" y="34" width="168" height="52"/>
+          <text class="lb" x="16" y="58">ASK</text><text class="lb-s" x="16" y="73">a team wants a model</text>
+          <path class="ar" d="M168 60 H206"/>
+
+          <rect class="bx bx-acc" x="208" y="34" width="188" height="52"/>
+          <text class="lb lb-a" x="224" y="58">MAY THEY?</text><text class="lb-s" x="224" y="73">identity · budget · quota</text>
+          <path class="ar" d="M396 60 H434"/>
+
+          <rect class="bx bx-acc" x="436" y="34" width="188" height="52"/>
+          <text class="lb lb-a" x="452" y="58">WHERE?</text><text class="lb-s" x="452" y="73">pick 1 of N capacity pools</text>
+          <path class="ar" d="M624 60 H662"/>
+
+          <rect class="bx" x="664" y="34" width="150" height="52"/>
+          <text class="lb" x="680" y="58">CALL</text><text class="lb-s" x="680" y="73">provider · retry</text>
+          <path class="ar" d="M814 60 H852"/>
+
+          <rect class="bx" x="854" y="34" width="146" height="52"/>
+          <text class="lb" x="870" y="58">BILL</text><text class="lb-s" x="870" y="73">durably, to a project</text>
+        </g>
+      </svg>
+      <div class="zcap">
+        <b>The two middle boxes are the entire product.</b> Anyone can write the first, fourth and fifth.
+        Deciding <em>whether</em> a request may spend the firm's money right now, and <em>which</em> of many
+        interchangeable-but-separately-metered provider deployments should serve it — that is the system.
+      </div>
+    </div>
+
+    <!-- L2 -->
+    <div class="zoomview" data-zv="2">
+      <svg viewBox="0 0 1000 178" preserveAspectRatio="xMidYMid meet">
+        <text class="ttl" x="0" y="12">ZOOM 2 — THE REQUEST PATH · WHAT EACH STAGE DECIDES</text>
+        <g>
+          <rect class="bx" x="0" y="30" width="140" height="56"/>
+          <text class="lb" x="14" y="53">CLIENT</text><text class="lb-s" x="14" y="68">sdk · claude code · curl</text>
+          <path class="ar" d="M140 58 H172"/>
+
+          <rect class="bx" x="174" y="30" width="150" height="56"/>
+          <text class="lb" x="188" y="53">EDGE</text><text class="lb-s" x="188" y="68">which pod pool?</text>
+          <path class="ar" d="M324 58 H356"/>
+
+          <rect class="bx" x="358" y="30" width="150" height="56"/>
+          <text class="lb" x="372" y="53">AUTH</text><text class="lb-s" x="372" y="68">who, and may they?</text>
+          <path class="ar" d="M508 58 H540"/>
+
+          <rect class="bx bx-acc" x="542" y="30" width="164" height="56"/>
+          <text class="lb lb-a" x="556" y="53">ADMIT</text><text class="lb-s" x="556" y="68">may they spend now?</text>
+          <path class="ar" d="M706 58 H738"/>
+
+          <rect class="bx bx-acc" x="740" y="30" width="120" height="56"/>
+          <text class="lb lb-a" x="754" y="53">ROUTE</text><text class="lb-s" x="754" y="68">which pool?</text>
+          <path class="ar" d="M860 58 H892"/>
+
+          <rect class="bx" x="894" y="30" width="106" height="56"/>
+          <text class="lb" x="906" y="53">PROVIDER</text><text class="lb-s" x="906" y="68">azure·gcp·aws</text>
+        </g>
+        <g>
+          <path class="ar" d="M624 86 V118"/>
+          <rect class="bx bx-st" x="542" y="120" width="164" height="46"/>
+          <text class="lb" x="556" y="140">COUNT · now</text><text class="lb-s" x="556" y="155">redis · per-minute buckets</text>
+
+          <path class="ar" d="M800 86 V118"/>
+          <rect class="bx bx-st" x="740" y="120" width="260" height="46"/>
+          <text class="lb" x="754" y="140">RECORD · later</text><text class="lb-s" x="754" y="155">kafka → consumer → clickhouse</text>
+        </g>
+      </svg>
+      <div class="zcap">
+        <b>Accounting happens twice, on two clocks.</b> Redis is updated synchronously because the very
+        next request needs to see it — that is what makes quotas work. The durable billing row is
+        published to Kafka and written by a separate process, because nothing on the request path
+        should wait for a database. <b>ADMIT and ROUTE are the two stages with real algorithms in them;</b>
+        everything else is plumbing.
+      </div>
+    </div>
+
+    <!-- L3 -->
+    <div class="zoomview" data-zv="3">
+      <svg viewBox="0 0 1000 300" preserveAspectRatio="xMidYMid meet">
+        <text class="ttl" x="0" y="12">ZOOM 3 — STORAGE, LANES, AND WHAT HAPPENS WHEN THINGS BREAK</text>
+        <g>
+          <rect class="bx" x="0" y="28" width="118" height="50"/>
+          <text class="lb" x="12" y="49">CLIENT</text><text class="lb-s" x="12" y="64">retries on Error-Type</text>
+          <path class="ar" d="M118 53 H148"/>
+
+          <rect class="bx" x="150" y="28" width="146" height="50"/>
+          <text class="lb" x="162" y="49">NGINX</text><text class="lb-s" x="162" y="64">longest-prefix → lane</text>
+
+          <rect class="bx" x="150" y="86" width="34" height="17"/><text class="lb-s" x="154" y="98">lght</text>
+          <rect class="bx" x="188" y="86" width="34" height="17"/><text class="lb-s" x="192" y="98">orig</text>
+          <rect class="bx" x="226" y="86" width="34" height="17"/><text class="lb-s" x="230" y="98">hvy</text>
+          <rect class="bx" x="264" y="86" width="32" height="17"/><text class="lb-s" x="268" y="98">rt</text>
+          <text class="lb-s" x="150" y="118">4 pools · 1 image · 125 pods max</text>
+          <path class="ar" d="M296 53 H326"/>
+
+          <rect class="bx" x="328" y="28" width="150" height="50"/>
+          <text class="lb" x="340" y="49">AUTH</text><text class="lb-s" x="340" y="64">krb · jwt · oidc → turnstile</text>
+          <path class="ar" d="M478 53 H508"/>
+
+          <rect class="bx bx-acc" x="510" y="28" width="190" height="50"/>
+          <text class="lb lb-a" x="522" y="49">ADMISSION</text><text class="lb-s" x="522" y="64">402 · 429 · 503 gate chain</text>
+          <path class="ar" d="M700 53 H730"/>
+
+          <rect class="bx bx-acc" x="732" y="28" width="140" height="50"/>
+          <text class="lb lb-a" x="744" y="49">ROUTER</text><text class="lb-s" x="744" y="64">hash · ≤5 retries · hedge</text>
+          <path class="ar" d="M872 53 H902"/>
+
+          <rect class="bx" x="904" y="28" width="96" height="50"/>
+          <text class="lb" x="914" y="49">PROVIDER</text><text class="lb-s" x="914" y="64">104 models</text>
+        </g>
+
+        <!-- stores -->
+        <g>
+          <path class="ar" d="M605 78 V128"/>
+          <rect class="bx bx-st" x="510" y="130" width="190" height="48"/>
+          <text class="lb" x="522" y="150">REDIS</text><text class="lb-s" x="522" y="165">tpm·rpm·errors·locks</text>
+          <text class="lb-s" x="712" y="152" fill="#cf8b7c">down → fail OPEN</text>
+          <text class="lb-s" x="712" y="164" fill="#6f7a84">all gates go permissive</text>
+
+          <path class="ar" d="M605 178 V216"/>
+          <rect class="bx bx-st" x="510" y="218" width="190" height="48"/>
+          <text class="lb" x="522" y="238">MSSQL</text><text class="lb-s" x="522" y="253">projects·models·quota·budget</text>
+
+          <path class="ar" d="M802 78 V128"/>
+          <rect class="bx bx-st" x="732" y="130" width="140" height="48"/>
+          <text class="lb" x="744" y="150">KAFKA</text><text class="lb-s" x="744" y="165">gateway_request</text>
+
+          <path class="ar ar-d" d="M872 154 H904"/>
+          <rect class="bx bx-st" x="906" y="130" width="94" height="48"/>
+          <text class="lb" x="916" y="150">NFS</text><text class="lb-s" x="916" y="165">spool on fail</text>
+          <path class="ar ar-d" d="M953 178 V196 H802 V182"/>
+          <text class="lb-s" x="815" y="194" fill="#8a6f45">replay cron · ≤20 min</text>
+
+          <path class="ar" d="M802 178 V216"/>
+          <rect class="bx bx-st" x="732" y="218" width="140" height="48"/>
+          <text class="lb" x="744" y="238">CONSUMER</text><text class="lb-s" x="744" y="253">batch 100 · dlq · bisect</text>
+          <path class="ar" d="M872 242 H904"/>
+          <rect class="bx bx-st" x="906" y="218" width="94" height="48"/>
+          <text class="lb" x="916" y="238">CLICKHOUSE</text><text class="lb-s" x="916" y="253">analytics</text>
+        </g>
+        <g>
+          <rect class="bx bx-st" x="0" y="218" width="380" height="48"/>
+          <text class="lb" x="14" y="238">VAULT</text>
+          <text class="lb-s" x="14" y="253">provider creds · jwt signing keys · per-project-per-month audit keys</text>
+        </g>
+      </svg>
+      <div class="zcap">
+        <b>Three things this view makes visible.</b>
+        The dashed loop is the only path that survives a Kafka outage — spool to NFS, replay back
+        <em>into Kafka</em> so there is still exactly one way data reaches the store.
+        The red annotation is the system's largest standing bet: when Redis is unreachable every gate
+        reads zero and opens.
+        And the control plane sits on its own pool, so saturating inference does not stop you listing
+        your projects.
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════ PART II ══════════════ -->
+<section class="part">
+  <div class="part-num">Part II</div>
+  <h2>Twelve decisions, and <em>what else was on the table</em></h2>
+  <p class="part-lede">
+    For each: the forcing question, every option that realistically existed, and a verdict. Options
+    are marked by how they were treated — chosen, written down and rejected, or never surfaced.
+  </p>
+
+  <div class="lensbar">
+    <span class="lens-l">Lens</span>
+    <div class="tgl" id="lens">
+      <button class="on" data-l="all">Full option space</button>
+      <button data-l="doc">Only what was documented</button>
+      <button data-l="diff">Only decisions I'd revisit</button>
+    </div>
+    <div class="legend">
+      <span><i style="background:var(--amber)"></i>chosen</span>
+      <span><i style="background:var(--slate)"></i>rejected, on record</span>
+      <span><i style="background:var(--teal)"></i>never considered</span>
+    </div>
+  </div>
+
+  <div id="decs"></div>
+</section>
+
+<!-- ══════════════ PART III ══════════════ -->
+<section class="part">
+  <div class="part-num">Part III</div>
+  <h2>Scorecard</h2>
+  <p class="part-lede">Nine decisions I'd keep as-is. Two I'd keep but re-argue. One I'd change.</p>
+  <div class="score" id="score"></div>
+</section>
+
+<footer>
+  <b>Method.</b> Options marked <em>rejected, on record</em> are taken verbatim from the repo's ADR
+  alternatives tables and DESFlow threads. Options marked <em>never considered</em> appear nowhere in
+  the repo — verified by grep across source, docs and config (<code>outbox</code>, <code>power of two</code>,
+  <code>weighted fair</code>/<code>WFQ</code>, <code>EWMA</code>, <code>read replica</code> all return zero
+  hits). Absence from the repo is not proof they were never discussed, only that no written trace survives.<br>
+  <b>Companion material.</b> <a href="llm-gateway-system-design-timeline.html">Interactive timeline</a> ·
+  <code>llm-gateway-architecture-analysis.md</code> for the full write-up with file:line citations.<br>
+  <b>Caveat.</b> Nothing here was observed running. Verdicts are judgements, not measurements.
+</footer>
+</div>
+
+<script>
+const D=[
+{
+ n:"01", diff:false, v:"keep", vh:"Right call, and not close",
+ q:"Where should the <em>control point</em> live?",
+ ctx:"N teams need cloud LLMs. Something has to hold the credentials, meter the spend, and decide who may use what. Where does that something sit?",
+ opts:[
+  {s:"never",name:"Client library only",t:"never",p:"Ship a wrapper SDK every team imports; policy lives in the library.",pro:"No infrastructure, no extra hop, no single point of failure.",con:"Unenforceable — anyone can call the provider directly. Version skew across teams. Credentials still distributed. No aggregate quota view."},
+  {s:"never",name:"Sidecar / service mesh",t:"never",p:"A proxy container next to each application pod.",pro:"No central bottleneck; per-app blast radius.",con:"N deployments to upgrade in lockstep. Quota state still needs a shared store, so you get the coupling without the simplicity."},
+  {s:"chosen",name:"Central gateway service",t:"chosen",p:"One service every request must traverse. What was built.",pro:"Single chokepoint for credentials, quota, audit, billing. One place to add a feature and have it apply firm-wide.",con:"A hard dependency for all AI work. Becomes a queue for feature requests. Extra network hop."},
+  {s:"never",name:"Provider-native controls",t:"never",p:"Azure APIM policies, Bedrock guardrails, per-provider quota config.",pro:"Almost no code to own.",con:"Per-provider silos with no cross-provider cost view. Cannot express Kerberos / Turnstile / AD identity. Nothing to bill against."}
+ ],
+ verd:"<p>Only the central gateway can answer the firm's actual questions, because those questions are inherently cross-provider (<strong>what did this project spend across Azure, GCP and AWS this month?</strong>) and use a firm-specific identity substrate that no provider understands.</p><p>The single-point-of-failure objection was answered structurally rather than rhetorically: 125 pods across two regions, and — the part most teams miss — <strong>the control plane on its own pool</strong>, so saturating inference does not also prevent you from listing your projects.</p>"
+},
+{
+ n:"02", diff:false, v:"keep", vh:"Right call, with a visible and accepted cost",
+ q:"What <em>shape</em> should the API be?",
+ ctx:"The gateway started with its own request/response schema. Every third-party tool speaks a provider's wire protocol instead.",
+ opts:[
+  {s:"rejected",name:"House schema only",t:"rejected",p:"One canonical gateway API; clients adapt to it. The original design.",pro:"One surface to maintain. Clean abstraction over provider differences.",con:"Every off-the-shelf tool needs a shim. Adoption friction scales with the ecosystem."},
+  {s:"chosen",name:"Provider-native passthrough",t:"chosen",p:"Impersonate each provider: <code>/openai_api</code>, <code>/anthropic</code>, <code>/gemini</code>, <code>/cohere</code>. Change the base URL and an unmodified SDK works.",pro:"Claude Code, the OpenAI SDK, the Anthropic SDK all work untouched. Adoption cost drops to one config line.",con:"Must reproduce each provider's quirks, including their failure semantics. N surfaces to keep current as providers evolve."},
+  {s:"never",name:"OpenAI-compatible only",t:"never",p:"Pick the de-facto standard and translate everything into it.",pro:"One surface, widest ecosystem, simplest to operate.",con:"Lossy. Anthropic thinking blocks and Gemini specifics do not survive the round trip. Forces a lowest common denominator on every model."}
+ ],
+ verd:"<p>Passthrough was right for adoption, and the cost is not hypothetical — <strong>ADR 006 exists precisely because Anthropic's streaming semantics leaked into gateway internals.</strong> Owning a provider's wire protocol means owning its edge cases.</p><p>The OpenAI-compat-only option would be materially cheaper to run and is what many gateways choose. It would also have made Claude Code unusable, and Claude Code is now enough of a first-class client that there is dedicated middleware just to fingerprint its traffic. The trade paid off.</p>"
+},
+{
+ n:"03", diff:false, v:"keep", vh:"Right for cached inference; one cleaner option exists for the rest",
+ q:"How do you pick among <em>N interchangeable</em> capacity pools?",
+ ctx:"A model like GPT-4.1 exists as many separate provider deployments, each with its own TPM/RPM. Every request must choose one. Crucially, providers cache prompt prefixes <em>per deployment</em>.",
+ opts:[
+  {s:"rejected",name:"Random",t:"rejected",p:"Pick uniformly from regions with capacity. The original behaviour.",pro:"Stateless, trivially correct, no herd.",con:"Destroys prompt-cache locality — turn 2 of a conversation lands elsewhere and pays full input price. Ignores capacity differences."},
+  {s:"never",name:"Round-robin",t:"never",p:"Rotate through the list.",pro:"Perfectly uniform.",con:"Same cache problem as random, plus shared cursor state across 250 workers."},
+  {s:"rejected",name:"Least-loaded",t:"rejected",p:"Always pick the region with most headroom.",pro:"Optimal on a fresh snapshot.",con:"Herds badly. Every concurrent caller reads the same pre-increment usage and piles onto one region until counters catch up. The codebase's own docstring explains this."},
+  {s:"never",name:"Power of two choices",t:"never",p:"Sample two regions at random, take the emptier.",pro:"Near-optimal balance, no herd, O(1), no state. The standard answer to the least-loaded problem.",con:"No cache affinity — same weakness as random for prompt-cached work."},
+  {s:"chosen",name:"Capacity-weighted jump consistent hash",t:"chosen",p:"Hash <code>project.user.day</code>, jump-hash over virtual nodes weighted by TPM quota. Linear probe on retry.",pro:"Cache affinity plus capacity weighting plus daily rotation for fairness. No ring, no memory.",con:"Pins stateless bulk workloads to one resource — which is exactly what happened to Content Understanding and forced a second strategy."},
+  {s:"chosen",name:"Weighted-random by headroom (non-sticky)",t:"chosen",p:"The <code>sticky=False</code> path. Weight = tighter of fractional RPM and TPM headroom.",pro:"Spreads stateless work; avoids the least-loaded herd.",con:"Weaker load quality than power-of-two for the same cost."}
+ ],
+ verd:"<p>Consistent hashing is right wherever prompt caching applies, and on long agentic conversations the cache saving dominates every other consideration. The daily rotation is a genuinely thoughtful touch.</p><p>Two things I'd tighten. <strong>Power-of-two-choices is a strictly better default than weighted-random</strong> for the non-sticky path — same herd protection, same cost, measurably better balance — and it is absent from the repo entirely. And <code>sticky</code> is a per-call argument rather than a property of the model, which the source comment itself flags as unresolved; stickiness is a fact about whether a workload benefits from caching, so every new call site is currently a chance to get it wrong.</p>"
+},
+{
+ n:"04", diff:false, v:"keep", vh:"Sophisticated and right; one option genuinely unexplored",
+ q:"How do you divide capacity between <em>competing tenants</em>?",
+ ctx:"One analyst's 300-item bulk job will consume the firm's entire GPT-4o minute if nothing stops it. But statically carving up capacity strands it when projects are idle.",
+ opts:[
+  {s:"never",name:"Static per-project quotas",t:"never",p:"Each project gets a fixed slice.",pro:"Predictable, trivially explainable, no shared state.",con:"Wastes most of the capacity most of the time — an idle project's slice is stranded."},
+  {s:"never",name:"Global limit, first-come-first-served",t:"never",p:"One firm-wide cap, no per-tenant logic.",pro:"Maximum utilisation, no bookkeeping.",con:"Zero fairness. The loudest workload wins every time."},
+  {s:"never",name:"Token bucket per project",t:"never",p:"Rate plus burst allowance per tenant.",pro:"Well understood, burst-friendly, simple to reason about.",con:"Static. Does not adapt to what anyone else is currently doing, so it either strands capacity or over-admits."},
+  {s:"chosen",name:"Reservation + elastic ceiling + priority tiers",t:"chosen",p:"Guaranteed quota for those who need it, then a live fair share <code>pool × (1 − others_using − 0.05)</code>, then tiered shedding (EXP at 50%, PROD at 90%).",pro:"Work-conserving: idle capacity is usable by whoever wants it, and allowances contract automatically as others arrive. Guarantees degrade proportionally under oversubscription rather than first-come-first-served.",con:"Hard to explain to a user. A project's limit changes second to second, so a 429 is not reproducible."},
+  {s:"never",name:"Weighted fair queueing with a real queue",t:"never",p:"Admit everything; queue and serve in weighted order rather than rejecting.",pro:"True fairness, and — the real prize — <strong>bursts wait instead of failing</strong>. No client-side retry storm.",con:"Needs a queue, backpressure, and clients that tolerate latency instead of an immediate answer. Head-of-line blocking risk."}
+ ],
+ verd:"<p>The chosen design is the right family and is unusually well built — a work-conserving max-min-fair share recomputed per request, in about fifteen lines against Redis counters. Most teams reach for static quotas and stop.</p><p>The unexplored option that matters is <strong>queueing</strong>. Today a project over its ceiling gets a 429 and must retry; the gateway pushes the burst back to the client and hopes it backs off politely. A queue would absorb the burst instead. That is normally impractical at high request rates — but the real traffic here is <em>tens</em> of requests per second, not thousands, which makes queueing far more tractable than the team's own capacity estimates would suggest.</p>"
+},
+{
+ n:"05", diff:false, v:"keep", vh:"Elegant and cheap; accepts one known distortion",
+ q:"What do you do about a <em>failing</em> provider region?",
+ ctx:"Provider deployments degrade independently. Sending requests into a region that is 500-ing wastes latency and retry budget on every single call.",
+ opts:[
+  {s:"never",name:"Nothing — retry and move on",t:"never",p:"Let each request discover the failure itself.",pro:"No state at all.",con:"Every request pays the failure latency. A sick region keeps absorbing traffic indefinitely."},
+  {s:"never",name:"Classic circuit breaker",t:"never",p:"Closed / open / half-open state machine per region.",pro:"The canonical pattern; well understood; controlled recovery probing.",con:"Needs coordinated state across 250 worker processes. Distributed half-open probing is genuinely fiddly — who gets to be the prober?"},
+  {s:"chosen",name:"Minute-bucketed error counter in Redis",t:"chosen",p:"<code>INCR</code> + <code>EXPIREAT</code> on <code>REGION/ERROR/{model}/{region}/{minute}</code>. Ten errors excludes the region; the TTL restores it.",pro:"No state machine, no coordination, no reaper. Recovery is automatic because the key simply expires. One Redis key does the whole job.",con:"An absolute count, not a rate — ten errors is ten errors whether the region served ten requests or ten thousand."},
+  {s:"never",name:"Active health checks",t:"never",p:"Probe each region on a timer.",pro:"Detects degradation before users do.",con:"Probes cost real money on metered inference, and health is per-model, so the probe matrix is large."},
+  {s:"never",name:"EWMA error rate",t:"never",p:"Track a smoothed error <em>rate</em> and threshold on that.",pro:"Traffic-normalised, no cliff edge, adapts to region size.",con:"More state, another tuning constant, harder to explain when it trips."}
+ ],
+ verd:"<p>The Redis-TTL breaker is the best cost-to-value ratio in the codebase. Buying self-healing recovery with nothing but key expiry is a genuinely good trick, and the error <em>classifier</em> is right too — a client's 400 does not trip the breaker for everyone.</p><p>The distortion it accepts is real but probably tolerable: because the threshold is absolute, a small region gets tripped by the same ten errors as a large one, so low-traffic pools are effectively more fragile. EWMA would fix it. At this traffic level I'd leave it and spend the complexity budget elsewhere.</p>"
+},
+{
+ n:"06", diff:false, v:"reason", vh:"Right outcome, but the argument used to get there does not hold",
+ q:"How do you make the <em>billing record</em> durable?",
+ ctx:"Every request must produce a durable, attributable billing row. Losing one means the firm pays for tokens it cannot charge back. A January 2026 Kafka outage lost them silently.",
+ opts:[
+  {s:"rejected",name:"Synchronous DB write",t:"rejected",p:"Write the row inline before responding. The original design.",pro:"Simplest possible thing. Strong consistency; the record exists or the request failed.",con:"Couples inference availability to database availability, and adds a round trip to every request."},
+  {s:"rejected",name:"Direct DB fallback on Kafka failure",t:"rejected",p:"When Kafka is down, write straight to the database.",pro:"No new infrastructure.",con:"ADR 001: bypasses the consumer's batching and risks cascading DB load during an incident."},
+  {s:"rejected",name:"Redis queue + background replay",t:"rejected",p:"Buffer to Redis, drain later.",pro:"Fast, already deployed.",con:"ADR 001: Redis may be down in the same infrastructure incident."},
+  {s:"rejected",name:"Dual-write (Kafka and DB, always)",t:"rejected",p:"Belt and braces on every request.",pro:"Two independent copies.",con:"ADR 001: permanently doubles DB write load to solve an occasional problem. Defeats the point of the buffer."},
+  {s:"rejected",name:"Spool to filesystem, replay to DB",t:"rejected",p:"The first implementation of the fallback.",pro:"Direct, fewer moving parts on the recovery path.",con:"<strong>Changed during review</strong> — creates a second write path into the store that will drift from the consumer's logic."},
+  {s:"chosen",name:"Kafka, spool to NFS, replay to Kafka",t:"chosen",p:"Publish to Kafka; on failure append JSONL per worker to NFS; a CronJob replays those files back into Kafka.",pro:"One and only one path into the store. Zero DB load during an outage. Any future consumer of the topic also sees replayed records.",con:"NFS dependency. A CronJob to operate. Up to ~20 minutes of staleness. <code>created_at</code> reflects insertion, not request time."},
+  {s:"never",name:"Transactional outbox",t:"never",p:"Write the event to a local table in the same transaction as the work, and let a relay ship it to Kafka.",pro:"The textbook solution to exactly this problem. No record can be lost, no filesystem, no cron, and the timestamp is correct by construction.",con:"Requires the local DB write the whole design was trying to avoid."}
+ ],
+ verd:"<p>The chosen design works, and the <strong>\"exactly one way data enters the store\"</strong> principle — the reason the review reversed replay-to-DB — is exactly right. I would keep the decision on that basis alone.</p><p>What does not hold is the arithmetic used to rule out the simpler options. ADR 001 rejects every DB-touching alternative because <em>\"at 2k req/sec, 2k individual INSERTs bypass consumer batching\"</em>. But the project's own ClickHouse backfill records 443 million rows across 34 months — even if every one had landed in a single month, that month averages ~171 req/s. <strong>At the real traffic level, buffered DB writes during an outage would have been unremarkable.</strong></p><p>And the transactional outbox — the standard answer here — appears nowhere. It would have avoided the NFS dependency, the replay cron, and the <code>created_at</code> bug that later <em>blocked an actual incident recovery</em>, at the cost of a database write that the traffic could easily afford.</p>"
+},
+{
+ n:"07", diff:true, v:"change", vh:"The one decision I would change",
+ q:"What happens when <em>Redis is unreachable</em>?",
+ ctx:"Redis holds every counter the admission controller reads: per-region usage, error counts, rate limits, billing accumulators. Three separate code paths choose what to do when it is gone.",
+ opts:[
+  {s:"chosen",name:"Fail open",t:"chosen",p:"Skip the rate limit; read region usage and errors as zero; carry on. Increments <code>redis_fail_open_total</code>.",pro:"Traffic keeps flowing. As the source comment puts it, <em>\"an unenforced rate limit beats a full outage\"</em>. Observable.",con:"Because usage reads as <em>zero</em>, all five admission levels open at once — quota, budget, elastic ceiling, priority shedding and the circuit breaker. Unbounded spend on a metered external service, indefinitely, with nothing but a counter to show for it."},
+  {s:"never",name:"Fail closed",t:"never",p:"No counters, no requests.",pro:"Nothing can be over-served or over-spent.",con:"A Redis blip becomes a total AI outage for the firm. Almost certainly worse."},
+  {s:"never",name:"Degraded static limits",t:"never",p:"On sustained Redis failure, fall back to a conservative per-project cap held in process memory, and alert.",pro:"Service continues, spend stays bounded, the failure is loud instead of silent.",con:"Approximate — each pod enforces independently, so the true limit is N× the per-pod cap."},
+  {s:"never",name:"Local per-pod counters",t:"never",p:"Approximate the global limit by dividing it across pods.",pro:"Cheap; over-admits by a known and boundable factor.",con:"Pod count changes under autoscaling, so the divisor moves."},
+  {s:"never",name:"Split the decision by stake",t:"never",p:"Fail open on rate limits; fail closed, or degrade to static caps, on <em>budget</em> enforcement.",pro:"Matches the response to the consequence. Being throttled is an annoyance; unbounded spend is a financial incident.",con:"Two behaviours to reason about and test instead of one."}
+ ],
+ verd:"<p>Fail-open is defensible for a rate limiter and hard to defend for a budget, and the current design does not distinguish them. The same switch that keeps a throttle permissive also <strong>disables every spending control the firm has</strong>, for as long as Redis is down, while requests continue to reach paid providers.</p><p>The instinct is right and the instrumentation is right — <code>redis_fail_open_total</code> exists and is labelled by call site. What is missing is that <em>nothing consumes it</em>. The metric records the loss of control; it does not restore any.</p><p><strong>What I'd do:</strong> split the decision by stake. Keep fail-open for throttling. For budget and quota, degrade to a conservative in-process static cap once fail-open is sustained past a threshold, and page. Bounded over-admission is a much smaller risk than unbounded spend, and it converts a silent failure into a loud one.</p>"
+},
+{
+ n:"08", diff:false, v:"keep", vh:"Right call, exemplary execution",
+ q:"How do you serve <em>analytics</em> off a fact table this size?",
+ ctx:"Analytics read from the same MSSQL table the consumer wrote to. By 2026 that table held hundreds of millions of rows and per-project daily usage had a p99 of 486 seconds.",
+ opts:[
+  {s:"rejected",name:"Keep it on the OLTP table",t:"rejected",p:"Status quo: one table, both workloads.",pro:"No new infrastructure.",con:"A row store indexed for point lookups being asked to scan and group hundreds of millions of rows. Timeout-bound, not merely slow."},
+  {s:"never",name:"Read replica",t:"never",p:"Point analytics at a MSSQL replica.",pro:"Cheap, fast to do, immediately removes contention with the write path.",con:"Does not fix the underlying problem — row-oriented aggregation over that cardinality is slow on a replica too."},
+  {s:"never",name:"Materialised views / pre-aggregates",t:"never",p:"Maintain rollup tables in MSSQL.",pro:"Very fast for the queries you anticipated.",con:"Rigid. At project × model × day × user cardinality the rollup matrix explodes, and every new question needs a new table and a backfill."},
+  {s:"chosen",name:"Separate columnar OLAP store",t:"chosen",p:"ClickHouse <code>ReplicatedMergeTree</code>, monthly partitions, fed by a second isolated Kafka consumer. Four-phase migration with dual-write.",pro:"Correct storage shape for the workload. <code>/daily_usage</code> p99 486 s → 9.4 s. Keeps the raw fact table, so ad-hoc questions stay answerable.",con:"A second datastore to run, secure and migrate. Append-only with no dedup, so ~0.017% of rows are duplicates."},
+  {s:"never",name:"Stream aggregation in the consumer",t:"never",p:"Compute rollups as records flow past; store only the small result.",pro:"Cheapest reads and cheapest storage by far.",con:"Forecloses drill-down. You can only ever ask the questions you decided on in advance."}
+ ],
+ verd:"<p>Right store, and the migration is the best-executed piece of work in the repository: isolated second consumer so ClickHouse trouble cannot touch MSSQL writes, backfill read from the <em>UAT replica</em> rather than production, 34 of 34 partitions reconciled on <strong>two independent measures</strong> (row count and total cost), reads switched behind a still-running dual-write so it stayed reversible, then a soak before decommission.</p><p>A read replica would have been the cheap first move and bought perhaps a year — worth noting only because it is absent from the record. Stream aggregation would have been the trap: cheapest by every metric, and it would have permanently removed the ability to ask a new question. Keeping the raw fact table plus read-time dimension resolution was the more expensive and more correct choice.</p>"
+},
+{
+ n:"09", diff:false, v:"keep", vh:"Excellent value; the async workloads deserve a second look",
+ q:"How do you stop workloads <em>interfering</em> with each other?",
+ ctx:"One pod pool served a 3-second chat completion and a 25-minute bulk job from the same memory limit. Bulk jobs OOM'd pods that were also serving interactive traffic, and inference saturation took the control plane down with it.",
+ opts:[
+  {s:"rejected",name:"Single pool",t:"rejected",p:"Status quo.",pro:"One deployment, one thing to reason about.",con:"No isolation in any direction. One autoscaling signal for four completely different resource profiles."},
+  {s:"chosen",name:"Swim lanes — same image, N pools",t:"chosen",p:"Four pools separated by nginx longest-prefix routing, each with its own Helm release and KEDA policy. Same container image.",pro:"Real isolation for the price of one ingress rule and one values file per lane. No code change, no new artifact, no new service to operate.",con:"Every pod carries the whole image, so a lane serving three endpoints still boots the entire application."},
+  {s:"never",name:"Separate services per workload",t:"never",p:"Split bulk, realtime and control plane into their own codebases.",pro:"True isolation including dependencies and release cadence.",con:"N codebases sharing admission-control and billing logic. The duplication would be substantial and would drift."},
+  {s:"never",name:"Queue + worker pool for async work",t:"never",p:"Bulk and batch submit to a queue; workers drain it; clients poll or get called back.",pro:"Natural backpressure instead of a 1860-second timeout. Far fewer pods, because workers are not holding HTTP connections open. Retries and priority become queue properties.",con:"Changes the client contract for bulk from synchronous to asynchronous."},
+  {s:"never",name:"Per-tenant pools",t:"never",p:"A pool per project.",pro:"Complete isolation.",con:"Does not scale past a handful of tenants; there are ~250 projects."}
+ ],
+ verd:"<p>Swim lanes are outstanding value — the cheapest real isolation available, and the reason the control plane survives an inference incident.</p><p>The option worth revisiting is the <strong>queue for bulk</strong>. Bulk today is synchronous: the client holds an HTTP connection while the gateway fans out up to 400 concurrent upstream calls behind an <code>asyncio.Semaphore</code>, for as long as 30 minutes. That is why <code>heavy</code> is the largest pool in the fleet — 45 to 60 pods of 10G each — despite serving the fewest endpoints. Those pods are mostly holding sockets open.</p><p>The interesting part is that <strong>the pattern already exists in the codebase</strong>: the Batch API submits, polls, and lets a cron detect terminal state. Extending that shape to bulk would shrink the largest pool substantially and replace a timeout with genuine backpressure.</p>"
+},
+{
+ n:"10", diff:false, v:"keep", vh:"Right call, shipped with a known and acknowledged gap",
+ q:"What do you do about a <em>straggler</em>?",
+ ctx:"A 300-item bulk job where 299 items finished in under 30 seconds and exactly one took 300 s. The client timed out and the entire batch was retried from scratch.",
+ opts:[
+  {s:"rejected",name:"Raise the client timeout",t:"rejected",p:"Wait longer. Tried first.",pro:"A configuration change, available immediately.",con:"The owner's own assessment: <em>\"this looks like an Azure hang that more time won't help\"</em>. Trades a fast failure for a slow one."},
+  {s:"never",name:"Kill and retry the straggler",t:"never",p:"Detect the slow item, cancel it, reissue.",pro:"Cheaper than hedging — you never pay for two in-flight copies.",con:"Strictly worse than racing. You discard work that might have been about to finish, and pay full latency again from zero."},
+  {s:"chosen",name:"Hedge — race a duplicate",t:"chosen",p:"After 90% of the batch completes, any item past <code>max(30s, 2 × p95)</code> gets a duplicate in the next region. First wins, loser cancelled, max two hedges.",pro:"Bounded extra load — at most 10% of the batch, spread over time and gated on health. Keeps the original in flight, so you win either way.",con:"Pays for duplicate work. Cost reporting in the HTTP response does not account for it."},
+  {s:"rejected",name:"Azure priority processing tier",t:"rejected",p:"Pay the provider for more consistent latency.",pro:"Zero code.",con:"Not offered for GPT-4o-mini-128K, the model the affected user is pinned to."},
+  {s:"rejected",name:"Move the model to Bedrock",t:"rejected",p:"Different provider, different tail behaviour.",pro:"Addresses the root cause if Azure is the problem.",con:"Pending InfoSec approval; not a timeframe that helps."}
+ ],
+ verd:"<p>Hedging is the correct answer and the implementation is careful — the 90% completion gate is what makes the cost bounded and is the detail most naive implementations get wrong.</p><p>The gap is known and was raised in review: <strong>gateway analytics attribute the losers' cost correctly, but the HTTP response does not.</strong> A caller relaying cost to its own budget system will under-report by up to 2×. A <code>resend_slow_calls_cost</code> field was proposed and not built. Given the feature is opt-in and the volume is small, shipping without it is defensible — but it is a correctness debt on the money path, which is the worst place to carry one.</p>"
+},
+{
+ n:"11", diff:false, v:"keep", vh:"The harder and more honest choice",
+ q:"How do you tell a client the <em>stream broke</em>?",
+ ctx:"Once the gateway has yielded the first parsed object downstream, the HTTP status is already 200 and partial content has shipped. Retrying is unsafe — you cannot retract text, thinking blocks, or tool calls.",
+ opts:[
+  {s:"rejected",name:"Synthesise an error event",t:"rejected",p:"Emit an Anthropic <code>event: error</code>, then terminate the body normally. The original behaviour.",pro:"Clean HTTP. Well-behaved clients that parse the event get a clear signal.",con:"Clients that ignore error events — most of them — accept truncated output as a complete, successful 200."},
+  {s:"chosen",name:"Omit the final ASGI body frame",t:"chosen",p:"After the commitment boundary, deliberately do not send the terminating message, so the transport reports an incomplete response.",pro:"Any standard HTTP client sees a protocol error. A partial answer cannot masquerade as a clean one.",con:"Status stays 200 because headers already shipped. Uvicorn logs an error per intentional truncation, so alerting must exclude that exact string."},
+  {s:"never",name:"HTTP trailers",t:"never",p:"Send a completion status in trailing headers.",pro:"Semantically the correct HTTP mechanism for exactly this.",con:"Poorly supported by clients and intermediaries; would silently do nothing for most callers."},
+  {s:"rejected",name:"Retry and stitch",t:"rejected",p:"Reconnect and splice a second generation onto the partial output.",pro:"The client gets a complete answer.",con:"Corrupts text, thinking signatures, tool calls, event IDs and usage. Rejected outright."},
+  {s:"rejected",name:"Rely on client-side validation",t:"rejected",p:"Require clients to check for <code>message_stop</code>.",pro:"No server change.",con:"Not every client validates. Retained as defence in depth, not as the fix."}
+ ],
+ verd:"<p>This is the decision I most respect in the repository, because the team chose the option that makes <strong>their own operational life worse</strong>. Transport truncation means Uvicorn logs an error on every intentional truncation and their alerting has to carry a permanent exclusion for a specific log string. The alternative was quieter dashboards and silently corrupted downstream data.</p><p>The residual fragility is that correctness now depends on that exclusion staying accurate — if the log message changes upstream, either the alerts go noisy or a real class of failure gets suppressed. Worth pinning with a test. Also worth noting the ADR is still marked <em>Proposed</em>, not Accepted.</p>"
+},
+{
+ n:"12", diff:false, v:"reason", vh:"Good design; the operational envelope around it was the failure",
+ q:"How should audit <em>encryption keys</em> be scoped?",
+ ctx:"Audit stores prompts and completions. Keys live in Vault. The scoping choice determines blast radius, rotation story — and, as it turned out, the shape of the system's worst outage.",
+ opts:[
+  {s:"never",name:"One key for everything",t:"never",p:"A single application key.",pro:"Trivial.",con:"Total blast radius on compromise, and no natural rotation point."},
+  {s:"never",name:"Per project",t:"never",p:"One key per tenant.",pro:"Tenant isolation.",con:"Keys live forever; no crypto period."},
+  {s:"chosen",name:"Per project, per month",t:"chosen",p:"Key at <code>.../keys/prod/&lt;kid&gt;/&lt;YYYY-MM&gt;</code>, generated by a monthly cron.",pro:"Tenant isolation and a natural crypto period, with no rotation machinery — the calendar does it.",con:"Creates a hard dependency on a resource that must exist before a calendar boundary. A single failed cron run is an outage waiting for midnight."},
+  {s:"never",name:"Per request, envelope encryption",t:"never",p:"A fresh data key per record, wrapped by a KMS master key.",pro:"Strongest isolation; standard practice for at-rest audit data.",con:"A KMS call per request — latency and cost on the hot path, unless you cache aggressively and reintroduce the same problem."},
+  {s:"never",name:"Delegate to Vault transit",t:"never",p:"Let Vault do the encryption; the application never handles key material.",pro:"No key lifecycle to own. Rotation is a Vault concern.",con:"A Vault round trip per operation, and Vault availability moves onto the request path — which is what actually broke here anyway."}
+ ],
+ verd:"<p>Per-project-per-month is a sound default and I would not change the scoping. Isolation plus a free crypto period is a good trade.</p><p>But it is worth being precise about what failed on 1 June 2026: <strong>not the design, the envelope around it.</strong> The key generator ran monthly, could fail silently because the previous month's keys still resolved, had no alert on its exit code, and pre-generated nothing. Twelve hours of outage, 78,000 visible 500s and ~616,000 silent billing and audit write failures — an <strong>8:1 ratio of invisible to visible damage</strong> — discovered by a user in Slack.</p><p>The generalisable rule the RCA itself reaches: <strong>anything keyed to a time period must be provisioned at least one period ahead, and the absence of the next period's resource should be what alerts</strong> — not the errors that follow. Options 4 and 5 do not make the design better; they move the failure into a managed service with its own availability story, which is a different bet rather than a safer one.</p>"
+}
+];
+
+const SCORE=[
+ ["01","Central gateway as the control point","keep","Only architecture that can answer cross-provider questions on a firm-specific identity substrate."],
+ ["02","Provider-native API passthrough","keep","Cost is real and visible — provider failure semantics leak inward — but adoption made it worth it."],
+ ["03","Capacity-weighted consistent hashing","keep","Right for prompt-cached work. Power-of-two-choices would be a better non-sticky default; <code>sticky</code> belongs on the model, not the call."],
+ ["04","Reservation + elastic ceiling + tiers","keep","A genuine max-min-fair scheduler. Queueing is the unexplored option, and real traffic makes it viable."],
+ ["05","Redis TTL circuit breaker","keep","Best cost-to-value ratio in the codebase. Absolute rather than rate-based, which quietly penalises small regions."],
+ ["06","Kafka + NFS spool for billing","reason","Outcome right for the \"single write path\" reason. The stated throughput justification is off by 1–2 orders of magnitude, and the outbox pattern never appears."],
+ ["07","Fail open when Redis is down","change","Disables every spending control at once, silently, indefinitely. Split the behaviour by stake: throttles fail open, budgets degrade to static caps and page."],
+ ["08","ClickHouse for analytics","keep","Right store, exemplary migration. Keeping the raw fact table preserved the ability to ask new questions."],
+ ["09","Swim lanes for isolation","keep","Cheapest real isolation available. Bulk should move to the queue shape the Batch API already uses."],
+ ["10","Hedge stragglers","keep","Correct pattern, careful gating. Shipped with a known cost-reporting gap on the money path."],
+ ["11","Truncate the transport on stream failure","keep","Chose worse dashboards over silently corrupt data. Pin the log-exclusion with a test; the ADR is still Proposed."],
+ ["12","Per-project-per-month audit keys","reason","Scoping is right; the operational envelope was not. Pre-generate a period ahead and alert on the missing resource, not the resulting errors."]
+];
+
+const TAG={chosen:"chosen",rejected:"rejected · on record",never:"never considered"};
+
+document.getElementById('decs').innerHTML=D.map(d=>`
+<article class="dec" data-diff="${d.diff}">
+  <div class="dec-head">
+    <div class="dec-n">${d.n}</div>
+    <div class="dec-t">
+      <h3 class="dec-q">${d.q}</h3>
+      <p class="dec-ctx">${d.ctx}</p>
+    </div>
+  </div>
+  <div class="opts">
+    ${d.opts.map(o=>`
+      <div class="opt ${o.s}" data-state="${o.s}">
+        <div class="opt-l">
+          <span class="opt-name">${o.name}</span>
+          <span class="opt-tag">${TAG[o.s]}</span>
+        </div>
+        <div class="opt-b">
+          <p>${o.p}</p>
+          <div class="opt-cost"><span class="pro">+</span> ${o.pro}<br><span class="con">−</span> ${o.con}</div>
+        </div>
+      </div>`).join('')}
+  </div>
+  <div class="verd ${d.v}">
+    <div class="verd-h">Verdict — ${d.vh}</div>
+    ${d.verd}
+  </div>
+</article>`).join('');
+
+document.getElementById('score').innerHTML=
+ `<div class="score-r h"><div>#</div><div>Decision</div><div>Verdict</div><div>Note</div></div>`+
+ SCORE.map(r=>`<div class="score-r">
+   <div class="n">${r[0]}</div>
+   <div class="d">${r[1]}</div>
+   <div class="v ${r[2]}">${r[2]==='keep'?'keep as-is':r[2]==='reason'?'keep, re-argue':'would change'}</div>
+   <div class="w">${r[3]}</div></div>`).join('');
+
+/* lens */
+const lens=document.getElementById('lens');
+lens.addEventListener('click',e=>{
+  const b=e.target.closest('button'); if(!b) return;
+  [...lens.children].forEach(x=>x.classList.toggle('on',x===b));
+  const m=b.dataset.l;
+  document.querySelectorAll('.dec').forEach(d=>d.classList.toggle('hide',m==='diff'&&d.dataset.diff!=='true'));
+  document.querySelectorAll('.opt').forEach(o=>o.classList.toggle('faded',m==='doc'&&o.dataset.state==='never'));
+});
+
+/* zoom */
+const zb=document.querySelector('.zoombar');
+zb.addEventListener('click',e=>{
+  const b=e.target.closest('.zoombtn'); if(!b) return;
+  [...zb.children].forEach(x=>x.classList.toggle('on',x===b));
+  document.querySelectorAll('.zoomview').forEach(v=>v.classList.toggle('on',v.dataset.zv===b.dataset.z));
+});
+</script>
+</body>
+</html>
