@@ -1,0 +1,823 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DPA — A Feynman Walkthrough</title>
+<style>
+  :root{
+    --bg:#0b0f14; --bg2:#111823; --bg3:#161f2c; --line:#233044;
+    --fg:#dbe4f0; --fg-dim:#8494ab; --fg-faint:#5b6b82;
+    --amber:#f0b429; --amber-dim:#8a6a1c;
+    --cyan:#4fc3d9; --green:#5fd39a; --red:#f2777a; --violet:#b48ead;
+    --mono:ui-monospace,"SF Mono",Menlo,Consolas,"Liberation Mono",monospace;
+    --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Roboto,sans-serif;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0;background:var(--bg);color:var(--fg);
+    font-family:var(--sans);line-height:1.65;font-size:15px;
+  }
+  a{color:var(--cyan);text-decoration:none}
+  a:hover{text-decoration:underline}
+  code{font-family:var(--mono);font-size:.88em;background:var(--bg3);
+    padding:.1em .38em;border-radius:3px;color:var(--amber);border:1px solid var(--line)}
+  .wrap{max-width:1180px;margin:0 auto;padding:0 24px}
+
+  /* ---------- header ---------- */
+  header{border-bottom:1px solid var(--line);background:linear-gradient(180deg,#0d131b,#0b0f14);
+    padding:46px 0 34px}
+  .eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.16em;text-transform:uppercase;
+    color:var(--amber);margin-bottom:12px}
+  h1{margin:0 0 10px;font-size:38px;line-height:1.15;letter-spacing:-.02em;font-weight:650}
+  .sub{color:var(--fg-dim);max-width:70ch;font-size:16px;margin:0}
+  .meta{margin-top:20px;font-family:var(--mono);font-size:12px;color:var(--fg-faint)}
+  .meta span{margin-right:18px}
+
+  /* ---------- nav ---------- */
+  nav{position:sticky;top:0;z-index:50;background:rgba(11,15,20,.93);
+    backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+  .navin{display:flex;align-items:center;gap:6px;flex-wrap:wrap;padding:10px 24px;
+    max-width:1180px;margin:0 auto}
+  nav a{font-family:var(--mono);font-size:12.5px;color:var(--fg-dim);padding:6px 11px;
+    border-radius:5px;border:1px solid transparent}
+  nav a:hover{color:var(--fg);background:var(--bg3);text-decoration:none;border-color:var(--line)}
+  .spacer{flex:1}
+  .toggle{display:flex;align-items:center;gap:9px;font-family:var(--mono);font-size:12px;
+    color:var(--fg-dim);cursor:pointer;user-select:none;padding:6px 11px;border:1px solid var(--line);
+    border-radius:5px;background:var(--bg2)}
+  .toggle:hover{color:var(--fg)}
+  .toggle.on{color:var(--amber);border-color:var(--amber-dim);background:rgba(240,180,41,.08)}
+  .sw{width:30px;height:16px;border-radius:9px;background:var(--line);position:relative;
+    transition:background .18s}
+  .sw::after{content:"";position:absolute;top:2px;left:2px;width:12px;height:12px;border-radius:50%;
+    background:var(--fg-faint);transition:.18s}
+  .toggle.on .sw{background:var(--amber-dim)}
+  .toggle.on .sw::after{left:16px;background:var(--amber)}
+
+  /* ---------- sections ---------- */
+  section{padding:56px 0;border-bottom:1px solid var(--line)}
+  h2{font-size:13px;font-family:var(--mono);letter-spacing:.15em;text-transform:uppercase;
+    color:var(--amber);margin:0 0 8px;font-weight:600}
+  .h2sub{font-size:26px;font-weight:620;margin:0 0 6px;letter-spacing:-.015em}
+  .lede{color:var(--fg-dim);max-width:76ch;margin:0 0 28px}
+
+  /* ---------- first principles ---------- */
+  .chain{display:grid;gap:14px;margin:26px 0}
+  .step{display:grid;grid-template-columns:34px 1fr;gap:16px;align-items:start}
+  .stepn{font-family:var(--mono);font-size:12px;color:var(--bg);background:var(--amber);
+    width:26px;height:26px;border-radius:50%;display:grid;place-items:center;font-weight:700;margin-top:2px}
+  .stept{background:var(--bg2);border:1px solid var(--line);border-radius:8px;padding:14px 18px}
+  .stept b{color:var(--fg);display:block;margin-bottom:4px}
+  .stept p{margin:0;color:var(--fg-dim);font-size:14.5px}
+
+  /* ---------- diagram + panel ---------- */
+  .split{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:24px;align-items:start}
+  @media(max-width:940px){.split{grid-template-columns:1fr}}
+  .diagram{background:var(--bg2);border:1px solid var(--line);border-radius:10px;padding:16px}
+  .hint{font-family:var(--mono);font-size:11.5px;color:var(--fg-faint);text-align:center;
+    margin:0 0 10px;letter-spacing:.04em}
+  svg{width:100%;height:auto;display:block}
+  .node{cursor:pointer}
+  .node rect,.node polygon{fill:var(--bg3);stroke:var(--line);stroke-width:1.5;transition:.15s}
+  .node text{fill:var(--fg);font-family:var(--mono);font-size:12px;pointer-events:none}
+  .node .sm{fill:var(--fg-faint);font-size:10px}
+  .node:hover rect,.node:hover polygon{stroke:var(--amber);fill:#1d2634}
+  .node.sel rect,.node.sel polygon{stroke:var(--amber);fill:rgba(240,180,41,.13);stroke-width:2}
+  .edge{stroke:var(--line);stroke-width:1.5;fill:none;marker-end:url(#ar)}
+  .edge.dash{stroke-dasharray:4 4;stroke:var(--fg-faint)}
+  .elabel{fill:var(--fg-faint);font-family:var(--mono);font-size:10px}
+
+  /* ---------- deployment boxes ---------- */
+  .tiers{display:grid;gap:12px}
+  .tier{border:1px solid var(--line);border-radius:9px;background:var(--bg2);padding:13px 15px}
+  .tierh{font-family:var(--mono);font-size:10.5px;letter-spacing:.13em;text-transform:uppercase;
+    color:var(--fg-faint);margin-bottom:10px}
+  .boxes{display:flex;gap:9px;flex-wrap:wrap}
+  .box{flex:1 1 150px;background:var(--bg3);border:1px solid var(--line);border-radius:7px;
+    padding:10px 12px;cursor:pointer;transition:.15s;min-width:0}
+  .box:hover{border-color:var(--amber);background:#1d2634}
+  .box.sel{border-color:var(--amber);background:rgba(240,180,41,.13)}
+  .box b{display:block;font-family:var(--mono);font-size:12.5px;color:var(--fg);margin-bottom:3px;
+    overflow-wrap:anywhere}
+  .box span{font-size:11.5px;color:var(--fg-faint);line-height:1.45;display:block}
+  .arrowdn{text-align:center;color:var(--fg-faint);font-size:15px;line-height:1}
+
+  /* ---------- detail panel ---------- */
+  .panel{background:var(--bg2);border:1px solid var(--line);border-radius:10px;padding:22px;
+    position:sticky;top:64px}
+  .empty{color:var(--fg-faint);font-size:14px;text-align:center;padding:44px 14px;font-family:var(--mono)}
+  .ptitle{font-family:var(--mono);font-size:16px;color:var(--amber);margin:0 0 3px;overflow-wrap:anywhere}
+  .pcite{font-family:var(--mono);font-size:11px;color:var(--fg-faint);margin:0 0 16px;overflow-wrap:anywhere}
+  .prole{color:var(--fg-dim);font-size:14px;margin:0 0 18px;padding-bottom:16px;border-bottom:1px solid var(--line)}
+  .q{background:rgba(240,180,41,.07);border-left:2px solid var(--amber);padding:12px 15px;
+    border-radius:0 6px 6px 0;margin-bottom:14px}
+  .qlab{font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--amber);display:block;margin-bottom:5px}
+  .q p{margin:0;font-size:14.5px;color:var(--fg)}
+  .ans{font-size:14px;color:var(--fg-dim)}
+  .ans p{margin:0 0 11px}
+  .ans p:last-child{margin-bottom:0}
+  .ans strong{color:var(--fg);font-weight:600}
+
+  /* ---------- reveal ---------- */
+  .reveal{border:1px dashed var(--line);border-radius:7px;padding:13px;text-align:center;
+    cursor:pointer;color:var(--fg-faint);font-family:var(--mono);font-size:12px;transition:.15s}
+  .reveal:hover{border-color:var(--amber);color:var(--amber)}
+  .hidden{display:none}
+
+  /* ---------- decisions ---------- */
+  .cards{display:grid;gap:13px}
+  .card{border:1px solid var(--line);border-radius:10px;background:var(--bg2);overflow:hidden}
+  .card.open{border-color:var(--amber-dim)}
+  .chead{display:grid;grid-template-columns:auto 1fr auto;gap:15px;align-items:center;
+    padding:16px 20px;cursor:pointer;transition:.15s}
+  .chead:hover{background:var(--bg3)}
+  .cnum{font-family:var(--mono);font-size:11px;color:var(--amber);border:1px solid var(--amber-dim);
+    border-radius:4px;padding:2px 7px}
+  .cq{font-size:15px;color:var(--fg);font-weight:520}
+  .ctag{font-family:var(--mono);font-size:10px;color:var(--fg-faint);border:1px solid var(--line);
+    border-radius:4px;padding:2px 8px;white-space:nowrap}
+  .cbody{padding:0 20px 20px;border-top:1px solid var(--line);margin-top:0}
+  .cbody h4{font-family:var(--mono);font-size:10.5px;letter-spacing:.13em;text-transform:uppercase;
+    color:var(--fg-faint);margin:20px 0 9px;font-weight:600}
+  .cbody p{margin:0 0 11px;color:var(--fg-dim);font-size:14.5px}
+  .cbody strong{color:var(--fg)}
+
+  table{width:100%;border-collapse:collapse;font-size:13.5px;margin:0 0 6px}
+  th{text-align:left;font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;
+    color:var(--fg-faint);padding:7px 10px;border-bottom:1px solid var(--line);font-weight:600}
+  td{padding:9px 10px;border-bottom:1px solid var(--line);color:var(--fg-dim);vertical-align:top}
+  tr:last-child td{border-bottom:none}
+  tr.pick td{background:rgba(95,211,154,.06)}
+  tr.pick td:first-child{color:var(--fg);font-weight:600}
+  .v{font-family:var(--mono);font-size:10px;padding:2px 7px;border-radius:3px;white-space:nowrap;
+    display:inline-block}
+  .v.chosen{background:rgba(95,211,154,.14);color:var(--green);border:1px solid rgba(95,211,154,.3)}
+  .v.no{background:rgba(242,119,122,.11);color:var(--red);border:1px solid rgba(242,119,122,.26)}
+  .v.later{background:rgba(180,142,173,.12);color:var(--violet);border:1px solid rgba(180,142,173,.28)}
+  .v.open{background:rgba(79,195,217,.11);color:var(--cyan);border:1px solid rgba(79,195,217,.28)}
+
+  .cost{background:rgba(242,119,122,.06);border-left:2px solid var(--red);padding:11px 15px;
+    border-radius:0 6px 6px 0;margin-top:6px}
+  .cost b{color:var(--red);font-size:11px;font-family:var(--mono);letter-spacing:.1em;
+    text-transform:uppercase;display:block;margin-bottom:4px}
+  .cost p{margin:0;font-size:14px}
+
+  .num{display:flex;gap:9px;flex-wrap:wrap;margin:4px 0 14px}
+  .stat{background:var(--bg3);border:1px solid var(--line);border-radius:6px;padding:8px 13px;flex:0 1 auto}
+  .stat b{display:block;font-family:var(--mono);font-size:17px;color:var(--amber);line-height:1.25}
+  .stat span{font-size:10.5px;color:var(--fg-faint);font-family:var(--mono);letter-spacing:.05em}
+
+  ul.tight{margin:0 0 12px;padding-left:20px;color:var(--fg-dim);font-size:14.5px}
+  ul.tight li{margin-bottom:6px}
+
+  footer{padding:38px 0 56px;color:var(--fg-faint);font-size:13px}
+  .warnbox{background:rgba(240,180,41,.06);border:1px solid var(--amber-dim);border-radius:8px;
+    padding:14px 18px;margin:18px 0}
+  .warnbox b{color:var(--amber);font-size:11px;font-family:var(--mono);letter-spacing:.11em;
+    text-transform:uppercase;display:block;margin-bottom:6px}
+  .warnbox p{margin:0;color:var(--fg-dim);font-size:14px}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <div class="eyebrow">DESCO Python Assistant · Design Walkthrough</div>
+    <h1>Why is it built this way?</h1>
+    <p class="sub">An interactive walkthrough of DPA's architecture and deployment — built around the
+    question rather than the answer. Every component and every design issue starts as a problem you could
+    have solved differently. Click to see what was chosen, what was rejected, and what it cost.</p>
+    <div class="meta">
+      <span>repo desco-llm @ 19cb1fcb</span>
+      <span>DPA 2.0</span>
+      <span>claims cited to file:line</span>
+    </div>
+  </div>
+</header>
+
+<nav>
+  <div class="navin">
+    <a href="#problem">01 · Problem</a>
+    <a href="#flow">02 · Request flow</a>
+    <a href="#deploy">03 · Deployment</a>
+    <a href="#decisions">04 · Decisions</a>
+    <a href="#open">05 · Unresolved</a>
+    <span class="spacer"></span>
+    <div class="toggle" id="fmode" title="Hide all answers so you can reason first">
+      <div class="sw"></div><span>Feynman mode</span>
+    </div>
+  </div>
+</nav>
+
+<!-- ================= 01 PROBLEM ================= -->
+<section id="problem">
+  <div class="wrap">
+    <h2>01 — First principles</h2>
+    <div class="h2sub">What breaks if this doesn't exist?</div>
+    <p class="lede">Before any architecture, the honest question: what is the actual failure we are
+    engineering against? Everything downstream is a consequence of the answer.</p>
+
+    <div class="chain">
+      <div class="step"><div class="stepn">1</div><div class="stept">
+        <b>DESCO runs on libraries no model has seen</b>
+        <p><code>deshaw.datab</code>, <code>deshaw.shawcache</code>, <code>deshaw.spyc</code>,
+        <code>deshaw.djs.*</code> — proprietary, absent from every foundation model's training data.</p>
+      </div></div>
+      <div class="step"><div class="stepn">2</div><div class="stept">
+        <b>So the model doesn't fail loudly — it fails <em>confidently</em></b>
+        <p>Ask about a cumulative sum on a <code>Relation</code> and you get a fluent, plausible,
+        pandas-shaped answer that does not exist. The user assumes house-library knowledge, so there is
+        no signal that anything went wrong.</p>
+      </div></div>
+      <div class="step"><div class="stepn">3</div><div class="stept">
+        <b>That reframes the goal</b>
+        <p>Not "be helpful about DESCO Python." It is: <strong>never assert a
+        <code>deshaw.*</code> API that wasn't verified.</strong> Refusing is an acceptable
+        outcome; inventing is not.</p>
+      </div></div>
+      <div class="step"><div class="stepn">4</div><div class="stept">
+        <b>Which forces the architecture</b>
+        <p>You need (a) domain knowledge close enough to the question to be usable, and (b) a way to
+        check every symbol against ground truth before it reaches the user. Retrieval plus tool-verified
+        generation — not a bigger prompt, and not a fine-tune.</p>
+      </div></div>
+    </div>
+
+    <p class="lede" style="margin-top:26px">The prompts say this out loud, repeatedly:
+    <em>"NEVER guess or invent <code>deshaw.*</code>/<code>desco*</code> code or signatures"</em>
+    (<code>prompts.py:15</code>, <code>:73</code>, <code>:121</code>). SPyC goes further —
+    <em>"If you have not seen a <code>deshaw.*</code> class... it does not exist for the purposes of
+    your answer."</em></p>
+
+    <div id="p-strat"></div>
+  </div>
+</section>
+
+<!-- ================= 02 FLOW ================= -->
+<section id="flow">
+  <div class="wrap">
+    <h2>02 — Runtime</h2>
+    <div class="h2sub">How one question becomes an answer</div>
+    <p class="lede">Five graph nodes. Click any of them — or the tool belt — for what it does, the design
+    question behind it, and the alternatives that were available.</p>
+
+    <div class="split">
+      <div class="diagram">
+        <p class="hint">click a node</p>
+        <svg viewBox="0 0 860 660" role="img" aria-label="DPA request flow graph">
+          <defs>
+            <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+              <path d="M0,0 L10,5 L0,10 z" fill="#233044"/>
+            </marker>
+          </defs>
+
+          <!-- START -->
+          <g class="node" data-k="start">
+            <rect x="345" y="14" width="120" height="30" rx="15"/>
+            <text x="405" y="34" text-anchor="middle">START</text>
+          </g>
+          <path class="edge" d="M405,44 L405,72"/>
+
+          <!-- process_input -->
+          <g class="node" data-k="process_input">
+            <rect x="285" y="72" width="240" height="46" rx="7"/>
+            <text x="405" y="92" text-anchor="middle">process_input</text>
+            <text x="405" y="108" text-anchor="middle" class="sm">question + chat_context</text>
+          </g>
+          <path class="edge" d="M405,118 L405,148"/>
+
+          <!-- detect_skills -->
+          <g class="node" data-k="detect_skills">
+            <rect x="285" y="148" width="240" height="52" rx="7"/>
+            <text x="405" y="169" text-anchor="middle">detect_skills</text>
+            <text x="405" y="186" text-anchor="middle" class="sm">Haiku 4.5 · temp 0 · ~2s</text>
+          </g>
+          <path class="edge" d="M405,200 L405,224"/>
+
+          <!-- prefill callout -->
+          <g class="node" data-k="prefill">
+            <rect x="600" y="150" width="235" height="48" rx="7" stroke-dasharray="4 3"/>
+            <text x="717" y="170" text-anchor="middle">prefilled tool call</text>
+            <text x="717" y="186" text-anchor="middle" class="sm">forged AIMessage + ToolMessage</text>
+          </g>
+          <path class="edge dash" d="M525,174 L596,174"/>
+
+          <!-- diamond -->
+          <g class="node" data-k="branch">
+            <polygon points="405,224 520,262 405,300 290,262"/>
+            <text x="405" y="266" text-anchor="middle" class="sm">external skill?</text>
+          </g>
+          <text class="elabel" x="215" y="255" text-anchor="middle">yes</text>
+          <text class="elabel" x="560" y="255" text-anchor="middle">no</text>
+          <path class="edge" d="M290,262 L175,262 L175,320"/>
+          <path class="edge" d="M520,262 L640,262 L640,320"/>
+
+          <!-- external -->
+          <g class="node" data-k="external">
+            <rect x="62" y="320" width="226" height="52" rx="7"/>
+            <text x="175" y="341" text-anchor="middle">handle_external_route</text>
+            <text x="175" y="358" text-anchor="middle" class="sm">HTTP → JSH</text>
+          </g>
+
+          <!-- codegen -->
+          <g class="node" data-k="codegen">
+            <rect x="520" y="320" width="240" height="52" rx="7"/>
+            <text x="640" y="341" text-anchor="middle">codegen_agent</text>
+            <text x="640" y="358" text-anchor="middle" class="sm">Opus 4.6 · ReAct · ≤100 steps</text>
+          </g>
+
+          <!-- fallback -->
+          <path class="edge dash" d="M288,346 L516,346"/>
+          <text class="elabel" x="402" y="340" text-anchor="middle">on failure → fall through</text>
+
+          <!-- tools -->
+          <g class="node" data-k="tools">
+            <rect x="520" y="398" width="240" height="112" rx="7" stroke-dasharray="4 3"/>
+            <text x="640" y="420" text-anchor="middle" class="sm">TOOL BELT</text>
+            <text x="640" y="441" text-anchor="middle" class="sm">get_skill_description</text>
+            <text x="640" y="458" text-anchor="middle" class="sm">search_documentation</text>
+            <text x="640" y="475" text-anchor="middle" class="sm">get_documentation_tool</text>
+            <text x="640" y="492" text-anchor="middle" class="sm">search_codebase · run_python*</text>
+          </g>
+          <path class="edge dash" d="M640,372 L640,394"/>
+
+          <!-- extract -->
+          <path class="edge" d="M175,372 L175,556 L285,556"/>
+          <path class="edge" d="M760,444 L800,444 L800,556 L525,556"/>
+          <g class="node" data-k="extract">
+            <rect x="285" y="530" width="240" height="52" rx="7"/>
+            <text x="405" y="551" text-anchor="middle">extract_final_answer</text>
+            <text x="405" y="568" text-anchor="middle" class="sm">strip tags · count steps · caveats</text>
+          </g>
+          <path class="edge" d="M405,582 L405,608"/>
+          <g class="node" data-k="end">
+            <rect x="345" y="608" width="120" height="30" rx="15"/>
+            <text x="405" y="628" text-anchor="middle">END</text>
+          </g>
+        </svg>
+      </div>
+      <div class="panel" id="flowpanel">
+        <div class="empty">Select a node to inspect it</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 03 DEPLOY ================= -->
+<section id="deploy">
+  <div class="wrap">
+    <h2>03 — Physical</h2>
+    <div class="h2sub">What actually runs, and where</div>
+    <p class="lede">The logical graph says nothing about hosts. This is the deployment topology —
+    click any tier.</p>
+
+    <div class="split">
+      <div>
+        <div class="tiers">
+          <div class="tier"><div class="tierh">Clients</div><div class="boxes">
+            <div class="box" data-d="clients"><b>DESchat</b><span>Max-mode toggle from skill_setting_schema</span></div>
+            <div class="box" data-d="clients"><b>Jupyter AI</b><span>"DESCO Python" model + Auto mode</span></div>
+            <div class="box" data-d="mcp"><b>MCP</b><span>ask_helppython</span></div>
+            <div class="box" data-d="peer"><b>Peer agents</b><span>APIProxySkill</span></div>
+          </div></div>
+          <div class="arrowdn">▼ HTTPS · Kerberos/SPNEGO · x-desco-effective-user</div>
+          <div class="tier"><div class="tierh">Entry</div><div class="boxes">
+            <div class="box" data-d="entry"><b>api.gai-python-chat.deshaw.com</b><span>/api/v1/help_python_skill/ · path derived from module layout</span></div>
+          </div></div>
+          <div class="arrowdn">▼</div>
+          <div class="tier"><div class="tierh">Service tier · svc acct gaipythonchat</div><div class="boxes">
+            <div class="box" data-d="replica"><b>DPA replica × N</b><span>DPySrv host · stateless per request · no checkpointer</span></div>
+            <div class="box" data-d="perproc"><b>Per-process state</b><span>20 FAISS retrievers ≈700 MB · tool TTL caches</span></div>
+          </div></div>
+          <div class="arrowdn">▼</div>
+          <div class="tier"><div class="tierh">Egress</div><div class="boxes">
+            <div class="box" data-d="gateway"><b>llm-gateway</b><span>Opus codegen · Haiku routing · embeddings</span></div>
+            <div class="box" data-d="sandbox"><b>api.sandbox</b><span>K8s run_python · Max only · 180 s</span></div>
+            <div class="box" data-d="jsh"><b>JSH service</b><span>external route · falls back locally</span></div>
+          </div></div>
+          <div class="arrowdn">▼</div>
+          <div class="tier"><div class="tierh">Shared storage · read-only NFS</div><div class="boxes">
+            <div class="box" data-d="stores"><b>vector-stores/latest</b><span>701 MB · pydoc 634 · confluence 46 · jb 20 · web 1.5 · nightly</span></div>
+            <div class="box" data-d="srctree"><b>Release/dds/spyc/stable</b><span>search_codebase · allowlisted prefix only</span></div>
+          </div></div>
+          <div class="tier"><div class="tierh">Release path</div><div class="boxes">
+            <div class="box" data-d="release"><b>pydeploy + Artifactory</b><span>.py files only · two channels · prod on base-release train</span></div>
+          </div></div>
+        </div>
+      </div>
+      <div class="panel" id="deploypanel">
+        <div class="empty">Select a tier to inspect it</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 04 DECISIONS ================= -->
+<section id="decisions">
+  <div class="wrap">
+    <h2>04 — Forks in the road</h2>
+    <div class="h2sub">Every one of these could have gone another way</div>
+    <p class="lede">Each card opens with the question the team actually faced. Try answering before you
+    expand it — turn on <strong>Feynman mode</strong> above to hide all the answers at once.</p>
+    <div class="cards" id="cards"></div>
+  </div>
+</section>
+
+<!-- ================= 05 OPEN ================= -->
+<section id="open">
+  <div class="wrap">
+    <h2>05 — Unresolved</h2>
+    <div class="h2sub">Questions the codebase doesn't answer</div>
+    <p class="lede">Honest gaps — things I could not settle from the repo, the RFCs, or the filesystem.</p>
+    <div class="cards" id="opencards"></div>
+  </div>
+</section>
+
+<footer><div class="wrap">
+  Companion to <code>DPA-architecture-analysis.md</code>. Verified claims carry a
+  <code>file:line</code>; inferences are labelled as such. Benchmark figures are from
+  <code>docs/rfcs/dpa-2.0.md</code> (174-task DESCOBench); the suite has since grown to 251 tasks.
+</div></footer>
+
+<script>
+/* ============================ CONTENT ============================ */
+
+const FLOW = {
+  start:{t:"START",cite:"graph.py:534",
+    role:"Entry. The caller supplies the full message history — the service holds no session state.",
+    q:"Where does conversation history live if every replica is stateless?",
+    a:"<p>With the <strong>client</strong>. The graph is compiled per request with no checkpointer (<code>graph.py:555</code>), so any replica can serve any turn of any conversation.</p><p>That single choice is what makes horizontal scaling trivial: no sticky sessions, no shared cache to invalidate, no coordination when adding a replica.</p>"},
+
+  process_input:{t:"process_input",cite:"graph.py:126-149",
+    role:"Splits the message list: last HumanMessage becomes the question, everything earlier becomes chat_context.",
+    q:"Why separate the question from prior turns instead of passing the whole history to the router?",
+    a:"<p>The router is classifying <em>this</em> question. Prior turns are useful context but must not dominate — otherwise a conversation that started about charts keeps routing to charts after the topic moves on.</p><p>Both get passed, but in labelled slots (<code>SKILL_DETECTION_PROMPT</code>), so the model can weight them appropriately.</p><p>It also flattens Claude's list-of-blocks content format here, once, so no downstream node has to care.</p>"},
+
+  detect_skills:{t:"detect_skills",cite:"graph.py:177-266",
+    role:"Claude-4.5-Haiku at temperature 0 picks 1–3 of 20 skill domains, via structured output.",
+    q:"A 20-way classification over short summaries. Does this need an LLM at all?",
+    a:"<p>Arguably not — but it needs <em>something</em>, and the hand-written disambiguation rules are the reason it's an LLM. Rules like <em>\"for calendar ops on datab objects use datab; for pure datetime ops use datetime\"</em> (<code>graph.py:80-85</code>) encode semantic distinctions an embedding classifier handles poorly.</p><p>Those rules are the residue of real observed mis-routings. The list will only grow.</p><p>Output is validated against the registry with a fallback to <code>[\"default\"]</code> on any invalid name or exception — the router can be wrong but cannot crash the request.</p>"},
+
+  prefill:{t:"the prefilled tool call",cite:"graph.py:156-175",
+    role:"The graph forges an AIMessage with a tool_call plus the matching ToolMessage, so Opus opens its turn believing it already fetched the skill descriptions.",
+    q:"You know which domains matter. What is the cheapest way to get that knowledge in front of the model?",
+    a:"<p>This is the most interesting idea in the codebase. Three options existed — system prompt, an extra user message, or a forged tool exchange — and the third wins on three axes at once.</p><p><strong>Latency:</strong> no Opus round is spent deciding to fetch (saves 5–10 s). <strong>Cost:</strong> descriptions total ~36k tokens across all routes; only the 1–3 detected are injected. <strong>Framing:</strong> content arriving as a tool result reads as established fact, not as instruction the model might argue with.</p><p>And it degrades gracefully — the real <code>get_skill_description</code> tool is still bound, so Opus can self-correct a mis-route.</p><p>The catch: <code>detect_skills</code> <em>appends</em> these messages, so the question sits <em>before</em> them. That kills any chance of sharing the description block across users via prompt cache.</p>"},
+
+  branch:{t:"external routing branch",cite:"graph.py:510-516",
+    role:"If any detected skill is in EXTERNAL_ROUTES, divert to the proxy handler. Only JSH remains external.",
+    q:"Why proxy to another team's service instead of just indexing their docs?",
+    a:"<p>Ownership. JSH's expertise lives with the JSH team, behind a service they operate and update. Proxying means DPA never goes stale relative to them.</p><p>The cost is that a proxied domain <strong>cannot be combined</strong> with local ones — a question spanning JSH and datab can only be answered by one side. That is exactly why SPyC was migrated in-house (see decision 11).</p>"},
+
+  external:{t:"handle_external_route",cite:"graph.py:456-508",
+    role:"Forwards the question to the external service over HTTP via APIProxySkill, with fallback to the local agent.",
+    q:"The remote service is down. What should the user see?",
+    a:"<p>Not an error. Two independent fallbacks route back to <code>codegen_agent</code>: an exception, and an empty answer (<code>graph.py:483-507</code>). A degraded local answer beats a failure page.</p><p>This is the house pattern — see the fail-soft decision card.</p><p>One gap: the proxy call passes only messages, no <code>user</code>, so the end user's identity does not survive this hop. JSH sees the service account.</p>"},
+
+  codegen:{t:"codegen_agent",cite:"graph.py:350-405",
+    role:"Claude-4.6-Opus in a ReAct loop, temperature 0.1, max 64k output, capped at 100 recursion steps (~50 tool rounds).",
+    q:"The default recursion cap in create_agent is 10,000. Why 100 — and what happens when you hit it?",
+    a:"<p>10,000 is a runaway guard, not a product decision. 100 allows ~50 tool rounds, which testing showed Opus never approaches.</p><p>The interesting part is the handler. On <code>GraphRecursionError</code> the graph does <em>not</em> error — it takes the accumulated messages, appends <em>\"You have run out of tool-calling turns... Do NOT request any tool calls\"</em>, and makes one final tool-free call (<code>graph.py:342-372</code>).</p><p>The user gets a best-effort answer plus an honest caveat. That's good product judgement: partial-and-labelled beats a stack trace.</p>"},
+
+  tools:{t:"the tool belt",cite:"skills.py:47-53",
+    role:"Four tools always; run_python added in Max mode. All wrapped in a 24-hour TTL cache.",
+    q:"Two tools fetch documentation. Why isn't one enough?",
+    a:"<p>They answer different questions against different ground truths.</p><p><code>search_documentation</code> is <strong>semantic</strong> — FAISS over nightly-built indexes, good for \"how do I do X\". <code>get_documentation_tool</code> is <strong>exact</strong> — live <code>importlib</code> + <code>inspect</code> against the installed library, good for \"does this method exist and what is its signature\".</p><p>Crucially the second cannot go stale: it introspects the real object. <code>search_codebase</code> is a third mode again — ripgrep over the release tree for real usage patterns.</p><p>The costs of having three: they can disagree with each other, and the model has to choose correctly between them — which is what a large slice of the prompt is spent teaching.</p>"},
+
+  extract:{t:"extract_final_answer",cite:"graph.py:410-451",
+    role:"Strips &lt;final_answer&gt; tags, counts agent_steps, appends caveats.",
+    q:"Why does a regex need a fallback for a tag with no closing tag?",
+    a:"<p>Because models drop closing tags. The code tries <code>&lt;final_answer&gt;(.*?)&lt;/final_answer&gt;</code> first, then falls back to <code>&lt;final_answer&gt;(.*)</code> (<code>graph.py:431-438</code>). A small detail, but it's the difference between an answer and a blank response.</p><p>It also turns failure into a feedback loop: if the model said \"I don't know\", it appends a prompt to file a ticket or hit thumbs-down (<code>graph.py:444</code>). The failure mode becomes a data-collection opportunity.</p><p><strong>Note what is <em>not</em> here:</strong> no validation, no grading. In Normal mode nothing checks the generated code. See decision 07.</p>"},
+
+  end:{t:"END",cite:"graph.py:553",
+    role:"Response returns to the caller — buffered SkillResponse or a stream of SkillCompletionsGeneration chunks.",
+    q:"How does the UI show reasoning if the graph only returns at the end?",
+    a:"<p>Events ride the protocol itself. Streaming chunks carry <code>content</code>, <code>skill_response</code>, <code>custom_event</code>, or <code>artifact_chunk</code> (<code>proxy/models.py:16-21</code>).</p><p>So <code>SkillThoughtEvent</code> and graph status events reach DESchat <em>through</em> the proxy, not via a side channel — which is why intermediate reasoning survives even when DPA is called remotely.</p>"}
+};
+
+const DEPLOY = {
+  clients:{t:"Client surfaces",cite:"jupyter/constants.py:17 · skill_setting.py",
+    role:"DESchat, Jupyter AI, MCP, and peer agents all reach the same service.",
+    q:"Four front-ends. How much per-client code is there?",
+    a:"<p>Almost none. All four speak the same skill protocol, so the surfaces differ only in what they choose to render.</p><p>DESchat renders the Max toggle because it reads <code>skill_setting_schema</code>; Jupyter treats DPA as a selectable \"model\"; MCP wraps it as <code>ask_helppython</code>. The skill itself is unaware of any of them.</p><p><strong>Caveat:</strong> Jupyter's \"Auto\" mode calls <code>skill.get_route()</code>, a method the 2.0 rewrite deleted — that path raises AttributeError.</p>"},
+
+  mcp:{t:"MCP surface",cite:"skills/mcp/mcp_builder.py",
+    role:"add_skill_to_mcp() registers any SkillBaseChain as a FastMCP tool named ask_{skill}.",
+    q:"What does it take to expose an existing skill to Claude Code?",
+    a:"<p>One function call. Because every skill already implements the same interface, the MCP wrapper is generic — it does not know anything about DPA specifically.</p><p>This is the recurring payoff of the single abstraction: each new surface is written once and works for every skill.</p>"},
+
+  peer:{t:"Peer agents",cite:"proxy/api_proxy_skill.py",
+    role:"Other agents call DPA with APIProxySkill — the same class DPA uses to call JSH.",
+    q:"What makes agent-to-agent composition free here?",
+    a:"<p><code>APIProxySkill</code> <strong>is itself a SkillBaseChain</strong>. A remote skill and a local skill are the same type, so callers cannot tell them apart.</p><p>Chain: <code>DESchat → DPA → JSH</code>. DPA is a server on hop 1 and a client on hop 2, with no protocol work at either end.</p><p>The one thing that does not compose automatically is caller identity.</p>"},
+
+  entry:{t:"Entry point",cite:"fastapi.py:97-100 · endpoints.py:16-18",
+    role:"HTTPS, Kerberos/SPNEGO, effective-user delegation. Five endpoints per skill.",
+    q:"Why is the endpoint v1_completions and not v1/completions?",
+    a:"<p>Because DPySrv maps <code>/</code> in a URL path to Python sub-packages. A slash would be read as another package level, so the version separator has to be an underscore.</p><p>Same mechanism sets the whole URL: the path <em>is</em> the module layout. A skill in <code>api/v1/help_python_skill.py</code> is served at <code>/api/v1/help_python_skill/</code> — which is exactly the production URL.</p><p>A framework constraint, visible in the public API shape.</p>"},
+
+  replica:{t:"Service replicas",cite:"graph.py:555 · authentication.py:30-49",
+    role:"Stateless request handling on DPySrv. Replica count not visible from the repo.",
+    q:"What actually limits how many requests one replica handles?",
+    a:"<p><strong>Memory, not CPU.</strong> Per request the service does one Haiku call, some embedding calls, local ANN search, maybe ripgrep, and N Opus calls — nearly all of that is waiting on the network.</p><p>The binding constraint is the ~700 MB of indexes resident in each worker <em>process</em>. That argues for few processes with many async workers, not many processes.</p><p>Identity: the caller is authenticated via Kerberos, then an <code>x-desco-effective-user</code> header is honoured only if the caller is in <code>allowed_superusers</code> — otherwise it silently falls back to the caller.</p>"},
+
+  perproc:{t:"Per-process state",cite:"skills.py:36-54 · routes/__init__.py:164-172",
+    role:"lru_cache builds all 20 route retrievers once per process; tools carry 24h TTL caches.",
+    q:"All 20 indexes load before the replica serves anything. What does that buy, and what does it cost?",
+    a:"<p>It buys zero first-request latency and a boot-time signal if an index is corrupt. Reasonable for a long-lived service.</p><p>It costs three things at once — and this is the point worth sitting with: high memory per process, slow NFS-bound cold start, and, because slow starts discourage restarts, <strong>index freshness pinned to whenever the replica last booted</strong>.</p><p>The nightly rebuild and atomic directory swap buy nothing until a process restarts. A replica up for a month serves month-old docs.</p>"},
+
+  gateway:{t:"LLM gateway",cite:"gateway/gateway_client.py:25 · skills.py:99-107",
+    role:"All model traffic egresses to llm-gateway.deshaw.com, tagged with project_name for cost attribution.",
+    q:"Why route through a gateway instead of calling the provider directly?",
+    a:"<p>Central quota, central cost attribution, one place to add providers, and one place where credentials live. The skill just names a model.</p><p>It also creates the constraint behind the hand-rolled cache middleware: automatic prompt caching is not available on the Vertex path, so breakpoints must be placed manually (<code>graph.py:282</code>).</p>"},
+
+  sandbox:{t:"Code sandbox",cite:"code_sandbox/client.py · base.py:17",
+    role:"Max mode only. Stateless K8s container per invocation, 180 s default timeout.",
+    q:"Stateless means re-sending the whole script every call. Why accept that?",
+    a:"<p>Isolation. Benchmarks favour a persistent IPython session on <em>both</em> quality and latency (97%/43 s vs 95%/64 s) — and they shipped the slower one anyway.</p><p>The unstated reason is blast radius: a persistent interpreter running LLM-authored code inside the service process is a much larger exposure than a disposable container. Trading 2 points and 21 seconds for that boundary is defensible.</p>"},
+
+  jsh:{t:"External skill service",cite:"external_routes/jsh.py",
+    role:"JSH runs as a separate service behind the same skill router.",
+    q:"How is calling JSH different from calling a local route?",
+    a:"<p>In DPA's code, it isn't — both are a <code>SkillBaseChain</code> invocation. The difference is one HTTP hop and the failure handling around it.</p><p>What genuinely differs is <em>composability</em>: a proxied skill cannot be blended with local ones in a single agent turn. That limitation drove the SPyC migration.</p>"},
+
+  stores:{t:"Vector stores",cite:"tools/vector_stores.py:7-10 · retriever_factory.py:47",
+    role:"701 MB of FAISS indexes across four corpora on read-only NFS, rebuilt nightly, promoted staged → latest.",
+    q:"Why plain files on NFS rather than a vector database?",
+    a:"<p>Nothing to operate, no network hop on the search path, every replica mmaps the same files, and promotion is a directory swap with trivial rollback. For a corpus written by one nightly job and read by many stateless replicas, this is well matched.</p><p>Two costs. Loading uses <code>allow_dangerous_deserialization=True</code> — FAISS docstores are pickles, so the index-build pipeline sits inside the service's trust boundary with no integrity check. And freshness is coupled to restart, not to the build.</p>"},
+
+  srctree:{t:"Release source tree",cite:"tools/search_codebase.py:32 · :62-108",
+    role:"ripgrep over one allowlisted prefix of the CITracker-managed Release tree.",
+    q:"The agent supplies the search path. What stops it reading anything on the filesystem?",
+    a:"<p>An explicit prefix allowlist, plus unusually careful <code>..</code> handling. Paths containing <code>..</code> are <strong>rejected outright</strong> rather than normalised, and the comment explains exactly why: collapsing <code>..</code> lexically is unsound when an earlier component is a symlink, since the kernel resolves the link first.</p><p><code>realpath</code> deliberately isn't used either — the allowlisted tree is <em>itself</em> a symlink chain, so resolving would reject every legitimate call.</p><p>Also: <code>shell=False</code>, <code>--</code> terminating options so a pattern starting with <code>-</code> can't become a flag, and a 30 s timeout.</p>"},
+
+  release:{t:"Release path",cite:"release.yaml · README.md:188",
+    role:"GitHub release → Artifactory → two channels: venv pin, or pydeploy into shared RHEL8 interpreters.",
+    q:"Why do 145 KB of prose live inside Python string literals instead of markdown files?",
+    a:"<p>Because <strong>pydeploy packages only <code>.py</code> files.</strong></p><p>This was learned the hard way. The SPyC migration loaded its deep sections from <code>references/*.md</code> via <code>Path.read_text()</code> — which imports fine from a source checkout and fails from the deployed package. It was merged, reverted, and re-applied with every markdown file converted to a Python module of raw strings.</p><p>A packaging constraint, not a style choice. Also note: <code>release.yaml</code> ships only to experimental and QA — production arrives on the firm's base-release train.</p>"}
+};
+
+const DECISIONS = [
+ {n:"01",tag:"model",
+  q:"Sonnet is 1.4× cheaper per token. Why pay for Opus?",
+  stats:[["89%","OPUS PASS@1"],["71%","SONNET PASS@1"],["35s","OPUS AVG"],["47s","SONNET AVG"]],
+  intro:"<p>The obvious move on a cost-sensitive internal tool is the cheaper model. Benchmarks said otherwise — and not only on quality.</p>",
+  opts:[["Claude-4.6-Opus","chosen","89% pass@1, 35 s avg, ~$37/174 tasks"],
+        ["Claude Sonnet 4.5","no","71% (−18 pts) and <em>slower</em> at 47 s, despite being smaller"],
+        ["GPT-4.1 (the v1 baseline)","no","65% — the model swap alone was worth +8 pts"],
+        ["Let users choose","no","disabled deliberately; quality depends on Opus-specific tuning"]],
+  why:"<p>The counter-intuitive result is that the cheaper model was also the <strong>slower</strong> one. A weaker model needs more tool calls to converge, so it burns more wall-clock and more total tokens getting to a worse answer.</p><p><strong>The generalisable lesson:</strong> on agentic workloads, price-per-token is the wrong unit. What you pay for is tokens spent flailing. A model that one-shots the right tool call is cheaper at 2× the sticker price.</p>",
+  cost:"~$0.21/query. Model is pinned and not user-overridable (<code>skills.py:79</code>)."},
+
+ {n:"02",tag:"routing",
+  q:"Why a separate router model? Opus could just call get_skill_description itself.",
+  intro:"<p>The agent already has the tool. Adding a Haiku pre-pass is extra machinery — it needs to earn its place.</p>",
+  opts:[["Haiku pre-router + prefill","chosen","~2 s, then inject 1–3 domains as a forged tool result"],
+        ["No router — agent self-fetches","open","costs one Opus round (5–10 s) but removes the hard mis-routing gate. Not isolated in the published ablations."],
+        ["Inject all 20 descriptions","no","~36k tokens on every request, before the question is even read"],
+        ["Embedding / classifier routing","no","no LLM call, but handles the hand-written disambiguation rules poorly"]],
+  why:"<p>Routing controls which ~4–12k tokens of expertise the agent sees, so it is the highest-leverage component in the system. Haiku does a 20-way classification in ~2 s at temperature 0 — far cheaper than spending an Opus round on it.</p>",
+  cost:"Mis-routing is a hard gate. The agent <em>can</em> self-correct by calling the real tool, but the prompt actively discourages extra rounds (<em>\"treat new tool calls as expensive\"</em>) — so the two mitigations pull against each other. And the routing benchmark has been broken since the 2.0 rewrite, so nobody currently knows the mis-route rate."},
+
+ {n:"03",tag:"prompting",
+  q:"You know the relevant domains. How do you get that knowledge in front of the model?",
+  intro:"<p>Three plausible channels, and the choice has consequences for latency, cost, caching, and how the model <em>treats</em> the content.</p>",
+  opts:[["Forged tool call + response","chosen","model sees it as its own completed work"],
+        ["Put it in the system prompt","no","makes the system prompt per-request, destroying a stable cache prefix"],
+        ["Append as a user message","no","reads as instruction; model may respond to it rather than use it"],
+        ["Let the agent fetch it","later","still available as a fallback — the real tool stays bound"]],
+  why:"<p>Content arriving as a <em>tool result</em> is framed as retrieved fact rather than as instruction. The model is markedly less likely to argue with it, summarise it back, or treat it as the thing to respond to.</p><p>It also keeps the system prompt byte-identical across every request, and costs zero extra model round-trips.</p>",
+  cost:"The prefill is <em>appended</em>, so the user's question precedes it. That places 4–12k tokens of shared, identical description content behind a per-user divergence point — making it uncacheable across requests. Reordering it ahead of the question would unlock that, but a tool exchange before any user turn is structurally awkward."},
+
+ {n:"04",tag:"retrieval",
+  q:"Fetch context up front, or let the agent pull it as needed?",
+  stats:[["75% / 57s","LAZY"],["73% / 79s","UPFRONT"]],
+  intro:"<p>v1 retrieved before generating. v2 gave the agent tools and let it decide.</p>",
+  opts:[["Lazy, tool-driven","chosen","75% quality, 57 s — better on both axes"],
+        ["Upfront retrieval + rerank","no","73%, 79 s. Guesses what's needed before reading the question's domain context"],
+        ["Hybrid: cheap upfront + lazy top-up","open","effectively what the prefill does for descriptions, but not for documents"]],
+  why:"<p>Upfront retrieval has to guess. After reading the skill description the agent knows precisely which symbols it needs to verify, so its queries are far better targeted — fewer documents, higher precision, less context bloat.</p><p>Winning on latency <em>and</em> quality is the tell that this was the right cut.</p>",
+  cost:"Latency now depends on how many rounds the agent chooses to take — which is why so much prompt real estate is spent on parallelism and round-count discipline."},
+
+ {n:"05",tag:"storage",
+  q:"Where do 701 MB of embeddings live?",
+  intro:"<p>The standard 2020s answer is a hosted vector database. They used files on a network mount.</p>",
+  opts:[["FAISS on read-only NFS","chosen","no service to run, no network hop, replicas share via mmap"],
+        ["Hosted vector DB","no","adds an operational dependency and a network round-trip per search"],
+        ["Single shared search service","no","adds a hop and a single point of failure"],
+        ["Rebuild in-process","no","far too slow; 634 MB of pydoc alone"]],
+  why:"<p>Match the tool to the access pattern: one nightly writer, many stateless readers, no updates in between. That is a file-shaped problem, not a database-shaped one. Promotion is a directory swap — atomic enough, and rollback is trivial.</p>",
+  cost:"Pickle-backed docstores loaded with <code>allow_dangerous_deserialization=True</code>, so the build pipeline is inside the trust boundary with no integrity check. And readers hold open handles, so the nightly rebuild does nothing until a replica restarts."},
+
+ {n:"06",tag:"ranking",
+  q:"Two corpora return 80 candidates each. How do you pick 8?",
+  intro:"<p>A cross-encoder reranker is the accuracy-maximising answer, and one already exists in the codebase.</p>",
+  opts:[["RRF via EnsembleRetriever","chosen","fuse pydoc + jbdoc ranks, truncate to 8. No extra model call."],
+        ["Cross-encoder rerank","no","<code>RerankingEnsembleRetriever</code> exists but no route uses it — adds a model call on the search path"],
+        ["Similarity only, single corpus","no","loses either exact signatures or worked examples"]],
+  why:"<p>Fusing reference docs with tutorial prose means one answer can carry both an exact signature and a working example. <code>MetadataFreqWeightedRetriever</code> upweights by title frequency, boosting chunks that repeatedly name the symbol in question.</p><p>RRF is free; a reranker costs a model call on a path the prompt is already trying to keep short.</p>",
+  cost:"No documented rationale for skipping the reranker — inferred from the system-wide latency emphasis. Worth measuring rather than assuming."},
+
+ {n:"07",tag:"verification",
+  q:"v1 checked every generated import against the live libraries. 2.0 deleted that. Good trade?",
+  intro:"<p>v1 ran two post-generation stages: an LLM grader and a validator. Both were removed. They deserve separate verdicts.</p>",
+  opts:[["Drop the LLM grader","chosen","defensible — an expensive, weakly-correlated proxy for correctness"],
+        ["Drop the import validator","no","questionable. It was free and targeted DPA's core failure mode."],
+        ["Rely on run_python instead","later","real execution dominates both — but only in Max mode, which is not the default"]],
+  why:"<p>v1's <code>PythonImportValidator</code> walked the generated AST and checked every import against the installed libraries: <code>find_spec</code> for modules, <code>hasattr</code> for symbols. Failures were fed back with a bounded retry.</p><p>That is a <strong>deterministic hallucination detector</strong> aimed exactly at the thing DPA exists to prevent — and it cost no LLM call. The latency argument that justifies dropping the grader does not transfer to it.</p><p>The implementation still exists at <code>agents/help_code/python/validators.py</code>. Re-adopting it is an import and a node.</p>",
+  cost:"In Normal mode — the default — <strong>nothing verifies the generated code at all</strong>. The 89% → 95% Max-mode gap is the measurable part; hallucinated imports that a <code>find_spec</code> call would have caught for free are the part that used to be covered. No stated rationale for the removal appears anywhere in the RFC."},
+
+ {n:"08",tag:"execution",
+  q:"Benchmarks favour persistent IPython on both quality and latency. Why ship the K8s sandbox?",
+  stats:[["97% / 43s","IPYTHON"],["95% / 64s","K8S SANDBOX"]],
+  intro:"<p>This is the one place where the team measured a clear winner and shipped the other option. That makes it worth understanding.</p>",
+  opts:[["Stateless K8s container","chosen","95%, 64 s — worse on both measured axes"],
+        ["Persistent IPython session","later","97%, 43 s — listed in the RFC's next steps"],
+        ["No execution (Normal mode)","chosen","89% — this is the default path"]],
+  why:"<p>The RFC is candid that stateless execution is slower and pricier: the agent must re-send the full script and re-pay import cost every call.</p><p>The reason to accept that is not in the document — it is almost certainly <strong>isolation</strong>. A persistent interpreter executing LLM-authored code inside the service process is a far larger blast radius than a disposable container. Two points and twenty seconds is a reasonable price for that boundary.</p><p>The best of both would be a per-session kernel <em>inside</em> the container: persistent within a request, disposable across them.</p>",
+  cost:"5–15 s per call, dominated by spin-up. The prompt tries to cap this with <em>\"HARD LIMIT: at most 5 run_python calls\"</em> — see decision 09."},
+
+ {n:"09",tag:"control",
+  q:"How do you stop an agent burning 90 seconds on redundant tool calls?",
+  intro:"<p>DPA's answer is to ask it nicely, in considerable detail.</p>",
+  opts:[["Prompt-level budgets","chosen","<em>\"HARD LIMIT: at most 5 run_python calls per task\"</em>, forbidden-path lists, parallelism instructions"],
+        ["Middleware counter + hard stop","open","the mechanism already exists — it is what the recursion-limit fallback does"],
+        ["Wall-clock deadline","open","closest to what users actually care about"],
+        ["No limit","no","the create_agent default of 10,000 steps"]],
+  why:"<p>The guidance is genuinely well-observed — it names real failure patterns like re-running query variations and \"double-checking\" facts already in the skill description. It even quantifies: each extra round costs 5–10 s.</p><p>As a first pass this is the right instinct: learn the failure modes before hard-coding limits.</p>",
+  cost:"<strong>Nothing enforces any of it.</strong> No code counts <code>run_python</code> calls or rejects a sixth. The only hard stop is the 100-step recursion cap — far beyond the point a user has given up. The forced-final-answer machinery already exists and could be wired to a per-tool counter and a deadline."},
+
+ {n:"10",tag:"caching",
+  q:"The system prompt is byte-identical for every user. Do you get to share it?",
+  intro:"<p>DPA does the hard part — keeping the system prompt stable by pushing per-request content into messages. Does that pay off?</p>",
+  opts:[["One breakpoint on the last message","chosen","captures within-request caching across the tool loop — the larger win"],
+        ["Add a breakpoint on the system prompt","open","would make ~3k tokens shareable across all users. Anthropic allows 4."],
+        ["Reorder prefill ahead of the question","open","would make 4–12k tokens shareable per skill-combination"],
+        ["No caching","no","cost grows quadratically in tool rounds"]],
+  why:"<p>Caching stores computed KV state keyed on an exact prefix, so it is all-or-nothing up to the first divergence. In an agent loop each round resends everything plus one turn — a strictly growing prefix, the ideal shape. Round N reads N−1 rounds at ~0.1× and pays full price only on the delta, turning quadratic cost into roughly linear.</p><p>DPA captures that, and it is the bigger prize.</p>",
+  cost:"Entries are only <em>written</em> at breakpoints, and DPA's sole breakpoint always sits past the user's question — so no <code>[tools+system]</code> entry is ever written and none can be read. The stable system prompt is a precondition that is set up and never cashed in."},
+
+ {n:"11",tag:"boundaries",
+  q:"Another team owns SPyC. Proxy to their service, or bring it in-house?",
+  intro:"<p>SPyC started as an external HTTP route and was migrated to a native one.</p>",
+  opts:[["Native route in DPA","chosen","enables cross-domain answers and unified evaluation"],
+        ["Keep proxying","no","a proxied domain cannot be combined with local ones in one turn"],
+        ["Fork their docs","no","goes stale immediately; duplicates ownership"]],
+  why:"<p>A native SPyC route can be blended with <code>datab</code> and <code>shawcache</code> in a single agent turn. A proxied service can never do that — it answers alone or not at all. Given how often real questions span domains, that is decisive.</p><p>SPyC is also the only route using progressive disclosure: a slim always-loaded description plus five deep sections (~18k tokens) loaded on demand. That is what makes a domain this large affordable.</p>",
+  cost:"The migration was merged, reverted for breaking main, and re-applied — the packaging failure in decision 12. JSH remains proxied, and identity does not propagate to it."},
+
+ {n:"12",tag:"packaging",
+  q:"Why is 145 KB of documentation prose stored inside Python string literals?",
+  intro:"<p>It looks like someone's stylistic quirk. It is a hard deployment constraint, discovered in production.</p>",
+  opts:[["Inline as .py raw strings","chosen","ships with the package, always"],
+        ["Markdown files read at import","no","tried, reverted — pydeploy packages only <code>.py</code>"],
+        ["Fetch from Confluence at runtime","no","network dependency on the hot path; unavailable at import"],
+        ["Database / config service","no","adds a runtime dependency for static content"]],
+  why:"<p>The SPyC route loaded deep sections from <code>references/*.md</code> via <code>Path.read_text()</code>. That works from a source checkout and fails from the deployed package, because <strong>pydeploy only packages <code>.py</code> files</strong>. It broke main and was reverted, then re-applied with every markdown file converted to a module of raw-string constants.</p><p><strong>The lesson generalises:</strong> CI tested the source tree, not the built artifact. Two of the largest changes in this codebase were reverted, and a wheel-level smoke test would have caught both.</p>",
+  cost:"Prose in string literals is harder to review and diff, and there is no CI check on description size — so these files only grow, since every fix is additive."},
+
+ {n:"13",tag:"protocol",
+  q:"Should the library ship the HTTP server, the client, or both?",
+  intro:"<p><code>desco-llm</code> is a library. It also contains a full skill-over-HTTP server and its matching client.</p>",
+  opts:[["Ship both halves","chosen","makes any skill a client, a server, or both"],
+        ["Client only","no","every team reinvents the serving layer"],
+        ["Separate framework repo","no","version skew between client and server"]],
+  why:"<p>Because <code>APIProxySkill</code> <em>is</em> a <code>SkillBaseChain</code>, remote and local skills are the same type. Mounting is one line; calling is one line. Composition needs no protocol work at all.</p><p>That is what makes <code>DESchat → DPA → JSH</code> possible with DPA acting as server on one hop and client on the next, unaware of either.</p><p>Typed LangChain messages survive the hop via a patched serializer, so a remote skill genuinely behaves like a local one.</p>",
+  cost:"Identity does <strong>not</strong> compose. The protocol carries the caller in <code>x-desco-effective-user</code>, set only when <code>user</code> is in skill_args — and DPA's JSH call passes messages only. Identity propagates on hop 1 and is lost on hop 2. Harmless for read-only Q&A; a real problem the moment a downstream skill serves user-scoped data."},
+
+ {n:"14",tag:"reliability",
+  q:"Retrievers fail to load, the router errors, the remote service times out. What should the user see?",
+  intro:"<p>DPA answers this the same way at every layer, which is itself the design decision.</p>",
+  opts:[["Degrade toward a worse answer","chosen","fallback at every failure point"],
+        ["Fail fast with an error","no","an internal assistant that errors gets abandoned"],
+        ["Retry then fail","no","adds latency without improving the outcome"]],
+  why:"<p>Seven independent fallbacks: routing errors → <code>[\"default\"]</code>; invalid skill names → filtered; retriever build failure → <code>None</code> plus a log; search on a dead retriever → a message listing what <em>is</em> available; external route failure → local agent; recursion limit → forced final answer; unresolvable pydoc names → return the ones that worked.</p><p>The system always produces something, and usually says when it is degraded.</p>",
+  cost:"<strong>Silent degradation.</strong> If half the retrievers fail to load, DPA serves confidently from prompt knowledge alone and only a log line records it. No health signal distinguishes 20/20 loaded from 8/20 — so the failure mode is invisible rather than absent."},
+
+ {n:"15",tag:"the big one",
+  q:"The 2.0 rewrite cut 5,500 lines to 2,000. How much of the quality gain came from the architecture?",
+  stats:[["65%","V1 BASELINE"],["39%","V2, MINIMAL PROMPTS"],["82%","+ PROMPT ENGINEERING"],["89%","+ TUNING"]],
+  intro:"<p>This is the most valuable number in the entire RFC, and it is easy to miss.</p>",
+  opts:[["Architecture rewrite","no","alone scored <strong>39%</strong> — worse than the 65% system it replaced"],
+        ["Curated per-domain prompts","chosen","+43 points. This is the product."],
+        ["Model upgrade","chosen","+8 points on the old architecture"]],
+  why:"<p>The new architecture, with minimal prompts, was a <strong>26-point regression</strong>. Every point of the eventual gain — and then some — came from 145 KB of hand-written domain knowledge: API patterns, anti-patterns, worked examples, gotchas.</p><p>That reframes what the architecture is <em>for</em>. \"One file per domain\" is not tidiness. It is what lets a datab expert improve datab answers without learning LangGraph. The graph is scaffolding; the prompts are the product.</p><p>Most teams ship the rewrite, attribute the final number to it, and learn none of this. Measuring the two separately is the single best piece of engineering practice in this project.</p>",
+  cost:"Quality now rests on 145 KB of hand-maintained prose with no freshness check, no size budget, and — the real gap — <strong>no CI gate</strong>. DESCOBench is excellent, execution-based, sourced from real logged questions, and not wired into CI, while two sibling systems have exactly that workflow."}
+];
+
+const OPEN = [
+ {n:"?",tag:"drift",q:"Does the shipped router use Haiku or Opus?",
+  intro:"<p>The RFC's final-tuning row credits the 89% configuration to <em>\"Opus routing\"</em>. The code sets <code>ROUTING_MODEL = CLAUDE_45_HAIKU_200K</code> (<code>graph.py:51</code>).</p>",
+  why:"<p>Either the RFC is stale or \"Opus routing\" means something else. This matters because the table is the main evidence anyone would use to justify reusing the design — and routing is the highest-leverage component. Worth resolving before that table is cited again.</p>"},
+ {n:"?",tag:"rationale",q:"Why was the import validator removed?",
+  intro:"<p>No rationale appears in the RFC, the commits, or the code. The simplification narrative covers the architecture but never mentions it.</p>",
+  why:"<p>Most likely collateral from deleting <code>base.py</code> rather than a considered trade. The implementation survives at <code>agents/help_code/python/validators.py</code>, so restoring it is cheap — but someone should confirm there wasn't a reason.</p>"},
+ {n:"?",tag:"coverage",q:"How often does the router pick the wrong domain?",
+  intro:"<p>Unknown. <code>routing_benchmark.py</code> calls <code>HelpPythonSkill.aget_route()</code>, a method the 2.0 rewrite deleted along with <code>LLMRoutingSkill</code> inheritance.</p>",
+  why:"<p>The benchmark has been non-functional since the migration. The same dead method also breaks Jupyter AI's \"Auto\" mode. Both are one small fix — and a wheel-level smoke test over public entry points would have caught them, along with the packaging revert.</p>"},
+ {n:"?",tag:"topology",q:"How many replicas, and how are they scaled?",
+  intro:"<p>Not determinable from the library repo. <code>genai/gai-python-chat-api</code> does not exist under that name and I could not locate the deployment manifests.</p>",
+  why:"<p>Everything in section 03 about the service tier is inference from the library side plus filesystem evidence (NFS ownership by <code>gaipythonchat</code>, the published URL, the DPySrv routers). The scaling <em>properties</em> hold regardless; the <em>numbers</em> are unverified.</p>"}
+];
+
+/* ============================ RENDER ============================ */
+
+let feynman = false;
+
+function detail(d){
+  return `<div class="ptitle">${d.t}</div>
+    <div class="pcite">${d.cite}</div>
+    <p class="prole">${d.role}</p>
+    <div class="q"><span class="qlab">Ask yourself</span><p>${d.q}</p></div>
+    ${feynman
+      ? `<div class="reveal" onclick="this.nextElementSibling.classList.remove('hidden');this.remove()">reveal reasoning</div><div class="ans hidden">${d.a}</div>`
+      : `<div class="ans">${d.a}</div>`}`;
+}
+
+function wireDiagram(sel, data, panelId, selClass){
+  document.querySelectorAll(sel).forEach(el=>{
+    el.addEventListener('click',()=>{
+      document.querySelectorAll(sel).forEach(o=>o.classList.remove(selClass));
+      el.classList.add(selClass);
+      const key = el.dataset.k || el.dataset.d;
+      document.getElementById(panelId).innerHTML = detail(data[key]);
+    });
+  });
+}
+wireDiagram('.node',FLOW,'flowpanel','sel');
+wireDiagram('.box',DEPLOY,'deploypanel','sel');
+
+function optRows(opts){
+  return opts.map(([o,v,w])=>{
+    const label = {chosen:'chosen',no:'rejected',later:'deferred',open:'untested'}[v] || v;
+    return `<tr class="${v==='chosen'?'pick':''}"><td>${o}</td>
+      <td><span class="v ${v}">${label}</span></td><td>${w}</td></tr>`;
+  }).join('');
+}
+
+function cardHTML(d, i, prefix){
+  const stats = d.stats ? `<div class="num">${d.stats.map(([a,b])=>
+    `<div class="stat"><b>${a}</b><span>${b}</span></div>`).join('')}</div>` : '';
+  const table = d.opts ? `<h4>Options on the table</h4>
+    <table><thead><tr><th>Option</th><th></th><th>Outcome</th></tr></thead>
+    <tbody>${optRows(d.opts)}</tbody></table>` : '';
+  const cost = d.cost ? `<div class="cost"><b>What it cost</b><p>${d.cost}</p></div>` : '';
+  return `<div class="card" id="${prefix}${i}">
+    <div class="chead" onclick="toggleCard('${prefix}${i}')">
+      <span class="cnum">${d.n}</span>
+      <span class="cq">${d.q}</span>
+      <span class="ctag">${d.tag}</span>
+    </div>
+    <div class="cbody hidden">
+      ${d.intro||''}
+      ${stats}
+      ${table}
+      <h4>Why this way</h4>
+      ${d.why}
+      ${cost}
+    </div>
+  </div>`;
+}
+
+function toggleCard(id){
+  const c = document.getElementById(id);
+  const b = c.querySelector('.cbody');
+  b.classList.toggle('hidden');
+  c.classList.toggle('open');
+}
+
+document.getElementById('cards').innerHTML  = DECISIONS.map((d,i)=>cardHTML(d,i,'d')).join('');
+document.getElementById('opencards').innerHTML = OPEN.map((d,i)=>cardHTML(d,i,'o')).join('');
+
+/* strategy card in section 01 */
+document.getElementById('p-strat').innerHTML = cardHTML({
+  n:"00",tag:"framing",
+  q:"Three ways to make a model fluent in libraries it has never seen. Which one?",
+  intro:"<p>Before any of the architecture, this is the fork that determines everything else.</p>",
+  opts:[["Retrieve + verify at inference","chosen","docs stay authoritative; new APIs work the day they ship"],
+        ["Fine-tune on internal code","no","retraining lag, no provenance, and it still hallucinates confidently"],
+        ["Stuff everything into context","no","145 KB of guidance plus 700 MB of docs — orders of magnitude too large"]],
+  why:"<p>Fine-tuning fails the core requirement: a fine-tuned model still <em>asserts</em> rather than <em>verifies</em>, and it cannot cite a source. Long context fails on scale.</p><p>Retrieval plus tool-verified generation is the only option where the model can be made to check a claim against ground truth before making it — and where a library released this morning is answerable this afternoon.</p>",
+  cost:"You inherit an index pipeline, a retrieval quality problem, and a latency budget dominated by tool round-trips. Sections 02–04 are largely consequences of this one choice."
+},0,'s');
+
+/* Feynman mode */
+const fm = document.getElementById('fmode');
+fm.addEventListener('click',()=>{
+  feynman = !feynman;
+  fm.classList.toggle('on',feynman);
+  document.querySelectorAll('.card').forEach(c=>{
+    c.querySelector('.cbody').classList.add('hidden');
+    c.classList.remove('open');
+  });
+  document.querySelectorAll('.panel').forEach(p=>{
+    p.innerHTML = '<div class="empty">Select an item to inspect it</div>';
+  });
+  document.querySelectorAll('.node.sel,.box.sel').forEach(e=>e.classList.remove('sel'));
+});
+</script>
+</body>
+</html>
