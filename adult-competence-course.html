@@ -1,0 +1,1388 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Competence course</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anek+Tamil:wdth,wght@75..125,500..700&family=Barlow:wght@400;500;600&family=Barlow+Semi+Condensed:wght@500;600;700&family=Noto+Sans+Tamil:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#FAFBF8; --surface:#FFFFFF; --ink:#1E1F1C; --ink-2:#53554E; --ink-3:#85877F;
+  --line:rgba(30,31,28,.16); --line-2:rgba(30,31,28,.07);
+  --contour:#B4611B; --contour-soft:rgba(180,97,27,.42);
+  --open:rgba(255,193,58,.30); --forest:rgba(112,186,98,.22);
+  --water:#1D8FCB; --water-soft:rgba(29,143,203,.16);
+  --course:#A3249A; --course-ink:#8C1C83; --course-wash:rgba(163,36,154,.08);
+  --flag:#F06A1E; --flag-white:#FFFFFF;
+  --warn:#B23A1E;
+  --font:"Barlow", "Helvetica Neue", Arial, system-ui, sans-serif;
+  --display:"Barlow Semi Condensed", "Arial Narrow", "Helvetica Neue", Arial, sans-serif;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#121518; --surface:#1A1E22; --ink:#E8E9E3; --ink-2:#ABADA5; --ink-3:#7D8079;
+    --line:rgba(232,233,227,.17); --line-2:rgba(232,233,227,.07);
+    --contour:#D98A4D; --contour-soft:rgba(217,138,77,.36);
+    --open:rgba(226,178,74,.14); --forest:rgba(110,180,100,.12);
+    --water:#5CB6E6; --water-soft:rgba(92,182,230,.14);
+    --course:#DD6CD3; --course-ink:#EC95E4; --course-wash:rgba(221,108,211,.12);
+    --flag:#FF8743; --flag-white:#F2F2EE; --warn:#FF8A6B;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#121518; --surface:#1A1E22; --ink:#E8E9E3; --ink-2:#ABADA5; --ink-3:#7D8079;
+  --line:rgba(232,233,227,.17); --line-2:rgba(232,233,227,.07);
+  --contour:#D98A4D; --contour-soft:rgba(217,138,77,.36);
+  --open:rgba(226,178,74,.14); --forest:rgba(110,180,100,.12);
+  --water:#5CB6E6; --water-soft:rgba(92,182,230,.14);
+  --course:#DD6CD3; --course-ink:#EC95E4; --course-wash:rgba(221,108,211,.12);
+  --flag:#FF8743; --flag-white:#F2F2EE; --warn:#FF8A6B;
+  color-scheme:dark;
+}
+html{scroll-padding-top:env(safe-area-inset-top,0px);-webkit-text-size-adjust:100%}
+*,*::before,*::after{box-sizing:inherit}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--font);font-size:16px;line-height:1.5}
+body.sheet-open{overflow:hidden}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--water);outline-offset:2px}
+img,svg{max-width:100%}
+.wrap{max-width:1240px;margin:0 auto;padding:0 20px 48px}
+.muted{color:var(--ink-3)}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+/* ---------- Hero ---------- */
+.hero{padding:28px 0 8px}
+.hero-top{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:12px 24px}
+h1{font-family:var(--display);font-weight:600;font-size:clamp(2.4rem,6.4vw,4.25rem);line-height:.95;letter-spacing:-.015em;margin:0}
+.lede{max-width:62ch;margin:14px 0 0;color:var(--ink-2);font-size:1.0625rem}
+.status{font-size:.875rem;color:var(--ink-3);display:flex;align-items:center;gap:8px;min-height:24px}
+.status .dot{width:8px;height:8px;border-radius:50%;background:var(--ink-3)}
+.status[data-s="saved"] .dot{background:#3D9A4A}
+.status[data-s="saving"] .dot{background:var(--open);box-shadow:0 0 0 1px var(--contour)}
+.status[data-s="local"] .dot{background:var(--water)}
+.status[data-s="error"] .dot{background:var(--warn)}
+.status[data-s="error"]{color:var(--warn)}
+.summary{margin:18px 0 0;font-size:1.125rem;max-width:70ch}
+.summary strong{font-weight:600}
+
+.map{margin:22px 0 0;border:1px solid var(--line);border-radius:6px;background:var(--surface);overflow:hidden;position:relative}
+.map svg{display:block;width:100%;height:auto}
+.map-caption{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:8px 16px;padding:12px 16px;border-top:1px solid var(--line);font-size:.9375rem;color:var(--ink-2)}
+.map-caption b{color:var(--ink);font-weight:600}
+.ctrl{cursor:pointer}
+.ctrl .hit{fill:transparent}
+.ctrl:hover .face{fill:var(--course-wash)}
+.ctrl:focus{outline:none}
+.ctrl:focus-visible .focusring{stroke:var(--water)}
+.lbl{font-family:var(--display);paint-order:stroke;stroke:var(--surface);stroke-width:5px;stroke-linejoin:round}
+
+/* ---------- Layout ---------- */
+.workspace{display:grid;grid-template-columns:minmax(0,1fr);gap:28px;margin-top:28px}
+@media (min-width:980px){
+  .workspace{grid-template-columns:minmax(0,1fr) 410px;gap:36px;align-items:start}
+  .side{position:sticky;top:calc(env(safe-area-inset-top,0px) + 16px);max-height:calc(100vh - 32px);overflow:auto;order:2}
+  .listcol{order:1}
+}
+@media (max-width:979px){
+  .side{order:-1}
+}
+
+/* ---------- Toolbar ---------- */
+.toolbar{display:flex;flex-direction:column;gap:12px}
+.chips{display:flex;gap:6px;overflow-x:auto;padding:2px 2px 6px;scrollbar-width:thin}
+.chip{flex:none;border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:6px 13px;font-size:.9375rem;color:var(--ink-2);white-space:nowrap}
+.chip:hover{border-color:var(--ink-3);color:var(--ink)}
+.chip[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:var(--paper)}
+.controls{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:8px}
+@media (max-width:560px){.controls{grid-template-columns:1fr 1fr}.controls .search{grid-column:1/-1}}
+.field{border:1px solid var(--line);background:var(--surface);border-radius:6px;padding:8px 10px;font-size:.9375rem;min-width:0;width:100%}
+select.field{padding-right:28px}
+.phasebar{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;padding:10px 14px;border-radius:6px;background:var(--course-wash);border:1px solid var(--course);color:var(--course-ink);font-size:.9375rem}
+.phasebar b{font-weight:600}
+.linkbtn{background:none;border:0;padding:0;color:inherit;text-decoration:underline;text-underline-offset:3px;font-size:.9375rem}
+.count{font-size:.875rem;color:var(--ink-3);margin:2px 0 0}
+
+/* ---------- List ---------- */
+.group{margin-top:22px}
+.group-h{display:flex;align-items:baseline;justify-content:space-between;gap:12px;border-bottom:2px solid var(--ink);padding-bottom:6px;margin:0 0 2px}
+.group-h h2{font-family:var(--display);font-weight:600;font-size:1.3125rem;margin:0;line-height:1.2}
+.group-h span{font-size:.875rem;color:var(--ink-3);white-space:nowrap}
+.rows{list-style:none;margin:0;padding:0}
+.row{width:100%;display:grid;grid-template-columns:18px minmax(0,1fr) auto;gap:10px;align-items:center;text-align:left;background:none;border:0;border-bottom:1px solid var(--line-2);padding:11px 6px;border-radius:0}
+.row:hover{background:var(--line-2)}
+.row[aria-current="true"]{background:var(--course-wash);box-shadow:inset 3px 0 0 var(--course)}
+.row-name{display:block;font-weight:500;font-size:1rem;line-height:1.3}
+.row-meta{display:flex;flex-wrap:wrap;gap:4px 12px;font-size:.8125rem;color:var(--ink-3);margin-top:2px}
+.row-meta .m{display:inline-flex;align-items:center;gap:5px}
+.pri{width:11px;height:11px;flex:none;color:var(--ink-2)}
+.flag{width:14px;height:14px;display:block}
+.meter{display:flex;align-items:flex-end;gap:3px;position:relative;padding-right:2px}
+.meter i{display:block;width:11px;border-radius:2px 2px 0 0;background:var(--line-2);box-shadow:inset 0 0 0 1px var(--line)}
+.meter i.on{background:var(--contour);box-shadow:none}
+.meter i.goal{position:relative}
+.meter i.goal::after{content:"";position:absolute;left:-1px;right:-1px;top:-5px;height:2px;background:var(--course)}
+.meter-num{font-size:.8125rem;color:var(--ink-3);min-width:3.2em;text-align:right;margin-left:6px;font-variant-numeric:tabular-nums}
+.empty{padding:28px 0;color:var(--ink-2)}
+
+/* ---------- Side panels ---------- */
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:20px}
+.panel h2{font-family:var(--display);font-weight:600;font-size:1.5rem;line-height:1.15;margin:0}
+.panel h3{font-size:1rem;font-weight:600;margin:0 0 8px}
+.panel section{margin-top:22px}
+.dom{display:grid;grid-template-columns:minmax(0,8.5em) minmax(0,1fr) auto;gap:10px;align-items:center;width:100%;background:none;border:0;padding:6px 0;text-align:left;font-size:.9375rem}
+.dom:hover .dom-name{text-decoration:underline;text-underline-offset:3px}
+.track{position:relative;height:10px;background:var(--line-2);border-radius:2px;box-shadow:inset 0 0 0 1px var(--line)}
+.track .fill{position:absolute;left:0;top:0;bottom:0;background:var(--contour);border-radius:2px}
+.track .tgt{position:absolute;top:-4px;bottom:-4px;width:2px;background:var(--course);margin-left:-1px}
+.dom-num{font-size:.8125rem;color:var(--ink-3);font-variant-numeric:tabular-nums;white-space:nowrap}
+.keyline{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:.8125rem;color:var(--ink-3);margin-top:8px}
+.keyline span{display:inline-flex;align-items:center;gap:6px}
+.sw{display:inline-block;width:14px;height:8px;background:var(--contour);border-radius:2px}
+.sw.t{width:2px;height:14px;background:var(--course)}
+.focuslist{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
+.focusitem{display:flex;align-items:center;gap:10px;width:100%;background:var(--paper);border:1px solid var(--line);border-radius:6px;padding:9px 12px;text-align:left}
+.focusitem:hover{border-color:var(--ink-3)}
+.focusitem .fi-main{flex:1;min-width:0}
+.focusitem .fi-next{display:block;font-size:.8125rem;color:var(--ink-3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+details.rubric summary{cursor:pointer;font-weight:600}
+.rubric ol{margin:10px 0 0;padding:0;list-style:none;display:grid;gap:6px}
+.rubric li{display:grid;grid-template-columns:1.6em minmax(0,1fr);gap:6px;font-size:.9375rem;color:var(--ink-2)}
+.rubric li b{color:var(--ink);font-weight:600}
+.warnline{color:var(--warn);font-size:.875rem}
+
+/* ---------- Detail ---------- */
+.detail-top{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:10px}
+.backbtn{background:none;border:1px solid var(--line);border-radius:6px;padding:6px 12px;font-size:.875rem;color:var(--ink-2)}
+.backbtn:hover{border-color:var(--ink-3);color:var(--ink)}
+.d-domain{margin:0 0 4px;font-size:.875rem;color:var(--ink-3)}
+.tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.tag{display:inline-flex;align-items:center;gap:6px;font-size:.8125rem;border:1px solid var(--line);border-radius:999px;padding:3px 10px;color:var(--ink-2)}
+.tag.course{border-color:var(--course);color:var(--course-ink)}
+.what{margin:14px 0 0;color:var(--ink-2);font-size:.9375rem}
+details.about{margin-top:8px;font-size:.9375rem}
+details.about summary{cursor:pointer;color:var(--ink-2)}
+details.about dl{margin:8px 0 0}
+details.about dt{font-weight:600;margin-top:6px}
+details.about dd{margin:0;color:var(--ink-2)}
+
+.ladder{margin:0;padding:0;border:0}
+.ladder legend{font-weight:600;padding:0;margin-bottom:10px}
+.steps,.goals{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:6px}
+.steps{align-items:end}
+.step{appearance:none;border:0;background:none;padding:2px 0;display:flex;flex-direction:column;align-items:stretch;gap:4px;border-radius:4px}
+.step .bar{display:block;height:calc(10px + var(--h) * 9px);border-radius:3px 3px 0 0;background:var(--line-2);box-shadow:inset 0 0 0 1px var(--line);transition:background-color .15s}
+.step:hover .bar{background:var(--contour-soft)}
+.step.on .bar{background:var(--contour);box-shadow:none}
+.step .num{font-weight:600;font-size:1rem;line-height:1.1;text-align:center}
+.step .nm{font-size:.71875rem;color:var(--ink-3);text-align:center;line-height:1.2}
+.step[aria-pressed="true"] .num{color:var(--contour)}
+.goals{margin-top:8px;align-items:center}
+.goals .glabel{font-size:.8125rem;color:var(--ink-3);text-align:center}
+.goalbtn{height:34px;border:1px dashed var(--line);background:none;border-radius:5px;display:flex;align-items:center;justify-content:center;color:var(--ink-3);padding:0}
+.goalbtn:hover{border-color:var(--course);color:var(--course)}
+.goalbtn[aria-pressed="true"]{border:1.5px solid var(--course);background:var(--course-wash);color:var(--course)}
+.goalbtn svg{width:16px;height:16px}
+.leveltext{margin:12px 0 0;font-size:.9375rem;color:var(--ink-2)}
+.leveltext b{color:var(--ink);font-weight:600}
+.reviewed{display:flex;flex-wrap:wrap;align-items:center;gap:6px 12px;margin-top:10px;font-size:.875rem;color:var(--ink-3)}
+.smallbtn{border:1px solid var(--line);background:var(--surface);border-radius:5px;padding:4px 10px;font-size:.8125rem;color:var(--ink-2)}
+.smallbtn:hover{border-color:var(--ink-3);color:var(--ink)}
+.label{display:block;font-weight:600;margin:0 0 6px}
+.hint{font-size:.8125rem;color:var(--ink-3);margin:-2px 0 6px}
+textarea.field{resize:vertical;line-height:1.45}
+.primary{border:1px solid var(--course);background:var(--course);color:#fff;border-radius:6px;padding:8px 14px;font-weight:500;font-size:.9375rem}
+.primary:hover{filter:brightness(1.08)}
+.primary:disabled{opacity:.55;cursor:default}
+.secondary{border:1px solid var(--line);background:var(--surface);border-radius:6px;padding:8px 14px;font-size:.9375rem}
+.secondary:hover{border-color:var(--ink-3)}
+.secondary[aria-pressed="true"]{border-color:var(--flag);background:rgba(240,106,30,.08)}
+.coach-head{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:8px}
+.coach-out{margin-top:12px;border-left:3px solid var(--course);padding:2px 0 2px 14px}
+.coach-out p{margin:0 0 8px;font-size:.9375rem}
+.coach-out ol{margin:0;padding-left:1.2em;display:grid;gap:10px}
+.coach-out li{font-size:.9375rem}
+.coach-out li b{font-weight:600}
+.coach-out li p{margin:2px 0 6px;color:var(--ink-2)}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:6px;overflow:hidden}
+.seg button{border:0;background:var(--surface);padding:6px 12px;font-size:.875rem;color:var(--ink-2);border-right:1px solid var(--line)}
+.seg button:last-child{border-right:0}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
+.dates{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+.dates label{font-size:.875rem;color:var(--ink-2)}
+.spark{display:block;width:100%;height:auto;margin-top:4px}
+.d-actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:22px;padding-top:16px;border-top:1px solid var(--line)}
+.note{font-size:.8125rem;color:var(--ink-3)}
+
+@media (max-width:979px){
+  #detail{position:fixed;inset:0;z-index:20;overflow:auto;border-radius:0;border:0;
+    padding:calc(env(safe-area-inset-top,0px) + 16px) 18px calc(env(safe-area-inset-bottom,0px) + 28px);
+    animation:sheet .22s ease-out}
+  @keyframes sheet{from{transform:translateY(16px);opacity:0}to{transform:none;opacity:1}}
+}
+@media (prefers-reduced-motion: reduce){#detail{animation:none!important}.step .bar{transition:none}}
+[hidden]{display:none!important}
+
+/* ---------- Footer ---------- */
+.foot{margin-top:40px;padding-top:18px;border-top:1px solid var(--line);display:flex;flex-wrap:wrap;gap:10px 18px;align-items:center;font-size:.875rem;color:var(--ink-3)}
+.foot .grow{flex:1;min-width:200px}
+.danger{color:var(--warn)}
+.danger.armed{border-color:var(--warn);background:rgba(178,58,30,.08)}
+
+/* ---------- Language toggle ---------- */
+.hero-tools{display:flex;flex-wrap:wrap;align-items:center;gap:10px 16px}
+.langseg button{padding:5px 12px;font-size:.875rem}
+
+/* ---------- Tamil typography ---------- */
+:root{
+  --font:"Barlow", "Noto Sans Tamil", "Helvetica Neue", Arial, system-ui, sans-serif;
+  --display:"Barlow Semi Condensed", "Anek Tamil", "Noto Sans Tamil", "Arial Narrow", "Helvetica Neue", Arial, sans-serif;
+}
+html[lang="ta"] body{line-height:1.65}
+html[lang="ta"] h1{font-size:clamp(2.1rem,5.4vw,3.5rem);line-height:1.25;letter-spacing:0;font-stretch:87.5%}
+html[lang="ta"] .lede{font-size:1rem}
+html[lang="ta"] .summary{font-size:1.0625rem}
+html[lang="ta"] .row-name{line-height:1.5}
+html[lang="ta"] .group-h h2{font-size:1.1875rem;line-height:1.45}
+html[lang="ta"] .panel h2{font-size:1.3125rem;line-height:1.45}
+html[lang="ta"] .step .nm{font-size:.65rem;line-height:1.35;overflow-wrap:anywhere}
+html[lang="ta"] .chip{font-size:.875rem}
+html[lang="ta"] .dom{grid-template-columns:minmax(0,9.5em) minmax(0,1fr) auto;font-size:.875rem}
+html[lang="ta"] .map-caption{font-size:.875rem}
+html[lang="ta"] .tag{line-height:1.5}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="hero">
+    <div class="hero-top">
+      <h1 id="appTitle">Competence course</h1>
+      <div class="hero-tools">
+        <div class="status" id="status" data-s="saving" role="status" aria-live="polite"><span class="dot"></span><span id="statusText">Loading your ratings…</span></div>
+        <div class="seg langseg" role="group" id="langGroup" aria-label="Language">
+          <button type="button" data-act="lang" data-v="en" lang="en" aria-pressed="true">English</button>
+          <button type="button" data-act="lang" data-v="ta" lang="ta" aria-pressed="false">தமிழ்</button>
+        </div>
+      </div>
+    </div>
+    <p class="lede" id="lede"></p>
+    <p class="summary" id="summary"></p>
+    <figure class="map" id="map" style="margin-left:0;margin-right:0">
+      <div id="mapSvg"></div>
+      <figcaption class="map-caption" id="mapCaption"></figcaption>
+    </figure>
+  </header>
+
+  <div class="workspace">
+    <aside class="side" id="side">
+      <div class="panel" id="overview"></div>
+      <div class="panel" id="detail" hidden role="region" aria-label="Skill details"></div>
+    </aside>
+    <main class="listcol" id="listcol">
+      <div class="toolbar" id="toolbar"></div>
+      <div id="list"></div>
+    </main>
+  </div>
+
+  <footer class="foot">
+    <span class="grow" id="footNote"></span>
+    <button class="smallbtn" data-act="export" id="exportBtn" hidden></button>
+    <button class="smallbtn" data-act="import" id="importBtn"></button>
+    <input type="file" id="importFile" accept="application/json,.json" hidden>
+    <button class="smallbtn danger" data-act="reset" id="resetBtn"></button>
+  </footer>
+</div>
+
+<script>
+(function(){
+"use strict";
+
+/* ================= Content (English) ================= */
+const DOMAINS = [
+  {id:'body',     name:'Body, health & emergency competence', short:'Body & health'},
+  {id:'mind',     name:'Mind & self-management',              short:'Mind'},
+  {id:'think',    name:'Thinking, reasoning & learning',      short:'Thinking'},
+  {id:'create',   name:'Creativity, expression & taste',      short:'Creativity'},
+  {id:'practical',name:'Practical independence',              short:'Independence'},
+  {id:'people',   name:'People, relationships & society',     short:'People'},
+  {id:'digital',  name:'Digital & modern-world competence',   short:'Digital'},
+  {id:'safety',   name:'Safety, resilience & field competence', short:'Safety & field'},
+  {id:'values',   name:'Philosophy, values & designing a life', short:'Values'}
+];
+const PHASES = [
+  {n:1, name:'Keep yourself alive', short:'Stay alive', focus:'physical safety'},
+  {n:2, name:'Understand yourself', short:'Know yourself', focus:'internal competence'},
+  {n:3, name:'Think well', short:'Think well', focus:'intellectual competence'},
+  {n:4, name:'Become independent', short:'Independence', focus:'everyday competence'},
+  {n:5, name:'Operate in the modern world', short:'Modern world', focus:'digital competence'},
+  {n:6, name:'Deal with humans', short:'People', focus:'social competence'},
+  {n:7, name:'Create', short:'Create', focus:'creative competence'},
+  {n:8, name:'Become resilient', short:'Resilience', focus:'beyond normal conditions'},
+  {n:9, name:'Decide what all this is for', short:'Direction', focus:'life direction'}
+];
+const PRI = {
+  'E': {label:'Essential', adj:'essential',     group:'E', goal:4, rank:0},
+  'H': {label:'High',      adj:'high-priority', group:'H', goal:3, rank:1},
+  'U+':{label:'Useful+',   adj:'useful',        group:'U', goal:2, rank:2},
+  'U': {label:'Useful',    adj:'useful',        group:'U', goal:2, rank:3}
+};
+const LEVELS = [
+  {n:0, name:'Not started', short:'None',     desc:"I haven't engaged with this yet."},
+  {n:1, name:'Aware',       short:'Aware',    desc:'I know what it involves and why it matters.'},
+  {n:2, name:'Learning',    short:'Learning', desc:"I've practised it with guidance or instructions."},
+  {n:3, name:'Capable',     short:'Capable',  desc:'I can do it on my own in normal conditions.'},
+  {n:4, name:'Reliable',    short:'Reliable', desc:'I do it well and consistently, even under pressure.'},
+  {n:5, name:'Can teach',   short:'Teach',    desc:'I could coach someone else through it.'}
+];
+const $ = (s,r=document)=>r.querySelector(s);
+const esc = s => String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+// [id, domain, priority, phase(0 = none), certificate, name, what, why, how]
+const RAW = [
+ ['first-aid','body','E',1,'Yes','First Aid + CPR + AED','CPR, AED use, choking, severe bleeding, burns, fractures, seizures, fainting, heatstroke, recovery position, when not to move someone.','You may be the only useful person available during the first few minutes of an emergency.','Hands-on certified course plus periodic refreshers.'],
+ ['swimming','body','E',1,'Worthwhile','Swimming & water safety','Comfortable swimming, floating, treading water, breath control, surviving unexpected immersion, recognising drowning, safe rescue principles.','Water emergencies become dangerous extremely quickly.','Instructor-led swimming plus lifesaving training.'],
+ ['fire','body','E',1,'Worthwhile','Fire & emergency response','Fire triangle, extinguisher types, PASS technique, electrical/LPG fires, smoke evacuation, emergency exits, when to abandon firefighting.','Prevents panic and dangerous improvisation.','Practical fire-safety course.'],
+ ['fitness','body','E',1,'No','Physical fitness','Basic strength, cardiovascular endurance, mobility, balance, lifting and carrying safely, ability to run, walk or climb when necessary.','Physical independence is a life skill, not merely aesthetics.','Regular strength, cardio and mobility practice.'],
+ ['nutrition','body','E',4,'No','Nutrition & cooking','Protein, fibre, calories and micronutrients at a practical level; food hygiene; meal composition; preparing 10–15 adaptable meals.','Makes health, finances and independence substantially easier.','Cook regularly rather than only studying nutrition.'],
+ ['sleep','body','E',2,'No','Sleep & recovery literacy','Circadian rhythms, sleep pressure, effects of caffeine, alcohol and light, recovery, recognising chronic sleep debt.','Sleep affects judgment, learning, emotional control and physical health.','Learn the fundamentals and observe your own patterns.'],
+ ['health-literacy','body','H',0,'No','Basic health literacy','Read medication labels, understand dosage instructions, interpret common measurements, know when symptoms require urgent care, navigate healthcare intelligently.','Helps you make better decisions without pretending to be a doctor.','Reliable health education plus first-aid training.'],
+
+ ['metacognition','mind','E',2,'No','Metacognition','Notice how you\u2019re thinking; recognise confusion, overconfidence, emotional reasoning and autopilot behaviour; ask \u201cHow do I know this?\u201d','Lets you inspect and correct your own thinking.','Reflection, journaling, deliberate decision reviews.'],
+ ['biases','mind','E',2,'No','Cognitive biases','Confirmation bias, anchoring, sunk-cost fallacy, availability bias, survivorship bias, status-quo bias, loss aversion, groupthink, motivated reasoning.','Your brain makes predictable mistakes while making them feel reasonable.','Learn the major biases and identify them in your own decisions.'],
+ ['emotions','mind','E',2,'No','Emotional regulation','Identify emotions accurately, distinguish feeling from action, tolerate discomfort, delay impulsive responses, recover after stress.','Good judgment often disappears when emotions overwhelm it.','Mindfulness, reflection, difficult conversations, possibly structured coaching or therapy.'],
+ ['attention','mind','E',2,'No','Attention management','Deep work, distraction control, notification hygiene, boredom tolerance, deliberate rest, context switching, protecting high-quality attention.','Attention is one of your most constrained resources.','Change environment and habits rather than relying purely on willpower.'],
+ ['brain','mind','E',0,'No','Basic brain literacy','Attention, memory, working memory, reward systems, habit formation, stress response, neuroplasticity and the limits of multitasking.','Helps you design better learning and behavioural systems.','Intro neuroscience and psychology from reliable sources.'],
+ ['habits','mind','H',0,'No','Habit & behaviour design','Cues, friction, rewards, environment design, identity reinforcement, tracking without obsession.','Makes desired behaviours easier to sustain.','Small experiments on your own routines.'],
+ ['self-knowledge','mind','E',0,'No','Self-knowledge','Values, strengths, weaknesses, recurring mistakes, triggers, ambitions, boundaries and what constitutes \u201cenough\u201d.','Prevents living according to other people\u2019s defaults.','Reflection, feedback and periodically reviewing your choices.'],
+
+ ['probability','think','E',3,'No','Probabilistic thinking','Think in likelihoods instead of true/false; base rates; Bayesian-style updating; uncertainty ranges; confidence calibration.','Most real-world decisions occur under uncertainty.','Prediction exercises and reviewing forecasts afterward.'],
+ ['decisions','think','E',3,'No','Decision-making','Opportunity cost, expected value, reversible vs irreversible decisions, second-order effects, pre-mortems, decision trees.','Helps prevent both impulsive and endlessly delayed decisions.','Apply frameworks to actual decisions.'],
+ ['logic','think','H',0,'No','Logic & argumentation','Premises vs conclusions, validity, fallacies, steelmanning, separating evidence from rhetoric.','Makes you harder to manipulate and better at disagreement.','Philosophy and logic basics plus analysing real arguments.'],
+ ['statistics','think','E',3,'No','Statistics literacy','Mean vs median, distributions, variance, correlation vs causation, sampling bias, relative vs absolute risk, misleading graphs.','Modern claims are constantly expressed through statistics.','Intro statistics with real-world examples.'],
+ ['information','think','E',3,'No','Information literacy','Primary vs secondary sources, incentives, conflicts of interest, checking dates and context, triangulating claims, source credibility.','Essential in a world of viral misinformation and synthetic content.','Repeated fact-checking practice.'],
+ ['learning','think','E',0,'No','Learning how to learn','Active recall, spaced repetition, interleaving, deliberate practice, feedback loops, mental models, teaching to test understanding.','Makes every other skill cheaper and faster to acquire.','Use the methods while learning something real.'],
+ ['science','think','H',0,'No','Scientific thinking','Hypotheses, falsifiability, controls, confounders, replication, causality and strength of evidence.','Helps distinguish evidence from plausible storytelling.','Read studies critically and learn basic experimental reasoning.'],
+
+ ['creative-pursuit','create','H',7,'No','One serious creative pursuit','Choose something such as writing, drawing, photography, music, filmmaking, woodworking or design and develop it beyond beginner level.','Trains patience, observation, originality and expression.','Consistent practice and making finished things.'],
+ ['creative-thinking','create','H',0,'No','Creative thinking','Divergent thinking, generating alternatives, combining unrelated ideas, constraints, reframing problems, experimentation.','Helps when problems don\u2019t have obvious correct answers.','Brainstorming followed by actual prototyping.'],
+ ['taste','create','H',0,'No','Aesthetic literacy / taste','Composition, proportion, rhythm, storytelling, typography, colour, music, architecture, craft; the ability to explain why something works.','Improves creation and your ability to judge quality.','Study great work closely and compare examples.'],
+ ['writing','create','E',7,'No','Writing','Explain ideas clearly, structure arguments, edit aggressively, change style for audience, distinguish clear thinking from impressive-sounding prose.','Writing is one of the best tools for thinking and communicating.','Write frequently and revise.'],
+ ['play','create','H',0,'No','Play & experimentation','Make things without optimising for productivity, income or social approval; tolerate bad first attempts.','Protects curiosity and encourages exploration.','Hobbies, improvisation, side projects.'],
+ ['storytelling','create','H',0,'No','Storytelling','Structure, tension, context, examples, analogy and communicating abstract ideas through concrete narratives.','Humans understand and remember stories exceptionally well.','Writing, speaking and presenting.'],
+
+ ['finance','practical','E',4,'No','Personal finance','Budgeting, cash flow, emergency funds, compound interest, inflation, taxes, insurance, loans, credit, diversification, investing vs speculation.','Financial mistakes compound over decades.','Learn the basics, then manage your own finances deliberately.'],
+ ['driving','practical','H',4,'Yes','Driving & road competence','Defensive driving, emergency braking, tyre changes, jump-starting, breakdown procedure, dashboard warnings, accident protocol.','Mobility plus emergency competence.','Proper driving instruction plus practice.'],
+ ['home','practical','H',4,'No','Basic home maintenance','Shut off electricity, water and gas; breakers, leaks, drains, common tools, drilling, fasteners, minor repairs, knowing professional boundaries.','Prevents helplessness and expensive mistakes.','DIY practice plus workshops or videos.'],
+ ['navigation','practical','H',8,'Optional','Navigation','Cardinal directions, map reading, scale, landmarks, compass basics, offline maps, coordinates, route planning.','Prevents total dependence on GPS.','Hiking and orienteering practice.'],
+ ['mechanical','practical','U',0,'No','Basic mechanical literacy','How common machines fail; tyre pressure, batteries, motors, pumps, filters, fasteners and preventive maintenance.','Helps you diagnose problems rather than treating technology as magic.','Hands-on maintenance.'],
+ ['travel','practical','H',0,'No','Travel competence','Packing lightly, documentation, local transport, basic travel insurance, emergency contacts, cultural awareness, contingency planning.','Makes unfamiliar environments much easier to handle.','Actual independent travel.'],
+
+ ['communication','people','E',6,'No','Clear communication','Ask clearly, explain simply, listen actively, summarise what you heard, state needs without unnecessary aggression.','Many life problems are communication failures.','Deliberate practice in real conversations.'],
+ ['empathy','people','E',6,'No','Empathy & perspective-taking','Notice what someone else is feeling and needing; tell understanding a feeling apart from sharing it; imagine a situation from their side; validate without necessarily agreeing; stay caring without burning out.','Trust, cooperation and good care all depend on people feeling understood.','Practise reflective listening, ask about other people\u2019s experience, read fiction and memoir, and ask for feedback on how you come across.'],
+ ['reading-cues','people','H',0,'No','Reading emotions & nonverbal cues','Tone of voice, facial expression, posture, pauses, what goes unsaid and the surrounding context; knowing cues are ambiguous and vary by culture and person, so you check gently rather than assume.','Much of what people mean never gets said outright.','Observe conversations deliberately, compare your read with what people later tell you, and ask \u201cHow are you finding this?\u201d when unsure.'],
+ ['conflict','people','E',6,'No','Conflict & difficult conversations','Disagree without escalation, separate issue from person, set boundaries, apologise properly, repair relationships.','Avoiding conflict entirely is usually as harmful as handling it badly.','Real practice plus good communication frameworks.'],
+ ['negotiation','people','H',6,'No','Negotiation','BATNA, interests vs positions, anchors, trade-offs, knowing when to walk away, asking rather than assuming.','Salary, purchases, contracts and relationships all involve negotiation.','Learn frameworks, then negotiate real things.'],
+ ['relationships','people','E',6,'No','Building & keeping relationships','Making friends as an adult, staying in touch, reciprocity, reliability, showing appreciation, opening up at the right pace, noticing when a relationship needs attention, and letting go of ones that don\u2019t work.','Close relationships are among the strongest predictors of long-term wellbeing.','Schedule regular contact, follow through on small promises, and reflect on which relationships you invest in.'],
+ ['social','people','H',0,'No','Social perception','Notice incentives, power dynamics, group behaviour, status, reciprocity, manipulation and genuine goodwill.','Helps you navigate organisations and relationships.','Observation plus psychology and social-science basics.'],
+ ['psychology','people','H',0,'No','Human psychology basics','Motivation and needs, personality differences, development across life stages, attachment styles, how stress and trauma show up in behaviour, social influence, and why people resist change.','Helps you explain behaviour accurately and charitably instead of guessing at motives.','An intro psychology course or reputable books, tested against the people you actually know.'],
+ ['contracts','people','H',0,'No','Contract literacy','Read termination clauses, liability, renewals, penalties, interest, deposits, warranties and obligations.','\u201cI didn\u2019t read it\u201d rarely removes consequences.','Read real contracts slowly.'],
+ ['legal','people','H',0,'No','Legal & civic literacy','Basic rights, documentation, police procedures, employment basics, tenancy, consumer complaints, government systems, when to involve a lawyer.','Gives you agency when institutions are involved.','Learn the rules relevant to where you live.'],
+ ['caregiving','people','U',0,'Optional','Basic caregiving','Supporting a sick or injured person, elderly assistance, medication organisation, recognising emergencies, caring without infantilising someone.','Most people will eventually care for someone else.','First aid plus lived practice.'],
+
+ ['security','digital','E',5,'No','Digital security','Password manager, unique credentials, passkeys/MFA, backups, device encryption, phishing, SIM swaps, OTP scams, malicious links and QR codes.','Your identity, money and work increasingly live online.','Secure your own accounts as the learning exercise.'],
+ ['ai-literacy','digital','E',5,'No','AI literacy','What LLMs are good and bad at, hallucinations, context limitations, privacy, prompting, tool use, verification and automation.','AI is becoming a general-purpose intellectual tool.','Use it on real work while checking outputs.'],
+ ['ai-judgment','digital','E',0,'No','AI judgment','Decide what can be delegated, what requires verification and what shouldn\u2019t be delegated at all.','More important than simply knowing how to prompt.','Practise comparing your judgment with AI output.'],
+ ['data','digital','H',5,'Optional','Data literacy','Spreadsheets, structured data, charts, basic querying, identifying misleading visualisations.','Increasingly useful in almost every profession.','Work with actual datasets.'],
+ ['organisation','digital','H',0,'No','Digital organisation','Files, backups, search, naming conventions, cloud storage, calendars, notes and documentation.','Reduces recurring cognitive overhead.','Build a simple personal system.'],
+ ['privacy','digital','H',5,'No','Privacy literacy','Permissions, tracking, metadata, data sharing, public vs private information and long-lived digital footprints.','Prevents accidental exposure you cannot easily reverse.','Review your actual apps and accounts.'],
+
+ ['awareness','safety','H',0,'Optional','Situational awareness','Notice exits, crowd behaviour, environmental hazards, unusual behaviour, safe distances and escape routes.','Avoiding danger is vastly preferable to fighting through it.','Scenario training plus conscious observation.'],
+ ['deescalation','safety','H',0,'Optional','De-escalation & personal safety','Verbal de-escalation, boundaries, escape, attracting attention, recognising when a situation is worsening.','Prevents ego from turning manageable situations into dangerous ones.','Practical training.'],
+ ['wfa','safety','U+',8,'Yes','Wilderness First Aid','Treat injuries when professional help is delayed; improvisation, evacuation decisions, environmental emergencies.','An excellent combination of medicine and judgment.','Certified practical course.'],
+ ['survival','safety','U',8,'Optional','Outdoor survival / fieldcraft','Shelter, fire, safe water, exposure, knots, signalling, route planning, limited-resource problem-solving.','Develops self-reliance beyond normal urban systems.','Hands-on outdoor course.'],
+ ['disaster','safety','U+',8,'Yes / worthwhile','Disaster response / Civil Defence','Search and rescue basics, evacuation, crowd management, firefighting, first response, communication and teamwork during emergencies.','Makes you useful during larger emergencies rather than merely self-sufficient.','Civil Defence or disaster-response training.'],
+ ['radio','safety','U',0,'Yes, if pursuing HAM','Basic radio / emergency communications','Radio etiquette, frequencies conceptually, emergency communication discipline, HAM basics.','Useful when ordinary communication infrastructure fails.','Amateur-radio training.'],
+
+ ['values','values','E',9,'No','Values clarification','What you actually value versus what you inherited from family, peers, culture or status incentives.','Prevents optimising your life for goals you don\u2019t actually want.','Reflection plus difficult choices.'],
+ ['ethics','values','H',9,'No','Ethical reasoning','Duties, consequences, fairness, conflicting values, moral uncertainty.','Real decisions frequently involve competing legitimate interests.','Philosophy plus real cases.'],
+ ['mortality','values','H',9,'No','Mortality & long-term perspective','Finite time, ageing, the opportunity cost of years, relationships and what you want to leave behind.','Helps distinguish genuinely important choices from noise.','Reflection, philosophy, conversations.'],
+ ['enough','values','E',9,'No','Defining success / enough','Money, career, relationships, health, freedom, mastery, contribution; understand diminishing returns.','Otherwise external metrics expand indefinitely.','Explicitly define your own thresholds.']
+];
+
+/* ================= Tamil content ================= */
+// id: [name, what, why, how]
+const TA_SKILL = {
+ 'first-aid':['முதலுதவி + CPR + AED','CPR (இதய நுரையீரல் புத்துயிர்ப்பு), AED பயன்பாடு, மூச்சுத் திணறல், கடுமையான இரத்தப்போக்கு, தீக்காயங்கள், எலும்பு முறிவுகள், வலிப்பு, மயக்கம், வெப்பத் தாக்கு, மீட்பு நிலை (recovery position), ஒருவரை எப்போது நகர்த்தக் கூடாது என்பது.','அவசரநிலையின் முதல் சில நிமிடங்களில் உதவக்கூடிய ஒரே நபர் நீங்களாக இருக்கலாம்.','நேரடிப் பயிற்சியுடன் கூடிய சான்றிதழ் வகுப்பும், அவ்வப்போது புதுப்பிப்புப் பயிற்சியும்.'],
+ 'swimming':['நீச்சல் மற்றும் நீர்ப் பாதுகாப்பு','சௌகரியமாக நீந்துதல், மிதத்தல், நீரில் நிலைத்திருத்தல் (treading water), மூச்சுக் கட்டுப்பாடு, எதிர்பாராமல் நீரில் விழுந்தால் தப்பித்தல், நீரில் மூழ்குவதை அடையாளம் காணுதல், பாதுகாப்பான மீட்பு முறைகள்.','நீர் தொடர்பான அவசரநிலைகள் மிக வேகமாக ஆபத்தானவையாக மாறும்.','பயிற்றுநருடன் நீச்சல் கற்றலும் உயிர்காப்புப் பயிற்சியும்.'],
+ 'fire':['தீ மற்றும் அவசரகால நடவடிக்கை','தீ முக்கோணம், தீயணைப்பான் வகைகள், PASS முறை, மின்சார/LPG தீ, புகையிலிருந்து வெளியேறுதல், அவசர வழிகள், தீயை அணைக்கும் முயற்சியை எப்போது கைவிட வேண்டும் என்பது.','பதற்றத்தையும் ஆபத்தான அவசர முடிவுகளையும் தடுக்கிறது.','நடைமுறைத் தீ பாதுகாப்புப் பயிற்சி வகுப்பு.'],
+ 'fitness':['உடல் தகுதி','அடிப்படை வலிமை, இதய-சுவாசத் தாங்குதிறன், உடல் நெகிழ்வு, சமநிலை, பாதுகாப்பாகத் தூக்குதல் மற்றும் சுமத்தல், தேவைப்படும்போது ஓட, நடக்க, ஏறக்கூடிய திறன்.','உடல் சுயசார்பு என்பது அழகுக்கானது மட்டுமல்ல, அது ஒரு வாழ்க்கைத் திறன்.','வழக்கமான வலிமை, கார்டியோ மற்றும் நெகிழ்வுப் பயிற்சி.'],
+ 'nutrition':['ஊட்டச்சத்து மற்றும் சமையல்','நடைமுறை அளவில் புரதம், நார்ச்சத்து, கலோரிகள், நுண்ணூட்டச்சத்துகள்; உணவுச் சுகாதாரம்; உணவின் கலவை; மாற்றியமைக்கக்கூடிய 10–15 உணவுகளைச் சமைத்தல்.','உடல்நலம், பணம், சுயசார்பு மூன்றையும் கணிசமாக எளிதாக்குகிறது.','ஊட்டச்சத்தைப் படிப்பதோடு நிற்காமல், தொடர்ந்து சமையுங்கள்.'],
+ 'sleep':['தூக்கம் மற்றும் ஓய்வு பற்றிய அறிவு','உடல் கடிகாரம் (circadian rhythm), தூக்க அழுத்தம், காஃபின், மது, ஒளி ஆகியவற்றின் விளைவுகள், உடல் மீட்சி, நீண்டகாலத் தூக்கக் குறைபாட்டை அடையாளம் காணுதல்.','தூக்கம் முடிவெடுக்கும் திறன், கற்றல், உணர்ச்சிக் கட்டுப்பாடு, உடல்நலம் அனைத்தையும் பாதிக்கிறது.','அடிப்படைகளைக் கற்று, உங்கள் சொந்தப் பழக்கங்களைக் கவனியுங்கள்.'],
+ 'health-literacy':['அடிப்படை உடல்நல அறிவு','மருந்து லேபிள்களைப் படித்தல், அளவு அறிவுறுத்தல்களைப் புரிந்துகொள்ளுதல், பொதுவான அளவீடுகளை விளக்குதல், எந்த அறிகுறிகளுக்கு உடனடி மருத்துவம் தேவை என்று அறிதல், மருத்துவ அமைப்பை அறிவார்ந்த முறையில் கையாளுதல்.','மருத்துவர் போல் நடிக்காமலேயே சிறந்த முடிவுகளை எடுக்க உதவுகிறது.','நம்பகமான உடல்நலக் கல்வியும் முதலுதவிப் பயிற்சியும்.'],
+
+ 'metacognition':['மேலறிவாற்றல் (Metacognition)','நீங்கள் எப்படிச் சிந்திக்கிறீர்கள் என்பதைக் கவனித்தல்; குழப்பம், அதீத நம்பிக்கை, உணர்ச்சிவசப்பட்ட தர்க்கம், தானியங்கி நடத்தை ஆகியவற்றை அடையாளம் காணுதல்; “இது எனக்கு எப்படித் தெரியும்?” என்று கேட்டல்.','உங்கள் சொந்தச் சிந்தனையை ஆராய்ந்து திருத்திக்கொள்ள உதவுகிறது.','சுயபரிசீலனை, நாட்குறிப்பு எழுதுதல், முடிவுகளைத் திட்டமிட்டு மறுஆய்வு செய்தல்.'],
+ 'biases':['அறிவாற்றல் சார்புகள் (Cognitive biases)','உறுதிப்படுத்தல் சார்பு, நங்கூரமிடுதல் (anchoring), மூழ்கிய செலவு மாயை, கிடைப்புச் சார்பு, தப்பிப்பிழைத்தோர் சார்பு, தற்போதைய நிலைச் சார்பு, இழப்பு வெறுப்பு, குழுச் சிந்தனை, உள்நோக்கம் சார்ந்த தர்க்கம்.','உங்கள் மூளை கணிக்கக்கூடிய தவறுகளைச் செய்கிறது; அதே நேரம் அவற்றை நியாயமானவையாகவும் உணர வைக்கிறது.','முக்கியச் சார்புகளைக் கற்று, உங்கள் சொந்த முடிவுகளில் அவற்றைக் கண்டறியுங்கள்.'],
+ 'emotions':['உணர்ச்சிக் கட்டுப்பாடு','உணர்ச்சிகளைத் துல்லியமாக அடையாளம் காணுதல், உணர்வையும் செயலையும் பிரித்தறிதல், அசௌகரியத்தைத் தாங்குதல், உடனடி எதிர்வினைகளைத் தள்ளிப்போடுதல், மன அழுத்தத்திலிருந்து மீளுதல்.','உணர்ச்சிகள் மேலோங்கும்போது நல்ல முடிவெடுக்கும் திறன் பெரும்பாலும் மறைந்துவிடுகிறது.','நினைவாற்றல் பயிற்சி (mindfulness), சுயபரிசீலனை, கடினமான உரையாடல்கள், தேவைப்பட்டால் முறையான பயிற்சியாளர் அல்லது சிகிச்சை.'],
+ 'attention':['கவன மேலாண்மை','ஆழ்ந்த பணி, கவனச்சிதறல் கட்டுப்பாடு, அறிவிப்புகளை ஒழுங்குபடுத்துதல், சலிப்பைத் தாங்குதல், திட்டமிட்ட ஓய்வு, பணி மாற்றம், உயர்தரக் கவனத்தைப் பாதுகாத்தல்.','உங்களிடம் மிகக் குறைவாக உள்ள வளங்களில் கவனமும் ஒன்று.','மன உறுதியை மட்டும் நம்பாமல், சூழலையும் பழக்கங்களையும் மாற்றுங்கள்.'],
+ 'brain':['அடிப்படை மூளை அறிவு','கவனம், நினைவாற்றல், செயல்பாட்டு நினைவகம், வெகுமதி அமைப்புகள், பழக்க உருவாக்கம், மன அழுத்த எதிர்வினை, மூளை நெகிழ்வுத்தன்மை (neuroplasticity), ஒரே நேரத்தில் பல வேலைகள் செய்வதன் வரம்புகள்.','சிறந்த கற்றல் மற்றும் நடத்தை அமைப்புகளை வடிவமைக்க உதவுகிறது.','நம்பகமான மூலங்களிலிருந்து அறிமுக நரம்பியல் மற்றும் உளவியல்.'],
+ 'habits':['பழக்கம் மற்றும் நடத்தை வடிவமைப்பு','தூண்டுதல்கள், தடைகள், வெகுமதிகள், சூழல் வடிவமைப்பு, அடையாள வலுவூட்டல், வெறியாக மாறாமல் கண்காணித்தல்.','விரும்பும் நடத்தைகளைத் தொடர்ந்து கடைப்பிடிப்பதை எளிதாக்குகிறது.','உங்கள் சொந்த அன்றாட வழக்கங்களில் சிறு சோதனைகள்.'],
+ 'self-knowledge':['சுய அறிவு','விழுமியங்கள், பலங்கள், பலவீனங்கள், மீண்டும் மீண்டும் செய்யும் தவறுகள், தூண்டுதல்கள், லட்சியங்கள், எல்லைகள், உங்களுக்கு “போதும்” என்பது எது என்பது.','மற்றவர்களின் இயல்புநிலைகளின்படி வாழ்வதைத் தடுக்கிறது.','சுயபரிசீலனை, பிறரின் கருத்து, உங்கள் தேர்வுகளை அவ்வப்போது மறுஆய்வு செய்தல்.'],
+
+ 'probability':['நிகழ்தகவுச் சிந்தனை','சரி/தவறு என்பதற்குப் பதிலாக வாய்ப்புகளின் அடிப்படையில் சிந்தித்தல்; அடிப்படை விகிதங்கள் (base rates); பேயீசியன் முறையில் நம்பிக்கையைப் புதுப்பித்தல்; நிச்சயமின்மை வரம்புகள்; நம்பிக்கை அளவுத்திருத்தம்.','நிஜ உலக முடிவுகளில் பெரும்பாலானவை நிச்சயமற்ற சூழலில்தான் எடுக்கப்படுகின்றன.','கணிப்புப் பயிற்சிகள் செய்து, பின்னர் அந்தக் கணிப்புகளை மறுஆய்வு செய்தல்.'],
+ 'decisions':['முடிவெடுத்தல்','வாய்ப்புச் செலவு, எதிர்பார்க்கப்படும் மதிப்பு, மாற்றக்கூடிய vs மாற்ற முடியாத முடிவுகள், இரண்டாம் நிலை விளைவுகள், முன்கூட்டிய தோல்வி ஆய்வு (pre-mortem), முடிவு மரங்கள்.','அவசர முடிவுகளையும் முடிவில்லாமல் தள்ளிப்போடுவதையும் தடுக்க உதவுகிறது.','உண்மையான முடிவுகளில் இந்தக் கட்டமைப்புகளைப் பயன்படுத்துங்கள்.'],
+ 'logic':['தர்க்கம் மற்றும் வாதத்திறன்','முன்கூற்றுகள் vs முடிவுகள், செல்லுபடித்தன்மை, தர்க்கப் பிழைகள், எதிர்வாதத்தை அதன் வலுவான வடிவில் புரிந்துகொள்ளுதல் (steelmanning), சான்றையும் சொல்லாடலையும் பிரித்தறிதல்.','உங்களை ஏமாற்றுவதைக் கடினமாக்குகிறது; கருத்து வேறுபாடுகளைச் சிறப்பாகக் கையாள உதவுகிறது.','தத்துவம் மற்றும் தர்க்கத்தின் அடிப்படைகள், நிஜ வாதங்களை ஆய்வு செய்தல்.'],
+ 'statistics':['புள்ளியியல் அறிவு','சராசரி vs இடைநிலை, பரவல்கள், மாறுபாடு, தொடர்பு vs காரணம், மாதிரிச் சார்பு, ஒப்பீட்டு vs முழுமையான ஆபத்து, தவறாக வழிநடத்தும் வரைபடங்கள்.','நவீனக் கூற்றுகள் தொடர்ந்து புள்ளிவிவரங்கள் மூலமே முன்வைக்கப்படுகின்றன.','நிஜ உலக எடுத்துக்காட்டுகளுடன் அறிமுகப் புள்ளியியல்.'],
+ 'information':['தகவல் அறிவு','முதன்மை vs இரண்டாம் நிலை மூலங்கள், உள்நோக்கங்கள், நலன் முரண்பாடுகள், தேதி மற்றும் சூழலைச் சரிபார்த்தல், கூற்றுகளைப் பல மூலங்களில் ஒப்பிடுதல், மூலத்தின் நம்பகத்தன்மை.','வேகமாகப் பரவும் தவறான தகவல்களும் செயற்கையாக உருவாக்கப்பட்ட உள்ளடக்கமும் நிறைந்த உலகில் இது அவசியம்.','தொடர்ந்து உண்மைச் சரிபார்ப்புப் பயிற்சி.'],
+ 'learning':['கற்பது எப்படி என்று கற்றல்','செயல்முறை நினைவுகூரல் (active recall), இடைவெளி விட்டு மீள்பார்வை (spaced repetition), கலந்து பயிலுதல், திட்டமிட்ட பயிற்சி, பின்னூட்டச் சுழற்சிகள், மன மாதிரிகள், புரிதலைச் சோதிக்கக் கற்பித்தல்.','மற்ற எல்லாத் திறன்களையும் குறைந்த முயற்சியில் விரைவாகக் கற்க உதவுகிறது.','உண்மையான ஒன்றைக் கற்கும்போதே இந்த முறைகளைப் பயன்படுத்துங்கள்.'],
+ 'science':['அறிவியல் சிந்தனை','கருதுகோள்கள், பொய்ப்பிக்கக்கூடிய தன்மை, கட்டுப்பாட்டுக் குழுக்கள், குழப்பக் காரணிகள், மீள்செய்கை, காரண-விளைவு, சான்றின் வலிமை.','சான்றையும் நம்பத்தகுந்த கதையையும் பிரித்தறிய உதவுகிறது.','ஆய்வுகளை விமர்சனப் பார்வையுடன் படித்து, அடிப்படைச் சோதனைத் தர்க்கத்தைக் கற்றல்.'],
+
+ 'creative-pursuit':['ஒரு தீவிரப் படைப்பு ஈடுபாடு','எழுத்து, ஓவியம், புகைப்படம், இசை, திரைப்படம், மரவேலை அல்லது வடிவமைப்பு போன்ற ஒன்றைத் தேர்ந்தெடுத்து, தொடக்க நிலையைத் தாண்டி வளர்த்தல்.','பொறுமை, கூர்ந்து கவனித்தல், தனித்தன்மை, வெளிப்பாடு ஆகியவற்றைப் பயிற்றுவிக்கிறது.','தொடர்ச்சியான பயிற்சியும், முழுமையான படைப்புகளை உருவாக்குதலும்.'],
+ 'creative-thinking':['படைப்புச் சிந்தனை','விரிந்த சிந்தனை, மாற்று வழிகளை உருவாக்குதல், தொடர்பில்லாத கருத்துகளை இணைத்தல், கட்டுப்பாடுகளைப் பயன்படுத்துதல், பிரச்சனைகளை மறுவரையறை செய்தல், பரிசோதனை.','தெளிவான சரியான விடை இல்லாத பிரச்சனைகளில் உதவுகிறது.','கருத்துப் புயலைத் (brainstorming) தொடர்ந்து உண்மையான முன்மாதிரிகளை உருவாக்குதல்.'],
+ 'taste':['அழகியல் அறிவு / ரசனை','அமைப்பு, விகிதம், லயம், கதைசொல்லல், எழுத்துரு வடிவமைப்பு, நிறம், இசை, கட்டடக்கலை, கைவினை; ஒன்று ஏன் நன்றாக இருக்கிறது என்று விளக்கும் திறன்.','படைப்பையும், தரத்தை மதிப்பிடும் உங்கள் திறனையும் மேம்படுத்துகிறது.','சிறந்த படைப்புகளை நெருக்கமாக ஆராய்ந்து, எடுத்துக்காட்டுகளை ஒப்பிடுங்கள்.'],
+ 'writing':['எழுத்து','கருத்துகளைத் தெளிவாக விளக்குதல், வாதங்களைக் கட்டமைத்தல், கடுமையாகத் திருத்துதல், வாசகருக்கேற்ப நடையை மாற்றுதல், தெளிவான சிந்தனையையும் வெறுமனே ஈர்க்கும் உரைநடையையும் பிரித்தறிதல்.','சிந்திப்பதற்கும் தொடர்புகொள்வதற்கும் எழுத்து மிகச் சிறந்த கருவிகளில் ஒன்று.','அடிக்கடி எழுதி, திருத்துங்கள்.'],
+ 'play':['விளையாட்டும் பரிசோதனையும்','உற்பத்தித்திறன், வருமானம், சமூக அங்கீகாரம் எதற்காகவும் அல்லாமல் பொருட்களை உருவாக்குதல்; மோசமான முதல் முயற்சிகளைத் தாங்கிக்கொள்ளுதல்.','ஆர்வத்தைப் பாதுகாத்து, ஆராய்வதை ஊக்குவிக்கிறது.','பொழுதுபோக்குகள், மேம்படுத்தல் (improvisation), பக்கத் திட்டங்கள்.'],
+ 'storytelling':['கதைசொல்லல்','கட்டமைப்பு, பதற்றம், சூழல், எடுத்துக்காட்டுகள், உவமைகள், சுருக்கமான கருத்துகளை உறுதியான கதைகள் மூலம் தெரிவித்தல்.','மனிதர்கள் கதைகளை மிக நன்றாகப் புரிந்துகொண்டு நினைவில் வைக்கிறார்கள்.','எழுதுதல், பேசுதல், முன்வைத்தல்.'],
+
+ 'finance':['தனிநபர் நிதி','வரவு-செலவுத் திட்டம், பணப்புழக்கம், அவசரகால நிதி, கூட்டு வட்டி, பணவீக்கம், வரிகள், காப்பீடு, கடன்கள், கடன் மதிப்பீடு, பல்வகைப்படுத்தல், முதலீடு vs ஊகவணிகம்.','நிதித் தவறுகள் பல தசாப்தங்களாகப் பெருகிக்கொண்டே போகும்.','அடிப்படைகளைக் கற்று, பின்னர் உங்கள் சொந்த நிதியைத் திட்டமிட்டு நிர்வகியுங்கள்.'],
+ 'driving':['வாகனம் ஓட்டுதல் மற்றும் சாலைத் திறன்','தற்காப்பு ஓட்டுதல், அவசரகால பிரேக், டயர் மாற்றுதல், ஜம்ப்-ஸ்டார்ட், வாகனப் பழுதின்போது செய்ய வேண்டியவை, டேஷ்போர்டு எச்சரிக்கை விளக்குகள், விபத்து நடைமுறை.','நடமாட்டச் சுதந்திரத்துடன் அவசரகாலத் திறனும் சேர்கிறது.','முறையான ஓட்டுநர் பயிற்சியும் தொடர் பயிற்சியும்.'],
+ 'home':['அடிப்படை வீட்டுப் பராமரிப்பு','மின்சாரம், தண்ணீர், எரிவாயு இணைப்புகளை அணைத்தல்; பிரேக்கர்கள், கசிவுகள், வடிகால்கள், பொதுவான கருவிகள், துளையிடுதல், திருகுகள், சிறு பழுதுபார்ப்புகள், எப்போது நிபுணரை அழைக்க வேண்டும் என்பது.','இயலாமை உணர்வையும் செலவுமிக்க தவறுகளையும் தடுக்கிறது.','நீங்களே செய்து பழகுதல் (DIY), பட்டறைகள் அல்லது காணொளிகள்.'],
+ 'navigation':['வழிசெலுத்தல்','திசைகள், வரைபடம் படித்தல், அளவுகோல், அடையாளச் சின்னங்கள், திசைகாட்டியின் அடிப்படைகள், இணையமில்லா வரைபடங்கள், ஆயத்தொலைவுகள், பாதை திட்டமிடல்.','GPS-ஐ முழுமையாகச் சார்ந்திருப்பதைத் தடுக்கிறது.','மலையேற்றம் மற்றும் ஓரியண்டியரிங் (orienteering) பயிற்சி.'],
+ 'mechanical':['அடிப்படை இயந்திர அறிவு','பொதுவான இயந்திரங்கள் எப்படிப் பழுதாகின்றன; டயர் அழுத்தம், பேட்டரிகள், மோட்டார்கள், பம்புகள், வடிகட்டிகள், திருகுகள், தடுப்புப் பராமரிப்பு.','தொழில்நுட்பத்தை மாயம் போல் பார்க்காமல் பிரச்சனைகளைக் கண்டறிய உதவுகிறது.','நேரடியாகப் பராமரிப்புப் பணி செய்தல்.'],
+ 'travel':['பயணத் திறன்','குறைவான பொருட்களுடன் பயணித்தல், ஆவணங்கள், உள்ளூர்ப் போக்குவரத்து, அடிப்படைப் பயணக் காப்பீடு, அவசரத் தொடர்புகள், கலாச்சார விழிப்புணர்வு, மாற்றுத் திட்டமிடல்.','பழக்கமில்லாத சூழல்களைக் கையாள்வதை மிகவும் எளிதாக்குகிறது.','உண்மையாகவே தனியாகப் பயணம் செய்தல்.'],
+
+ 'communication':['தெளிவான தகவல்தொடர்பு','தெளிவாகக் கேட்டல், எளிமையாக விளக்குதல், கவனமாகச் செவிமடுத்தல், கேட்டதைச் சுருக்கிச் சொல்லுதல், தேவையற்ற ஆக்ரோஷம் இல்லாமல் தேவைகளைக் கூறுதல்.','வாழ்க்கையின் பல பிரச்சனைகள் தகவல்தொடர்புத் தோல்விகளே.','நிஜ உரையாடல்களில் திட்டமிட்ட பயிற்சி.'],
+ 'conflict':['மோதல்களும் கடினமான உரையாடல்களும்','மோதலை அதிகரிக்காமல் கருத்து வேறுபடுதல், பிரச்சனையையும் நபரையும் பிரித்தல், எல்லைகளை வகுத்தல், முறையாக மன்னிப்புக் கேட்டல், உறவுகளைச் சீர்செய்தல்.','மோதலை முழுமையாகத் தவிர்ப்பது, அதைத் தவறாகக் கையாள்வதைப் போலவே பொதுவாகத் தீங்கானது.','நிஜப் பயிற்சியும் நல்ல தகவல்தொடர்புக் கட்டமைப்புகளும்.'],
+ 'negotiation':['பேச்சுவார்த்தை','BATNA (ஒப்பந்தம் இல்லையெனில் சிறந்த மாற்று), நிலைப்பாடுகள் vs நலன்கள், நங்கூரங்கள், பரிமாற்றங்கள், எப்போது விலகிச் செல்வது, ஊகிப்பதற்குப் பதிலாகக் கேட்பது.','சம்பளம், கொள்முதல், ஒப்பந்தங்கள், உறவுகள் அனைத்திலும் பேச்சுவார்த்தை உள்ளது.','கட்டமைப்புகளைக் கற்று, பின்னர் நிஜ விஷயங்களில் பேச்சுவார்த்தை நடத்துங்கள்.'],
+ 'social':['சமூகப் புரிதல்','உள்நோக்கங்கள், அதிகார இயக்கவியல், குழு நடத்தை, அந்தஸ்து, பரஸ்பர உதவி, சூழ்ச்சி, உண்மையான நல்லெண்ணம் ஆகியவற்றைக் கவனித்தல்.','நிறுவனங்களையும் உறவுகளையும் கையாள உதவுகிறது.','கூர்ந்து கவனித்தலும், உளவியல் மற்றும் சமூக அறிவியல் அடிப்படைகளும்.'],
+ 'empathy':['ஒத்துணர்வு மற்றும் பிறர் பார்வையில் சிந்தித்தல்','மற்றவர் என்ன உணர்கிறார், அவருக்கு என்ன தேவை என்பதைக் கவனித்தல்; ஒரு உணர்வைப் புரிந்துகொள்வதையும் அதையே நாமும் உணர்வதையும் பிரித்தறிதல்; ஒரு சூழ்நிலையை அவர் பக்கத்திலிருந்து கற்பனை செய்தல்; உடன்படாமலேயே அவரது உணர்வை ஏற்றுக்கொள்ளுதல்; சோர்ந்துபோகாமல் அக்கறை காட்டுதல்.','நம்பிக்கை, ஒத்துழைப்பு, நல்ல பராமரிப்பு அனைத்தும், மக்கள் தாங்கள் புரிந்துகொள்ளப்படுவதாக உணர்வதைப் பொறுத்தே அமைகின்றன.','பிரதிபலிப்புச் செவிமடுத்தலைப் (reflective listening) பயிற்சி செய்யுங்கள், மற்றவர்களின் அனுபவங்களைப் பற்றிக் கேளுங்கள், புனைவுகளையும் வாழ்க்கை வரலாறுகளையும் படியுங்கள், நீங்கள் மற்றவர்களுக்கு எப்படித் தோன்றுகிறீர்கள் என்று கருத்துக் கேளுங்கள்.'],
+ 'reading-cues':['உணர்ச்சிகளையும் உடல்மொழியையும் புரிந்துகொள்ளுதல்','குரலின் தொனி, முகபாவனை, உடல் நிலை, இடைநிறுத்தங்கள், சொல்லப்படாதவை, சுற்றியுள்ள சூழல்; இந்தக் குறிப்புகள் தெளிவற்றவை, கலாச்சாரத்துக்கும் நபருக்கும் ஏற்ப மாறுபடுபவை என்பதால், ஊகிக்காமல் மென்மையாகக் கேட்டு உறுதிசெய்தல்.','மக்கள் சொல்ல வருவதில் பெரும்பகுதி வெளிப்படையாகச் சொல்லப்படுவதே இல்லை.','உரையாடல்களைத் திட்டமிட்டுக் கவனியுங்கள், உங்கள் புரிதலைப் பின்னர் அவர்கள் சொல்வதுடன் ஒப்பிடுங்கள், சந்தேகம் இருந்தால் “இது உங்களுக்கு எப்படி இருக்கிறது?” என்று கேளுங்கள்.'],
+ 'relationships':['உறவுகளை உருவாக்குதலும் தக்கவைத்தலும்','வயது வந்த பிறகு நண்பர்களை உருவாக்குதல், தொடர்பில் இருத்தல், பரஸ்பரம், நம்பகத்தன்மை, பாராட்டைத் தெரிவித்தல், பொருத்தமான வேகத்தில் மனம் திறத்தல், ஒரு உறவுக்குக் கவனம் தேவைப்படுவதை உணர்தல், பொருந்தாத உறவுகளிலிருந்து விலகுதல்.','நெருக்கமான உறவுகள், நீண்டகால நல்வாழ்வை மிக வலுவாகக் கணிக்கும் காரணிகளில் ஒன்று.','தொடர்ந்து தொடர்புகொள்ள நேரம் ஒதுக்குங்கள், சிறிய வாக்குறுதிகளையும் நிறைவேற்றுங்கள், எந்த உறவுகளில் நீங்கள் நேரத்தையும் அக்கறையையும் முதலீடு செய்கிறீர்கள் என்று சிந்தியுங்கள்.'],
+ 'psychology':['மனித உளவியலின் அடிப்படைகள்','ஊக்கமும் தேவைகளும், ஆளுமை வேறுபாடுகள், வாழ்க்கைக் கட்டங்களில் ஏற்படும் வளர்ச்சி, பிணைப்பு முறைகள் (attachment styles), மன அழுத்தமும் மன அதிர்ச்சியும் நடத்தையில் வெளிப்படும் விதம், சமூகத் தாக்கம், மக்கள் ஏன் மாற்றத்தை எதிர்க்கிறார்கள் என்பது.','உள்நோக்கங்களை ஊகிப்பதற்குப் பதிலாக, நடத்தையைத் துல்லியமாகவும் கருணையுடனும் விளக்க உதவுகிறது.','அறிமுக உளவியல் வகுப்பு அல்லது நம்பகமான நூல்கள்; அவற்றை உங்களுக்குத் தெரிந்த உண்மையான மனிதர்களுடன் ஒப்பிட்டுப் பாருங்கள்.'],
+ 'contracts':['ஒப்பந்த அறிவு','முடிவுறுத்தல் விதிகள், பொறுப்பு, புதுப்பித்தல்கள், அபராதங்கள், வட்டி, வைப்புத்தொகை, உத்தரவாதங்கள், கடமைகள் ஆகியவற்றைப் படித்தல்.','“நான் படிக்கவில்லை” என்று சொல்வது விளைவுகளை அரிதாகவே நீக்குகிறது.','உண்மையான ஒப்பந்தங்களை மெதுவாகப் படியுங்கள்.'],
+ 'legal':['சட்ட மற்றும் குடிமை அறிவு','அடிப்படை உரிமைகள், ஆவணங்கள், காவல்துறை நடைமுறைகள், வேலைவாய்ப்பு அடிப்படைகள், வாடகை, நுகர்வோர் புகார்கள், அரசு அமைப்புகள், எப்போது வழக்கறிஞரை அணுக வேண்டும் என்பது.','நிறுவனங்களுடன் தொடர்பு ஏற்படும்போது நீங்களே செயல்படும் ஆற்றலைத் தருகிறது.','நீங்கள் வசிக்கும் இடத்துக்குப் பொருந்தும் விதிகளைக் கற்றுக்கொள்ளுங்கள்.'],
+ 'caregiving':['அடிப்படைப் பராமரிப்பு','நோயுற்ற அல்லது காயமடைந்த ஒருவருக்கு உதவுதல், முதியோர் உதவி, மருந்துகளை ஒழுங்குபடுத்துதல், அவசரநிலைகளை அடையாளம் காணுதல், ஒருவரைக் குழந்தை போல் நடத்தாமல் பராமரித்தல்.','பெரும்பாலானோர் ஒருநாள் யாரையாவது பராமரிக்க வேண்டியிருக்கும்.','முதலுதவியும் வாழ்க்கை அனுபவப் பயிற்சியும்.'],
+
+ 'security':['டிஜிட்டல் பாதுகாப்பு','கடவுச்சொல் மேலாளர், தனித்துவமான கடவுச்சொற்கள், பாஸ்கீ/MFA, காப்புப் பிரதிகள், சாதன மறைகுறியாக்கம், ஃபிஷிங், சிம் ஸ்வாப், OTP மோசடிகள், தீங்கிழைக்கும் இணைப்புகள் மற்றும் QR குறியீடுகள்.','உங்கள் அடையாளம், பணம், வேலை ஆகியவை மேலும் மேலும் இணையத்தில் உள்ளன.','உங்கள் சொந்தக் கணக்குகளைப் பாதுகாப்பதையே கற்றல் பயிற்சியாக்குங்கள்.'],
+ 'ai-literacy':['AI அறிவு','LLM-கள் எதில் சிறந்தவை, எதில் பலவீனமானவை; தவறான கற்பனைத் தகவல்கள் (hallucinations), சூழல் வரம்புகள், தனியுரிமை, prompt எழுதுதல், கருவிப் பயன்பாடு, சரிபார்ப்பு, தானியக்கம்.','AI ஒரு பொதுப் பயன்பாட்டு அறிவுசார் கருவியாக மாறி வருகிறது.','வெளியீடுகளைச் சரிபார்த்தபடியே உண்மையான வேலையில் பயன்படுத்துங்கள்.'],
+ 'ai-judgment':['AI பற்றிய விவேகம்','எதை AI-இடம் ஒப்படைக்கலாம், எதற்குச் சரிபார்ப்பு தேவை, எதை ஒப்படைக்கவே கூடாது என்று தீர்மானித்தல்.','prompt எழுதத் தெரிந்திருப்பதை விட இது முக்கியமானது.','உங்கள் மதிப்பீட்டை AI வெளியீட்டுடன் ஒப்பிட்டுப் பயிற்சி செய்யுங்கள்.'],
+ 'data':['தரவு அறிவு','விரிதாள்கள், கட்டமைக்கப்பட்ட தரவு, வரைபடங்கள், அடிப்படை வினவல்கள், தவறாக வழிநடத்தும் காட்சிப்படுத்தல்களைக் கண்டறிதல்.','கிட்டத்தட்ட எல்லாத் தொழில்களிலும் இதன் பயன் பெருகி வருகிறது.','உண்மையான தரவுத்தொகுப்புகளுடன் வேலை செய்யுங்கள்.'],
+ 'organisation':['டிஜிட்டல் ஒழுங்கமைப்பு','கோப்புகள், காப்புப் பிரதிகள், தேடல், பெயரிடும் முறைகள், கிளவுட் சேமிப்பு, நாட்காட்டிகள், குறிப்புகள், ஆவணப்படுத்தல்.','மீண்டும் மீண்டும் வரும் மனச் சுமையைக் குறைக்கிறது.','எளிய தனிப்பட்ட அமைப்பை உருவாக்குங்கள்.'],
+ 'privacy':['தனியுரிமை அறிவு','அனுமதிகள், கண்காணிப்பு, மெட்டாடேட்டா, தரவுப் பகிர்வு, பொது vs தனிப்பட்ட தகவல், நீண்டகாலம் நீடிக்கும் டிஜிட்டல் தடங்கள்.','எளிதில் திரும்பப்பெற முடியாத தற்செயலான வெளிப்பாட்டைத் தடுக்கிறது.','உங்கள் உண்மையான செயலிகளையும் கணக்குகளையும் மறுஆய்வு செய்யுங்கள்.'],
+
+ 'awareness':['சூழ்நிலை விழிப்புணர்வு','வெளியேறும் வழிகள், கூட்ட நடத்தை, சுற்றுச்சூழல் அபாயங்கள், அசாதாரண நடத்தை, பாதுகாப்பான இடைவெளி, தப்பிக்கும் வழிகள் ஆகியவற்றைக் கவனித்தல்.','ஆபத்தை எதிர்த்துப் போராடுவதை விட அதைத் தவிர்ப்பது மிகவும் சிறந்தது.','சூழ்நிலைப் பயிற்சியும் உணர்வுபூர்வமான கவனிப்பும்.'],
+ 'deescalation':['பதற்றம் தணித்தல் மற்றும் தனிப்பட்ட பாதுகாப்பு','வார்த்தைகளால் பதற்றத்தைத் தணித்தல், எல்லைகள், தப்பித்தல், கவனத்தை ஈர்த்தல், ஒரு சூழ்நிலை மோசமடைவதை அடையாளம் காணுதல்.','அகந்தை, சமாளிக்கக்கூடிய சூழ்நிலைகளை ஆபத்தானவையாக மாற்றுவதைத் தடுக்கிறது.','நடைமுறைப் பயிற்சி.'],
+ 'wfa':['வனப்பகுதி முதலுதவி (Wilderness First Aid)','தொழில்முறை உதவி தாமதமாகும்போது காயங்களுக்குச் சிகிச்சை; கைவசம் உள்ளதைக் கொண்டு சமாளித்தல், வெளியேற்ற முடிவுகள், சுற்றுச்சூழல் அவசரநிலைகள்.','மருத்துவ அறிவும் விவேகமும் இணையும் சிறந்த கலவை.','சான்றிதழுடன் கூடிய நடைமுறைப் பயிற்சி வகுப்பு.'],
+ 'survival':['வெளிப்புற உயிர்வாழ்தல் / களத்திறன்','தங்குமிடம், நெருப்பு, பாதுகாப்பான நீர், கடும் வானிலைப் பாதிப்பு, முடிச்சுகள், சமிக்ஞை அனுப்புதல், பாதை திட்டமிடல், குறைந்த வளங்களுடன் பிரச்சனை தீர்த்தல்.','வழக்கமான நகர அமைப்புகளுக்கு அப்பால் சுயசார்பை வளர்க்கிறது.','நேரடி வெளிப்புறப் பயிற்சி வகுப்பு.'],
+ 'disaster':['பேரிடர் மீட்பு / குடிமைப் பாதுகாப்பு','தேடுதல் மற்றும் மீட்பின் அடிப்படைகள், வெளியேற்றம், கூட்ட மேலாண்மை, தீயணைப்பு, முதல்நிலை உதவி, அவசரகாலத்தில் தகவல்தொடர்பு மற்றும் குழுப்பணி.','தன்னைக் காத்துக்கொள்வதோடு நிற்காமல், பெரிய அவசரநிலைகளில் பிறருக்கும் பயனுள்ளவராக்குகிறது.','குடிமைப் பாதுகாப்பு (Civil Defence) அல்லது பேரிடர் மீட்புப் பயிற்சி.'],
+ 'radio':['அடிப்படை வானொலி / அவசரகாலத் தகவல்தொடர்பு','வானொலி நன்னடத்தை, அலைவரிசைகள் பற்றிய கருத்தியல் புரிதல், அவசரகாலத் தகவல்தொடர்பு ஒழுங்கு, HAM அமெச்சூர் வானொலியின் அடிப்படைகள்.','வழக்கமான தகவல்தொடர்பு உள்கட்டமைப்பு செயலிழக்கும்போது பயனுள்ளது.','அமெச்சூர் வானொலிப் பயிற்சி.'],
+
+ 'values':['விழுமியங்களைத் தெளிவுபடுத்துதல்','குடும்பம், நண்பர்கள், கலாச்சாரம் அல்லது அந்தஸ்து ஊக்கங்களிலிருந்து நீங்கள் பெற்றவற்றுக்கும், நீங்கள் உண்மையில் மதிப்பவற்றுக்கும் இடையிலான வேறுபாடு.','நீங்கள் உண்மையில் விரும்பாத இலக்குகளுக்காக உங்கள் வாழ்க்கையை அமைத்துக்கொள்வதைத் தடுக்கிறது.','சுயபரிசீலனையும் கடினமான தேர்வுகளும்.'],
+ 'ethics':['அறநெறிச் சிந்தனை','கடமைகள், விளைவுகள், நியாயம், முரண்படும் விழுமியங்கள், அறநெறி நிச்சயமின்மை.','நிஜ முடிவுகளில் பெரும்பாலும் நியாயமான, ஒன்றுக்கொன்று போட்டியிடும் நலன்கள் இருக்கும்.','தத்துவமும் நிஜ நிகழ்வுகளும்.'],
+ 'mortality':['நிலையாமை மற்றும் நீண்டகாலப் பார்வை','வரையறுக்கப்பட்ட காலம், முதுமை, ஆண்டுகளின் வாய்ப்புச் செலவு, உறவுகள், நீங்கள் விட்டுச்செல்ல விரும்புவது.','உண்மையில் முக்கியமான தேர்வுகளை இரைச்சலிலிருந்து பிரித்தறிய உதவுகிறது.','சுயபரிசீலனை, தத்துவம், உரையாடல்கள்.'],
+ 'enough':['வெற்றி / “போதும்” என்பதை வரையறுத்தல்','பணம், தொழில், உறவுகள், உடல்நலம், சுதந்திரம், தேர்ச்சி, பங்களிப்பு; குறைந்துவரும் பலன்களைப் புரிந்துகொள்ளுதல்.','இல்லையெனில் வெளிப்புற அளவுகோல்கள் முடிவில்லாமல் விரிவடைந்துகொண்டே போகும்.','உங்கள் சொந்த வரம்புகளை வெளிப்படையாக வரையறுங்கள்.']
+};
+const TA_DOM = {
+  body:['உடல், உடல்நலம் மற்றும் அவசரகாலத் திறன்','உடல் நலம்'],
+  mind:['மனம் மற்றும் சுய மேலாண்மை','மனம்'],
+  think:['சிந்தனை, தர்க்கம் மற்றும் கற்றல்','சிந்தனை'],
+  create:['படைப்பாற்றல், வெளிப்பாடு மற்றும் ரசனை','படைப்பாற்றல்'],
+  practical:['நடைமுறைச் சுயசார்பு','சுயசார்பு'],
+  people:['மனிதர்கள், உறவுகள் மற்றும் சமூகம்','மனிதர்கள்'],
+  digital:['டிஜிட்டல் மற்றும் நவீன உலகத் திறன்','டிஜிட்டல்'],
+  safety:['பாதுகாப்பு, மீள்திறன் மற்றும் களத் திறன்','பாதுகாப்பு'],
+  values:['தத்துவம், விழுமியங்கள் மற்றும் வாழ்க்கை வடிவமைப்பு','விழுமியங்கள்']
+};
+// [name, short, focus]
+const TA_PH = [
+  ['உயிர் காத்துக்கொள்ளுதல்','உயிர் காப்பு','உடல் பாதுகாப்பு'],
+  ['உங்களைப் புரிந்துகொள்ளுதல்','சுய அறிவு','உள்ளார்ந்த திறன்'],
+  ['நன்றாகச் சிந்தித்தல்','சிந்தனை','அறிவுசார் திறன்'],
+  ['சுயசார்பு பெறுதல்','சுயசார்பு','அன்றாடத் திறன்'],
+  ['நவீன உலகில் செயல்படுதல்','நவீன உலகம்','டிஜிட்டல் திறன்'],
+  ['மனிதர்களுடன் பழகுதல்','மனிதர்கள்','சமூகத் திறன்'],
+  ['படைத்தல்','படைப்பு','படைப்புத் திறன்'],
+  ['மீள்திறன் பெறுதல்','மீள்திறன்','இயல்பு நிலைக்கு அப்பால்'],
+  ['இவை அனைத்தும் எதற்காக என்று தீர்மானித்தல்','திசை','வாழ்க்கைத் திசை']
+];
+// [name, short, desc]
+const TA_LV = [
+  ['தொடங்கவில்லை','இல்லை','இதில் நான் இன்னும் ஈடுபடவில்லை.'],
+  ['அறிமுகம்','அறிமுகம்','இது எதை உள்ளடக்கியது, ஏன் முக்கியம் என்று எனக்குத் தெரியும்.'],
+  ['கற்றல்','கற்றல்','வழிகாட்டுதல் அல்லது அறிவுறுத்தல்களுடன் இதைப் பயிற்சி செய்திருக்கிறேன்.'],
+  ['திறமையானவர்','திறமை','வழக்கமான சூழ்நிலைகளில் இதை நானே செய்ய முடியும்.'],
+  ['நம்பகமானவர்','நம்பகம்','அழுத்தமான சூழலிலும் இதைத் தொடர்ந்து நன்றாகச் செய்கிறேன்.'],
+  ['கற்பிக்க முடியும்','கற்பித்தல்','இதில் வேறொருவருக்கு நான் பயிற்சி அளிக்க முடியும்.']
+];
+const TA_PRI = {'E':['அத்தியாவசியம்','அத்தியாவசியத்'], 'H':['முக்கியம்','முக்கியத்'], 'U+':['பயனுள்ளது+','பயனுள்ள'], 'U':['பயனுள்ளது','பயனுள்ள']};
+const TA_CERT = {'Yes':'ஆம்','Worthwhile':'பயனுள்ளது','No':'இல்லை','Optional':'விருப்பத்தேர்வு','Yes / worthwhile':'ஆம் / பயனுள்ளது','Yes, if pursuing HAM':'ஆம், HAM வானொலியைத் தொடர்ந்தால்'};
+
+/* ================= UI strings ================= */
+const I18N = {
+ en: {
+  title:'Competence course',
+  loading:'Loading your ratings…',
+  lede:'Sixty adult life skills across nine domains, laid out as a nine-control course in the order the curriculum builds them. Rate where you are honestly, set where you want to be, and work toward the next control.',
+  langLabel:'Language', detailRegion:'Skill details',
+  st_saving:'Saving…', st_saved:'Saved to your account', st_local:'Saved in this browser', st_connecting:'Connecting…',
+  st_localNoSync:'Saved in this browser (account sync unavailable)',
+  err_blocked:'Not saved: this browser blocked storage. Export a backup.',
+  err_quota:'Not saved: storage is full. Shorten some notes.',
+  err_busy:'Saving paused: too many changes at once. Your next change will retry.',
+  exportFail:'Export didn’t complete. Try again.',
+  imported:n=>`Imported ${n} skills. Saving…`,
+  importBad:'That file isn’t a backup from this tracker.',
+  foot_default:'Your ratings are private to you.',
+  foot_db:'Your ratings are saved privately to your Claude account and follow you across devices.',
+  foot_local:'Your ratings are saved in this browser only. Export a backup to keep a copy.',
+  export:'Export backup', import:'Import backup', reset:'Clear all ratings', resetArm:'Select again to clear everything',
+  mapAria:'Course map of the nine curriculum phases', start:'Start', finish:'Finish',
+  ctrlAria:(n,name,p,sel)=>`Control ${n}, ${name}: ${p} percent of goals reached. `+(sel?'Selected. Activate to show all skills.':'Activate to show its skills.'),
+  controlName:(n,name)=>`Control ${n}, ${name}`,
+  capRest:(focus,list,p)=>` (${focus}): ${list}. ${p}% of goals reached.`,
+  showAll:'Show all skills',
+  capDefault:'Each control is one phase of the curriculum, in build order. Its ring fills as the phase’s core skills reach your goals.',
+  workOn:(n,name)=>`Work on control ${n}: ${name}`,
+  courseDone:'Course complete. Raise a few goals.',
+  noneRated:'You haven’t rated anything yet. Open any skill below and place yourself on the six-step ladder; goals start at a suggested level you can change.',
+  rated:(r,n,p)=>`You’ve rated <strong>${r} of ${n}</strong> skills and reached <strong>${p}%</strong> of your goals overall.`,
+  gaps:g=>`<strong>${g}</strong> essential skill${g===1?' is':'s are'} still below goal.`,
+  allAtGoal:'Every essential skill is at goal.',
+  filterDomain:'Filter by domain', allDomains:'All domains', search:'Search skills',
+  priority:'Priority', allPri:'All priorities', sort:'Sort',
+  sortOrder:'Curriculum order', sortGap:'Biggest gap to goal', sortLow:'Lowest rated first', sortStale:'Longest since rated',
+  phasebar:(n,name)=>`Showing the core skills for <b>control ${n}: ${name}</b>`,
+  count:(x,y)=>`Showing ${x} of ${y} skills`,
+  groupRated:(r,n)=>`${r} of ${n} rated`,
+  notRated:'Not rated', certifiedTag:'Certified',
+  rowAria:(name,pri,now,g,focus)=>`${name}. ${pri}. Now ${now}. Goal ${g}.`+(focus?' In focus.':''),
+  nowNotRated:'not rated',
+  ratio:(c,g)=>`${c} of ${g}`,
+  noMatch:'No skills match these filters.', clearFilters:'Clear filters',
+  overview:'Overview', domains:'Domains',
+  domAria:(name,c,g)=>`${name}: average now ${c}, average goal ${g}. Show these skills.`,
+  avgNow:'Average now', avgGoal:'Average goal', scale:'Scale 0 to 5',
+  focus:'Focus', focusEmpty:'Pin up to three skills you’re working on right now. They stay here with their next step.',
+  noNext:'No next step written yet',
+  certificates:'Certificates', booked:'Booked', certifiedOn:d=>'Certified'+(d?' '+d:''),
+  renewOverdue:'Renewal overdue', renewBy:d=>`Renew by ${d}`,
+  howToRate:'How to rate yourself',
+  rateNote:'Rate what you could do today without preparation, not what you once did. If you’re unsure between two levels, pick the lower one.',
+  close:'Close', back:'Back to overview', position:(i,n)=>`${i} of ${n}`,
+  controlTag:(n,s)=>`Control ${n}: ${s}`, certTag:c=>`Certificate: ${c}`,
+  whyHow:'Why it matters and how to learn it', why:'Why it matters', how:'Best way to learn',
+  ladderLegend:'Where you are, and where you’re headed', curLevel:'Current level', goalLevel:'Goal level', goal:'Goal',
+  nowAria:(n,nm)=>`Now: ${n}, ${nm}`, goalAria:(n,nm)=>`Goal: ${n}, ${nm}`,
+  nowNone:'<b>Now:</b> not rated yet. Pick the step that matches what you could do today.',
+  nowIs:(n,nm)=>`Now: ${n} ${nm}.`, goalIs:(n,nm)=>`Goal: ${n} ${nm}.`,
+  goalSuggested:adj=>`Suggested for ${adj} skills. Change it if it doesn’t fit your life.`,
+  reached:'You’ve reached your goal.', toGo:k=>`${k} step${k===1?'':'s'} to go.`,
+  lastRated:w=>`Last rated ${w}`, todayWord:'today', freshLook:'Worth a fresh look.', stillAccurate:'Still accurate',
+  nextStep:'Next concrete step', nextHint:'Small enough to do this week.', nextPh:'e.g. Book a CPR course for this month',
+  notes:'Evidence and notes', notesHint:'What you’ve actually done, what went wrong, what you’d try next.',
+  certificate:'Certificate', certRec:c=>`Recommended in the curriculum: ${c}.`, certStatus:'Certificate status',
+  notYet:'Not yet', courseBooked:'Course booked', certifiedBtn:'Certified', earnedOn:'Earned on', renewByLbl:'Renew by',
+  progress:'Progress over time', sparkEmpty:'Your rating history will appear here as a line once you’ve rated this skill.',
+  histAria:items=>`Rating history: ${items}`, histItem:(d,v)=>`${d} level ${v}`, todayAxis:'Today',
+  addFocus:'Add to focus', removeFocus:'Remove from focus', prevSkill:'Previous skill', nextSkill:'Next skill',
+  focusFull:'You already have three focus skills. Remove one first.',
+  coachTitle:'Ideas for moving up a level', suggest:'Suggest next steps', suggestAgain:'Suggest again',
+  coachNote:'Claude suggests three concrete actions based on your rating, goal and notes. Uses your Claude usage.',
+  thinking:'Thinking… this can take up to a minute.', stop:'Stop', nextLooks:'Next level looks like:', useStep:'Use as next step',
+  ce_unavail:'Suggestions aren’t available here.', ce_rate:'Too many requests right now. Try again in a minute.',
+  ce_session:'Your session expired. Reload the page and try again.', ce_incomplete:'The suggestions came back incomplete. Try again.',
+  ce_generic:'Couldn’t get suggestions. Try again.'
+ },
+ ta: {
+  title:'திறன் பாதை',
+  loading:'உங்கள் மதிப்பீடுகளை ஏற்றுகிறது…',
+  lede:'ஒன்பது துறைகளில் வயது வந்தோருக்கான அறுபது வாழ்க்கைத் திறன்கள், பாடத்திட்டம் அவற்றைக் கட்டமைக்கும் வரிசையில், ஒன்பது புள்ளிகள் கொண்ட பாதையாக அமைக்கப்பட்டுள்ளன. நீங்கள் இப்போது எங்கே இருக்கிறீர்கள் என்பதை நேர்மையாக மதிப்பிடுங்கள், எங்கே செல்ல விரும்புகிறீர்கள் என்பதை இலக்காக வையுங்கள், அடுத்த புள்ளியை நோக்கி முன்னேறுங்கள்.',
+  langLabel:'மொழி', detailRegion:'திறன் விவரங்கள்',
+  st_saving:'சேமிக்கிறது…', st_saved:'உங்கள் கணக்கில் சேமிக்கப்பட்டது', st_local:'இந்த உலாவியில் சேமிக்கப்பட்டது', st_connecting:'இணைக்கிறது…',
+  st_localNoSync:'இந்த உலாவியில் சேமிக்கப்பட்டது (கணக்கு ஒத்திசைவு கிடைக்கவில்லை)',
+  err_blocked:'சேமிக்கப்படவில்லை: இந்த உலாவி சேமிப்பைத் தடுத்துள்ளது. காப்புப் பிரதியை ஏற்றுமதி செய்யுங்கள்.',
+  err_quota:'சேமிக்கப்படவில்லை: சேமிப்பிடம் நிரம்பியுள்ளது. சில குறிப்புகளைச் சுருக்குங்கள்.',
+  err_busy:'சேமிப்பு இடைநிறுத்தப்பட்டது: ஒரே நேரத்தில் அதிக மாற்றங்கள். அடுத்த மாற்றத்தின்போது மீண்டும் முயலும்.',
+  exportFail:'ஏற்றுமதி முடியவில்லை. மீண்டும் முயலுங்கள்.',
+  imported:n=>`${n} திறன்கள் இறக்குமதி செய்யப்பட்டன. சேமிக்கிறது…`,
+  importBad:'இந்தக் கோப்பு இந்தக் கருவியின் காப்புப் பிரதி அல்ல.',
+  foot_default:'உங்கள் மதிப்பீடுகள் உங்களுக்கு மட்டுமே தெரியும்.',
+  foot_db:'உங்கள் மதிப்பீடுகள் உங்கள் Claude கணக்கில் தனிப்பட்ட முறையில் சேமிக்கப்பட்டு, எல்லாச் சாதனங்களிலும் கிடைக்கும்.',
+  foot_local:'உங்கள் மதிப்பீடுகள் இந்த உலாவியில் மட்டுமே சேமிக்கப்படுகின்றன. ஒரு நகலை வைத்திருக்க காப்புப் பிரதியை ஏற்றுமதி செய்யுங்கள்.',
+  export:'காப்புப் பிரதி ஏற்றுமதி', import:'காப்புப் பிரதி இறக்குமதி', reset:'எல்லா மதிப்பீடுகளையும் அழி', resetArm:'எல்லாவற்றையும் அழிக்க மீண்டும் அழுத்தவும்',
+  mapAria:'ஒன்பது பாடத்திட்டக் கட்டங்களின் பாதை வரைபடம்', start:'தொடக்கம்', finish:'முடிவு',
+  ctrlAria:(n,name,p,sel)=>`புள்ளி ${n}, ${name}: இலக்குகளில் ${p} சதவீதம் எட்டப்பட்டது. `+(sel?'தேர்ந்தெடுக்கப்பட்டது. எல்லாத் திறன்களையும் காட்ட அழுத்தவும்.':'இதன் திறன்களைக் காட்ட அழுத்தவும்.'),
+  controlName:(n,name)=>`புள்ளி ${n}, ${name}`,
+  capRest:(focus,list,p)=>` (${focus}): ${list}. இலக்குகளில் ${p}% எட்டப்பட்டது.`,
+  showAll:'எல்லாத் திறன்களையும் காட்டு',
+  capDefault:'ஒவ்வொரு புள்ளியும் பாடத்திட்டத்தின் ஒரு கட்டம், கட்டமைக்கும் வரிசையில். அந்தக் கட்டத்தின் முக்கியத் திறன்கள் உங்கள் இலக்குகளை எட்டும்போது அதன் வளையம் நிரம்பும்.',
+  workOn:(n,name)=>`புள்ளி ${n}-இல் தொடருங்கள்: ${name}`,
+  courseDone:'பாதை நிறைவடைந்தது. சில இலக்குகளை உயர்த்துங்கள்.',
+  noneRated:'நீங்கள் இன்னும் எதையும் மதிப்பிடவில்லை. கீழே உள்ள எந்தத் திறனையும் திறந்து, ஆறு படிநிலை ஏணியில் உங்களை வையுங்கள். இலக்குகள் ஒரு பரிந்துரைக்கப்பட்ட நிலையில் தொடங்கும்; அதை நீங்கள் மாற்றலாம்.',
+  rated:(r,n,p)=>`<strong>${n}-இல் ${r}</strong> திறன்களை மதிப்பிட்டுள்ளீர்கள்; உங்கள் இலக்குகளில் மொத்தம் <strong>${p}%</strong> எட்டியுள்ளீர்கள்.`,
+  gaps:g=>`<strong>${g}</strong> அத்தியாவசியத் திறன்கள் இன்னும் இலக்கை எட்டவில்லை.`,
+  allAtGoal:'எல்லா அத்தியாவசியத் திறன்களும் இலக்கை எட்டியுள்ளன.',
+  filterDomain:'துறை வாரியாக வடிகட்டு', allDomains:'எல்லாத் துறைகளும்', search:'திறன்களைத் தேடு',
+  priority:'முன்னுரிமை', allPri:'எல்லா முன்னுரிமைகளும்', sort:'வரிசைப்படுத்து',
+  sortOrder:'பாடத்திட்ட வரிசை', sortGap:'இலக்குக்கான பெரிய இடைவெளி', sortLow:'குறைந்த மதிப்பீடு முதலில்', sortStale:'நீண்ட நாளாக மதிப்பிடாதவை',
+  phasebar:(n,name)=>`<b>புள்ளி ${n}: ${name}</b> கட்டத்தின் முக்கியத் திறன்கள் காட்டப்படுகின்றன`,
+  count:(x,y)=>`${y} திறன்களில் ${x} காட்டப்படுகின்றன`,
+  groupRated:(r,n)=>`${n}-இல் ${r} மதிப்பிடப்பட்டன`,
+  notRated:'மதிப்பிடப்படவில்லை', certifiedTag:'சான்றிதழ் பெற்றது',
+  rowAria:(name,pri,now,g,focus)=>`${name}. ${pri}. இப்போது ${now}. இலக்கு ${g}.`+(focus?' கவனத்தில் உள்ளது.':''),
+  nowNotRated:'மதிப்பிடப்படவில்லை',
+  ratio:(c,g)=>`${c} / ${g}`,
+  noMatch:'இந்த வடிகட்டிகளுக்குப் பொருந்தும் திறன்கள் இல்லை.', clearFilters:'வடிகட்டிகளை அழி',
+  overview:'கண்ணோட்டம்', domains:'துறைகள்',
+  domAria:(name,c,g)=>`${name}: தற்போதைய சராசரி ${c}, சராசரி இலக்கு ${g}. இந்தத் திறன்களைக் காட்டு.`,
+  avgNow:'தற்போதைய சராசரி', avgGoal:'சராசரி இலக்கு', scale:'அளவு 0 முதல் 5 வரை',
+  focus:'கவனம்', focusEmpty:'இப்போது நீங்கள் பணியாற்றும் மூன்று திறன்கள் வரை இங்கே பொருத்தலாம். அவை அடுத்த படியுடன் இங்கேயே இருக்கும்.',
+  noNext:'அடுத்த படி இன்னும் எழுதப்படவில்லை',
+  certificates:'சான்றிதழ்கள்', booked:'பதிவு செய்யப்பட்டது', certifiedOn:d=>'சான்றிதழ் பெற்றது'+(d?' '+d:''),
+  renewOverdue:'புதுப்பிக்கும் காலம் கடந்துவிட்டது', renewBy:d=>`${d}-க்குள் புதுப்பிக்கவும்`,
+  howToRate:'உங்களை எப்படி மதிப்பிடுவது',
+  rateNote:'முன்பு ஒருமுறை செய்ததை அல்ல, இன்று எந்தத் தயாரிப்பும் இல்லாமல் உங்களால் செய்ய முடிவதை மதிப்பிடுங்கள். இரண்டு நிலைகளுக்கு இடையில் சந்தேகம் இருந்தால், குறைந்ததைத் தேர்ந்தெடுங்கள்.',
+  close:'மூடு', back:'கண்ணோட்டத்துக்குத் திரும்பு', position:(i,n)=>`${n}-இல் ${i}`,
+  controlTag:(n,s)=>`புள்ளி ${n}: ${s}`, certTag:c=>`சான்றிதழ்: ${c}`,
+  whyHow:'ஏன் முக்கியம், எப்படிக் கற்பது', why:'ஏன் முக்கியம்', how:'கற்க சிறந்த வழி',
+  ladderLegend:'நீங்கள் எங்கே இருக்கிறீர்கள், எங்கே செல்கிறீர்கள்', curLevel:'தற்போதைய நிலை', goalLevel:'இலக்கு நிலை', goal:'இலக்கு',
+  nowAria:(n,nm)=>`இப்போது: ${n}, ${nm}`, goalAria:(n,nm)=>`இலக்கு: ${n}, ${nm}`,
+  nowNone:'<b>இப்போது:</b> இன்னும் மதிப்பிடப்படவில்லை. இன்று உங்களால் செய்ய முடிவதற்குப் பொருந்தும் படியைத் தேர்ந்தெடுங்கள்.',
+  nowIs:(n,nm)=>`இப்போது: ${n} ${nm}.`, goalIs:(n,nm)=>`இலக்கு: ${n} ${nm}.`,
+  goalSuggested:adj=>`${adj} திறன்களுக்குப் பரிந்துரைக்கப்பட்டது. உங்கள் வாழ்க்கைக்குப் பொருந்தவில்லை என்றால் மாற்றுங்கள்.`,
+  reached:'உங்கள் இலக்கை எட்டிவிட்டீர்கள்.', toGo:k=>k===1?'இன்னும் 1 படி உள்ளது.':`இன்னும் ${k} படிகள் உள்ளன.`,
+  lastRated:w=>`கடைசியாக மதிப்பிட்டது: ${w}`, todayWord:'இன்று', freshLook:'மீண்டும் ஒருமுறை பார்ப்பது நல்லது.', stillAccurate:'இன்னும் சரியாக உள்ளது',
+  nextStep:'அடுத்த உறுதியான படி', nextHint:'இந்த வாரமே செய்யக்கூடிய அளவு சிறியதாக இருக்கட்டும்.', nextPh:'எ.கா. இந்த மாதத்துக்குள் CPR பயிற்சி வகுப்பைப் பதிவு செய்யுங்கள்',
+  notes:'சான்றுகளும் குறிப்புகளும்', notesHint:'நீங்கள் உண்மையில் என்ன செய்தீர்கள், என்ன தவறாகப் போனது, அடுத்து என்ன முயல்வீர்கள்.',
+  certificate:'சான்றிதழ்', certRec:c=>`பாடத்திட்டப் பரிந்துரை: ${c}.`, certStatus:'சான்றிதழ் நிலை',
+  notYet:'இன்னும் இல்லை', courseBooked:'வகுப்பு பதிவானது', certifiedBtn:'சான்றிதழ் பெற்றது', earnedOn:'பெற்ற தேதி', renewByLbl:'புதுப்பிக்க வேண்டிய தேதி',
+  progress:'காலப்போக்கில் முன்னேற்றம்', sparkEmpty:'இந்தத் திறனை மதிப்பிட்டதும் உங்கள் மதிப்பீட்டு வரலாறு இங்கே ஒரு கோடாகத் தோன்றும்.',
+  histAria:items=>`மதிப்பீட்டு வரலாறு: ${items}`, histItem:(d,v)=>`${d} நிலை ${v}`, todayAxis:'இன்று',
+  addFocus:'கவனத்தில் சேர்', removeFocus:'கவனத்திலிருந்து நீக்கு', prevSkill:'முந்தைய திறன்', nextSkill:'அடுத்த திறன்',
+  focusFull:'ஏற்கனவே மூன்று கவனத் திறன்கள் உள்ளன. முதலில் ஒன்றை நீக்குங்கள்.',
+  coachTitle:'அடுத்த நிலைக்குச் செல்ல யோசனைகள்', suggest:'அடுத்த படிகளைப் பரிந்துரை', suggestAgain:'மீண்டும் பரிந்துரை',
+  coachNote:'உங்கள் மதிப்பீடு, இலக்கு, குறிப்புகளின் அடிப்படையில் Claude மூன்று உறுதியான செயல்களைப் பரிந்துரைக்கும். இது உங்கள் Claude பயன்பாட்டைப் பயன்படுத்தும்.',
+  thinking:'யோசிக்கிறது… இதற்கு ஒரு நிமிடம் வரை ஆகலாம்.', stop:'நிறுத்து', nextLooks:'அடுத்த நிலை இப்படி இருக்கும்:', useStep:'அடுத்த படியாகப் பயன்படுத்து',
+  ce_unavail:'பரிந்துரைகள் இங்கே கிடைக்கவில்லை.', ce_rate:'இப்போது அதிகமான கோரிக்கைகள் உள்ளன. ஒரு நிமிடம் கழித்து முயலுங்கள்.',
+  ce_session:'உங்கள் அமர்வு காலாவதியானது. பக்கத்தை மீண்டும் ஏற்றி முயலுங்கள்.', ce_incomplete:'பரிந்துரைகள் முழுமையாக வரவில்லை. மீண்டும் முயலுங்கள்.',
+  ce_generic:'பரிந்துரைகளைப் பெற முடியவில்லை. மீண்டும் முயலுங்கள்.'
+ }
+};
+
+const SKILLS = RAW.map((r,i)=>({id:r[0], d:r[1], p:r[2], ph:r[3]||null, cert:r[4], name:r[5], what:r[6], why:r[7], how:r[8], order:i}));
+const BY_ID = Object.fromEntries(SKILLS.map(s=>[s.id,s]));
+const DOM_BY_ID = Object.fromEntries(DOMAINS.map(d=>[d.id,d]));
+
+/* ================= Language ================= */
+const LANG_KEY = 'competence-course-lang';
+function detectLang(){
+  try{ const v = localStorage.getItem(LANG_KEY); if(v==='en' || v==='ta') return v; }catch(e){}
+  const n = (navigator.languages || [navigator.language || '']).join(',').toLowerCase();
+  return /(^|,)ta\b/.test(n) ? 'ta' : 'en';
+}
+let lang = detectLang();
+const t = (k, ...a) => { const tbl = I18N[lang]; const v = tbl[k] !== undefined ? tbl[k] : I18N.en[k]; return typeof v === 'function' ? v(...a) : v; };
+const isTa = () => lang === 'ta';
+const sx = (s, i) => isTa() && TA_SKILL[s.id] ? TA_SKILL[s.id][i] : [s.name, s.what, s.why, s.how][i];
+const sName = s => sx(s,0), sWhat = s => sx(s,1), sWhy = s => sx(s,2), sHow = s => sx(s,3);
+const dName = d => isTa() ? TA_DOM[d.id][0] : d.name;
+const dShort = d => isTa() ? TA_DOM[d.id][1] : d.short;
+const phName = ph => isTa() ? TA_PH[ph.n-1][0] : ph.name;
+const phShort = ph => isTa() ? TA_PH[ph.n-1][1] : ph.short;
+const phFocus = ph => isTa() ? TA_PH[ph.n-1][2] : ph.focus;
+const lvName = n => isTa() ? TA_LV[n][0] : LEVELS[n].name;
+const lvShort = n => isTa() ? TA_LV[n][1] : LEVELS[n].short;
+const lvDesc = n => isTa() ? TA_LV[n][2] : LEVELS[n].desc;
+const priLabel = p => isTa() ? TA_PRI[p][0] : PRI[p].label;
+const priAdj = p => isTa() ? TA_PRI[p][1] : PRI[p].adj;
+const certText = c => isTa() ? (TA_CERT[c] || c) : c;
+
+function applyStatic(){
+  document.documentElement.lang = lang;
+  document.title = t('title');
+  $('#appTitle').textContent = t('title');
+  $('#lede').textContent = t('lede');
+  $('#langGroup').setAttribute('aria-label', t('langLabel'));
+  document.querySelectorAll('#langGroup button').forEach(b=>b.setAttribute('aria-pressed', String(b.dataset.v===lang)));
+  $('#detail').setAttribute('aria-label', t('detailRegion'));
+  $('#exportBtn').textContent = t('export');
+  $('#importBtn').textContent = t('import');
+  const rb = $('#resetBtn'); rb.textContent = rb.classList.contains('armed') ? t('resetArm') : t('reset');
+  updateFoot();
+}
+function setLang(v){
+  if(v===lang || !I18N[v]) return;
+  lang = v;
+  try{ localStorage.setItem(LANG_KEY, v); }catch(e){}
+  applyStatic();
+  setStatus.apply(null, lastStatus);
+  renderAll();
+}
+
+/* ================= Helpers ================= */
+const pad = n => String(n).padStart(2,'0');
+const today = () => { const d=new Date(); return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate()); };
+const parseISO = s => { const [y,m,d]=String(s).split('-').map(Number); return new Date(y,(m||1)-1,d||1); };
+const fmtDate = s => s ? parseISO(s).toLocaleDateString(isTa() ? 'ta-IN' : undefined, {day:'numeric',month:'short',year:'numeric'}) : '';
+const daysBetween = (a,b) => Math.round((parseISO(b)-parseISO(a))/86400000);
+const fmt1 = n => (Math.round(n*10)/10).toFixed(1);
+const narrowScreen = () => window.matchMedia('(max-width: 979px)').matches;
+
+const ICON_PRI = p => {
+  const ring = '<circle cx="6" cy="6" r="4.6" fill="none" stroke="currentColor" stroke-width="1.4"/>';
+  let fill = '';
+  if(p==='E') fill = '<circle cx="6" cy="6" r="4.6" fill="currentColor"/>';
+  else if(p==='H') fill = '<path d="M6 1.4A4.6 4.6 0 0 1 6 10.6Z" fill="currentColor"/>';
+  else if(p==='U+') fill = '<path d="M6 6V1.4A4.6 4.6 0 0 1 10.6 6Z" fill="currentColor"/>';
+  return '<svg class="pri" viewBox="0 0 12 12" aria-hidden="true">'+ring+fill+'</svg>';
+};
+const ICON_FLAG = '<svg class="flag" viewBox="0 0 16 16" aria-hidden="true"><rect x="1.5" y="1.5" width="13" height="13" fill="var(--flag-white)" stroke="var(--ink-3)" stroke-width="1"/><path d="M14.5 1.5V14.5H1.5Z" fill="var(--flag)"/></svg>';
+const ICON_PENNANT = filled => '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 2v12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M4.6 2.6 13 5.6 4.6 8.6Z" fill="'+(filled?'currentColor':'none')+'" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></svg>';
+
+/* SVG presentation attributes don't reliably accept var(); move them into style */
+function svgfix(html){
+  return html.replace(/<(svg|path|circle|rect|line|polygon|text|tspan|g)\b([^>]*?)(\/?)>/g, (m, tag, attrs, close)=>{
+    const css = [];
+    attrs = attrs.replace(/\s(fill|stroke|font-family)="(var\(--[\w-]+\))"/g, (mm, k, v)=>{ css.push(k+':'+v); return ''; });
+    if(!css.length) return m;
+    if(/\sstyle="/.test(attrs)) attrs = attrs.replace(/\sstyle="([^"]*)"/, (mm, v)=>' style="'+v.replace(/;?$/, ';')+css.join(';')+'"');
+    else attrs += ' style="'+css.join(';')+'"';
+    return '<'+tag+attrs+close+'>';
+  });
+}
+const setHTML = (el, html) => { el.innerHTML = svgfix(html); };
+
+/* ================= State ================= */
+let state = {skills:{}, resetAt:0};
+const ui = {domain:'all', phase:null, pri:'all', sort:'order', q:'', selected:null, focusMsg:false};
+const coach = {};
+
+const blankRec = () => ({cur:null, goal:null, next:'', notes:'', focus:false, focusAt:0, cert:{status:'', earned:'', renew:''}, hist:[], rev:'', u:0});
+const rec = id => state.skills[id] || null;
+function ensure(id){ if(!state.skills[id]) state.skills[id]=blankRec(); const r=state.skills[id]; if(!r.cert) r.cert={status:'',earned:'',renew:''}; if(!Array.isArray(r.hist)) r.hist=[]; return r; }
+const curOf = s => { const r=rec(s.id); return r && r.cur!=null ? r.cur : null; };
+const goalOf = s => { const r=rec(s.id); return r && r.goal!=null ? r.goal : PRI[s.p].goal; };
+const goalIsSet = s => { const r=rec(s.id); return !!(r && r.goal!=null); };
+
+function progressOf(list){
+  let have=0, want=0;
+  list.forEach(s=>{ const g=goalOf(s); want+=g; have+=Math.min(curOf(s)||0, g); });
+  return want ? have/want : 0;
+}
+function avgs(list){
+  let c=0, g=0, rated=0;
+  list.forEach(s=>{ const v=curOf(s); if(v!=null) rated++; c+=(v||0); g+=goalOf(s); });
+  return {cur: list.length? c/list.length : 0, goal: list.length? g/list.length : 0, rated, n:list.length};
+}
+
+/* ================= Persistence ================= */
+const LS_KEY = 'competence-course-v1';
+let mode = 'connecting';
+let docRef = null, lastRev = null, saving = false, again = false, saveTimer = null, dirty = false, dbRetried = false;
+let sampleFn = null, downloadsApi = null;
+let lastStatus = ['saving','loading'];
+
+function lsRead(){ try{ const v=localStorage.getItem(LS_KEY); return v ? JSON.parse(v) : null; }catch(e){ return null; } }
+function lsWrite(obj){ try{ localStorage.setItem(LS_KEY, JSON.stringify(obj)); return true; }catch(e){ return false; } }
+
+function cleanSkills(obj, resetAt){
+  const out = {};
+  if(!obj || typeof obj!=='object') return out;
+  Object.keys(obj).forEach(k=>{
+    if(!BY_ID[k]) return;
+    const r = obj[k]; if(!r || typeof r!=='object') return;
+    if(resetAt && (r.u||0) <= resetAt) return;
+    const b = blankRec();
+    b.cur = Number.isInteger(r.cur) && r.cur>=0 && r.cur<=5 ? r.cur : null;
+    b.goal = Number.isInteger(r.goal) && r.goal>=1 && r.goal<=5 ? r.goal : null;
+    b.next = typeof r.next==='string' ? r.next.slice(0,600) : '';
+    b.notes = typeof r.notes==='string' ? r.notes.slice(0,2000) : '';
+    b.focus = !!r.focus; b.focusAt = Number(r.focusAt)||0;
+    const c = r.cert||{};
+    b.cert = {status: ['','booked','certified'].includes(c.status)?c.status:'', earned: typeof c.earned==='string'?c.earned:'', renew: typeof c.renew==='string'?c.renew:''};
+    b.hist = Array.isArray(r.hist) ? r.hist.filter(h=>Array.isArray(h)&&typeof h[0]==='string'&&Number.isInteger(h[1])).slice(-60).map(h=>[h[0],h[1]]) : [];
+    b.rev = typeof r.rev==='string' ? r.rev : '';
+    b.u = Number(r.u)||0;
+    out[k]=b;
+  });
+  return out;
+}
+function mergeSkills(a, b){
+  const out = Object.assign({}, a);
+  Object.keys(b).forEach(k=>{ if(!a[k] || (b[k].u||0) > (a[k].u||0)) out[k]=b[k]; });
+  return out;
+}
+function localIsNewer(remote, local){ return Object.keys(local).some(k => !remote[k] || (local[k].u||0) > (remote[k].u||0)); }
+
+// s: visual state (saving | saved | local | connecting | error); key: optional message key; arg: optional message argument
+function setStatus(s, key, arg){
+  lastStatus = [s, key, arg];
+  const el=$('#status'); el.dataset.s=s;
+  const k = key || ('st_'+s);
+  $('#statusText').textContent = t(k, arg);
+  updateFoot();
+}
+function updateFoot(){ $('#footNote').textContent = mode==='db' ? t('foot_db') : mode==='local' ? t('foot_local') : t('foot_default'); }
+
+function touch(id){ ensure(id).u = Date.now(); scheduleSave(); }
+function scheduleSave(){ dirty = true; setStatus('saving'); clearTimeout(saveTimer); saveTimer = setTimeout(flush, 650); }
+async function flush(){
+  if(saving){ again = true; return; }
+  saving = true; dirty = false;
+  const rev = Math.random().toString(36).slice(2,10);
+  const body = {version:1, rev, resetAt: state.resetAt||0, skills: JSON.parse(JSON.stringify(state.skills)), savedAt: new Date().toISOString()};
+  const okLocal = lsWrite(body);
+  if(mode==='db' && docRef){
+    try{ lastRev = rev; await docRef.set(body); dbRetried = false; setStatus('saved'); }
+    catch(e){ await handleDbError(e, true); }
+  }else{
+    if(!okLocal) setStatus('error','err_blocked');
+    else setStatus(mode==='connecting' ? 'saving' : 'local');
+  }
+  saving = false;
+  if(again){ again = false; flush(); }
+}
+async function handleDbError(e, fromWrite){
+  const code = e && e.code;
+  if(code==='unavailable' && fromWrite && !dbRetried){
+    dbRetried = true;
+    await new Promise(r=>setTimeout(r, 800 + Math.random()*800));
+    saving = false; again = false; dirty = true; return flush();
+  }
+  if(code==='quota_exceeded'){ setStatus('error','err_quota'); return; }
+  if(code==='resource_exhausted'){ setStatus('error','err_busy'); return; }
+  mode = 'local'; docRef = null;
+  setStatus('local','st_localNoSync');
+}
+
+async function connect(){
+  const local = lsRead();
+  if(local && local.skills){ state.resetAt = Number(local.resetAt)||0; state.skills = cleanSkills(local.skills, 0); }
+  applyStatic();
+  renderAll();
+  setStatus('connecting');
+  if(!window.claude || typeof window.claude.use!=='function'){ mode='local'; setStatus('local'); $('#exportBtn').hidden = false; return; }
+
+  claude.use('sample').then(fn=>{ sampleFn = fn || null; if(ui.selected) renderDetail(true); }).catch(()=>{});
+  claude.use('downloads').then(d=>{ downloadsApi = d || null; $('#exportBtn').hidden = !downloadsApi; }).catch(()=>{});
+
+  let db=null, user=null, uid=null;
+  try{ [db, user] = await Promise.all([claude.use('db'), claude.use('user')]); }catch(e){}
+  if(db && user){ try{ uid = await user.id(); }catch(e){} }
+  if(!db || !uid){ mode='local'; setStatus('local'); return; }
+
+  try{ docRef = db.doc('data/users/'+uid+'/tracker'); }catch(e){ mode='local'; setStatus('local'); return; }
+  let first = true;
+  docRef.onSnapshot(snap=>{
+    if(snap.metadata && snap.metadata.hasPendingWrites) return;
+    const data = snap.exists ? snap.data() : null;
+    if(first){
+      first = false; mode = 'db';
+      const remoteReset = data ? Number(data.resetAt)||0 : 0;
+      const resetAt = Math.max(remoteReset, state.resetAt||0);
+      const remote = data ? cleanSkills(JSON.parse(JSON.stringify(data.skills||{})), resetAt) : {};
+      const localS = cleanSkills(state.skills, resetAt);
+      state.resetAt = resetAt;
+      state.skills = mergeSkills(remote, localS);
+      renderAll(true);
+      if(!data || localIsNewer(remote, localS) || remoteReset < resetAt) scheduleSave();
+      else { lsWrite({version:1, rev:data.rev, resetAt, skills:state.skills}); setStatus('saved'); }
+      return;
+    }
+    if(!data || data.rev === lastRev || dirty || saving) return;
+    const resetAt = Math.max(Number(data.resetAt)||0, state.resetAt||0);
+    const remote = cleanSkills(JSON.parse(JSON.stringify(data.skills||{})), resetAt);
+    state.resetAt = resetAt;
+    state.skills = mergeSkills(remote, cleanSkills(state.skills, resetAt));
+    lsWrite({version:1, rev:data.rev, resetAt, skills:state.skills});
+    renderAll(true);
+    setStatus('saved');
+  }, err=>{ handleDbError(err, false); });
+}
+
+/* ================= Mutations ================= */
+function setCur(id, v){
+  const r = ensure(id);
+  if(r.cur === v) return;
+  r.cur = v;
+  const d = today(), last = r.hist[r.hist.length-1];
+  if(last && last[0]===d) last[1]=v; else r.hist.push([d,v]);
+  if(r.hist.length>60) r.hist = r.hist.slice(-60);
+  r.rev = d;
+  touch(id); renderAll();
+}
+function setGoal(id, v){ const r=ensure(id); if(r.goal===v) return; r.goal=v; touch(id); renderAll(); }
+function markReviewed(id){ const r=ensure(id), d=today(); r.rev=d; if(r.cur!=null){ const last=r.hist[r.hist.length-1]; if(!last || last[0]!==d) r.hist.push([d,r.cur]); } touch(id); renderAll(); }
+function toggleFocus(id){
+  const r = ensure(id);
+  if(!r.focus){
+    const n = SKILLS.filter(s=>rec(s.id)&&rec(s.id).focus).length;
+    if(n>=3){ ui.focusMsg = true; renderDetail(); return; }
+    r.focus = true; r.focusAt = Date.now();
+  } else r.focus = false;
+  ui.focusMsg = false;
+  touch(id); renderAll();
+}
+
+/* ================= Hero map ================= */
+function mulberry(seed){ return function(){ seed |= 0; seed = seed + 0x6D2B79F5 | 0; let x = Math.imul(seed ^ seed>>>15, 1|seed); x = x + Math.imul(x ^ x>>>7, 61|x) ^ x; return ((x ^ x>>>14)>>>0)/4294967296; }; }
+function blobParams(R){ return {a1:.06+R()*.12, a2:.03+R()*.09, a3:.01+R()*.05, p1:R()*6.283, p2:R()*6.283, p3:R()*6.283, sx:.8+R()*.6, sy:.7+R()*.4}; }
+function blobPath(cx, cy, r, p){
+  const N=72; let d='';
+  for(let i=0;i<=N;i++){
+    const a=i/N*Math.PI*2;
+    const rr = r*(1 + p.a1*Math.sin(2*a+p.p1) + p.a2*Math.sin(3*a+p.p2) + p.a3*Math.sin(5*a+p.p3));
+    d += (i?'L':'M') + (cx+rr*Math.cos(a)*p.sx).toFixed(1) + ' ' + (cy+rr*Math.sin(a)*p.sy).toFixed(1);
+  }
+  return d+'Z';
+}
+const LAYOUTS = {
+  wide: {W:1100, H:330, r:26, start:[48,250], finish:[1066,262],
+    pts:[[150,96],[262,236],[374,90],[486,236],[598,92],[710,238],[822,90],[934,236],[1030,98]],
+    hills:[[230,170,160],[640,120,175],[935,200,150],[420,300,110],[40,70,110],[1090,40,90]],
+    open:[[520,190,95],[970,60,70],[120,300,60]], water:[[330,46,52]], forest:[[90,180,70],[770,300,80],[690,40,50]], north:110},
+  narrow: {W:360, H:316, r:22, start:[26,24], finish:[336,294],
+    pts:[[72,64],[180,64],[288,64],[288,160],[180,160],[72,160],[72,256],[180,256],[288,256]],
+    hills:[[110,120,120],[280,230,120],[250,30,70]], open:[[220,120,55]], water:[[30,250,40]], forest:[[330,120,40],[150,290,45]], north:72}
+};
+let mapMode = null;
+function renderHero(){
+  const host = $('#mapSvg');
+  const w = host.clientWidth || 800;
+  mapMode = w>=700 ? 'wide' : 'narrow';
+  const L = LAYOUTS[mapMode];
+  const R = mulberry(mapMode==='wide' ? 7 : 11);
+  let g = '';
+  const clipId = 'mclip-'+mapMode;
+  L.open.forEach(([x,y,r])=>{ g += '<path d="'+blobPath(x,y,r,blobParams(R))+'" fill="var(--open)"/>'; });
+  L.forest.forEach(([x,y,r])=>{ g += '<path d="'+blobPath(x,y,r,blobParams(R))+'" fill="var(--forest)"/>'; });
+  L.water.forEach(([x,y,r])=>{ g += '<path d="'+blobPath(x,y,r,blobParams(R))+'" fill="var(--water-soft)" stroke="var(--water)" stroke-width="1.2" stroke-opacity=".6"/>'; });
+  L.hills.forEach(([x,y,r])=>{
+    const p = blobParams(R); const rings = Math.max(3, Math.round(r/22));
+    const dx = (R()-.5)*14, dy=(R()-.5)*10;
+    for(let i=0;i<rings;i++){
+      const k = 1 - i/(rings+.4);
+      const pi = Object.assign({}, p, {a1:p.a1*(1+i*.08), p2:p.p2+i*.12});
+      const index = i%5===0;
+      g += '<path d="'+blobPath(x+dx*i/rings, y+dy*i/rings, r*k, pi)+'" fill="none" stroke="var(--contour)" stroke-opacity="'+(index?.55:.32)+'" stroke-width="'+(index?1.6:.9)+'"/>';
+    }
+  });
+  for(let x=L.north/2; x<L.W; x+=L.north){ g += '<line x1="'+x+'" y1="0" x2="'+x+'" y2="'+L.H+'" stroke="var(--water)" stroke-opacity=".28" stroke-width="1"/>'; }
+
+  const r = L.r, prog = PHASES.map(ph=>progressOf(SKILLS.filter(s=>s.ph===ph.n)));
+  const pts = [L.start].concat(L.pts).concat([L.finish]);
+  let legs = '';
+  for(let i=0;i<pts.length-1;i++){
+    const [x1,y1]=pts[i], [x2,y2]=pts[i+1];
+    const len = Math.hypot(x2-x1,y2-y1), ux=(x2-x1)/len, uy=(y2-y1)/len;
+    const a = i===0 ? 17 : r+2, b = i===pts.length-2 ? (mapMode==='wide'?21:18) : r+2;
+    if(len > a+b+4) legs += '<line x1="'+(x1+ux*a).toFixed(1)+'" y1="'+(y1+uy*a).toFixed(1)+'" x2="'+(x2-ux*b).toFixed(1)+'" y2="'+(y2-uy*b).toFixed(1)+'" stroke="var(--course)" stroke-width="2.4"/>';
+  }
+  const [sx0,sy0]=L.start, [c1x,c1y]=L.pts[0];
+  const ang = Math.atan2(c1y-sy0, c1x-sx0), tri=[];
+  for(let k=0;k<3;k++){ const a = ang + k*2*Math.PI/3; tri.push((sx0+15*Math.cos(a)).toFixed(1)+','+(sy0+15*Math.sin(a)).toFixed(1)); }
+  let course = legs + '<polygon points="'+tri.join(' ')+'" fill="none" stroke="var(--course)" stroke-width="2.4" stroke-linejoin="round"><title>'+esc(t('start'))+'</title></polygon>';
+  const [fx,fy]=L.finish, fr = mapMode==='wide' ? [13,19] : [11,16];
+  course += '<g><title>'+esc(t('finish'))+'</title><circle cx="'+fx+'" cy="'+fy+'" r="'+fr[0]+'" fill="none" stroke="var(--course)" stroke-width="2.2"/><circle cx="'+fx+'" cy="'+fy+'" r="'+fr[1]+'" fill="none" stroke="var(--course)" stroke-width="2.2"/></g>';
+
+  const labelSize = isTa() ? 16 : 19;
+  L.pts.forEach(([x,y],i)=>{
+    const ph = PHASES[i], p = prog[i], sel = ui.phase===ph.n, dim = ui.phase!=null && !sel;
+    const C = 2*Math.PI*r, done = p>=0.999;
+    let inner;
+    if(done){
+      const s=r*0.9;
+      inner = '<rect x="'+(x-s/2)+'" y="'+(y-s/2)+'" width="'+s+'" height="'+s+'" fill="var(--flag-white)" stroke="var(--ink-3)" stroke-width="1"/><path d="M'+(x+s/2)+' '+(y-s/2)+'V'+(y+s/2)+'H'+(x-s/2)+'Z" fill="var(--flag)"/>';
+    } else {
+      inner = '<text x="'+x+'" y="'+(y+5)+'" text-anchor="middle" font-family="var(--display)" font-weight="600" font-size="'+(mapMode==='wide'?15:13)+'" fill="var(--course-ink)">'+Math.round(p*100)+'%</text>';
+    }
+    let label;
+    if(mapMode==='wide'){
+      const above = i%2===0, ly = above ? y-r-14 : y+r+28;
+      label = '<text class="lbl" x="'+x+'" y="'+ly+'" text-anchor="middle" font-size="'+labelSize+'" font-weight="'+(sel?700:600)+'" fill="var(--course-ink)">'+ph.n+'<tspan dx="7" font-weight="'+(sel?600:500)+'" fill="var(--ink)">'+esc(phShort(ph))+'</tspan></text>';
+    } else {
+      label = '<text class="lbl" x="'+(x-r-5)+'" y="'+(y-r+6)+'" text-anchor="end" font-size="16" font-weight="700" fill="var(--course-ink)">'+ph.n+'</text>';
+    }
+    course += '<g class="ctrl" role="button" tabindex="0" data-act="phase" data-n="'+ph.n+'" aria-label="'+esc(t('ctrlAria', ph.n, phName(ph), Math.round(p*100), sel))+'" aria-pressed="'+sel+'" opacity="'+(dim?.5:1)+'">'+
+      '<circle class="hit" cx="'+x+'" cy="'+y+'" r="'+(r+12)+'"/>'+
+      '<circle class="focusring" cx="'+x+'" cy="'+y+'" r="'+(r+7)+'" fill="none" stroke="transparent" stroke-width="2.5"/>'+
+      '<circle class="face" cx="'+x+'" cy="'+y+'" r="'+r+'" fill="var(--surface)" fill-opacity=".72" stroke="var(--course)" stroke-opacity="'+(done?1:.35)+'" stroke-width="'+(sel?4:3)+'"/>'+
+      (p>0 && !done ? '<circle cx="'+x+'" cy="'+y+'" r="'+r+'" fill="none" stroke="var(--course)" stroke-width="'+(sel?5:4.2)+'" stroke-dasharray="'+(C*p).toFixed(1)+' '+C.toFixed(1)+'" transform="rotate(-90 '+x+' '+y+')"/>' : '')+
+      inner + label + '</g>';
+  });
+
+  setHTML(host, '<svg viewBox="0 0 '+L.W+' '+L.H+'" role="group" aria-label="'+esc(t('mapAria'))+'">'+
+    '<defs><clipPath id="'+clipId+'"><rect width="'+L.W+'" height="'+L.H+'"/></clipPath></defs>'+
+    '<g clip-path="url(#'+clipId+')" aria-hidden="true">'+g+'</g>'+course+'</svg>');
+
+  const cap = $('#mapCaption');
+  if(ui.phase!=null){
+    const ph = PHASES[ui.phase-1], list = SKILLS.filter(s=>s.ph===ph.n);
+    cap.innerHTML = '<span><b>'+esc(t('controlName', ph.n, phName(ph)))+'</b>'+esc(t('capRest', phFocus(ph), list.map(sName).join(', '), Math.round(progressOf(list)*100)))+'</span><button class="linkbtn" data-act="clear-phase">'+esc(t('showAll'))+'</button>';
+  } else {
+    const next = PHASES.find((ph,i)=>prog[i]<0.999);
+    cap.innerHTML = '<span>'+esc(t('capDefault'))+'</span>'+
+      (next ? '<button class="linkbtn" data-act="phase" data-n="'+next.n+'">'+esc(t('workOn', next.n, phName(next)))+'</button>' : '<span>'+esc(t('courseDone'))+'</span>');
+  }
+}
+
+function renderSummary(){
+  const all = avgs(SKILLS), pct = Math.round(progressOf(SKILLS)*100);
+  const el = $('#summary');
+  if(all.rated===0){ el.textContent = t('noneRated'); return; }
+  const gaps = SKILLS.filter(s=>s.p==='E' && (curOf(s)||0) < goalOf(s)).length;
+  el.innerHTML = t('rated', all.rated, SKILLS.length, pct) + ' ' + (gaps ? t('gaps', gaps) : esc(t('allAtGoal')));
+}
+
+/* ================= Toolbar & list ================= */
+function renderToolbar(){
+  const tb = $('#toolbar');
+  const active = document.activeElement && document.activeElement.id;
+  const chips = '<div class="chips" role="group" aria-label="'+esc(t('filterDomain'))+'"><button class="chip" data-act="domain" data-id="all" aria-pressed="'+(ui.domain==='all')+'">'+esc(t('allDomains'))+'</button>'+
+    DOMAINS.map(d=>'<button class="chip" data-act="domain" data-id="'+d.id+'" aria-pressed="'+(ui.domain===d.id)+'">'+esc(dShort(d))+'</button>').join('')+'</div>';
+  const controls = '<div class="controls">'+
+    '<label class="search"><span class="sr">'+esc(t('search'))+'</span><input class="field" id="q" type="search" placeholder="'+esc(t('search'))+'" value="'+esc(ui.q)+'" autocomplete="off"></label>'+
+    '<label><span class="sr">'+esc(t('priority'))+'</span><select class="field" id="pri">'+
+      [['all',t('allPri')],['E',priLabel('E')],['H',priLabel('H')],['U',priLabel('U')]].map(([v,l])=>'<option value="'+v+'"'+(ui.pri===v?' selected':'')+'>'+esc(l)+'</option>').join('')+'</select></label>'+
+    '<label><span class="sr">'+esc(t('sort'))+'</span><select class="field" id="sort">'+
+      [['order',t('sortOrder')],['gap',t('sortGap')],['low',t('sortLow')],['stale',t('sortStale')]].map(([v,l])=>'<option value="'+v+'"'+(ui.sort===v?' selected':'')+'>'+esc(l)+'</option>').join('')+'</select></label>'+
+    '</div>';
+  let phase = '';
+  if(ui.phase!=null){ const ph=PHASES[ui.phase-1]; phase = '<div class="phasebar"><span>'+t('phasebar', ph.n, esc(phName(ph)))+'</span><button class="linkbtn" data-act="clear-phase">'+esc(t('showAll'))+'</button></div>'; }
+  tb.innerHTML = chips + controls + phase + '<p class="count" id="count"></p>';
+  if(active==='q'){ const q=$('#q'); q.focus(); q.setSelectionRange(q.value.length,q.value.length); }
+}
+function filtered(){
+  const q = ui.q.trim().toLowerCase();
+  return SKILLS.filter(s =>
+    (ui.domain==='all' || s.d===ui.domain) &&
+    (ui.phase==null || s.ph===ui.phase) &&
+    (ui.pri==='all' || PRI[s.p].group===ui.pri) &&
+    (!q || (s.name+' '+s.what+' '+(TA_SKILL[s.id]?TA_SKILL[s.id][0]+' '+TA_SKILL[s.id][1]:'')).toLowerCase().includes(q)));
+}
+function meterHTML(s){
+  const c = curOf(s), g = goalOf(s);
+  let h = '<span class="meter" aria-hidden="true">';
+  for(let i=1;i<=5;i++) h += '<i class="'+(c!=null && i<=c?'on ':'')+(i===g?'goal':'')+'" style="height:'+(4+i*3)+'px"></i>';
+  return h + '<span class="meter-num">'+esc(t('ratio', c==null?'–':c, g))+'</span></span>';
+}
+function rowHTML(s, showDomain){
+  const r = rec(s.id), c = curOf(s), g = goalOf(s);
+  const lv = c==null ? t('notRated') : lvName(c);
+  const certified = r && r.cert && r.cert.status==='certified';
+  const aria = t('rowAria', sName(s), priLabel(s.p), c==null ? t('nowNotRated') : c+', '+lvName(c), g, !!(r&&r.focus));
+  return '<li><button class="row" data-act="open" data-id="'+s.id+'" aria-current="'+(ui.selected===s.id)+'" aria-label="'+esc(aria)+'">'+
+    '<span>'+(r&&r.focus?ICON_FLAG:'')+'</span>'+
+    '<span><span class="row-name">'+esc(sName(s))+'</span><span class="row-meta">'+
+      '<span class="m">'+ICON_PRI(s.p)+esc(priLabel(s.p))+'</span>'+
+      (showDomain?'<span class="m">'+esc(dShort(DOM_BY_ID[s.d]))+'</span>':'')+
+      '<span class="m">'+esc(lv)+'</span>'+
+      (certified?'<span class="m">'+esc(t('certifiedTag'))+'</span>':'')+
+    '</span></span>'+ meterHTML(s) +'</button></li>';
+}
+function renderList(){
+  const list = filtered(), host = $('#list');
+  const cnt = $('#count'); if(cnt) cnt.textContent = t('count', list.length, SKILLS.length);
+  if(!list.length){ host.innerHTML = '<div class="empty">'+esc(t('noMatch'))+' <button class="linkbtn" data-act="clear-filters">'+esc(t('clearFilters'))+'</button></div>'; return; }
+  if(ui.sort==='order'){
+    setHTML(host, DOMAINS.map(d=>{
+      const items = list.filter(s=>s.d===d.id); if(!items.length) return '';
+      const a = avgs(SKILLS.filter(s=>s.d===d.id));
+      return '<section class="group"><div class="group-h"><h2>'+esc(dName(d))+'</h2><span>'+esc(t('groupRated', a.rated, a.n))+'</span></div><ul class="rows">'+items.map(s=>rowHTML(s,false)).join('')+'</ul></section>';
+    }).join(''));
+    return;
+  }
+  const arr = list.slice();
+  if(ui.sort==='gap') arr.sort((a,b)=> (goalOf(b)-(curOf(b)||0)) - (goalOf(a)-(curOf(a)||0)) || PRI[a.p].rank-PRI[b.p].rank || a.order-b.order);
+  if(ui.sort==='low') arr.sort((a,b)=> ((curOf(a)==null?-1:curOf(a)) - (curOf(b)==null?-1:curOf(b))) || PRI[a.p].rank-PRI[b.p].rank || a.order-b.order);
+  if(ui.sort==='stale') arr.sort((a,b)=> ((rec(a.id)&&rec(a.id).rev)||'').localeCompare((rec(b.id)&&rec(b.id).rev)||'') || a.order-b.order);
+  setHTML(host, '<section class="group"><ul class="rows">'+arr.map(s=>rowHTML(s,true)).join('')+'</ul></section>');
+}
+
+/* ================= Overview panel ================= */
+function renderOverview(){
+  const el = $('#overview');
+  el.hidden = !!ui.selected && !narrowScreen();
+  const rows = DOMAINS.map(d=>{
+    const a = avgs(SKILLS.filter(s=>s.d===d.id));
+    return '<button class="dom" data-act="domain" data-id="'+d.id+'" aria-label="'+esc(t('domAria', dName(d), fmt1(a.cur), fmt1(a.goal)))+'">'+
+      '<span class="dom-name">'+esc(dShort(d))+'</span>'+
+      '<span class="track" aria-hidden="true"><span class="fill" style="width:'+(a.cur/5*100)+'%"></span><span class="tgt" style="left:'+(a.goal/5*100)+'%"></span></span>'+
+      '<span class="dom-num">'+esc(t('ratio', fmt1(a.cur), fmt1(a.goal)))+'</span></button>';
+  }).join('');
+  const focus = SKILLS.filter(s=>rec(s.id)&&rec(s.id).focus).sort((a,b)=>rec(a.id).focusAt-rec(b.id).focusAt);
+  const focusHTML = focus.length
+    ? '<ul class="focuslist">'+focus.map(s=>{ const r=rec(s.id); return '<li><button class="focusitem" data-act="open" data-id="'+s.id+'">'+ICON_FLAG+'<span class="fi-main"><span>'+esc(sName(s))+'</span><span class="fi-next">'+esc(r.next || t('noNext'))+'</span></span>'+meterHTML(s)+'</button></li>'; }).join('')+'</ul>'
+    : '<p class="muted" style="margin:0">'+esc(t('focusEmpty'))+'</p>';
+  const td = today();
+  const certs = SKILLS.filter(s=>{ const r=rec(s.id); return r && r.cert && r.cert.status; });
+  const certSummary = certs.length ? '<section><h3>'+esc(t('certificates'))+'</h3>'+certs.map(s=>{
+      const c = rec(s.id).cert; let line;
+      if(c.status==='booked') line = esc(t('booked'));
+      else {
+        line = esc(t('certifiedOn', c.earned ? fmtDate(c.earned) : ''));
+        if(c.renew){ const dd = daysBetween(td, c.renew); line += dd<0 ? '. <span class="warnline">'+esc(t('renewOverdue'))+'</span>' : dd<=60 ? '. <span class="warnline">'+esc(t('renewBy', fmtDate(c.renew)))+'</span>' : '. '+esc(t('renewBy', fmtDate(c.renew))); }
+      }
+      return '<div style="font-size:.9375rem;padding:4px 0"><button class="linkbtn" data-act="open" data-id="'+s.id+'">'+esc(sName(s))+'</button> <span class="muted">'+line+'</span></div>';
+    }).join('')+'</section>' : '';
+  setHTML(el, '<h2>'+esc(t('overview'))+'</h2>'+
+    '<section><h3>'+esc(t('domains'))+'</h3>'+rows+'<div class="keyline"><span><i class="sw"></i>'+esc(t('avgNow'))+'</span><span><i class="sw t"></i>'+esc(t('avgGoal'))+'</span><span>'+esc(t('scale'))+'</span></div></section>'+
+    '<section><h3>'+esc(t('focus'))+'</h3>'+focusHTML+'</section>'+ certSummary +
+    '<section><details class="rubric"'+(narrowScreen()?'':' open')+'><summary>'+esc(t('howToRate'))+'</summary><ol>'+LEVELS.map(l=>'<li><b>'+l.n+'</b><span><b>'+esc(lvName(l.n))+'.</b> '+esc(lvDesc(l.n))+'</span></li>').join('')+'</ol>'+
+    '<p class="muted" style="font-size:.875rem;margin:10px 0 0">'+esc(t('rateNote'))+'</p></details></section>');
+}
+
+/* ================= Detail panel ================= */
+function sparkHTML(s){
+  const r = rec(s.id); const h = r ? r.hist : [];
+  if(!h.length) return '<p class="muted" style="margin:0;font-size:.9375rem">'+esc(t('sparkEmpty'))+'</p>';
+  const W=340, H=110, l=22, rt=10, top=10, bot=24;
+  const g = goalOf(s);
+  const y = v => top + (5-v)/5*(H-top-bot);
+  const t0 = parseISO(h[0][0]).getTime(), t1 = Math.max(parseISO(h[h.length-1][0]).getTime(), parseISO(today()).getTime());
+  const span = Math.max(t1-t0, 86400000);
+  const x = d => l + (parseISO(d).getTime()-t0)/span*(W-l-rt);
+  let d = '', pts='';
+  h.forEach((p,i)=>{ const px=x(p[0]), py=y(p[1]); d += i? ' H'+px.toFixed(1)+' V'+py.toFixed(1) : 'M'+px.toFixed(1)+' '+py.toFixed(1); pts += '<circle cx="'+px.toFixed(1)+'" cy="'+py.toFixed(1)+'" r="3" fill="var(--contour)"><title>'+esc(fmtDate(p[0]))+': '+p[1]+'</title></circle>'; });
+  d += ' H'+(W-rt);
+  let grid=''; for(let v=0;v<=5;v++){ grid += '<line x1="'+l+'" x2="'+(W-rt)+'" y1="'+y(v)+'" y2="'+y(v)+'" stroke="var(--line-2)"/>'; }
+  return '<svg class="spark" viewBox="0 0 '+W+' '+H+'" role="img" aria-label="'+esc(t('histAria', h.map(p=>t('histItem', fmtDate(p[0]), p[1])).join(', ')))+'">'+grid+
+    '<text x="'+(l-8)+'" y="'+(y(5)+4)+'" text-anchor="end" font-size="11" fill="var(--ink-3)">5</text><text x="'+(l-8)+'" y="'+(y(0)+4)+'" text-anchor="end" font-size="11" fill="var(--ink-3)">0</text>'+
+    '<line x1="'+l+'" x2="'+(W-rt)+'" y1="'+y(g)+'" y2="'+y(g)+'" stroke="var(--course)" stroke-width="1.5" stroke-dasharray="5 4"/>'+
+    '<path d="'+d+'" fill="none" stroke="var(--contour)" stroke-width="2.2"/>'+pts+
+    '<text x="'+l+'" y="'+(H-6)+'" font-size="11" fill="var(--ink-3)">'+esc(fmtDate(h[0][0]))+'</text><text x="'+(W-rt)+'" y="'+(H-6)+'" text-anchor="end" font-size="11" fill="var(--ink-3)">'+esc(t('todayAxis'))+'</text></svg>';
+}
+function coachHTML(s){
+  if(!sampleFn) return '';
+  const c = coach[s.id];
+  let out = '';
+  if(c && c.status==='loading') out = '<div class="coach-out"><p>'+esc(t('thinking'))+'</p><button class="smallbtn" data-act="coach-stop" data-id="'+s.id+'">'+esc(t('stop'))+'</button></div>';
+  else if(c && c.status==='error') out = '<div class="coach-out"><p>'+esc(t(c.msg))+'</p></div>';
+  else if(c && c.status==='done') out = '<div class="coach-out">'+(c.data.milestone?'<p><b>'+esc(t('nextLooks'))+'</b> '+esc(c.data.milestone)+'</p>':'')+'<ol>'+c.data.steps.map((st,i)=>'<li><b>'+esc(st.title)+'</b><p>'+esc(st.detail)+'</p><button class="smallbtn" data-act="use-step" data-id="'+s.id+'" data-i="'+i+'">'+esc(t('useStep'))+'</button></li>').join('')+'</ol></div>';
+  return '<section class="coach"><div class="coach-head"><h3 style="margin:0">'+esc(t('coachTitle'))+'</h3><button class="secondary" data-act="coach" data-id="'+s.id+'"'+(c&&c.status==='loading'?' disabled':'')+'>'+esc(c&&c.status==='done'?t('suggestAgain'):t('suggest'))+'</button></div>'+
+    '<p class="note" style="margin:6px 0 0">'+esc(t('coachNote'))+'</p>'+out+'</section>';
+}
+function certHTML(s){
+  if(s.cert==='No') return '';
+  const r = rec(s.id), c = (r&&r.cert) || {status:'',earned:'',renew:''};
+  return '<section><fieldset class="ladder"><legend>'+esc(t('certificate'))+'</legend><p class="hint">'+esc(t('certRec', certText(s.cert)))+'</p>'+
+    '<div class="seg" role="group" aria-label="'+esc(t('certStatus'))+'">'+[['',t('notYet')],['booked',t('courseBooked')],['certified',t('certifiedBtn')]].map(([v,l])=>'<button data-act="cert-status" data-id="'+s.id+'" data-v="'+v+'" aria-pressed="'+(c.status===v)+'">'+esc(l)+'</button>').join('')+'</div>'+
+    (c.status==='certified' ? '<div class="dates"><label>'+esc(t('earnedOn'))+'<input class="field" type="date" data-field="cert.earned" data-id="'+s.id+'" value="'+esc(c.earned)+'"></label><label>'+esc(t('renewByLbl'))+'<input class="field" type="date" data-field="cert.renew" data-id="'+s.id+'" value="'+esc(c.renew)+'"></label></div>' : '')+
+    '</fieldset></section>';
+}
+function renderDetail(keepIfEditing){
+  const el = $('#detail');
+  const s = ui.selected && BY_ID[ui.selected];
+  if(!s){ el.hidden = true; el.innerHTML=''; document.body.classList.remove('sheet-open'); return; }
+  if(keepIfEditing){ const a=document.activeElement; if(a && el.contains(a) && (a.tagName==='TEXTAREA'||a.tagName==='INPUT')) return; }
+  const focusKey = captureFocus(el);
+  el.hidden = false;
+  if(narrowScreen()) document.body.classList.add('sheet-open'); else document.body.classList.remove('sheet-open');
+  const r = rec(s.id) || blankRec(), c = curOf(s), g = goalOf(s), d = DOM_BY_ID[s.d];
+  const ph = s.ph ? PHASES[s.ph-1] : null;
+  const steps = LEVELS.map(l=>'<button type="button" class="step'+(c!=null && l.n<=c?' on':'')+'" style="--h:'+l.n+'" data-act="cur" data-id="'+s.id+'" data-v="'+l.n+'" aria-pressed="'+(c===l.n)+'" aria-label="'+esc(t('nowAria', l.n, lvName(l.n)))+'"><span class="bar"></span><span class="num">'+l.n+'</span><span class="nm">'+esc(lvShort(l.n))+'</span></button>').join('');
+  const goals = '<span class="glabel" aria-hidden="true">'+esc(t('goal'))+'</span>'+LEVELS.slice(1).map(l=>'<button type="button" class="goalbtn" data-act="goal" data-id="'+s.id+'" data-v="'+l.n+'" aria-pressed="'+(g===l.n)+'" aria-label="'+esc(t('goalAria', l.n, lvName(l.n)))+'">'+ICON_PENNANT(g===l.n)+'</button>').join('');
+  const nowText = c==null ? t('nowNone') : '<b>'+esc(t('nowIs', c, lvName(c)))+'</b> '+esc(lvDesc(c));
+  const goalText = '<b>'+esc(t('goalIs', g, lvName(g)))+'</b> '+esc(goalIsSet(s) ? lvDesc(g) : t('goalSuggested', priAdj(s.p)));
+  const gapLine = c!=null ? (c>=g ? t('reached') : t('toGo', g-c)) : '';
+  let reviewed = '';
+  if(r.rev){
+    const dd = daysBetween(r.rev, today());
+    reviewed = '<div class="reviewed"><span>'+esc(t('lastRated', dd===0 ? t('todayWord') : fmtDate(r.rev)) + (dd>=90 ? '. '+t('freshLook') : ''))+'</span>'+(dd>0?'<button class="smallbtn" data-act="reviewed" data-id="'+s.id+'">'+esc(t('stillAccurate'))+'</button>':'')+'</div>';
+  }
+
+  setHTML(el,
+    '<div class="detail-top"><button class="backbtn" data-act="close">'+esc(narrowScreen()?t('close'):t('back'))+'</button><span class="note">'+esc(t('position', SKILLS.indexOf(s)+1, SKILLS.length))+'</span></div>'+
+    '<p class="d-domain">'+esc(dName(d))+'</p><h2 id="detailTitle" tabindex="-1">'+esc(sName(s))+'</h2>'+
+    '<div class="tags"><span class="tag">'+ICON_PRI(s.p)+esc(priLabel(s.p))+'</span>'+(ph?'<span class="tag course">'+esc(t('controlTag', ph.n, phShort(ph)))+'</span>':'')+(s.cert!=='No'?'<span class="tag">'+esc(t('certTag', certText(s.cert)))+'</span>':'')+'</div>'+
+    '<p class="what">'+esc(sWhat(s))+'</p>'+
+    '<details class="about"><summary>'+esc(t('whyHow'))+'</summary><dl><dt>'+esc(t('why'))+'</dt><dd>'+esc(sWhy(s))+'</dd><dt>'+esc(t('how'))+'</dt><dd>'+esc(sHow(s))+'</dd></dl></details>'+
+    '<section><fieldset class="ladder"><legend>'+esc(t('ladderLegend'))+'</legend><div class="steps" role="group" aria-label="'+esc(t('curLevel'))+'">'+steps+'</div><div class="goals" role="group" aria-label="'+esc(t('goalLevel'))+'">'+goals+'</div></fieldset>'+
+      '<p class="leveltext">'+nowText+'</p><p class="leveltext" style="margin-top:4px">'+goalText+(gapLine?' '+esc(gapLine):'')+'</p>'+reviewed+'</section>'+
+    '<section><label class="label" for="f-next">'+esc(t('nextStep'))+'</label><p class="hint">'+esc(t('nextHint'))+'</p><textarea class="field" id="f-next" rows="2" maxlength="600" data-field="next" data-id="'+s.id+'" placeholder="'+esc(t('nextPh'))+'">'+esc(r.next)+'</textarea></section>'+
+    coachHTML(s)+
+    '<section><label class="label" for="f-notes">'+esc(t('notes'))+'</label><p class="hint">'+esc(t('notesHint'))+'</p><textarea class="field" id="f-notes" rows="4" maxlength="2000" data-field="notes" data-id="'+s.id+'">'+esc(r.notes)+'</textarea></section>'+
+    certHTML(s)+
+    '<section><h3>'+esc(t('progress'))+'</h3>'+sparkHTML(s)+'</section>'+
+    '<div class="d-actions"><button class="secondary" data-act="focus" data-id="'+s.id+'" aria-pressed="'+!!r.focus+'">'+esc(r.focus?t('removeFocus'):t('addFocus'))+'</button>'+
+      '<button class="smallbtn" data-act="step-skill" data-dir="-1">'+esc(t('prevSkill'))+'</button><button class="smallbtn" data-act="step-skill" data-dir="1">'+esc(t('nextSkill'))+'</button>'+
+      (ui.focusMsg?'<span class="warnline" role="alert">'+esc(t('focusFull'))+'</span>':'')+'</div>');
+  restoreFocus(el, focusKey);
+}
+function captureFocus(scope){
+  const a = document.activeElement;
+  if(!a || !scope.contains(a) || !a.dataset || !a.dataset.act) return null;
+  return {act:a.dataset.act, v:a.dataset.v, i:a.dataset.i, dir:a.dataset.dir};
+}
+function restoreFocus(scope, k){
+  if(!k) return;
+  let sel = '[data-act="'+k.act+'"]';
+  if(k.v!=null) sel += '[data-v="'+k.v+'"]';
+  if(k.i!=null) sel += '[data-i="'+k.i+'"]';
+  if(k.dir!=null) sel += '[data-dir="'+k.dir+'"]';
+  const el = scope.querySelector(sel) || scope.querySelector('[data-act="'+k.act+'"]');
+  if(el) el.focus({preventScroll:true});
+}
+
+function renderAll(keepDetail){ renderHero(); renderSummary(); renderToolbar(); renderList(); renderOverview(); renderDetail(!!keepDetail); }
+
+/* ================= Coach ================= */
+async function runCoach(id){
+  if(!sampleFn) return;
+  const s = BY_ID[id], r = rec(id) || blankRec();
+  const cur = r.cur==null ? 0 : r.cur, g = goalOf(s);
+  const target = Math.min(5, cur+1), atTop = cur>=5;
+  const prompt =
+`You are a practical, encouraging coach helping an adult improve one life skill. Be concrete and realistic.
+
+Skill: ${s.name}${isTa() ? ' (Tamil: '+sName(s)+')' : ''} (domain: ${DOM_BY_ID[s.d].name})
+What it involves: ${s.what}
+Why it matters: ${s.why}
+Recommended way to learn: ${s.how}
+Certificate recommended: ${s.cert}
+Self-rating now: ${r.cur==null?'not rated yet (treat as 0)':cur+'/5, '+LEVELS[cur].name+': '+LEVELS[cur].desc}
+Their goal: ${g}/5, ${LEVELS[g].name}
+Their current next step: ${r.next?r.next:'none written'}
+Their notes: ${r.notes?r.notes.slice(0,1500):'none'}
+
+Rating scale: ${LEVELS.map(l=>l.n+' '+l.name+' ('+l.desc+')').join('; ')}
+
+${atTop ? 'They are at the top of the scale. Suggest 3 actions for keeping the skill sharp and teaching it to others.' : 'Suggest exactly 3 concrete actions that move them from level '+cur+' to level '+target+' ('+LEVELS[target].name+'). Each must be doable within the next two weeks, specific about what to do and roughly how long, and have an obvious way to tell it is done. If a certified or instructor-led course matters for this skill, make finding or booking one of the actions. Build on their notes where useful and do not repeat their current next step.'}
+For medical, legal or financial topics, keep actions to learning and practice, not professional advice.
+${isTa() ? 'Write the milestone, every title and every detail in simple, natural Tamil (தமிழ்). Keep widely used English terms such as CPR, AED or AI as they are. The JSON keys stay in English.' : ''}
+Reply with only JSON in this shape:
+{"milestone":"one sentence describing what reaching the next level looks like in practice","steps":[{"title":"short imperative, at most 8 words","detail":"one or two sentences"}]}`;
+  const ctl = new AbortController();
+  coach[id] = {status:'loading', ctl};
+  if(ui.selected===id) renderDetail();
+  try{
+    const out = await sampleFn.json(prompt, {signal: ctl.signal});
+    const steps = (out && Array.isArray(out.steps) ? out.steps : []).filter(x=>x && x.title).slice(0,4).map(x=>({title:String(x.title).slice(0,160), detail:String(x.detail||'').slice(0,500)}));
+    if(!steps.length) throw {code:'invalid_json'};
+    coach[id] = {status:'done', data:{milestone:String(out.milestone||'').slice(0,400), steps}};
+  }catch(e){
+    const code = e && e.code;
+    if(code==='cancelled') delete coach[id];
+    else if(['not_granted','sampling_disabled','not_declared','capability_disabled','capability_removed'].includes(code)) coach[id] = {status:'error', msg:'ce_unavail'};
+    else if(code==='rate_limited') coach[id] = {status:'error', msg:'ce_rate'};
+    else if(code==='session_expired') coach[id] = {status:'error', msg:'ce_session'};
+    else if(code==='invalid_json' || code==='empty_completion') coach[id] = {status:'error', msg:'ce_incomplete'};
+    else coach[id] = {status:'error', msg:'ce_generic'};
+  }
+  if(ui.selected===id) renderDetail();
+}
+
+/* ================= Events ================= */
+function openSkill(id){
+  ui.selected = id; ui.focusMsg = false;
+  renderList(); renderOverview(); renderDetail();
+  const h = $('#detailTitle');
+  if(h){ h.focus({preventScroll:true}); if(!narrowScreen()) $('#side').scrollTop = 0; else $('#detail').scrollTop = 0; }
+}
+function closeSkill(){
+  const id = ui.selected; ui.selected = null; ui.focusMsg = false;
+  renderDetail(); renderList(); renderOverview();
+  const row = document.querySelector('.row[data-id="'+id+'"]'); if(row) row.focus({preventScroll:!narrowScreen()});
+}
+function scrollToList(){ if(narrowScreen()) $('#toolbar').scrollIntoView({behavior: matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth', block:'start'}); }
+
+let resetArmed = null;
+document.addEventListener('click', e=>{
+  const b = e.target.closest('[data-act]'); if(!b) return;
+  const act = b.dataset.act, id = b.dataset.id;
+  switch(act){
+    case 'lang': setLang(b.dataset.v); break;
+    case 'domain': ui.domain = id; ui.phase = null; renderHero(); renderToolbar(); renderList(); if(b.classList.contains('dom')){ if(ui.selected) closeSkill(); scrollToList(); } break;
+    case 'phase': { const n = Number(b.dataset.n), fromMap = !!b.closest('#mapSvg'); ui.phase = ui.phase===n ? null : n; ui.domain='all'; renderHero(); renderToolbar(); renderList(); if(fromMap){ const gEl=document.querySelector('.ctrl[data-n="'+n+'"]'); if(gEl) gEl.focus({preventScroll:true}); } scrollToList(); break; }
+    case 'clear-phase': ui.phase = null; renderHero(); renderToolbar(); renderList(); break;
+    case 'clear-filters': ui.phase=null; ui.domain='all'; ui.pri='all'; ui.q=''; renderHero(); renderToolbar(); renderList(); break;
+    case 'open': openSkill(id); break;
+    case 'close': closeSkill(); break;
+    case 'cur': setCur(id, Number(b.dataset.v)); break;
+    case 'goal': setGoal(id, Number(b.dataset.v)); break;
+    case 'reviewed': markReviewed(id); break;
+    case 'focus': toggleFocus(id); break;
+    case 'step-skill': { const list = filtered(); const pool = list.length ? list : SKILLS; let i = pool.findIndex(s=>s.id===ui.selected); i = (i + Number(b.dataset.dir) + pool.length) % pool.length; openSkill(pool[i].id); break; }
+    case 'cert-status': { const r=ensure(id); r.cert.status = b.dataset.v; touch(id); renderAll(); break; }
+    case 'coach': runCoach(id); break;
+    case 'coach-stop': if(coach[id] && coach[id].ctl) coach[id].ctl.abort(); break;
+    case 'use-step': { const c=coach[id]; if(!c||!c.data) break; const st=c.data.steps[Number(b.dataset.i)]; const r=ensure(id); r.next = (st.title + (st.detail ? '. '+st.detail : '')).replace(/\.\./g,'.').slice(0,600); touch(id); renderDetail(); renderOverview(); const f=$('#f-next'); if(f) f.focus(); break; }
+    case 'export': doExport(); break;
+    case 'import': $('#importFile').click(); break;
+    case 'reset':
+      if(resetArmed){ clearTimeout(resetArmed); resetArmed=null; b.classList.remove('armed'); b.textContent=t('reset'); state.skills={}; state.resetAt=Date.now(); ui.selected=null; Object.keys(coach).forEach(k=>delete coach[k]); scheduleSave(); renderAll(); }
+      else { b.classList.add('armed'); b.textContent=t('resetArm'); resetArmed=setTimeout(()=>{ resetArmed=null; b.classList.remove('armed'); b.textContent=t('reset'); }, 4000); }
+      break;
+  }
+});
+document.addEventListener('keydown', e=>{
+  const gEl = e.target.closest && e.target.closest('.ctrl');
+  if(gEl && (e.key==='Enter' || e.key===' ')){ e.preventDefault(); gEl.dispatchEvent(new MouseEvent('click',{bubbles:true})); return; }
+  if(e.key==='Escape' && ui.selected) closeSkill();
+});
+document.addEventListener('input', e=>{
+  const el = e.target;
+  if(el.id==='q'){ ui.q = el.value; renderList(); return; }
+  const f = el.dataset && el.dataset.field; if(!f) return;
+  const r = ensure(el.dataset.id);
+  if(f==='next') r.next = el.value.slice(0,600);
+  else if(f==='notes') r.notes = el.value.slice(0,2000);
+  else if(f==='cert.earned') r.cert.earned = el.value;
+  else if(f==='cert.renew') r.cert.renew = el.value;
+  touch(el.dataset.id);
+});
+document.addEventListener('change', e=>{
+  const el = e.target;
+  if(el.id==='pri'){ ui.pri = el.value; renderList(); }
+  if(el.id==='sort'){ ui.sort = el.value; renderList(); }
+  if(el.dataset && (el.dataset.field==='next' || el.dataset.field==='cert.renew' || el.dataset.field==='cert.earned')) renderOverview();
+  if(el.id==='importFile' && el.files && el.files[0]) doImport(el.files[0]);
+});
+
+async function doExport(){
+  const body = JSON.stringify({app:'competence-course', version:1, exportedAt:new Date().toISOString(), resetAt:state.resetAt||0, skills:state.skills}, null, 2);
+  const filename = 'competence-course-backup-'+today()+'.json';
+  if(!downloadsApi){
+    const url = URL.createObjectURL(new Blob([body], {type:'application/json'}));
+    const a = document.createElement('a'); a.href = url; a.download = filename;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(()=>URL.revokeObjectURL(url), 1000);
+    return;
+  }
+  try{ await downloadsApi.save({filename, data:body}); }
+  catch(e){ if(e && e.code!=='declined') setStatus(mode==='db'?'saved':'local', 'exportFail'); }
+}
+function doImport(file){
+  const fr = new FileReader();
+  fr.onload = ()=>{
+    try{
+      const obj = JSON.parse(fr.result);
+      const inc = cleanSkills(obj && obj.skills, 0);
+      const n = Object.keys(inc).length;
+      if(!n) throw new Error('empty');
+      const now = Date.now();
+      Object.keys(inc).forEach(k=>{ inc[k].u = now; });
+      state.skills = mergeSkills(state.skills, inc);
+      scheduleSave(); renderAll();
+      setStatus('saving','imported', n);
+    }catch(err){ setStatus('error','importBad'); }
+    $('#importFile').value = '';
+  };
+  fr.readAsText(file);
+}
+
+let rz=null, lastW = 0;
+window.addEventListener('resize', ()=>{ clearTimeout(rz); rz = setTimeout(()=>{ const w=$('#mapSvg').clientWidth; if(Math.abs(w-lastW)>2){ lastW=w; renderHero(); } if(ui.selected){ if(narrowScreen()) document.body.classList.add('sheet-open'); else document.body.classList.remove('sheet-open'); } renderOverview(); }, 120); });
+
+connect();
+lastW = $('#mapSvg').clientWidth;
+})();
+</script>
+</body>
+</html>
