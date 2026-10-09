@@ -257,6 +257,11 @@ html[lang="ta"] .chip{font-size:.875rem}
 html[lang="ta"] .dom{grid-template-columns:minmax(0,9.5em) minmax(0,1fr) auto;font-size:.875rem}
 html[lang="ta"] .map-caption{font-size:.875rem}
 html[lang="ta"] .tag{line-height:1.5}
+
+/* ---------- Account (Firebase) ---------- */
+.acct{display:flex;align-items:center;gap:8px;font-size:.875rem}
+.acct-name{max-width:16em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--ink-2)}
+.acct .primary{padding:6px 14px;font-size:.875rem}
 </style>
 </head>
 <body>
@@ -266,6 +271,7 @@ html[lang="ta"] .tag{line-height:1.5}
       <h1 id="appTitle">Competence course</h1>
       <div class="hero-tools">
         <div class="status" id="status" data-s="saving" role="status" aria-live="polite"><span class="dot"></span><span id="statusText">Loading your ratings…</span></div>
+        <div class="acct" id="account" hidden></div>
         <div class="seg langseg" role="group" id="langGroup" aria-label="Language">
           <button type="button" data-act="lang" data-v="en" lang="en" aria-pressed="true">English</button>
           <button type="button" data-act="lang" data-v="ta" lang="ta" aria-pressed="false">தமிழ்</button>
@@ -300,6 +306,21 @@ html[lang="ta"] .tag{line-height:1.5}
   </footer>
 </div>
 
+<script>
+/* ============================================================
+   FIREBASE SETUP
+   Paste your Firebase web app config below to enable
+   "Sign in with Google" and cloud sync (Firestore).
+   Leave apiKey empty to keep browser-only storage.
+   Firebase console > Project settings > Your apps > Web app > SDK setup and configuration
+   ============================================================ */
+window.FIREBASE_CONFIG = {
+  apiKey: "AIzaSyB1R49CFhNBM3vmIo4nmbL8dpHSiaFvR8Y",
+  authDomain: "adult-competency-course.firebaseapp.com",
+  projectId: "adult-competency-course",
+  appId: "1:428131513605:web:8d7e87851d6c2f9a31f36c"
+};
+</script>
 <script>
 (function(){
 "use strict";
@@ -597,7 +618,17 @@ const I18N = {
   thinking:'Thinking… this can take up to a minute.', stop:'Stop', nextLooks:'Next level looks like:', useStep:'Use as next step',
   ce_unavail:'Suggestions aren’t available here.', ce_rate:'Too many requests right now. Try again in a minute.',
   ce_session:'Your session expired. Reload the page and try again.', ce_incomplete:'The suggestions came back incomplete. Try again.',
-  ce_generic:'Couldn’t get suggestions. Try again.'
+  ce_generic:'Couldn’t get suggestions. Try again.',
+  signIn:'Sign in with Google', signOut:'Sign out', signingIn:'Signing in…',
+  signedInAs:n=>`Signed in as ${n}`,
+  fbFile:'Google sign-in needs this page served from a website or localhost. It doesn’t work when opened directly as a file.',
+  fbFailed:'Couldn’t sign in. Try again.',
+  fbDomain:'This web address isn’t authorised in Firebase. Add it under Authentication, Settings, Authorized domains.',
+  fbNetwork:'Couldn’t reach Google. Check your connection and try again.',
+  fbPerm:'Firebase refused access. Check your Firestore security rules.',
+  st_signedOut:'Signed out. This browser’s copy was cleared.',
+  foot_fb:e=>`Signed in as ${e}. Your ratings sync through Firebase across your devices.`,
+  foot_localFb:'Your ratings are saved in this browser only. Sign in with Google to keep them in your account and sync across devices.'
  },
  ta: {
   title:'திறன் பாதை',
@@ -671,7 +702,17 @@ const I18N = {
   thinking:'யோசிக்கிறது… இதற்கு ஒரு நிமிடம் வரை ஆகலாம்.', stop:'நிறுத்து', nextLooks:'அடுத்த நிலை இப்படி இருக்கும்:', useStep:'அடுத்த படியாகப் பயன்படுத்து',
   ce_unavail:'பரிந்துரைகள் இங்கே கிடைக்கவில்லை.', ce_rate:'இப்போது அதிகமான கோரிக்கைகள் உள்ளன. ஒரு நிமிடம் கழித்து முயலுங்கள்.',
   ce_session:'உங்கள் அமர்வு காலாவதியானது. பக்கத்தை மீண்டும் ஏற்றி முயலுங்கள்.', ce_incomplete:'பரிந்துரைகள் முழுமையாக வரவில்லை. மீண்டும் முயலுங்கள்.',
-  ce_generic:'பரிந்துரைகளைப் பெற முடியவில்லை. மீண்டும் முயலுங்கள்.'
+  ce_generic:'பரிந்துரைகளைப் பெற முடியவில்லை. மீண்டும் முயலுங்கள்.',
+  signIn:'Google மூலம் உள்நுழைக', signOut:'வெளியேறு', signingIn:'உள்நுழைகிறது…',
+  signedInAs:n=>`${n} ஆக உள்நுழைந்துள்ளீர்கள்`,
+  fbFile:'Google உள்நுழைவுக்கு இந்தப் பக்கம் ஓர் இணையதளம் அல்லது localhost மூலம் திறக்கப்பட வேண்டும். கோப்பாக நேரடியாகத் திறந்தால் வேலை செய்யாது.',
+  fbFailed:'உள்நுழைய முடியவில்லை. மீண்டும் முயலுங்கள்.',
+  fbDomain:'இந்த இணைய முகவரி Firebase-இல் அனுமதிக்கப்படவில்லை. Authentication, Settings, Authorized domains பகுதியில் சேர்க்கவும்.',
+  fbNetwork:'Google-ஐ அணுக முடியவில்லை. இணைய இணைப்பைச் சரிபார்த்து மீண்டும் முயலுங்கள்.',
+  fbPerm:'Firebase அணுகலை மறுத்துவிட்டது. உங்கள் Firestore பாதுகாப்பு விதிகளைச் சரிபார்க்கவும்.',
+  st_signedOut:'வெளியேறிவிட்டீர்கள். இந்த உலாவியில் இருந்த நகல் அழிக்கப்பட்டது.',
+  foot_fb:e=>`${e} கணக்கில் உள்நுழைந்துள்ளீர்கள். உங்கள் மதிப்பீடுகள் Firebase மூலம் உங்கள் எல்லாச் சாதனங்களிலும் ஒத்திசைக்கப்படும்.`,
+  foot_localFb:'உங்கள் மதிப்பீடுகள் இந்த உலாவியில் மட்டுமே சேமிக்கப்படுகின்றன. அவற்றை உங்கள் கணக்கில் வைத்து எல்லாச் சாதனங்களிலும் ஒத்திசைக்க Google மூலம் உள்நுழையுங்கள்.'
  }
 };
 
@@ -715,6 +756,7 @@ function applyStatic(){
   $('#importBtn').textContent = t('import');
   const rb = $('#resetBtn'); rb.textContent = rb.classList.contains('armed') ? t('resetArm') : t('reset');
   updateFoot();
+  renderAccount();
 }
 function setLang(v){
   if(v===lang || !I18N[v]) return;
@@ -806,7 +848,7 @@ function cleanSkills(obj, resetAt){
     b.focus = !!r.focus; b.focusAt = Number(r.focusAt)||0;
     const c = r.cert||{};
     b.cert = {status: ['','booked','certified'].includes(c.status)?c.status:'', earned: typeof c.earned==='string'?c.earned:'', renew: typeof c.renew==='string'?c.renew:''};
-    b.hist = Array.isArray(r.hist) ? r.hist.filter(h=>Array.isArray(h)&&typeof h[0]==='string'&&Number.isInteger(h[1])).slice(-60).map(h=>[h[0],h[1]]) : [];
+    b.hist = Array.isArray(r.hist) ? r.hist.map(h=>Array.isArray(h) ? h : (h && typeof h==='object' ? [h.d, h.v] : null)).filter(h=>h&&typeof h[0]==='string'&&Number.isInteger(h[1])).slice(-60).map(h=>[h[0],h[1]]) : [];
     b.rev = typeof r.rev==='string' ? r.rev : '';
     b.u = Number(r.u)||0;
     out[k]=b;
@@ -816,6 +858,17 @@ function cleanSkills(obj, resetAt){
 function mergeSkills(a, b){
   const out = Object.assign({}, a);
   Object.keys(b).forEach(k=>{ if(!a[k] || (b[k].u||0) > (a[k].u||0)) out[k]=b[k]; });
+  return out;
+}
+// Stored form: history as {d, v} objects, because Firestore does not allow arrays inside arrays
+function serializeSkills(skills){
+  const out = {};
+  Object.keys(skills).forEach(k=>{
+    const r = skills[k];
+    out[k] = {cur:r.cur, goal:r.goal, next:r.next||'', notes:r.notes||'', focus:!!r.focus, focusAt:r.focusAt||0,
+      cert:{status:(r.cert&&r.cert.status)||'', earned:(r.cert&&r.cert.earned)||'', renew:(r.cert&&r.cert.renew)||''},
+      hist:(r.hist||[]).map(h=>({d:h[0], v:h[1]})), rev:r.rev||'', u:r.u||0};
+  });
   return out;
 }
 function localIsNewer(remote, local){ return Object.keys(local).some(k => !remote[k] || (local[k].u||0) > (remote[k].u||0)); }
@@ -828,7 +881,13 @@ function setStatus(s, key, arg){
   $('#statusText').textContent = t(k, arg);
   updateFoot();
 }
-function updateFoot(){ $('#footNote').textContent = mode==='db' ? t('foot_db') : mode==='local' ? t('foot_local') : t('foot_default'); }
+function updateFoot(){
+  let txt;
+  if(mode==='db') txt = backend==='firebase' && fbUser ? t('foot_fb', fbUser.email || fbUser.displayName || '') : t('foot_db');
+  else if(mode==='local') txt = fbAuth ? t('foot_localFb') : t('foot_local');
+  else txt = t('foot_default');
+  $('#footNote').textContent = txt;
+}
 
 function touch(id){ ensure(id).u = Date.now(); scheduleSave(); }
 function scheduleSave(){ dirty = true; setStatus('saving'); clearTimeout(saveTimer); saveTimer = setTimeout(flush, 650); }
@@ -836,7 +895,7 @@ async function flush(){
   if(saving){ again = true; return; }
   saving = true; dirty = false;
   const rev = Math.random().toString(36).slice(2,10);
-  const body = {version:1, rev, resetAt: state.resetAt||0, skills: JSON.parse(JSON.stringify(state.skills)), savedAt: new Date().toISOString()};
+  const body = {version:1, rev, resetAt: state.resetAt||0, skills: serializeSkills(state.skills), savedAt: new Date().toISOString()};
   const okLocal = lsWrite(body);
   if(mode==='db' && docRef){
     try{ lastRev = rev; await docRef.set(body); dbRetried = false; setStatus('saved'); }
@@ -849,7 +908,8 @@ async function flush(){
   if(again){ again = false; flush(); }
 }
 async function handleDbError(e, fromWrite){
-  const code = e && e.code;
+  const code = e && e.code ? String(e.code).replace(/-/g,'_') : '';
+  if(code==='permission_denied' && backend==='firebase'){ console.warn(e); detach(false); setStatus('error','fbPerm'); return; }
   if(code==='unavailable' && fromWrite && !dbRetried){
     dbRetried = true;
     await new Promise(r=>setTimeout(r, 800 + Math.random()*800));
@@ -857,30 +917,24 @@ async function handleDbError(e, fromWrite){
   }
   if(code==='quota_exceeded'){ setStatus('error','err_quota'); return; }
   if(code==='resource_exhausted'){ setStatus('error','err_busy'); return; }
-  mode = 'local'; docRef = null;
+  console.warn(e);
+  detach(false);
   setStatus('local','st_localNoSync');
 }
 
-async function connect(){
-  const local = lsRead();
-  if(local && local.skills){ state.resetAt = Number(local.resetAt)||0; state.skills = cleanSkills(local.skills, 0); }
-  applyStatic();
-  renderAll();
-  setStatus('connecting');
-  if(!window.claude || typeof window.claude.use!=='function'){ mode='local'; setStatus('local'); $('#exportBtn').hidden = false; return; }
-
-  claude.use('sample').then(fn=>{ sampleFn = fn || null; if(ui.selected) renderDetail(true); }).catch(()=>{});
-  claude.use('downloads').then(d=>{ downloadsApi = d || null; $('#exportBtn').hidden = !downloadsApi; }).catch(()=>{});
-
-  let db=null, user=null, uid=null;
-  try{ [db, user] = await Promise.all([claude.use('db'), claude.use('user')]); }catch(e){}
-  if(db && user){ try{ uid = await user.id(); }catch(e){} }
-  if(!db || !uid){ mode='local'; setStatus('local'); return; }
-
-  try{ docRef = db.doc('data/users/'+uid+'/tracker'); }catch(e){ mode='local'; setStatus('local'); return; }
+let backend = null;      // 'claude' | 'firebase' | null
+let unsub = null;
+// Attach to a remote document and keep it in sync with local state (merge per skill by last-edit time)
+function subscribe(ref){
+  if(unsub){ try{ unsub(); }catch(e){} unsub = null; }
+  docRef = ref; lastRev = null;
   let first = true;
-  docRef.onSnapshot(snap=>{
+  const mine = ref;
+  unsub = ref.onSnapshot(snap=>{
+    if(docRef !== mine) return;
     if(snap.metadata && snap.metadata.hasPendingWrites) return;
+    // Never treat an empty offline cache as "no saved data" (that would overwrite the account)
+    if(first && snap.metadata && snap.metadata.fromCache && !snap.exists) return;
     const data = snap.exists ? snap.data() : null;
     if(first){
       first = false; mode = 'db';
@@ -898,12 +952,134 @@ async function connect(){
     if(!data || data.rev === lastRev || dirty || saving) return;
     const resetAt = Math.max(Number(data.resetAt)||0, state.resetAt||0);
     const remote = cleanSkills(JSON.parse(JSON.stringify(data.skills||{})), resetAt);
+    const localS = cleanSkills(state.skills, resetAt);
     state.resetAt = resetAt;
-    state.skills = mergeSkills(remote, cleanSkills(state.skills, resetAt));
+    state.skills = mergeSkills(remote, localS);
     lsWrite({version:1, rev:data.rev, resetAt, skills:state.skills});
     renderAll(true);
-    setStatus('saved');
-  }, err=>{ handleDbError(err, false); });
+    if(localIsNewer(remote, localS)) scheduleSave(); else setStatus('saved');
+  }, err=>{ if(docRef === mine) handleDbError(err, false); });
+}
+function detach(clearLocal){
+  if(unsub){ try{ unsub(); }catch(e){} unsub = null; }
+  docRef = null; mode = 'local';
+  if(backend !== 'firebase') backend = null;
+  if(clearLocal){
+    clearTimeout(saveTimer); dirty = false;
+    state.skills = {}; state.resetAt = 0; ui.selected = null;
+    Object.keys(coach).forEach(k=>delete coach[k]);
+    try{ localStorage.removeItem(LS_KEY); }catch(e){}
+    renderAll();
+    setStatus('local','st_signedOut');
+  } else setStatus('local');
+}
+
+async function connect(){
+  const local = lsRead();
+  if(local && local.skills){ state.resetAt = Number(local.resetAt)||0; state.skills = cleanSkills(local.skills, 0); }
+  applyStatic();
+  renderAll();
+  setStatus('connecting');
+  if(window.claude && typeof window.claude.use==='function') return connectClaude();
+  $('#exportBtn').hidden = false;
+  if(firebaseConfigured()) return connectFirebase();
+  mode = 'local'; setStatus('local');
+}
+
+async function connectClaude(){
+  claude.use('sample').then(fn=>{ sampleFn = fn || null; if(ui.selected) renderDetail(true); }).catch(()=>{});
+  claude.use('downloads').then(d=>{ downloadsApi = d || null; $('#exportBtn').hidden = !downloadsApi; }).catch(()=>{});
+  let db=null, user=null, uid=null;
+  try{ [db, user] = await Promise.all([claude.use('db'), claude.use('user')]); }catch(e){}
+  if(db && user){ try{ uid = await user.id(); }catch(e){} }
+  if(!db || !uid){ mode='local'; setStatus('local'); return; }
+  backend = 'claude';
+  try{ subscribe(db.doc('data/users/'+uid+'/tracker')); }catch(e){ mode='local'; setStatus('local'); }
+}
+
+/* ================= Firebase (Google sign-in + Firestore) ================= */
+const FB_VERSION = '10.12.2';
+let fbAuth = null, fbDb = null, fbUser = null, fbState = 'off'; // off | loading | out | in | busy
+function firebaseConfigured(){
+  const c = window.FIREBASE_CONFIG;
+  return !!(c && typeof c.apiKey==='string' && c.apiKey && !/^YOUR|PASTE/i.test(c.apiKey) && c.projectId);
+}
+function loadScript(src){
+  return new Promise((res, rej)=>{ const el=document.createElement('script'); el.src=src; el.async=false; el.onload=res; el.onerror=()=>rej(new Error('Failed to load '+src)); document.head.appendChild(el); });
+}
+async function loadFirebase(){
+  if(window.firebase && window.firebase.auth && window.firebase.firestore) return;
+  const base = 'https://www.gstatic.com/firebasejs/'+FB_VERSION+'/';
+  await loadScript(base+'firebase-app-compat.js');
+  await Promise.all([loadScript(base+'firebase-auth-compat.js'), loadScript(base+'firebase-firestore-compat.js')]);
+}
+async function connectFirebase(){
+  fbState = 'loading'; renderAccount();
+  try{
+    await loadFirebase();
+    const app = firebase.apps && firebase.apps.length ? firebase.app() : firebase.initializeApp(window.FIREBASE_CONFIG);
+    fbAuth = app.auth ? app.auth() : firebase.auth();
+    fbDb = app.firestore ? app.firestore() : firebase.firestore();
+  }catch(e){
+    console.warn('Firebase unavailable, using browser storage only.', e);
+    fbAuth = null; fbState = 'off'; renderAccount();
+    mode = 'local'; setStatus('local'); return;
+  }
+  backend = 'firebase';
+  if(fbAuth.getRedirectResult) fbAuth.getRedirectResult().catch(handleAuthError);
+  fbAuth.onAuthStateChanged(user=>{
+    if(user){
+      fbUser = user; fbState = 'in'; renderAccount();
+      subscribe(fbDb.collection('users').doc(user.uid));
+    } else {
+      const wasSignedIn = !!fbUser;
+      fbUser = null; fbState = 'out'; renderAccount();
+      detach(wasSignedIn);
+    }
+  });
+}
+async function signIn(){
+  if(!fbAuth) return;
+  if(location.protocol==='file:'){ setStatus('error','fbFile'); return; }
+  const provider = new firebase.auth.GoogleAuthProvider();
+  provider.setCustomParameters({prompt:'select_account'});
+  fbState = 'busy'; renderAccount();
+  try{ await fbAuth.signInWithPopup(provider); }
+  catch(e){
+    if(e && (e.code==='auth/popup-blocked' || e.code==='auth/operation-not-supported-in-this-environment')){
+      try{ await fbAuth.signInWithRedirect(provider); return; }catch(e2){ handleAuthError(e2); }
+    } else handleAuthError(e);
+  }
+  if(fbState==='busy'){ fbState = fbUser ? 'in' : 'out'; renderAccount(); }
+}
+async function signOut(){
+  if(!fbAuth) return;
+  // Let pending changes reach the account before signing out
+  for(let i=0; i<40 && (dirty || saving); i++){
+    if(dirty && !saving){ clearTimeout(saveTimer); flush(); }
+    await new Promise(r=>setTimeout(r, 100));
+  }
+  try{ await fbAuth.signOut(); }catch(e){ console.warn(e); }
+}
+function handleAuthError(e){
+  const code = e && e.code;
+  if(!code || code==='auth/popup-closed-by-user' || code==='auth/cancelled-popup-request' || code==='auth/user-cancelled') return;
+  console.warn(e);
+  if(code==='auth/unauthorized-domain') setStatus('error','fbDomain');
+  else if(code==='auth/network-request-failed') setStatus('error','fbNetwork');
+  else if(code==='auth/operation-not-supported-in-this-environment' && location.protocol==='file:') setStatus('error','fbFile');
+  else setStatus('error','fbFailed');
+}
+function renderAccount(){
+  const el = $('#account'); if(!el) return;
+  if(fbState==='off' || fbState==='loading'){ el.hidden = true; el.innerHTML=''; return; }
+  el.hidden = false;
+  if(fbState==='in' && fbUser){
+    const who = fbUser.displayName || fbUser.email || '';
+    el.innerHTML = '<span class="acct-name" title="'+esc(t('signedInAs', fbUser.email || who))+'">'+esc(who)+'</span><button type="button" class="smallbtn" data-act="signout">'+esc(t('signOut'))+'</button>';
+  } else {
+    el.innerHTML = '<button type="button" class="primary" data-act="signin"'+(fbState==='busy'?' disabled':'')+'>'+esc(fbState==='busy' ? t('signingIn') : t('signIn'))+'</button>';
+  }
 }
 
 /* ================= Mutations ================= */
@@ -1298,6 +1474,8 @@ document.addEventListener('click', e=>{
   const act = b.dataset.act, id = b.dataset.id;
   switch(act){
     case 'lang': setLang(b.dataset.v); break;
+    case 'signin': signIn(); break;
+    case 'signout': signOut(); break;
     case 'domain': ui.domain = id; ui.phase = null; renderHero(); renderToolbar(); renderList(); if(b.classList.contains('dom')){ if(ui.selected) closeSkill(); scrollToList(); } break;
     case 'phase': { const n = Number(b.dataset.n), fromMap = !!b.closest('#mapSvg'); ui.phase = ui.phase===n ? null : n; ui.domain='all'; renderHero(); renderToolbar(); renderList(); if(fromMap){ const gEl=document.querySelector('.ctrl[data-n="'+n+'"]'); if(gEl) gEl.focus({preventScroll:true}); } scrollToList(); break; }
     case 'clear-phase': ui.phase = null; renderHero(); renderToolbar(); renderList(); break;
