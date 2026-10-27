@@ -1,0 +1,394 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Feelings in English and Tamil</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Arima:wght@400;600&family=Hind+Madurai:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#F4F6F3;--surface:#FFFFFF;--ink:#17212C;--ink-2:#465361;--ink-3:#6F7B86;--line:#D9E0DC;
+  --peacock:#0A6964;--peacock-soft:#D9EEEA;--on-peacock:#FFFFFF;
+  --pos:#D49A00;--pos-bg:#FBEFCC;--pos-ink:#6E4B00;
+  --neg:#3F50A6;--neg-bg:#E3E7F8;--neg-ink:#2A3577;
+  --mix:#B02D6A;--mix-bg:#F7DFEA;--mix-ink:#7A1C49;
+  --backdrop:rgba(12,18,24,.5);
+  --f-display:"Arima","Noto Serif Tamil",Georgia,serif;
+  --f-body:"Hind Madurai","Noto Sans Tamil",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  color-scheme:light;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --paper:#0F151A;--surface:#172028;--ink:#E6EBEE;--ink-2:#AEB8C0;--ink-3:#808B94;--line:#28333C;
+    --peacock:#5BC6BE;--peacock-soft:#15302F;--on-peacock:#06201E;
+    --pos:#E9B43A;--pos-bg:#372C10;--pos-ink:#F5D88C;
+    --neg:#8C9AEC;--neg-bg:#1E2446;--neg-ink:#CAD1FA;
+    --mix:#E67AAE;--mix-bg:#3B192A;--mix-ink:#F5BDD7;
+    --backdrop:rgba(0,0,0,.6);
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#0F151A;--surface:#172028;--ink:#E6EBEE;--ink-2:#AEB8C0;--ink-3:#808B94;--line:#28333C;
+  --peacock:#5BC6BE;--peacock-soft:#15302F;--on-peacock:#06201E;
+  --pos:#E9B43A;--pos-bg:#372C10;--pos-ink:#F5D88C;
+  --neg:#8C9AEC;--neg-bg:#1E2446;--neg-ink:#CAD1FA;
+  --mix:#E67AAE;--mix-bg:#3B192A;--mix-ink:#F5BDD7;
+  --backdrop:rgba(0,0,0,.6);
+  color-scheme:dark;
+}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+html,body{margin:0}
+body{background:var(--paper);color:var(--ink);font-family:var(--f-body);font-size:1.0625rem;line-height:1.55;-webkit-text-size-adjust:100%}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--paper)}
+.wrap{max-width:1160px;margin:0 auto;padding-left:clamp(16px,4vw,40px);padding-right:clamp(16px,4vw,40px)}
+:focus-visible{outline:2px solid var(--peacock);outline-offset:2px}
+
+.hero{padding-top:clamp(40px,8vw,88px);padding-bottom:28px}
+.hero h1{font-family:var(--f-display);font-weight:600;margin:0;line-height:.98;letter-spacing:-.01em}
+.h-ta{display:block;font-size:clamp(3rem,11vw,7rem)}
+.h-en{display:block;font-size:clamp(1.75rem,4.5vw,3rem);font-weight:400;color:var(--ink-2);margin-top:.2em}
+.lede{max-width:60ch;color:var(--ink-2);font-size:1.125rem;margin:22px 0 0}
+.strip{display:flex;height:44px;border-radius:10px;overflow:hidden;margin:34px 0 14px;cursor:pointer;background:var(--line)}
+.strip.empty{cursor:default}
+.sl{flex:1 1 0;min-width:0;transition:opacity .2s}
+.sl-p{background:var(--pos)}.sl-u{background:var(--neg)}.sl-m{background:var(--mix)}
+.sl.brk{margin-left:3px}
+.sl.dim{opacity:.16}
+.sl:hover{filter:brightness(1.18)}
+.legend{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.lg{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line);background:transparent;color:var(--ink-2);font:inherit;font-size:.95rem;padding:6px 13px;border-radius:999px;cursor:pointer}
+.lg b{font-weight:600;color:var(--ink)}
+.lg:hover{border-color:var(--ink-3)}
+.lg[aria-pressed="true"]{border-color:var(--ink);color:var(--ink);background:var(--surface)}
+.sw{width:12px;height:12px;border-radius:3px;display:inline-block;flex:none}
+.sw-p{background:var(--pos)}.sw-u{background:var(--neg)}.sw-m{background:var(--mix)}
+.legend-note{color:var(--ink-3);font-size:.9rem;margin-left:4px}
+
+.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--paper);border-bottom:1px solid var(--line)}
+.bar-in{display:flex;flex-wrap:wrap;gap:10px;align-items:center;padding-top:12px;padding-bottom:12px}
+.seg{display:inline-flex;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:3px}
+.seg button{border:0;background:transparent;font:inherit;color:var(--ink-2);padding:7px 14px;border-radius:9px;cursor:pointer;font-weight:500;white-space:nowrap}
+.seg button:hover{color:var(--ink)}
+.seg button[aria-selected="true"]{background:var(--peacock);color:var(--on-peacock)}
+.seg .n{font-weight:400}
+.search{flex:1 1 240px;display:flex;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:0 12px;min-height:44px;color:var(--ink-3)}
+.search:focus-within{border-color:var(--peacock);box-shadow:0 0 0 3px var(--peacock-soft)}
+.search input{flex:1;border:0;background:transparent;font:inherit;color:var(--ink);outline:none;min-width:0;padding:9px 0}
+.search input::placeholder{color:var(--ink-3)}
+.btn{border:1px solid var(--line);background:var(--surface);color:var(--ink);font:inherit;font-weight:500;padding:9px 15px;border-radius:12px;cursor:pointer;min-height:44px;white-space:nowrap}
+.btn:hover{border-color:var(--ink-3)}
+.btn[aria-pressed="true"]{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+
+.controls{padding-top:16px}
+.fams-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.fams{display:flex;flex-wrap:wrap;gap:6px}
+@media (max-width:640px){.fams{flex-wrap:nowrap;padding-bottom:6px}}
+.chipf{flex:none;border:1px solid var(--line);background:transparent;color:var(--ink-2);font:inherit;font-size:.93rem;padding:5px 12px;border-radius:999px;cursor:pointer;white-space:nowrap}
+.chipf:hover{border-color:var(--ink-3)}
+.chipf[aria-pressed="true"]{background:var(--peacock-soft);border-color:var(--peacock);color:var(--ink)}
+.status{display:flex;flex-wrap:wrap;gap:14px;align-items:center;color:var(--ink-3);font-size:.95rem;margin:16px 0 0}
+.linkbtn{border:0;background:none;color:var(--peacock);font:inherit;text-decoration:underline;text-underline-offset:3px;cursor:pointer;padding:0}
+
+.fam{margin:30px 0 6px}
+.fam h2{font-family:var(--f-display);font-weight:600;font-size:clamp(1.5rem,3vw,1.95rem);line-height:1.2;margin:0 0 14px;display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 14px}
+.fam-ta{font-weight:400;color:var(--ink-3);font-size:.8em}
+.fam-n{font-family:var(--f-body);font-size:.95rem;color:var(--ink-3);font-weight:400}
+.lang-tag{font-family:var(--f-body);font-size:.8rem;font-weight:500;color:var(--peacock);border:1px solid var(--peacock);border-radius:6px;padding:0 7px;align-self:center}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:10px}
+.tile{position:relative;display:flex;flex-direction:column;text-align:left;border:0;border-radius:12px;padding:14px 16px 15px;background:var(--bg);color:var(--ink);font:inherit;cursor:pointer;box-shadow:inset 0 0 0 1px transparent;transition:box-shadow .15s}
+.tile:hover{box-shadow:inset 0 0 0 1.5px var(--acc)}
+.v-p{--bg:var(--pos-bg);--acc:var(--pos-ink);--solid:var(--pos)}
+.v-u{--bg:var(--neg-bg);--acc:var(--neg-ink);--solid:var(--neg)}
+.v-m{--bg:var(--mix-bg);--acc:var(--mix-ink);--solid:var(--mix)}
+.t-word{font-family:var(--f-display);font-size:1.32rem;line-height:1.25;padding-right:22px}
+.t-sub{font-style:italic;font-size:.86rem;color:var(--ink-3);margin-top:1px}
+.t-gloss{font-weight:600;font-size:.92rem;color:var(--acc);margin-top:6px}
+.t-desc{font-size:.93rem;color:var(--ink-2);line-height:1.45;margin-top:4px}
+.t-word+.t-desc{margin-top:6px}
+.t-star{position:absolute;top:12px;right:14px;color:var(--acc);font-size:1rem}
+.empty{padding:48px 0 24px;max-width:46ch;color:var(--ink-2)}
+.empty p{margin:0 0 12px}
+footer{color:var(--ink-3);font-size:.9rem;padding-top:56px;padding-bottom:56px}
+footer p{max-width:70ch;margin:0}
+
+dialog{border:0;padding:0;border-radius:18px;width:calc(100% - 32px);max-width:580px;max-height:calc(100% - 48px);background:var(--surface);color:var(--ink);overflow:auto}
+dialog::backdrop{background:var(--backdrop)}
+@media (prefers-reduced-motion:no-preference){dialog[open]{animation:pop .18s ease-out}}
+@keyframes pop{from{opacity:0;transform:translateY(10px)}}
+.d-band{height:10px;background:var(--solid)}
+.d-in{padding:20px 24px 24px}
+.d-top{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.pill{font-size:.85rem;font-weight:500;padding:2px 10px;border-radius:999px;background:var(--bg);color:var(--acc)}
+.d-fam{font-size:.92rem;color:var(--ink-3)}
+.x{margin-left:auto;border:0;background:transparent;color:var(--ink-2);font:inherit;font-size:1.6rem;line-height:1;width:40px;height:40px;border-radius:10px;cursor:pointer}
+.x:hover{background:var(--paper);color:var(--ink)}
+.d-word{font-family:var(--f-display);font-weight:600;font-size:clamp(2rem,7vw,2.8rem);line-height:1.15;margin:10px 0 0}
+.d-sub{font-style:italic;color:var(--ink-3);margin:2px 0 0;font-size:1.05rem}
+.d-gloss{font-weight:600;color:var(--acc);margin:12px 0 0;font-size:1.05rem}
+.d-desc{font-size:1.15rem;line-height:1.5;margin:6px 0 0;color:var(--ink)}
+.d-h{font-size:.95rem;font-weight:600;color:var(--ink-2);margin:24px 0 8px}
+.d-none{color:var(--ink-3);font-size:.95rem;margin:0}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{border:0;border-radius:10px;padding:6px 11px;background:var(--bg);color:var(--ink);font:inherit;font-size:.95rem;cursor:pointer;text-align:left;line-height:1.3}
+.chip:hover{box-shadow:inset 0 0 0 1.5px var(--acc)}
+.chip small{color:var(--ink-3);font-style:italic;font-size:.82rem;margin-left:4px}
+.d-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:26px}
+</style>
+</head>
+<body>
+
+<header class="wrap hero">
+  <h1><span class="h-ta" lang="ta">உணர்வுகள்</span><span class="h-en">Feelings, in English and Tamil</span></h1>
+  <p class="lede" id="lede">Every emotion here has a one-line meaning. Filter by family or by how it feels, and open any word to find its closest match in the other language.</p>
+  <div class="strip" id="strip" aria-hidden="true"></div>
+  <div class="legend" role="group" aria-label="Filter by how it feels">
+    <button class="lg" data-v="p" aria-pressed="false"><i class="sw sw-p"></i>Pleasant <b id="c-p">0</b></button>
+    <button class="lg" data-v="u" aria-pressed="false"><i class="sw sw-u"></i>Unpleasant <b id="c-u">0</b></button>
+    <button class="lg" data-v="m" aria-pressed="false"><i class="sw sw-m"></i>Mixed <b id="c-m">0</b></button>
+    <span class="legend-note">Each stripe above is one word. Tap a stripe to open it.</span>
+  </div>
+</header>
+
+<div class="bar">
+  <div class="wrap bar-in">
+    <div class="seg" role="tablist" aria-label="Language">
+      <button role="tab" data-lang="en" aria-selected="true">English <span class="n" id="n-en"></span></button>
+      <button role="tab" data-lang="ta" aria-selected="false"><span lang="ta">தமிழ்</span> <span class="n" id="n-ta"></span></button>
+      <button role="tab" data-lang="both" aria-selected="false">Both</button>
+    </div>
+    <label class="search">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+      <input id="q" type="search" placeholder="Search a feeling in either language" autocomplete="off" aria-label="Search feelings">
+    </label>
+    <button class="btn" id="rnd">Surprise me</button>
+    <button class="btn" id="savedBtn" aria-pressed="false">Saved <span id="n-saved">0</span></button>
+  </div>
+</div>
+
+<section class="wrap controls">
+  <div class="fams-wrap" id="famsWrap"><div class="fams" id="fams" role="group" aria-label="Filter by family"></div></div>
+  <div class="status" id="status" aria-live="polite"></div>
+</section>
+
+<main class="wrap" id="out"></main>
+
+<footer class="wrap">
+  <p>Romanized Tamil spellings aren’t standardized, and spoken forms vary by region. The classical groups follow the eight meyppāṭu of the Tolkāppiyam and the moods of Sangam akam poetry. Words you save stay in this browser only.</p>
+</footer>
+
+<dialog id="dlg" aria-labelledby="d-word">
+  <div class="d-band" id="d-band"></div>
+  <div class="d-in">
+    <div class="d-top"><span class="pill" id="d-v"></span><span class="d-fam" id="d-fam"></span><button class="x" id="d-close" aria-label="Close">×</button></div>
+    <h2 class="d-word" id="d-word"></h2>
+    <p class="d-sub" id="d-sub"></p>
+    <p class="d-gloss" id="d-gloss"></p>
+    <p class="d-desc" id="d-desc"></p>
+    <div id="d-rel"></div>
+    <div id="d-sib"></div>
+    <div class="d-actions"><button class="btn" id="d-save" aria-pressed="false">Save word</button><button class="btn" id="d-next">Show another</button></div>
+  </div>
+</dialog>
+
+<script>
+const EN=[
+["Joy and happiness",[["Happiness","p","Feeling good overall and pleased with how things are."],["Joy","p","A bright, intense happiness, often sparked by something good."],["Delight","p","A quick burst of pleasure at something charming or unexpected."],["Elation","p","Soaring happiness after great news or a big win."],["Euphoria","p","Overwhelming joy that can feel almost unreal."],["Bliss","p","Complete, perfect happiness with nothing missing."],["Amusement","p","Finding something funny or entertaining."],["Cheerfulness","p","A light, upbeat mood that brightens everything."],["Excitement","p","Energised, buzzing anticipation of something good."],["Enthusiasm","p","Eager, energetic interest in doing something."],["Anticipation","p","Looking forward to something you expect to happen."],["Hope","p","Wanting and expecting that something good will happen."],["Optimism","p","Confidence that the future will turn out well."],["Gratitude","p","Warm appreciation for what you’ve been given."],["Satisfaction","p","The feeling that a need or goal has been met."],["Triumph","p","The thrill of victory after overcoming a challenge."],["Playfulness","p","A lighthearted urge to have fun and be silly."],["Inspiration","p","Feeling uplifted and moved to create or act."]]],
+["Love and connection",[["Love","p","Deep affection and care for someone or something."],["Affection","p","Gentle fondness and warmth toward someone."],["Tenderness","p","Soft, protective warmth, often toward someone vulnerable."],["Adoration","p","Intense love mixed with admiration."],["Admiration","p","Respect and warm approval of someone’s qualities."],["Compassion","p","Feeling for someone’s suffering and wanting to ease it."],["Empathy","m","Sensing and sharing what another person feels."],["Sympathy","m","Sorrow or concern for someone else’s misfortune."],["Trust","p","Confidence that someone is reliable and safe."],["Belonging","p","Feeling accepted and at home within a group."],["Intimacy","p","Closeness that comes from being truly known."],["Attraction","p","Being drawn toward someone, physically or emotionally."],["Desire","m","A strong wanting for someone or something."],["Infatuation","m","Intense, often short-lived passion for someone."],["Longing","m","Aching desire for someone or something out of reach."],["Devotion","p","Deep loyalty and commitment to someone or something."],["Acceptance","p","Openly receiving someone or something as they are."]]],
+["Calm and peace",[["Calm","p","Settled and steady, free from agitation."],["Peace","p","Inner quiet, with nothing pulling at you."],["Serenity","p","Deep, untroubled calm."],["Contentment","p","Quiet satisfaction; nothing needs to change right now."],["Relief","p","Tension draining away when a worry or threat passes."],["Relaxation","p","Body and mind loosening as stress lets go."],["Comfort","p","Ease and reassurance, physical or emotional."],["Safety","p","Knowing you’re protected and out of harm’s way."],["Groundedness","p","Feeling stable, present and centred in yourself."]]],
+["Sadness and loss",[["Sadness","u","Feeling low in response to loss, disappointment or helplessness."],["Grief","u","Deep sorrow after losing someone or something important."],["Sorrow","u","Heavy, lasting sadness."],["Heartbreak","u","Intense pain after losing love or a relationship."],["Anguish","u","Severe emotional suffering that feels unbearable."],["Despair","u","The complete loss of hope."],["Hopelessness","u","Believing things will never get better."],["Disappointment","u","The let-down when expectations aren’t met."],["Discouragement","u","Losing confidence or motivation after setbacks."],["Loneliness","u","Painfully feeling disconnected from others."],["Hurt","u","Emotional pain caused by someone’s words or actions."],["Rejection","u","The sting of being turned away or excluded."],["Abandonment","u","Feeling deserted by someone you relied on."],["Regret","u","Wishing you had acted differently in the past."],["Homesickness","u","Longing for home and familiar people."],["Melancholy","u","A lingering, reflective sadness, often without a clear cause."],["Dejection","u","Feeling downcast after a blow or setback."],["Helplessness","u","Feeling powerless to change your situation."]]],
+["Fear and anxiety",[["Fear","u","Alarm in response to a perceived danger."],["Anxiety","u","Uneasy worry about something uncertain or upcoming."],["Worry","u","Repetitive thoughts about what might go wrong."],["Nervousness","u","Jittery unease before something important."],["Apprehension","u","Mild fear that something unpleasant may happen."],["Dread","u","Heavy anticipation of something bad."],["Panic","u","Sudden, overwhelming fear that scrambles thinking."],["Terror","u","Extreme, paralysing fear."],["Horror","u","Fear mixed with shock and revulsion."],["Alarm","u","Sudden fear on noticing a threat."],["Insecurity","u","Doubt about your own worth, abilities or position."],["Vulnerability","m","Feeling exposed to harm, judgement or rejection."],["Overwhelm","u","Feeling there’s more than you can handle."],["Stress","u","Pressure when demands outrun your resources."],["Unease","u","A vague sense that something isn’t right."],["Suspicion","u","Feeling that someone or something can’t be trusted."],["Shyness","u","Hesitation and discomfort around others, especially new people."],["Restlessness","u","Being unable to settle, with an urge to move or change something."]]],
+["Anger",[["Anger","u","A strong reaction to a perceived wrong, threat or obstacle."],["Annoyance","u","Mild irritation at something bothersome."],["Irritation","u","Prickly impatience at small, repeated frustrations."],["Frustration","u","Anger at being blocked from what you want."],["Impatience","u","Restless annoyance at delays."],["Exasperation","u","Intense irritation when your patience runs out."],["Rage","u","Intense, explosive anger that’s hard to control."],["Fury","u","Wild, violent anger."],["Resentment","u","Lingering bitterness about being treated unfairly."],["Bitterness","u","Long-held anger mixed with disappointment."],["Indignation","u","Anger at something unfair or unjust."],["Outrage","u","Shocked, intense anger at something offensive."],["Hostility","u","Unfriendly, antagonistic feeling toward someone."],["Vengefulness","u","A desire to pay someone back for a wrong."],["Spite","u","Wanting to hurt or annoy someone, even at your own cost."],["Defensiveness","u","An urge to protect yourself from criticism or attack."],["Grumpiness","u","A sulky, bad-tempered mood."]]],
+["Disgust and contempt",[["Disgust","u","Revulsion toward something offensive or contaminating."],["Revulsion","u","Intense, almost physical disgust."],["Distaste","u","Mild dislike or disapproval."],["Aversion","u","A strong urge to avoid something."],["Contempt","u","Seeing someone as beneath you or unworthy."],["Scorn","u","Open, mocking contempt."],["Loathing","u","Intense hatred mixed with disgust."],["Hatred","u","Deep, lasting hostility toward someone or something."],["Disapproval","u","Judging something as wrong or unacceptable."]]],
+["Surprise and curiosity",[["Surprise","m","A reaction to something unexpected."],["Astonishment","m","Great surprise, almost too much to believe."],["Amazement","p","Surprise mixed with wonder."],["Shock","u","A jarring, sudden surprise, usually unpleasant."],["Disbelief","m","Struggling to accept that something is true."],["Awe","m","Facing something so vast it stretches your understanding."],["Wonder","p","Fascinated curiosity at something beautiful or mysterious."],["Curiosity","p","Wanting to know or learn more."],["Interest","p","Attention drawn to something worth exploring."],["Fascination","p","Absorbing interest that holds your attention."],["Intrigue","p","Curiosity sparked by something puzzling or secret."],["Confusion","u","Not understanding what’s happening or what to think."],["Bewilderment","u","Being completely puzzled and disoriented."]]],
+["Self and morality",[["Pride","p","Pleasure in your own, or a loved one’s, achievements."],["Confidence","p","Trust in your own abilities and judgement."],["Vindication","p","Satisfaction at being proven right."],["Elevation","p","Warm uplift from witnessing someone’s goodness."],["Humility","m","Modest awareness of your own limits."],["Smugness","m","Self-satisfied pride, often at others’ expense."],["Shame","u","Feeling that you yourself are bad or flawed."],["Guilt","u","Feeling you did something wrong and owe amends."],["Remorse","u","Deep regret for wrongdoing, with a wish to make it right."],["Embarrassment","u","Awkward discomfort after a social slip."],["Humiliation","u","Being degraded or shamed in front of others."],["Mortification","u","Extreme, cringing embarrassment."],["Self-consciousness","u","Being acutely aware of how others see you."],["Inadequacy","u","Feeling you’re not good enough."],["Awkwardness","u","Social discomfort when you’re unsure how to act."],["Self-pity","u","Dwelling on your own misfortunes."]]],
+["Low energy and detachment",[["Boredom","u","Restless dissatisfaction from lack of stimulation."],["Apathy","u","Lack of interest, care or motivation."],["Indifference","m","Not caring one way or the other."],["Numbness","u","Feeling cut off from your emotions altogether."],["Emptiness","u","A hollow sense of lack or meaninglessness."],["Weariness","u","Emotional exhaustion that makes everything feel heavy."],["Resignation","m","Accepting something unwanted because you can’t change it."],["Detachment","m","Feeling distant from what’s happening around you."],["Defeat","u","Feeling beaten and ready to give up."]]],
+["Complex and mixed",[["Nostalgia","m","Bittersweet longing for the past."],["Bittersweetness","m","Happiness and sadness felt at the same time."],["Ambivalence","m","Holding conflicting feelings about the same thing."],["Wistfulness","m","Gentle, slightly sad longing for what might have been."],["Jealousy","u","Fear of losing someone or something to a rival."],["Envy","u","Wanting what someone else has."],["Determination","p","Firm resolve to do something despite difficulty."],["Defiance","m","Bold resistance against authority or pressure."],["Catharsis","m","Emotional release after holding feelings in."],["Sentimentality","m","Tender, sometimes exaggerated emotion about memories or people."],["Compersion","p","Joy at a loved one’s happiness, even when it doesn’t involve you."],["FOMO","u","Anxiety that others are enjoying things without you."],["Vicarious embarrassment","u","Cringing on someone else’s behalf (German: Fremdschämen)."]]],
+["Words from other languages",[["Schadenfreude (German)","m","Pleasure at someone else’s misfortune."],["Saudade (Portuguese)","m","Deep longing for something absent that may never return."],["Hiraeth (Welsh)","m","Homesickness for a home you can’t return to, or that never was."],["Fernweh (German)","m","Longing for faraway places you’ve never been."],["Sehnsucht (German)","m","Intense yearning for something you can’t quite name."],["Weltschmerz (German)","u","World-weariness; sadness about the state of the world."],["Mono no aware (Japanese)","m","Gentle sadness at the impermanence of things."],["Amae (Japanese)","p","The comfort of depending on someone’s love and indulgence."],["Hygge (Danish)","p","Cozy contentment from warmth, simplicity and good company."],["Gigil (Filipino)","m","The irresistible urge to squeeze something unbearably cute."],["Ennui (French)","u","Listless dissatisfaction from lack of purpose or excitement."],["Toska (Russian)","u","Spiritual anguish and restless longing, often without a cause."],["Litost (Czech)","u","Torment from suddenly seeing your own misery."],["Han (Korean)","u","Deep, lingering sorrow mixed with unresolved resentment."],["Mudita (Pali/Sanskrit)","p","Sympathetic joy in other people’s good fortune."],["Viraha (Sanskrit)","u","The ache of separation from someone you love."],["Abhimaan (Hindi/Bengali)","u","Hurt, proud sulking when a loved one doesn’t value you enough."],["Kama muta (Sanskrit-derived)","p","Being moved or touched: that warm, teary, chest-swelling feeling."]]]
+];
+const TA=[
+["Joy","மகிழ்ச்சி",[["மகிழ்ச்சி","makizhchi","happiness, joy","p","The standard, everyday word for feeling happy."],["சந்தோஷம்","santhosham","happiness","p","Common spoken word for happiness, from Sanskrit."],["ஆனந்தம்","aanandham","bliss","p","Deep, overflowing joy, often spiritual or ecstatic."],["இன்பம்","inbam","pleasure, delight","p","Sweet enjoyment; also the theme of Thirukkural’s third book on love."],["களிப்பு","kalippu","merriment","p","Exhilarated, almost intoxicated merriment."],["குதூகலம்","kudhoogalam","exuberance","p","Bubbly, excited joy, like children before a festival."],["உற்சாகம்","urchaagam","enthusiasm","p","Energetic, spirited eagerness to do something."],["பூரிப்பு","poorippu","swelling joy","p","Glowing, chest-swelling happiness, often pride in a loved one."],["பரவசம்","paravasam","rapture","p","Being carried away by ecstasy, losing yourself in joy."],["புல்லரிப்பு","pullarippu","thrill, goosebumps","p","Hair-raising thrill from something moving or electrifying."],["சிரிப்பு","sirippu","amusement, laughter","p","Laughter and the amused feeling behind it."],["நம்பிக்கை","nambikkai","hope, trust","p","Hope for a good outcome; also faith and trust in someone."],["திருப்தி","thirupthi","satisfaction","p","The feeling that what you wanted has been fulfilled."],["மனநிறைவு","mananiraivu","contentment","p","Literally fullness of mind: deep, settled contentment."],["ஆவல்","aaval","eager anticipation","p","Keen, impatient eagerness for something to come."],["எதிர்பார்ப்பு","edhirpaarppu","expectation","m","Anticipation of what’s coming, hopeful or tense."],["நன்றியுணர்வு","nandriyunarvu","gratitude","p","The feeling of thankfulness, from nandri (thanks)."],["கொண்டாட்டம்","kondaattam","festive joy","p","The celebratory mood of a festival or good news."]]],
+["Love","அன்பு",[["அன்பு","anbu","love","p","Broad, warm love for anyone: family, friends, all beings."],["காதல்","kaadhal","romantic love","p","Love between lovers; a central theme of Tamil poetry and cinema."],["பாசம்","paasam","familial affection","p","Deep attachment within a family, especially parent and child."],["நேசம்","nesam","fondness","p","Heartfelt closeness and love, often between friends."],["பிரியம்","piriyam","fondness, liking","p","Affectionate fondness for someone or something."],["பற்று","patru","attachment","m","Clinging attachment; spiritual texts urge letting go of it."],["கருணை","karunai","compassion","p","Merciful compassion, often selfless or divine."],["இரக்கம்","irakkam","pity, sympathy","m","Feeling sorry for someone who is suffering."],["பரிவு","parivu","tender care","p","Gentle, caring sympathy toward someone."],["அக்கறை","akkarai","concern, care","p","Caring enough to look out for someone’s wellbeing."],["மதிப்பு","madhippu","respect","p","Esteem and regard for someone’s worth."],["பக்தி","bakthi","devotion","p","Intense, loving devotion, especially to God."],["ஆசை","aasai","desire, wish","m","Wanting something, from a small wish to a strong craving."],["மோகம்","mogam","infatuation","m","Passionate, often blinding desire."],["ஈர்ப்பு","eerppu","attraction","p","Being drawn toward someone or something."],["ஏக்கம்","ekkam","longing","m","Aching yearning for someone or something absent."],["அரவணைப்பு","aravanaippu","nurturing warmth","p","The comfort of being held, protected and cared for."],["செல்லம்","chellam","doting affection","p","Pampering, indulgent love; also a term of endearment."]]],
+["Calm","அமைதி",[["அமைதி","amaidhi","calm, peace","p","Quiet, peaceful stillness, around you or within."],["நிம்மதி","nimmadhi","peace of mind, relief","p","The relief of being free from worry."],["சாந்தம்","saantham","serenity","p","Gentle, serene calm, the opposite of agitation."],["ஆறுதல்","aarudhal","consolation","p","Comfort that soothes pain or grief."],["நிதானம்","nidhaanam","composure","p","Measured, unhurried calm in thought and action."],["பொறுமை","porumai","patience","p","Calmly bearing delay or difficulty."],["இளைப்பாறுதல்","ilaippaarudhal","rest, relief","p","Resting and recovering after exhaustion."],["பாதுகாப்பு","paadhugaappu","safety","p","The feeling of being protected and secure."]]],
+["Sadness","சோகம்",[["சோகம்","sogam","sadness","u","General sadness or gloom."],["துக்கம்","thukkam","grief","u","Sorrow, especially mourning a death."],["துயரம்","thuyaram","sorrow","u","Deep sorrow and suffering."],["வருத்தம்","varuttham","regret, sorrow","u","Feeling sorry or upset; also how you say you’re sorry."],["வேதனை","vedhanai","anguish","u","Intense pain, emotional or physical."],["துன்பம்","thunbam","suffering","u","Misery and hardship; the opposite of inbam."],["ஏமாற்றம்","emaatram","disappointment","u","The let-down of dashed hopes; also feeling cheated."],["விரக்தி","virakthi","disillusionment","u","Despairing frustration that makes you give up on things."],["தனிமை","thanimai","loneliness, solitude","m","Being alone; can be peaceful solitude or painful loneliness."],["மனவலி","manavali","heartache","u","Literally pain of the mind: emotional hurt."],["மனமுடைவு","manamudaivu","heartbreak","u","A broken heart or broken spirit."],["பிரிவு","pirivu","separation","u","The pain of being apart from someone."],["இழப்பு","izhappu","loss","u","The feeling of having lost something precious."],["அவநம்பிக்கை","avanambikkai","pessimism, distrust","u","Lacking hope or faith that things will work out."],["பரிதவிப்பு","parithavippu","helpless anguish","u","Desperate distress when you can’t fix what’s wrong."]]],
+["Fear","பயம்",[["பயம்","bayam","fear","u","The everyday word for fear."],["அச்சம்","accham","fear, dread","u","The formal or literary word for fear."],["கவலை","kavalai","worry","u","Anxious concern; can also mean sorrow."],["பதற்றம்","padhattram","anxiety, agitation","u","Flustered, panicky tension."],["பீதி","beedhi","panic, terror","u","Gripping fear, often spreading through a crowd."],["திகில்","thigil","horror, chills","m","Spine-chilling fear, as in a horror film."],["கிலி","kili","dread","u","Paralysing fright that grips you."],["நடுக்கம்","nadukkam","trembling","u","Shaking with fear; also physical shivering."],["படபடப்பு","padapadappu","nervous flutter","u","Heart-racing nervousness."],["கலக்கம்","kalakkam","distress","u","Troubled worry; the mind feels stirred up and muddied."],["தயக்கம்","thayakkam","hesitation","u","Holding back out of uncertainty or fear."],["சந்தேகம்","sandhegam","suspicion, doubt","u","Doubt or mistrust about someone or something."],["மன அழுத்தம்","mana azhuttham","stress","u","Literally mind pressure: mental stress."],["அவஸ்தை","avasthai","ordeal, discomfort","u","Squirming distress in an awkward or painful situation."]]],
+["Anger","கோபம்",[["கோபம்","kobam","anger","u","The everyday word for anger."],["சினம்","sinam","anger","u","The literary word for anger, common in classical advice."],["ஆத்திரம்","aathiram","rage","u","Hot, impulsive fury."],["ஆவேசம்","aavesam","frenzy, fervor","m","Impassioned intensity, furious or possessed-like."],["சீற்றம்","seettram","fury","u","Fierce, hissing fury, like a cobra’s or a stormy sea’s."],["எரிச்சல்","erichal","irritation","u","Literally burning: annoyance and irritation."],["கொதிப்பு","kodhippu","seething","u","Boiling, simmering anger or agitation."],["மனக்கசப்பு","manakkasappu","bitterness","u","Literally bitterness of mind: resentment between people."],["வன்மம்","vanmam","vengeful grudge","u","A long-held grudge with a wish for revenge."],["பகை","pagai","enmity","u","Hostility between enemies."],["விரோதம்","virodham","hostility","u","Antagonism and ill will."],["ரோஷம்","rosham","wounded pride","m","Proud anger when your self-respect is stung."]]],
+["Disgust","அருவருப்பு",[["அருவருப்பு","aruvaruppu","disgust","u","Revulsion at something filthy or repulsive."],["வெறுப்பு","veruppu","hatred, aversion","u","Dislike ranging from aversion to outright hatred."],["குமட்டல்","kumattal","nausea","u","Stomach-turning disgust."],["இளக்காரம்","ilakkaaram","condescension","u","Looking down on someone as inferior."],["ஏளனம்","elanam","scorn, mockery","u","Mocking contempt."],["அலட்சியம்","alatchiyam","dismissiveness","u","Careless disregard, treating something as unimportant."]]],
+["Surprise","வியப்பு",[["வியப்பு","viyappu","wonder, surprise","m","Surprise and wonder; the native Tamil word."],["ஆச்சரியம்","aachariyam","astonishment","m","The common spoken word for surprise and amazement."],["அதிசயம்","adhisayam","marvel","p","The feeling of witnessing something wondrous or miraculous."],["பிரமிப்பு","piramippu","awe","m","Being stunned into awe by something grand."],["மலைப்பு","malaippu","overwhelmed awe","m","Feeling dwarfed, as if standing before a mountain (malai)."],["திகைப்பு","thigaippu","bewilderment","m","Being stunned and at a loss."],["அதிர்ச்சி","adhirchi","shock","u","A jolting, unpleasant surprise."],["குழப்பம்","kuzhappam","confusion","u","A muddled, mixed-up state of mind."],["ஆர்வம்","aarvam","curiosity, interest","p","Eager interest to know or do more."],["சுவாரஸ்யம்","suvaarasyam","intrigue","p","Interest sparked by something engaging."]]],
+["Self","தன்மானம்",[["பெருமை","perumai","pride","p","Pride in achievements, family or heritage."],["கர்வம்","garvam","arrogance","u","Haughty, inflated pride."],["திமிர்","thimir","cockiness","u","Colloquial word for an insolent, arrogant attitude."],["தன்னம்பிக்கை","thannambikkai","self-confidence","p","Trust in yourself and your abilities."],["தைரியம்","dhairiyam","courage","p","Boldness in the face of fear."],["தன்மானம்","thanmaanam","self-respect","p","A sense of personal honour you won’t compromise."],["சுயமரியாதை","suyamariyaadhai","dignity","p","Self-respect; also the name of Periyar’s Self-Respect Movement."],["வெட்கம்","vetkam","bashfulness, shame","m","Blushing shyness, or shame at something you did."],["நாணம்","naanam","modesty","m","Bashful modesty, a quality celebrated in classical poetry."],["கூச்சம்","koocham","shyness","u","Shrinking shyness or awkwardness; also ticklishness."],["சங்கடம்","sangadam","awkwardness","u","An uncomfortable, embarrassing predicament."],["அவமானம்","avamaanam","humiliation","u","Being insulted or disgraced."],["குற்றவுணர்வு","kutravunarvu","guilt","u","The feeling of having done wrong."],["கழிவிரக்கம்","kazhivirakkam","self-pity","u","Feeling sorry for yourself."],["தாழ்வு மனப்பான்மை","thaazhvu manappaanmai","inferiority","u","Feeling lesser than others."],["பணிவு","panivu","humility","p","Humble, respectful modesty."]]],
+["Low energy","சலிப்பு",[["சலிப்பு","salippu","boredom","u","Being bored or fed up with something."],["அலுப்பு","aluppu","weariness","u","Worn-out tiredness from effort or repetition."],["சோர்வு","sorvu","fatigue, low spirits","u","Drained energy and a drooping mood."],["சோம்பல்","sombal","lethargy","u","Lazy reluctance to do anything."],["மந்தம்","mandham","sluggishness","u","A dull, slow, sluggish state."],["வெறுமை","verumai","emptiness","u","A hollow, empty feeling."],["பற்றின்மை","patrinmai","detachment","m","Non-attachment, a state praised in spiritual texts."]]],
+["Complex","கலவை",[["பொறாமை","poraamai","envy, jealousy","u","Resenting someone else’s good fortune."],["தவிப்பு","thavippu","restless yearning","u","Agitated, aching longing or worry."],["நெகிழ்ச்சி","negizhchi","being moved","p","Heart-softening emotion when you’re deeply touched."],["உருக்கம்","urukkam","melting pathos","m","Heart-melting tenderness or pathos."],["செல்லக் கோபம்","chella kobam","affectionate mock anger","m","Playful, loving anger that isn’t really serious."],["வீம்பு","veembu","stubborn pride","m","Obstinate refusal out of pride."],["வைராக்கியம்","vairaakkiyam","steely resolve","p","Fierce determination, often sparked by a challenge or insult."],["ஆதங்கம்","aadhangam","aggrieved anguish","u","Heartfelt frustration over an injustice or missed chance."],["மனக்குமுறல்","manakkumural","inner turmoil","u","Pent-up grievance rumbling inside."],["பிரிவாற்றாமை","pirivaatraamai","unbearable separation","u","Being unable to bear separation; a Thirukkural chapter title."],["இனம்புரியாத உணர்வு","inampuriyaadha unarvu","indescribable feeling","m","A feeling you can’t quite name or place."],["தாபம்","thaabam","burning longing","m","Feverish, aching desire or longing."]]],
+["Classical eight","மெய்ப்பாடு",[["நகை","nagai","mirth","p","Laughter and amusement; first of Tolkāppiyam’s eight emotions."],["அழுகை","azhugai","pathos, weeping","u","Sorrow that brings tears."],["இளிவரல்","ilivaral","feeling diminished","u","Being belittled or brought low, as by age, illness or weakness."],["மருட்கை","marutkai","wonder","m","Bewildered wonder at the extraordinary."],["அச்சம்","accham","fear","u","Fear as one of the eight emotions portrayed in poetry."],["பெருமிதம்","perumidham","heroic pride","p","Dignified pride arising from learning, bravery, fame or generosity."],["வெகுளி","vekuli","wrath","u","Anger as a classical emotion."],["உவகை","uvagai","joy","p","Delight; the eighth classical emotion."]]],
+["Sangam love","அகம்",[["புணர்தல்","punardhal","union","p","Lovers’ union; tied to Kurinji, the mountain landscape."],["இருத்தல்","irutthal","patient waiting","m","Waiting patiently for a lover’s return; tied to Mullai, the forest."],["ஊடல்","oodal","lovers’ sulk","m","A playful lovers’ quarrel; tied to Marudham, the farmland."],["இரங்கல்","irangal","pining","u","Anxious lament for an absent lover; tied to Neidhal, the seashore."],["பிரிதல்","piridhal","separation","u","Lovers parted; tied to Paalai, the parched wasteland."]]],
+["Body idioms","மரபுத்தொடர்",[["வயித்துல புளியைக் கரைக்குது","vayithula puliyai karaikkudhu","anxious dread","u","Literally tamarind dissolving in the stomach: sinking, nervous dread."],["வயிறு எரியுது","vayiru eriyudhu","envy","u","Literally stomach burning: jealous resentment."],["மனசு கனமா இருக்கு","manasu ganamaa irukku","heavy heart","u","Literally the mind feels heavy: weighed down with sadness."],["மனசு சரியில்ல","manasu sariyilla","feeling off","u","Literally the mind isn’t right: vaguely low or unsettled."],["உள்ளம் குளிர்ந்தது","ullam kulirndhadhu","heart gladdened","p","Literally the heart cooled: deep gladness, since cool means comfort in Tamil."],["தலைகால் புரியல","thalai kaal puriyala","overjoyed","p","Literally can’t tell head from feet: giddy with happiness."],["மூக்கு மேல கோபம்","mookku mela kobam","short temper","u","Literally anger on the nose: quick to flare up."],["ரத்தம் கொதிக்குது","ratham kodhikkudhu","boiling rage","u","Literally the blood is boiling: furious outrage."],["கண் கலங்குது","kan kalangudhu","teary-eyed","m","Eyes welling up from sorrow or from being moved."],["நெஞ்சு படபடக்குது","nenju padapadakkudhu","racing heart","m","Heart pounding with nervousness or excitement."],["முகம் சுளிப்பு","mugam sulippu","wrinkled face","u","Scrunching up your face in distaste or displeasure."]]],
+["Colloquial","பேச்சுத்தமிழ்",[["ஜாலி","jaali","fun, carefree","p","From the English jolly: a cheerful, fun-loving mood."],["டென்ஷன்","tenshan","stress","u","From the English tension: the everyday word for stress."],["கடுப்பு","kaduppu","fed-up annoyance","u","Strong irritation, as in kaduppa irukku (I’m so annoyed)."],["ஃபீலிங்","feeling","upset, emotional","u","From the English feeling: being hurt or sentimental."],["கெத்து","gethu","swagger","p","Proud, confident style or attitude."],["பல்பு","bulbu","embarrassment","u","Getting a bulb means being shown up or caught out."],["மொக்கை","mokkai","lame, boring","u","Describes something dull, or a joke that falls flat."]]]
+];
+
+const MANUAL={
+"melancholy":["sogam"],"heartbreak":["manavali"],"hurt":["manavali"],"despair":["virakthi"],"discouragement":["virakthi"],"defeat":["virakthi"],
+"hopelessness":["avanambikkai"],"helplessness":["parithavippu"],"nostalgia":["ekkam"],"wistfulness":["ekkam"],"homesickness":["ekkam"],
+"saudade":["ekkam","thavippu"],"sehnsucht":["ekkam"],"viraha":["pirivu","piridhal","pirivaatraamai"],"determination":["vairaakkiyam"],
+"kama muta":["negizhchi","kan kalangudhu"],"elevation":["negizhchi"],"ennui":["salippu"],"weariness":["sorvu"],"apathy":["alatchiyam"],
+"indifference":["alatchiyam"],"contempt":["ilakkaaram","elanam"],"frustration":["kaduppu","aadhangam"],"annoyance":["erichal","kaduppu"],
+"exasperation":["kaduppu"],"grumpiness":["kaduppu"],"vengefulness":["vanmam"],"resentment":["manakkasappu","vanmam"],
+"outrage":["ratham kodhikkudhu"],"nervousness":["padapadappu","nenju padapadakkudhu"],"alarm":["padhattram"],"defiance":["veembu"],
+"excitement":["kudhoogalam","aaval"],"anticipation":["edhirpaarppu","aaval"],"cheerfulness":["jaali"],"playfulness":["jaali"],
+"euphoria":["paravasam"],"elation":["kalippu","thalai kaal puriyala"],"amusement":["nagai"],"admiration":["madhippu"],
+"tenderness":["parivu","urukkam"],"empathy":["parivu"],"compassion":["irakkam"],"love":["nesam","piriyam"],"intimacy":["nesam"],
+"desire":["mogam","thaabam"],"comfort":["aarudhal","aravanaippu"],"relaxation":["ilaippaarudhal"],"amazement":["adhisayam","aachariyam"],
+"fascination":["suvaarasyam"],"distaste":["mugam sulippu"],"revulsion":["kumattal"],"embarrassment":["vetkam","sangadam"],
+"shyness":["vetkam","naanam"],"self-consciousness":["koocham"],"mortification":["avamaanam"],"remorse":["kutravunarvu"],
+"inadequacy":["thaazhvu manappaanmai"],"insecurity":["thaazhvu manappaanmai"],"smugness":["garvam","thimir"],"confidence":["gethu"],
+"restlessness":["thavippu"],"overwhelm":["mana azhuttham","malaippu"],"unease":["kalakkam","manasu sariyilla"],"sadness":["manasu ganamaa irukku"]
+};
+
+const ITEMS=[];
+EN.forEach(([fam,list])=>list.forEach(([name,v,desc])=>ITEMS.push({id:"en"+ITEMS.length,lang:"en",name,sub:"",gloss:"",v,desc,fam,famTa:""})));
+TA.forEach(([fam,famTa,list])=>list.forEach(([ta,tr,gloss,v,desc])=>ITEMS.push({id:"ta"+ITEMS.length,lang:"ta",name:ta,sub:tr,gloss,v,desc,fam,famTa})));
+const BY=new Map(ITEMS.map(i=>[i.id,i]));
+const ENI=ITEMS.filter(i=>i.lang==="en"),TAI=ITEMS.filter(i=>i.lang==="ta");
+const VL={p:"Pleasant",u:"Unpleasant",m:"Mixed"};
+
+const REL=new Map(ITEMS.map(i=>[i.id,new Set()]));
+const keyOf=s=>s.toLowerCase().replace(/\s*\(.*\)\s*$/,"").trim();
+const escRe=s=>s.replace(/[.*+?^${}()|[\]\\]/g,"\\$&");
+function link(a,b){REL.get(a.id).add(b.id);REL.get(b.id).add(a.id);}
+ENI.forEach(e=>{
+  const k=keyOf(e.name),re=new RegExp("(^|[^a-z])"+escRe(k)+"([^a-z]|$)");
+  TAI.forEach(t=>{if(t.gloss.toLowerCase().split(",").some(term=>re.test(term.trim())))link(e,t);});
+  (MANUAL[k]||[]).forEach(tr=>TAI.filter(t=>t.sub===tr).forEach(t=>link(e,t)));
+});
+
+const S={lang:"en",fam:"All",v:null,q:"",saved:false};
+let saved=new Set();
+try{saved=new Set(JSON.parse(localStorage.getItem("feelings-saved")||"[]").filter(id=>BY.has(id)));}catch(e){saved=new Set();}
+function persist(){try{localStorage.setItem("feelings-saved",JSON.stringify([...saved]));}catch(e){}}
+
+const $=id=>document.getElementById(id);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c]));
+const out=$("out"),strip=$("strip"),dlg=$("dlg");
+
+$("n-en").textContent=ENI.length;$("n-ta").textContent=TAI.length;
+$("lede").textContent=`${ENI.length} English emotions and ${TAI.length} Tamil words, each with a one-line meaning. Filter by family or by how it feels, and open any word to find its closest match in the other language.`;
+
+function famList(){return S.lang==="en"?EN.map(f=>[f[0],""]):S.lang==="ta"?TA.map(f=>[f[0],f[1]]):[];}
+function renderFams(){
+  const wrap=$("famsWrap");
+  if(S.lang==="both"){wrap.hidden=true;return;}
+  wrap.hidden=false;
+  $("fams").innerHTML=[["All",""],...famList()].map(([f,ft])=>`<button class="chipf" data-f="${esc(f)}" aria-pressed="${f===S.fam}">${f==="All"?"All families":esc(f)}${ft?` <span lang="ta">${ft}</span>`:""}</button>`).join("");
+}
+function matches(it,t,raw){
+  return !t||it.name.toLowerCase().includes(t)||it.name.includes(raw)||it.sub.toLowerCase().includes(t)||it.gloss.toLowerCase().includes(t)||it.desc.toLowerCase().includes(t)||it.fam.toLowerCase().includes(t);
+}
+function base(){
+  const raw=S.q.trim(),t=raw.toLowerCase();
+  return ITEMS.filter(it=>(S.lang==="both"||it.lang===S.lang)&&(S.lang==="both"||S.fam==="All"||it.fam===S.fam)&&(!S.saved||saved.has(it.id))&&matches(it,t,raw));
+}
+function current(){const b=base();return S.v?b.filter(i=>i.v===S.v):b;}
+function tile(it){
+  const ta=it.lang==="ta";
+  return `<button class="tile v-${it.v}" data-id="${it.id}">`+
+    `<span class="t-word"${ta?' lang="ta"':""}>${esc(it.name)}</span>`+
+    (ta?`<span class="t-sub">${esc(it.sub)}</span><span class="t-gloss">${esc(it.gloss)}</span>`:"")+
+    `<span class="t-desc">${esc(it.desc)}</span>`+
+    (saved.has(it.id)?`<span class="t-star" aria-label="Saved">★</span>`:"")+
+  `</button>`;
+}
+function render(){
+  const b=base(),list=S.v?b.filter(i=>i.v===S.v):b;
+  const c={p:0,u:0,m:0};b.forEach(i=>c[i.v]++);
+  $("c-p").textContent=c.p;$("c-u").textContent=c.u;$("c-m").textContent=c.m;
+  document.querySelectorAll(".lg").forEach(el=>el.setAttribute("aria-pressed",String(el.dataset.v===S.v)));
+  strip.classList.toggle("empty",!b.length);
+  strip.innerHTML=b.map((it,i)=>`<span class="sl sl-${it.v}${S.v&&it.v!==S.v?" dim":""}${i&&b[i-1].fam!==it.fam?" brk":""}" data-id="${it.id}" title="${esc(it.name)}${it.sub?" ("+esc(it.sub)+")":""}"></span>`).join("");
+
+  const groups=[];
+  const order=S.lang==="en"?[["en",EN]]:S.lang==="ta"?[["ta",TA]]:[["en",EN],["ta",TA]];
+  order.forEach(([lang,src])=>src.forEach(f=>{
+    const items=list.filter(i=>i.lang===lang&&i.fam===f[0]);
+    if(items.length)groups.push({lang,fam:f[0],famTa:lang==="ta"?f[1]:"",items});
+  }));
+  const totalLang=S.lang==="en"?ENI.length:S.lang==="ta"?TAI.length:ITEMS.length;
+  const label=S.lang==="en"?"English words":S.lang==="ta"?"Tamil words":"words";
+  const filtered=S.q.trim()||S.v||S.saved||(S.fam!=="All"&&S.lang!=="both");
+  $("status").innerHTML=`<span>Showing ${list.length} of ${totalLang} ${label}</span>`+(filtered?`<button class="linkbtn" id="clear">Clear filters</button>`:"");
+
+  if(!list.length){
+    out.innerHTML=S.saved&&!saved.size
+      ?`<div class="empty"><p>You haven’t saved any words yet. Open a word and choose Save word to keep it here.</p></div>`
+      :`<div class="empty"><p>No words match${S.q.trim()?` “${esc(S.q.trim())}”`:""} with these filters. Try an English meaning, or switch to Both to search every word.</p><button class="btn" id="clear2">Clear filters</button></div>`;
+    return;
+  }
+  out.innerHTML=groups.map(g=>`<section class="fam"><h2>${S.lang==="both"?`<span class="lang-tag">${g.lang==="en"?"English":"Tamil"}</span>`:""}<span>${esc(g.fam)}</span>${g.famTa?`<span class="fam-ta" lang="ta">${g.famTa}</span>`:""}<span class="fam-n">${g.items.length}</span></h2><div class="grid">${g.items.map(tile).join("")}</div></section>`).join("");
+}
+function clearFilters(){S.q="";S.v=null;S.saved=false;S.fam="All";$("q").value="";updateSavedBtn();renderFams();render();}
+function setLang(l,fromHash){
+  if(!["en","ta","both"].includes(l))l="en";
+  S.lang=l;S.fam="All";
+  document.querySelectorAll(".seg button").forEach(b=>b.setAttribute("aria-selected",String(b.dataset.lang===l)));
+  renderFams();render();
+}
+function updateSavedBtn(){$("n-saved").textContent=saved.size;$("savedBtn").setAttribute("aria-pressed",String(S.saved));}
+
+function chipsFor(ids){
+  return `<div class="chips">${ids.map(id=>{const r=BY.get(id);return `<button class="chip v-${r.v}" data-id="${r.id}"><span${r.lang==="ta"?' lang="ta"':""}>${esc(r.name)}</span>${r.sub?`<small>${esc(r.sub)}</small>`:""}</button>`;}).join("")}</div>`;
+}
+let openId=null;
+function openItem(id){
+  const it=BY.get(id);if(!it)return;openId=id;
+  dlg.className="v-"+it.v;
+  $("d-v").textContent=VL[it.v];
+  $("d-fam").innerHTML=`${it.lang==="en"?"English":"Tamil"}, ${esc(it.fam)}${it.famTa?` <span lang="ta">(${it.famTa})</span>`:""}`;
+  const w=$("d-word");w.textContent=it.name;it.lang==="ta"?w.setAttribute("lang","ta"):w.removeAttribute("lang");
+  $("d-sub").textContent=it.sub;$("d-sub").hidden=!it.sub;
+  $("d-gloss").textContent=it.gloss;$("d-gloss").hidden=!it.gloss;
+  $("d-desc").textContent=it.desc;
+  const other=it.lang==="en"?"Tamil":"English";
+  const rel=[...REL.get(id)];
+  $("d-rel").innerHTML=`<h3 class="d-h">Closest in ${other}</h3>`+(rel.length?chipsFor(rel):`<p class="d-none">No close match in the ${other} list. Some feelings only have a name in one language.</p>`);
+  const sib=ITEMS.filter(i=>i.lang===it.lang&&i.fam===it.fam&&i.id!==id).map(i=>i.id);
+  $("d-sib").innerHTML=sib.length?`<h3 class="d-h">More in ${esc(it.fam)}</h3>`+chipsFor(sib):"";
+  updateSaveBtn();
+  if(!dlg.open){try{dlg.showModal();}catch(e){dlg.setAttribute("open","");}}
+  dlg.scrollTop=0;
+}
+function updateSaveBtn(){const on=saved.has(openId);const b=$("d-save");b.textContent=on?"Saved":"Save word";b.setAttribute("aria-pressed",String(on));}
+function randomFrom(){const pool=current();const src=pool.length?pool:ITEMS;let pick;do{pick=src[Math.floor(Math.random()*src.length)];}while(src.length>1&&pick.id===openId);openItem(pick.id);}
+
+document.querySelector(".seg").addEventListener("click",e=>{const b=e.target.closest("[data-lang]");if(b)setLang(b.dataset.lang);});
+$("fams").addEventListener("click",e=>{const b=e.target.closest("[data-f]");if(!b)return;S.fam=b.dataset.f;renderFams();render();});
+document.querySelector(".legend").addEventListener("click",e=>{const b=e.target.closest("[data-v]");if(!b)return;S.v=S.v===b.dataset.v?null:b.dataset.v;render();});
+$("q").addEventListener("input",e=>{S.q=e.target.value;render();});
+$("rnd").addEventListener("click",randomFrom);
+$("savedBtn").addEventListener("click",()=>{S.saved=!S.saved;updateSavedBtn();render();});
+document.addEventListener("click",e=>{if(e.target.id==="clear"||e.target.id==="clear2")clearFilters();});
+out.addEventListener("click",e=>{const t=e.target.closest(".tile");if(t)openItem(t.dataset.id);});
+strip.addEventListener("click",e=>{const s=e.target.closest(".sl");if(s)openItem(s.dataset.id);});
+dlg.addEventListener("click",e=>{
+  if(e.target===dlg){dlg.close();return;}
+  const c=e.target.closest(".chip");if(c)openItem(c.dataset.id);
+});
+$("d-close").addEventListener("click",()=>dlg.close());
+$("d-next").addEventListener("click",randomFrom);
+$("d-save").addEventListener("click",()=>{
+  if(!openId)return;
+  saved.has(openId)?saved.delete(openId):saved.add(openId);
+  persist();updateSaveBtn();updateSavedBtn();render();
+});
+dlg.addEventListener("close",()=>{openId=null;});
+
+const HASH={english:"en",tamil:"ta",both:"both"};
+function fromHash(){const h=location.hash.replace("#","");setLang(HASH[h]||S.lang);}
+window.addEventListener("hashchange",fromHash);
+updateSavedBtn();
+setLang(HASH[location.hash.replace("#","")]||"en");
+</script>
+</body>
+</html>
