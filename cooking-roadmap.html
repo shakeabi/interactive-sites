@@ -284,17 +284,16 @@ input[type="range"]{width:100%;accent-color:var(--ink)}
    "Sync and account". Full steps are on that page.
    ===================================================================== */
 const FIREBASE_CONFIG = {
-  apiKey: "AIzaSyB8yufAdgVIR330StF73sAq_LULGEOMjXg",
-  authDomain: "cooking-roadmap.firebaseapp.com",
-  projectId: "cooking-roadmap",
-  appId: "1:126186393778:web:02972dd28db28e42f7b9ab"
+  apiKey: "",
+  authDomain: "",
+  projectId: "",
+  appId: ""
 };
-const PLAN_START = new Date(2026, 10, 2);
 const TIERS = [
-  {n:"Foundations", s:"Phase 1, Nov"},
-  {n:"Building blocks", s:"Phase 2, Dec"},
-  {n:"Expansion", s:"Phase 3, Jan"},
-  {n:"Chicken and mastery", s:"Phases 4–5, Feb–May"}
+  {n:"Foundations", s:"Phase 1, Month 1"},
+  {n:"Building blocks", s:"Phase 2, Month 2"},
+  {n:"Expansion", s:"Phase 3, Month 3"},
+  {n:"Chicken and mastery", s:"Phases 4–5, Months 4–6"}
 ];
 const TRACKS = [
  {id:"ni", hash:"north-indian", name:"North Indian", short:"North Indian", scene:"thali",
@@ -343,7 +342,7 @@ const TRACKS = [
   ["chettinad","Chettinad chicken",4,"chettinad",["sambar"],"Phase 5","Dry-roast and grind your own spice paste for a fiery curry.","Roast spices on low until fragrant, then cool them before grinding.",1,["es.chicken-basics"]]
  ]},
  {id:"ta", hash:"tamil", name:"Tamil traditional", short:"Tamil", scene:"kolam",
-  tiers:[{n:"Grandmother basics",s:"Phases 1–2, Nov"},{n:"Kuzhambu and kootu",s:"Phase 2, Dec"},{n:"Millets and tiffin",s:"Phase 3, Jan"},{n:"Feast days and chicken",s:"Phases 4–5, Feb–May"}],
+  tiers:[{n:"Grandmother basics",s:"Phases 1–2, Months 1–2"},{n:"Kuzhambu and kootu",s:"Phase 2, Month 2"},{n:"Millets and tiffin",s:"Phase 3, Month 3"},{n:"Feast days and chicken",s:"Phases 4–5, Months 4–6"}],
   blurb:"Ragi kali, koozh, kuzhambu and kootu: simple village and grandmother-style Tamil cooking, rich in millets and greens.",
   nodes:[
   ["ragi-kali","Ragi kali",1,"kali",[],"Phase 1, lunches","Cook ragi flour in boiling water into a smooth, firm ball, the traditional kezhvaragu kali.","Let the flour sit on the boiling water for a minute before you stir; that’s what stops lumps."],
@@ -362,7 +361,7 @@ const TRACKS = [
   ["puliyodharai","Puliyodharai",3,"puli",["vatha-kuzhambu"],"Phase 3, lunches","Cook a tamarind pulikachal paste and toss it through rice with roasted peanuts.","The paste keeps 2 weeks in the fridge, so make a jar for fast lunches."],
   ["ennai-kathirikai","Ennai kathirikai kuzhambu",3,"kathirikai",["vatha-kuzhambu"],"Phase 3","Stuff small brinjals with a roasted spice paste and simmer them in tamarind gravy.","Slit the brinjals in a cross but keep the stem on so they hold together."],
   ["adai","Adai",3,"adai",["paruppu-usili"],"Phase 3, breakfasts","Grind a coarse batter of rice and mixed dals with red chilli and cook thick, crisp dosas.","Soak 3–4 hours and grind coarse; no fermenting needed, and it’s one of the most protein-rich breakfasts here."],
-  ["sakkarai-pongal","Sakkarai pongal",3,"sakkarai",[],"Week 10, Pongal week","Cook rice and moong dal with melted jaggery, ghee, cardamom and fried cashews.","Melt and strain the jaggery first; it often carries grit."],
+  ["sakkarai-pongal","Sakkarai pongal",3,"sakkarai",[],"Week 10, or Pongal festival","Cook rice and moong dal with melted jaggery, ghee, cardamom and fried cashews.","Melt and strain the jaggery first; it often carries grit."],
   ["kuzhi-paniyaram","Kuzhi paniyaram",4,"paniyaram",["ragi-dosa"],"Phase 5","Turn leftover idli batter into crisp little dumplings in a paniyaram pan.","Use batter that’s 2–3 days old, add onion and chilli, and turn them with a skewer.",0,["si.batter"]],
   ["nattu-kozhi","Nattu kozhi kuzhambu",4,"nattuKozhi",["ennai-kathirikai"],"Phase 4","Slow-cook country chicken in a freshly ground pepper, coriander and coconut masala.","Country chicken is tougher; pressure-cook it 4–5 whistles or simmer 45 minutes.",1,["es.chicken-basics"]],
   ["milagu-kozhi","Milagu kozhi varuval",4,"varuval",["nattu-kozhi"],"Phase 4","Dry-roast chicken with black pepper, small onions and curry leaves until dark and glossy.","Crush the pepper fresh and add half at the end; it should taste of pepper, not chilli.",1],
@@ -410,14 +409,14 @@ const TRACKS = [
   ["lasagne","Lasagne",4,"lasagne",["fresh-pasta"],"Week 22 weekend","Make a béchamel and layer pasta, sauce and cheese.","Rest it 15 minutes before cutting so the layers hold."]
  ]},
  {id:"de", hash:"desserts", name:"Desserts", short:"Desserts", scene:"mithai",
-  tiers:[{n:"No-cook",s:"Nov"},{n:"Stovetop and set",s:"Nov–Jan"},{n:"Baking",s:"Jan–Mar"},{n:"Frying and advanced",s:"Feb–May"}],
+  tiers:[{n:"No-cook",s:"Month 1"},{n:"Stovetop and set",s:"Months 1–3"},{n:"Baking",s:"Months 3–5"},{n:"Frying and advanced",s:"Months 4–6"}],
   blurb:"One dessert every Sunday, portioned into five servings for the week, rising from no-cook to caramel.",
   nodes:[
   ["energy-balls","Date-nut energy balls",1,"energy",[],"Week 1","Blitz dates and nuts and roll them into balls.","Wet hands stop the mix sticking; freeze extras for Thursday and Friday."],
   ["shrikhand","Shrikhand",1,"shrikhand",[],"Week 2","Sweeten hung curd and flavour it with cardamom and saffron.","Hang the curd 6 hours; thicker curd means more protein per spoon."],
   ["chia","Chia pudding",1,"chia",[],"Week 4","Set chia seeds in milk overnight and top with fruit.","Use 3 tbsp chia per cup of milk and stir twice in the first 10 minutes."],
   ["kheer","Rice kheer",2,"kheer",[],"Week 3","Simmer rice in milk until creamy without scorching.","Use a heavy pan and scrape the bottom every few minutes."],
-  ["gajar-halwa","Gajar halwa",2,"halwa",["kheer"],"Week 5","Cook grated carrots in milk until it reduces, then finish with ghee.","Winter red carrots give the best colour and sweetness."],
+  ["gajar-halwa","Gajar halwa",2,"halwa",["kheer"],"Week 5","Cook grated carrots in milk until it reduces, then finish with ghee.","Red winter carrots give the best colour and sweetness; orange carrots work the rest of the year."],
   ["besan-ladoo","Besan ladoo",2,"ladoo",["energy-balls"],"Week 6","Roast besan in ghee slowly until it smells nutty, then shape.","Low heat for 20 minutes; raw besan tastes bitter."],
   ["steamed-yogurt","Steamed sweet yogurt",2,"yogurtSteamed",["shrikhand"],"Week 7","Steam sweetened yogurt until just set, like bhapa doi.","Cover each cup with foil so condensation doesn’t drip in."],
   ["kesari","Rava kesari",2,"kesari",["kheer"],"Any Sunday, Phases 2–3","Roast semolina, cook it in water and set it with sugar and ghee.","Add the sugar only after the rava has absorbed the water."],
@@ -477,17 +476,17 @@ TRACKS.forEach(t=>t.nodes.forEach(n=>{NODE[n.key]=n;}));
 const TRACK = Object.fromEntries(TRACKS.map(t=>[t.id,t]));
 
 const PHASES = [
- {n:0,name:"Set up",from:0,to:0,dates:"2–8 Nov 2026",tier:1,focus:"Tools, pantry, knife skills, food safety, and your first dal and omelette.",
+ {n:0,name:"Set up",from:0,to:0,dates:"Week 0, before you start",tier:1,focus:"Tools, pantry, knife skills, food safety, and your first dal and omelette.",
   gates:["Kitchen and pantry stocked","Dice an onion in under 2 minutes","Cook dal, rice and an omelette in one session"]},
- {n:1,name:"Foundations",from:1,to:4,dates:"9 Nov–6 Dec",tier:1,focus:"Indian home basics and six egg styles: tadka, pressure cooking, dry sabzis and raita.",
+ {n:1,name:"Foundations",from:1,to:4,dates:"Weeks 1–4, Month 1",tier:1,focus:"Indian home basics and six egg styles: tadka, pressure cooking, dry sabzis and raita.",
   gates:["Dal, rice and a sabzi from memory in 45 minutes","Five egg styles without a recipe","120 g+ protein on 5 of 7 days for two weeks"]},
- {n:2,name:"Building blocks",from:5,to:8,dates:"7 Dec–3 Jan",tier:2,focus:"Gravies, batters and sauces you can batch: masala base, fermentation, pomodoro, Korean egg dishes.",
+ {n:2,name:"Building blocks",from:5,to:8,dates:"Weeks 5–8, Month 2",tier:2,focus:"Gravies, batters and sauces you can batch: masala base, fermentation, pomodoro, Korean egg dishes.",
   gates:["Sunday batch prep in 90 minutes, three weekends running","A batter that ferments and gives crisp dosas","One gravy, one South Indian, one Italian and one Korean dish without a recipe"]},
- {n:3,name:"Expansion",from:9,to:12,dates:"4–31 Jan 2027",tier:3,focus:"Doughs, one-pot meals, tofu and layered dishes: phulka, paratha, biryani, risotto, stews.",
+ {n:3,name:"Expansion",from:9,to:12,dates:"Weeks 9–12, Month 3",tier:3,focus:"Doughs, one-pot meals, tofu and layered dishes: phulka, paratha, biryani, risotto, stews.",
   gates:["Phulkas that puff on most rolls","Biryani with separate, fluffy grains","Cook a three-dish meal for a friend"]},
- {n:4,name:"Chicken and confidence",from:13,to:18,dates:"1 Feb–14 Mar",tier:4,focus:"Cook chicken safely and well, from pan-seared breast to biryani, while eggs and dairy stay your base.",
+ {n:4,name:"Chicken and confidence",from:13,to:18,dates:"Weeks 13–18, Months 4–5",tier:4,focus:"Cook chicken safely and well, from pan-seared breast to biryani, while eggs and dairy stay your base.",
   gates:["A juicy breast that reads 74 °C","Three weekday chicken meals in rotation","One weekend chicken showpiece"]},
- {n:5,name:"Mastery and improvisation",from:19,to:26,dates:"15 Mar–9 May",tier:4,focus:"Cook without recipes, plan your own weeks, and host: fresh pasta, kimchi, deep-frying, caramel.",
+ {n:5,name:"Mastery and improvisation",from:19,to:26,dates:"Weeks 19–26, Months 5–6",tier:4,focus:"Cook without recipes, plan your own weeks, and host: fresh pasta, kimchi, deep-frying, caramel.",
   gates:["Plan and cook a full week without this plan","Make kimchi from scratch","Host a four-course dinner"]}
 ];
 
@@ -554,7 +553,7 @@ const WEEKENDS = [
  [7,"Masala dosa with potato palya","Spreading and crisping dosa","si","si.masala-dosa","masalaDosa","Steamed sweet yogurt","N","de.steamed-yogurt","yogurtSteamed"],
  [8,"Pizza from scratch dough, pan or oven","Yeast dough","it","it.pizza","pizza","Eggless tiramisu","T","de.tiramisu","tiramisu"],
  [9,"Egg dum biryani, raita","Layering and dum","ni","ni.biryani","biryani","Apple-cinnamon oat crumble","N","de.crumble","crumble"],
- [10,"Sundubu-jjigae with rice and two side dishes","Stew base, banchan","ko","ko.sundubu","stew","Sakkarai pongal for Pongal week","T","ta.sakkarai-pongal","sakkarai"],
+ [10,"Sundubu-jjigae with rice and two side dishes","Stew base, banchan","ko","ko.sundubu","stew","Sakkarai pongal","T","ta.sakkarai-pongal","sakkarai"],
  [11,"Mushroom risotto, roasted vegetables","Toasting rice, ladling stock","it","it.risotto","risotto","Greek yogurt panna cotta with agar","N","de.panna-cotta","pannacotta"],
  [12,"Aloo and paneer parathas, white butter","Stuffing and rolling","ni","ni.paratha","paratha","Fudgy brownies","T","de.brownies","brownie"],
  [13,"Pan-seared lemon-herb chicken, mash, greens","Searing, thermometer, resting","it","it.lemon-chicken","chickenSeared","Makhana kheer","N","","makhana"],
@@ -903,19 +902,22 @@ const num=(x,d,lo,hi)=>{const n=Number(x);return Number.isFinite(n)?Math.min(hi,
 function today0(){const d=new Date();d.setHours(0,0,0,0);return d;}
 function isoDate(d){return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;}
 function parseIso(s){const [y,m,d]=String(s).split("-").map(Number);return new Date(y,(m||1)-1,d||1);}
-function planWeek(d=today0()){return Math.floor(Math.round((d-PLAN_START)/DAY)/7);}
+function mondayOf(d){const x=new Date(d);x.setHours(0,0,0,0);x.setDate(x.getDate()-((x.getDay()+6)%7));return x;}
+function planStart(){const s=state&&state.start;return s&&/^\d{4}-\d{2}-\d{2}$/.test(s)?parseIso(s):mondayOf(today0());}
+function planWeek(d=today0()){return Math.floor(Math.round((d-planStart())/DAY)/7);}
+function monthOf(w){return w<1?0:Math.min(6,Math.ceil(w/4.34));}
+function weekLabel(w){return w<1?"Week 0":`Week ${w}, Month ${monthOf(w)}`;}
 function phaseOf(w){if(w<0)return PHASES[0];for(const p of PHASES){if(w>=p.from&&w<=p.to)return p;}return PHASES[5];}
-function satOfWeek(w){return new Date(2026,10,14+7*(w-1));}
 function fmtDay(d,o={weekday:"short",day:"numeric",month:"short"}){return d.toLocaleDateString("en-GB",o);}
 function weekLetter(w){return (w<=0||w%2===1)?"A":"B";}
 
 /* ---------- state and saving ---------- */
 const LS_KEY="kitchen-roadmap-v1";
-function defaultState(){return {v:1,t:0,owner:"",nodes:{},gates:{},wk:{},prep:{},equip:{},log:[],profile:{sex:"m",age:28,ht:170,wt:72,gw:65,act:1.6,def:450}};}
+function defaultState(){return {v:1,t:0,owner:"",start:"",nodes:{},gates:{},wk:{},prep:{},equip:{},log:[],profile:{sex:"m",age:28,ht:170,wt:72,gw:65,act:1.6,def:450}};}
 function normalize(o){
   const d=defaultState();o=obj(o);
   const pr=Object.assign({},d.profile,obj(o.profile));
-  return {v:1,t:Number(o.t)||0,owner:typeof o.owner==="string"?o.owner.slice(0,128):"",nodes:obj(o.nodes),gates:obj(o.gates),wk:obj(o.wk),prep:obj(o.prep),equip:obj(o.equip),
+  return {v:1,t:Number(o.t)||0,start:typeof o.start==="string"&&/^\d{4}-\d{2}-\d{2}$/.test(o.start)?o.start:"",owner:typeof o.owner==="string"?o.owner.slice(0,128):"",nodes:obj(o.nodes),gates:obj(o.gates),wk:obj(o.wk),prep:obj(o.prep),equip:obj(o.equip),
     log:Array.isArray(o.log)?o.log.filter(e=>e&&typeof e.d==="string"&&Number.isFinite(Number(e.w))).slice(-500):[],
     profile:{sex:pr.sex==="f"?"f":"m",age:num(pr.age,28,16,80),ht:num(pr.ht,170,140,210),wt:num(pr.wt,72,40,160),gw:num(pr.gw,65,40,160),act:num(pr.act,1.6,1.2,1.9),def:num(pr.def,450,0,900)}};
 }
@@ -928,6 +930,7 @@ const ui={dlgKey:null,menuWeek:null,psort:"portion"};
 function setStatus(s){store.status=s;const el=$("#saveStatus");if(!el)return;el.dataset.s=s;
   el.querySelector("span").textContent={cloud:"Synced to your Google account",saving:"Saving…",device:"Saved on this device",offline:"Offline; changes sync when you’re back",signedout:"Signed out; saved on this device",setup:"Saved on this device; sync not set up"}[s]||"Saved on this device";}
 function commit(rerender=true){
+  if(!state.start)state.start=isoDate(planStart());
   state.t=Date.now();saveLocal();
   if(store.ref){store.dirty=true;setStatus("saving");clearTimeout(store.timer);store.timer=setTimeout(flush,700);}
   if(rerender)render();
@@ -1162,7 +1165,7 @@ function nodeBtn(n,opts={}){
   let sub=stateWord(s);
   if(s===1&&c)sub=`Tried, cooked ${c}×`;
   if(s===0&&lock){const m=n.req.find(r=>sOf(n.track+"."+r)<1);sub=`After ${TRACK[n.track].byId[m].n}`;}
-  else if(s===0&&n.chicken)sub="Chicken, from 1 Feb";
+  else if(s===0&&n.chicken)sub="Chicken, from Week 13";
   return `<button class="node" type="button" data-node="${n.key}" data-k="n-${n.key}" data-s="${s}" data-lock="${lock&&s===0?1:0}" style="--c:var(--${n.track})" aria-label="${esc(n.n)}: ${esc(sub)}">
    <span class="katori" ${opts.noId?"":`id="k-${n.key}"`}>${art(n.art)}${s===2?`<span class="mark">${CHECK}</span>`:""}</span>
    <span class="node-name">${esc(n.n)}</span>${opts.track?`<span class="node-sub">${esc(TRACK[n.track].short)}</span>`:`<span class="node-sub">${esc(sub)}</span>`}</button>`;
@@ -1204,7 +1207,7 @@ function viewToday(){
   const tried=nodesAll.filter(n=>sOf(n.key)>=1).length,mem=nodesAll.filter(n=>sOf(n.key)===2).length;
   const g=allGates(),cl=calc(),last=[...state.log].sort((a,b)=>a.d<b.d?-1:1).at(-1);
   let title,lead;
-  if(w<0){title="Your plan starts on Monday 2 November";lead="Use the time to stock the kitchen and read through Phase 0.";}
+  if(w<0){title="Your plan hasn’t started yet";lead="Use the time to stock the kitchen and read through Phase 0.";}
   else if(w>26){title="You’ve finished the 26-week plan";lead="Keep cooking from memory, plan your own weeks, and revisit any tree that isn’t full.";}
   else{title=`Week ${w} of 26: ${ph.name.toLowerCase()}`;lead=`Phase ${ph.n}, ${ph.dates}. ${ph.focus}`;}
   const gates=ph.gates.map((gt,i)=>{const k=gateKey(ph.n,i),on=!!state.gates[k];return `<label class="check ${on?"done":""}"><input type="checkbox" data-gate="${k}" data-k="g-${k}" ${on?"checked":""}><span>${esc(gt)}</span></label>`;}).join("");
@@ -1234,7 +1237,7 @@ function viewToday(){
   const next=nodesAll.filter(n=>sOf(n.key)===0&&!locked(n)&&n.t<=ph.tier&&(!n.chicken||w>=12)).sort((a,b)=>a.t-b.t).slice(0,8);
   return `
   <section class="hero">${dabba()}
-   <div><h1 class="title">${esc(title)}</h1><p class="lead">${esc(lead)}</p>
+   <div><h1 class="title">${esc(title)}</h1><p class="lead">${esc(lead)}</p>${w>=0?`<p class="tiny" style="margin-top:-4px">Not the week you’re on? <a href="#roadmap">Adjust it on the roadmap</a>.</p>`:""}
     ${w>=0&&w<=26?`<h3 style="margin-top:18px">${ph.n<5?`Gates to tick before Phase ${ph.n+1}`:"Final gates"}</h3>${gates}`:""}
     <div class="stats">
      <div class="stat"><b>${tried}</b><span>dishes tried</span></div>
@@ -1245,8 +1248,8 @@ function viewToday(){
   </section>
   <div class="legend">${legend}</div>
   <div class="two" style="margin-top:8px">
-   <section><h2 class="sec">Today’s plate</h2><p class="sec-lead">${esc(fmtDay(now,{weekday:"long",day:"numeric",month:"long"}))}${dow>=1&&dow<=5?`, Week ${L} menu`:""}.</p><ol class="slots">${slotHtml}</ol></section>
-   <section><h2 class="sec">${esc(wkLabel)}</h2><p class="sec-lead">${esc(fmtDay(satOfWeek(wkIdx),{weekday:"long",day:"numeric",month:"long"}))}.</p>${wkHtml}
+   <section><h2 class="sec">Today’s plate</h2><p class="sec-lead">${esc(now.toLocaleDateString("en-GB",{weekday:"long"}))} of ${esc(weekLabel(Math.max(0,w)))}${dow>=1&&dow<=5?`, on the Week ${L} menu`:""}.</p><ol class="slots">${slotHtml}</ol></section>
+   <section><h2 class="sec">${esc(wkLabel)}</h2><p class="sec-lead">Saturday and Sunday of ${esc(weekLabel(wkIdx))}.</p>${wkHtml}
     <h2 class="sec">Up next in your trees</h2><p class="sec-lead">Unlocked dishes from this phase you haven’t tried yet.</p>
     ${next.length?`<div class="upnext">${next.map(n=>nodeBtn(n,{track:true,noId:true})).join("")}</div>`:`<div class="empty">Everything unlocked for this phase is started. Open a tree to push further.</div>`}
    </section>
@@ -1279,23 +1282,25 @@ function viewRoadmap(){
     const nodes=phaseNodes(p),nd=nodes.filter(n=>sOf(n.key)===2).length;
     const wks=WEEKENDS.filter(x=>x.w>=Math.max(1,p.from)&&x.w<=p.to);
     return `<details class="phase ${isCur?"current":""} ${done?"done":""}" ${isCur?"open":""}>
-     <summary><span class="pnum">${p.n}</span><span><h3 style="margin:0">${esc(p.name)} ${isCur?'<span class="pill">You are here</span>':""}</h3><span class="small muted">${esc(p.dates)}${p.n>0?`, weeks ${p.from}–${p.to}`:", week 0"}. ${esc(p.focus)}</span></span>
+     <summary><span class="pnum">${p.n}</span><span><h3 style="margin:0">${esc(p.name)} ${isCur?'<span class="pill">You are here</span>':""}</h3><span class="small muted">${esc(p.dates)}. ${esc(p.focus)}</span></span>
       <span class="bar-wrap"><span class="tiny">${d} of ${p.gates.length} gates</span><div class="bar"><i style="width:${Math.round(d/p.gates.length*100)}%"></i></div></span></summary>
      <div class="phase-body"><div><h3>Gate</h3>${p.gates.map((gt,i)=>{const k=gateKey(p.n,i),on=!!state.gates[k];return `<label class="check ${on?"done":""}"><input type="checkbox" data-gate="${k}" data-k="g-${k}" ${on?"checked":""}><span>${esc(gt)}</span></label>`;}).join("")}
       ${wks.length?`<h3 style="margin-top:14px">Weekend projects</h3><p class="small muted">${wks.map(x=>`Week ${x.w}: ${esc(x.dish)}`).join("<br>")}</p>`:""}</div>
       <div><h3>In your skill trees <span class="tiny">${nd} of ${nodes.length} from memory</span></h3><div class="chips">${nodes.map(chip).join("")}</div></div></div>
     </details>`;}).join("");
   return `<h1 class="title">Your 26-week roadmap</h1>
-  <p class="lead">Six phases from first dal to hosting a dinner. Phases 0–3 stay eggetarian; chicken joins in Phase 4. Move on when you tick a phase’s gate, not just when the date passes.</p>
-  <div style="margin-top:22px">${ph}</div>`;
+  <p class="lead">Six phases from first dal to hosting a dinner. Phases 0–3 stay eggetarian; chicken joins in Phase 4. Move on when you tick a phase’s gate, not just when the week changes.</p>
+  <div class="panel row" style="margin-top:18px;justify-content:space-between"><span><b>You’re in ${esc(w<0?"Week 0":w>26?"the weeks after the plan":weekLabel(w))}.</b> <span class="small muted">Weeks count from the Monday you started; shift them if you’ve paused or jumped ahead.</span></span>
+   <span class="row" style="gap:8px"><button class="btn quiet sm" type="button" data-act="shiftweek" data-d="-1" data-k="sw-m" ${w<=0?"disabled":""}>Back a week</button><button class="btn quiet sm" type="button" data-act="shiftweek" data-d="1" data-k="sw-p" ${w>=27?"disabled":""}>Forward a week</button></span></div>
+  <div style="margin-top:16px">${ph}</div>`;
 }
 function viewTrack(t){
   const p=trackProgress(t),tiers=t.tiers||TIERS;
   const cols=[1,2,3,4].map(i=>`<section class="tier"><div class="tier-head"><b>${esc(tiers[i-1].n)}</b><span>${esc(tiers[i-1].s)}</span></div><div class="tier-nodes">${t.nodes.filter(n=>n.t===i).map(n=>nodeBtn(n)).join("")}</div></section>`).join("");
   const wks=WEEKENDS.filter(x=>t.id==="de"?!!x.dlink||true:x.track===t.id);
   const wkRows=t.id==="de"
-    ?WEEKENDS.map(x=>`<tr><td class="num">${x.w}</td><td>${esc(fmtDay(new Date(satOfWeek(x.w).getTime()+DAY),{day:"numeric",month:"short"}))}</td><td>${esc(x.des)}</td><td>${{N:"Nourishing",T:"Treat",E:"Either"}[x.type]}</td></tr>`).join("")
-    :wks.map(x=>`<tr><td class="num">${x.w}</td><td>${esc(fmtDay(satOfWeek(x.w),{day:"numeric",month:"short"}))}</td><td>${esc(x.dish)}</td><td>${esc(x.skill)}</td></tr>`).join("");
+    ?WEEKENDS.map(x=>`<tr><td class="num">${x.w}</td><td class="num">${monthOf(x.w)}</td><td>${esc(x.des)}</td><td>${{N:"Nourishing",T:"Treat",E:"Either"}[x.type]}</td></tr>`).join("")
+    :wks.map(x=>`<tr><td class="num">${x.w}</td><td class="num">${monthOf(x.w)}</td><td>${esc(x.dish)}</td><td>${esc(x.skill)}</td></tr>`).join("");
   return `<div class="track-head" style="--c:var(--${t.id})"><div>
     <h1 class="title">${esc(t.name)}</h1><p class="lead">${esc(t.blurb)}</p>
     <div class="row" style="margin:14px 0 8px"><span class="pill tone">${p.tried} of ${p.total} tried</span><span class="pill tone">${p.mem} from memory</span><span class="pill">${Math.round(p.pct*100)}% of the tree</span></div>
@@ -1304,10 +1309,10 @@ function viewTrack(t){
    </div>${scene(t.scene)}</div>
   <div class="tree-wrap"><div class="tree" id="tree" style="--c:var(--${t.id})"><svg class="edges" id="edges" aria-hidden="true"></svg>${cols}</div></div>
   ${t.id==="de"||wks.length?`<h2 class="sec">${t.id==="de"?"Sunday dessert calendar":"Weekend projects in this cuisine"}</h2>
-  <div class="tbl"><table><thead><tr><th class="num">Week</th><th>${t.id==="de"?"Sunday":"Saturday"}</th><th>${t.id==="de"?"Dessert":"Dish"}</th><th>${t.id==="de"?"Type":"New skill"}</th></tr></thead><tbody>${wkRows}</tbody></table></div>`:""}
+  <div class="tbl"><table><thead><tr><th class="num">Week</th><th class="num">Month</th><th>${t.id==="de"?"Dessert":"Dish"}</th><th>${t.id==="de"?"Type":"New skill"}</th></tr></thead><tbody>${wkRows}</tbody></table></div>`:""}
   ${t.id==="ta"?`<h2 class="sec">Where it fits your week</h2><p class="sec-lead">These dishes are quick enough for weekdays, so they slot into the cook block rather than the weekend calendar.</p>
   <div class="formulas">${TAMIL_SWAPS.map(f=>`<button class="formula" type="button" data-node="${f[3]}" data-k="tt-${f[3]}" style="--c:var(--ta)">${art(f[2])}<span><h3>${esc(f[0])}</h3><span class="small muted">${esc(f[1])}</span></span></button>`).join("")}</div>
-  <div class="note" style="--c:var(--ta)">Week 10’s Sunday dessert is now sakkarai pongal for Pongal week. In Week 26 you can host a banana-leaf virundhu as your dinner. Kali, koozh and millet dishes are mostly carbs, so pair them with eggs, dal or sundal.</div>`:""}
+  <div class="note" style="--c:var(--ta)">Week 10’s Sunday dessert is sakkarai pongal; make it again for the Pongal festival. In Week 26 you can host a banana-leaf virundhu as your dinner. Kali, koozh and millet dishes are mostly carbs, so pair them with eggs, dal or sundal.</div>`:""}
   ${t.id==="de"?`<h2 class="sec">How long desserts keep</h2><p class="sec-lead">Short-life desserts cover Monday to Wednesday; keep a freezer stash of energy balls or ladoos for Thursday and Friday.</p><div class="tbl"><table><thead><tr><th>Type</th><th>Examples</th><th>Fridge</th><th>Freezer</th></tr></thead><tbody>${DESSERT_LIFE.map(r=>`<tr><td>${esc(r[0])}</td><td>${esc(r[1])}</td><td>${esc(r[2])}</td><td>${esc(r[3])}</td></tr>`).join("")}</tbody></table></div>`:""}`;
 }
 function drawEdges(){
@@ -1403,7 +1408,7 @@ function updateCalc(){
   set("c-tdee",fmtN(cl.tdee)+" kcal");set("c-bmr",`BMR ${fmtN(cl.bmr)} × ${p.act}`);set("c-tgt",fmtN(cl.tgt)+" kcal");set("c-p",cl.P+" g");
   if(cl.lose<=0){set("c-wk","At goal");set("c-date","eat at maintenance");}
   else if(!Number.isFinite(cl.weeks)){set("c-wk","–");set("c-date","set a deficit to lose weight");}
-  else{set("c-wk",Math.round(cl.weeks)+" weeks");const d=new Date(today0().getTime()+cl.weeks*7*DAY);set("c-date","around "+d.toLocaleDateString("en-GB",{month:"long",year:"numeric"}));}
+  else{set("c-wk",Math.round(cl.weeks)+" weeks");const gw=Math.max(0,planWeek())+Math.round(cl.weeks);set("c-date",gw<=26?`around Week ${gw} of your plan`:`after the 26-week plan, around Week ${gw}`);}
   const pk=cl.P*4,fk=cl.F*9,ck=cl.C*4,t=pk+fk+ck||1;
   const w=(id,v)=>{const e=document.getElementById(id);if(e)e.style.width=(v/t*100)+"%";};w("m-p",pk);w("m-f",fk);w("m-c",ck);
   set("l-p",`Protein ${cl.P} g (${Math.round(pk/t*100)}%)`);set("l-f",`Fat ${cl.F} g (${Math.round(fk/t*100)}%)`);set("l-c",`Carbs ${cl.C} g (${Math.round(ck/t*100)}%)`);
@@ -1446,7 +1451,7 @@ function viewMenu(){
 function viewWeekends(){
   const w=planWeek();let done=0;WEEKENDS.forEach(x=>{if(state.wk[`w${x.w}s`])done++;if(state.wk[`w${x.w}d`])done++;});
   const rows=WEEKENDS.map(x=>{const n1=NODE[x.link],n2=NODE[x.dlink],k1=`w${x.w}s`,k2=`w${x.w}d`,cur=x.w===w;
-   return `<tr class="wk-row ${cur?"hl":""}"><td class="num">${x.w}${cur?'<br><span class="pill">This week</span>':""}</td><td style="white-space:nowrap">${esc(fmtDay(satOfWeek(x.w),{day:"numeric",month:"short"}))}</td>
+   return `<tr class="wk-row ${cur?"hl":""}"><td class="num">${x.w}${cur?'<br><span class="pill">This week</span>':""}</td><td class="num">${monthOf(x.w)}</td>
     <td style="--c:var(--${x.track})"><div class="wk-dish">${art(x.art)}<div>${n1?`<button class="linkish" type="button" data-node="${n1.key}" data-k="wr-${x.w}">${esc(x.dish)}</button>`:esc(x.dish)}<br><span class="tiny">${esc(TRACK[x.track].short)}. ${esc(x.skill)}</span></div></div></td>
     <td style="--c:var(--${x.track})"><input type="checkbox" aria-label="Cooked ${esc(x.dish)}" data-wk="${k1}" data-k="wk-${k1}" ${state.wk[k1]?"checked":""}></td>
     <td style="--c:var(--de)"><div class="wk-dish">${art(x.dart)}<div>${n2?`<button class="linkish" type="button" data-node="${n2.key}" data-k="wq-${x.w}">${esc(x.des)}</button>`:esc(x.des)}<br><span class="tiny">${{N:"Nourishing",T:"Treat",E:"Either"}[x.type]}${OVEN_WEEKS.includes(x.w)?", needs an oven or air fryer":""}</span></div></div></td>
@@ -1454,15 +1459,15 @@ function viewWeekends(){
   return `<h1 class="title">Weekend calendar</h1>
   <p class="lead">One showpiece dish every Saturday and one make-ahead dessert every Sunday, rotating through all four cuisines and alternating nourishing and treat desserts.</p>
   <div class="row" style="margin:16px 0 18px"><span class="pill">${done} of 52 done</span><div class="bar" style="flex:1;max-width:360px"><i style="width:${Math.round(done/52*100)}%"></i></div></div>
-  <div class="tbl"><table><thead><tr><th class="num">Week</th><th>Saturday</th><th>Exploration dish</th><th>Cooked</th><th>Sunday dessert</th><th>Made</th></tr></thead><tbody>${rows}</tbody></table></div>
-  <p class="tiny">Weeks 9, 12, 14, 19 and 22 need an oven, OTG or air fryer for the dessert; swap in a stovetop one if you don’t have one. The pizza, tikka and Korean chicken also work in a heavy pan.</p>`;
+  <div class="tbl"><table><thead><tr><th class="num">Week</th><th class="num">Month</th><th>Saturday dish</th><th>Cooked</th><th>Sunday dessert</th><th>Made</th></tr></thead><tbody>${rows}</tbody></table></div>
+  <p class="tiny">Weeks 9, 12, 14, 19 and 22 need an oven, OTG or air fryer for the dessert; swap in a stovetop one if you don’t have one. The pizza, tikka and Korean chicken also work in a heavy pan. If mangoes aren’t in season for weeks 22–23, use any ripe fruit.</p>`;
 }
 function sundayKey(){const d=today0();d.setDate(d.getDate()+((7-d.getDay())%7));return isoDate(d);}
 function viewKitchen(){
   const sk=sundayKey(),arr=Array.isArray(state.prep[sk])?state.prep[sk]:[],done=PREP.filter((x,i)=>arr[i]).length;
   return `<h1 class="title">Kitchen and prep</h1>
   <p class="lead">A 90-minute Sunday prep turns every weekday meal into a 15–50 minute job. The checklist resets each week.</p>
-  <div class="two" style="margin-top:12px"><section><h2 class="sec">Sunday prep, ${esc(fmtDay(parseIso(sk),{weekday:"long",day:"numeric",month:"short"}))}</h2>
+  <div class="two" style="margin-top:12px"><section><h2 class="sec">This Sunday’s prep</h2>
    <div class="row" style="margin-bottom:6px"><span class="pill">${done} of ${PREP.length}</span><div class="bar" style="flex:1"><i style="width:${Math.round(done/PREP.length*100)}%"></i></div>${done?`<button class="btn quiet sm" type="button" data-act="prepclear" data-k="prepclear">Clear</button>`:""}</div>
    <ol class="steps checkable">${PREP.map((x,i)=>`<li><label class="check ${arr[i]?"done":""}"><input type="checkbox" data-prep="${i}" data-k="pr-${i}" ${arr[i]?"checked":""}><span>${esc(x)}</span></label></li>`).join("")}</ol></section>
    <section><h2 class="sec">Weekday cook block</h2><p class="sec-lead">50 minutes, 10:30 to 11:20.</p>
@@ -1498,7 +1503,7 @@ function viewProgress(){
    <div class="stat"><b>${p.gw}</b><span>kg goal</span></div></div>
   <div class="note" style="--c:var(--${ruleIdx===0?"si":ruleIdx<0?"es":"ni"})">${esc(advice)}</div>
   <div class="panel chart" style="margin-top:12px">${weightChart(log,cl)}</div>
-  ${log.length?`<h2 class="sec">Your weigh-ins</h2><div class="tbl"><table><thead><tr><th>Date</th><th class="num">Weight</th><th class="num">Waist</th><th></th></tr></thead><tbody>${[...log].reverse().map(e=>`<tr><td>${esc(fmtDay(parseIso(e.d)))}</td><td class="num">${Number(e.w).toFixed(1)} kg</td><td class="num">${e.wa?Number(e.wa).toFixed(1)+" cm":"–"}</td><td style="text-align:right"><button class="btn quiet sm" type="button" data-act="logdel" data-i="${e.i}" data-k="ld-${e.i}">Delete</button></td></tr>`).join("")}</tbody></table></div>`:""}
+  ${log.length?`<h2 class="sec">Your weigh-ins</h2><div class="tbl"><table><thead><tr><th>Date</th><th class="num">Plan week</th><th class="num">Weight</th><th class="num">Waist</th><th></th></tr></thead><tbody>${[...log].reverse().map(e=>`<tr><td>${esc(fmtDay(parseIso(e.d)))}</td><td class="num">${planWeek(parseIso(e.d))}</td><td class="num">${Number(e.w).toFixed(1)} kg</td><td class="num">${e.wa?Number(e.wa).toFixed(1)+" cm":"–"}</td><td style="text-align:right"><button class="btn quiet sm" type="button" data-act="logdel" data-i="${e.i}" data-k="ld-${e.i}">Delete</button></td></tr>`).join("")}</tbody></table></div>`:""}
   <h2 class="sec">When to adjust</h2>
   <div class="tbl"><table><thead><tr><th>If, over two weeks…</th><th>Then</th></tr></thead><tbody>${RULES.map((r,i)=>`<tr class="${i===ruleIdx?"hl":""}"><td>${esc(r[0])}</td><td>${esc(r[1])}</td></tr>`).join("")}</tbody></table></div>
   <h2 class="sec">Habits that make the numbers honest</h2>
@@ -1506,26 +1511,25 @@ function viewProgress(){
 }
 function weightChart(log,cl){
   const p=state.profile,W=720,H=280,x0=52,x1=W-70,y0=18,y1=H-40;
-  const start=new Date(2026,10,9),rateKg=p.def*7/7700;
-  const goalWeeks=rateKg>0?Math.max(0,(p.wt-p.gw)/rateKg):26;
-  const goalDate=new Date(start.getTime()+goalWeeks*7*DAY);
-  const ts=log.map(e=>parseIso(e.d).getTime());
-  const tMin=Math.min(start.getTime()-7*DAY,...ts),tMax=Math.max(goalDate.getTime()+14*DAY,...ts.map(t=>t+14*DAY),start.getTime()+16*7*DAY);
+  const st=planStart().getTime(),wk=t=>(t-st)/(7*DAY),rateKg=p.def*7/7700;
+  const goalWeeks=rateKg>0?Math.max(0,(p.wt-p.gw)/rateKg):26,planFrom=1,goalW=planFrom+goalWeeks;
+  const ws_=log.map(e=>wk(parseIso(e.d).getTime()));
+  const wMin=Math.min(0,...ws_.map(Math.floor)),wMax=Math.max(26,Math.ceil(goalW)+1,...ws_.map(v=>Math.ceil(v)+1));
   const ws=log.map(e=>Number(e.w));
   const vMin=Math.floor(Math.min(p.gw-1,...ws)),vMax=Math.ceil(Math.max(p.wt+1,...ws));
-  const X=t=>x0+(t-tMin)/(tMax-tMin)*(x1-x0),Y=v=>y1-(v-vMin)/(vMax-vMin)*(y1-y0);
+  const X=v=>x0+(v-wMin)/(wMax-wMin)*(x1-x0),Y=v=>y1-(v-vMin)/(vMax-vMin)*(y1-y0);
   let g="";const step=(vMax-vMin)>10?2:1;
   for(let v=vMin;v<=vMax;v+=step)g+=`<line x1="${x0}" x2="${x1}" y1="${Y(v)}" y2="${Y(v)}" stroke="var(--line)"/><text x="${x0-8}" y="${Y(v)+4}" text-anchor="end" font-size="12" fill="var(--ink-3)">${v}</text>`;
-  const mth=new Date(tMin);mth.setDate(1);mth.setMonth(mth.getMonth()+1);
-  for(let d=new Date(mth);d.getTime()<=tMax;d.setMonth(d.getMonth()+1))g+=`<text x="${X(d.getTime())}" y="${y1+22}" text-anchor="middle" font-size="12" fill="var(--ink-3)">${d.toLocaleDateString("en-GB",{month:"short"})}</text><line x1="${X(d.getTime())}" x2="${X(d.getTime())}" y1="${y1}" y2="${y1+5}" stroke="var(--steel-2)"/>`;
-  const plan=`<path d="M${X(start.getTime())} ${Y(p.wt)} L${X(goalDate.getTime())} ${Y(p.gw)} L${X(tMax)} ${Y(p.gw)}" fill="none" stroke="var(--steel-2)" stroke-width="2" stroke-dasharray="6 6"/><text x="${(X(start.getTime())+X(goalDate.getTime()))/2+10}" y="${(Y(p.wt)+Y(p.gw))/2-10}" font-size="12" fill="var(--ink-2)">Plan, ${rateKg.toFixed(2)} kg a week</text>`;
+  const tick=wMax-wMin>40?8:4;
+  for(let v=Math.ceil(wMin/tick)*tick;v<=wMax;v+=tick)g+=`<text x="${X(v)}" y="${y1+22}" text-anchor="middle" font-size="12" fill="var(--ink-3)">${v===0?"Week 0":"Wk "+v}</text><line x1="${X(v)}" x2="${X(v)}" y1="${y1}" y2="${y1+5}" stroke="var(--steel-2)"/>`;
+  const plan=`<path d="M${X(planFrom)} ${Y(p.wt)} L${X(goalW)} ${Y(p.gw)} L${X(wMax)} ${Y(p.gw)}" fill="none" stroke="var(--steel-2)" stroke-width="2" stroke-dasharray="6 6"/><text x="${(X(planFrom)+X(goalW))/2+10}" y="${(Y(p.wt)+Y(p.gw))/2-10}" font-size="12" fill="var(--ink-2)">Plan, ${rateKg.toFixed(2)} kg a week</text>`;
   const goal=`<line x1="${x0}" x2="${x1}" y1="${Y(p.gw)}" y2="${Y(p.gw)}" stroke="var(--si)" stroke-width="1.5"/><text x="${x1+6}" y="${Y(p.gw)+4}" font-size="12" font-weight="600" fill="var(--ink)">Goal ${p.gw}</text>`;
   let avg="";
-  if(log.length>1){const pts=log.map((e,i)=>{const t=parseIso(e.d).getTime();const win=log.filter(f=>{const u=parseIso(f.d).getTime();return u<=t&&u>t-7*DAY;});return [X(t),Y(win.reduce((a,f)=>a+Number(f.w),0)/win.length)];});
+  if(log.length>1){const pts=log.map(e=>{const t=parseIso(e.d).getTime();const win=log.filter(f=>{const u=parseIso(f.d).getTime();return u<=t&&u>t-7*DAY;});return [X(wk(t)),Y(win.reduce((a,f)=>a+Number(f.w),0)/win.length)];});
     avg=`<path d="${pts.map((q,i)=>(i?"L":"M")+q[0].toFixed(1)+" "+q[1].toFixed(1)).join(" ")}" fill="none" stroke="var(--ink)" stroke-width="2.5" stroke-linejoin="round"/>`;}
-  const dots=log.map(e=>`<circle cx="${X(parseIso(e.d).getTime()).toFixed(1)}" cy="${Y(Number(e.w)).toFixed(1)}" r="4" fill="var(--surface)" stroke="var(--ink)" stroke-width="2"><title>${esc(fmtDay(parseIso(e.d)))}: ${Number(e.w).toFixed(1)} kg</title></circle>`).join("");
-  const title=log.length?`${log.length} weigh-in${log.length>1?"s":""}; the solid line is your 7-day average`:"Your planned path to the goal; add a weigh-in to start your line";
-  return `<h3>${esc(title)}</h3><svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Weight over time against the plan and goal">${g}${goal}${plan}${avg}${dots}<text x="${x0-30}" y="${(y0+y1)/2}" text-anchor="middle" font-size="12" fill="var(--ink-3)" transform="rotate(-90 ${x0-30} ${(y0+y1)/2})">kg</text></svg>`;
+  const dots=log.map(e=>{const t=parseIso(e.d).getTime();return `<circle cx="${X(wk(t)).toFixed(1)}" cy="${Y(Number(e.w)).toFixed(1)}" r="4" fill="var(--surface)" stroke="var(--ink)" stroke-width="2"><title>Week ${Math.floor(wk(t))}: ${Number(e.w).toFixed(1)} kg</title></circle>`;}).join("");
+  const title=log.length?`${log.length} weigh-in${log.length>1?"s":""} by plan week; the solid line is your 7-day average`:"Your planned path to the goal by plan week; add a weigh-in to start your line";
+  return `<h3>${esc(title)}</h3><svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Weight by plan week against the plan and goal">${g}${goal}${plan}${avg}${dots}<text x="${x0-30}" y="${(y0+y1)/2}" text-anchor="middle" font-size="12" fill="var(--ink-3)" transform="rotate(-90 ${x0-30} ${(y0+y1)/2})">kg</text></svg>`;
 }
 
 /* ---------- events ---------- */
@@ -1544,6 +1548,7 @@ document.addEventListener("click",e=>{
     if(act==="sex"){state.profile.sex=a.dataset.v;commit();return;}
     if(act==="logdel"){const i=Number(a.dataset.i);state.log.splice(i,1);commit();return;}
     if(act==="prepclear"){delete state.prep[sundayKey()];commit();return;}
+    if(act==="shiftweek"){const dlt=Number(a.dataset.d)||0,w=planWeek();if((dlt<0&&w<=0)||(dlt>0&&w>=27))return;const st=planStart();st.setDate(st.getDate()-7*dlt);state.start=isoDate(st);commit();return;}
     if(act==="signin"){signIn();return;}
     if(act==="signout"){signOutNow();return;}
     if(act==="savecfg"){const c=parseConfig(($("#cfgBox")||{}).value||"");if(!c){$("#cfgErr").textContent=errText("config");return;}try{localStorage.setItem(FB_CFG_KEY,JSON.stringify(c));}catch(err){$("#cfgErr").textContent="This browser won’t store the config; set FIREBASE_CONFIG in the file instead.";return;}location.reload();return;}
