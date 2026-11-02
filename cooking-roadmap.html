@@ -1,0 +1,1593 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Kitchen roadmap</title>
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Caprasimo&family=Onest:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#F1F3F1;--surface:#FFFFFF;--surface-2:#E7EBEA;--ink:#1D2528;--ink-2:#55616A;--ink-3:#77838A;
+  --line:#D6DDDC;--steel:#C2CACC;--steel-2:#A1ABAF;--steel-hi:#EDF0F0;
+  --ni:#C98A06;--si:#2F7A3D;--ko:#C2362B;--it:#2456A6;--de:#8A4E24;--es:#3E7480;--ta:#6B4AA0;
+  --btn:#1D2528;--btn-ink:#FFFFFF;--focus:#2456A6;--good:#2F7A3D;--warn:#9A5B00;
+  --display:"Caprasimo","Cooper Black","Georgia",serif;
+  --sans:"Onest",system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  color-scheme:light;box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --paper:#121719;--surface:#1B2225;--surface-2:#242D31;--ink:#E6ECEC;--ink-2:#A6B2B6;--ink-3:#849196;
+    --line:#2F393D;--steel:#3E4A4F;--steel-2:#5A676D;--steel-hi:#283135;
+    --ni:#F0B429;--si:#5DBA6C;--ko:#F0645A;--it:#7AA3EE;--de:#D49866;--es:#6FB0BB;--ta:#B39AEA;
+    --btn:#E6ECEC;--btn-ink:#121719;--focus:#7AA3EE;--good:#5DBA6C;--warn:#E3A33B;color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#121719;--surface:#1B2225;--surface-2:#242D31;--ink:#E6ECEC;--ink-2:#A6B2B6;--ink-3:#849196;
+  --line:#2F393D;--steel:#3E4A4F;--steel-2:#5A676D;--steel-hi:#283135;
+  --ni:#F0B429;--si:#5DBA6C;--ko:#F0645A;--it:#7AA3EE;--de:#D49866;--es:#6FB0BB;--ta:#B39AEA;
+  --btn:#E6ECEC;--btn-ink:#121719;--focus:#7AA3EE;--good:#5DBA6C;--warn:#E3A33B;color-scheme:dark;
+}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--paper);color:var(--ink);font:400 16px/1.55 var(--sans);-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:40;background:var(--paper)}
+img,svg{max-width:100%}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--focus);outline-offset:2px;border-radius:6px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+
+.app{display:grid;grid-template-columns:256px minmax(0,1fr);align-items:start;min-height:100%}
+.topbar{display:none}
+.rail{position:sticky;top:env(safe-area-inset-top,0px);max-height:100vh;min-height:100vh;overflow-y:auto;padding:26px 16px 24px 20px;border-right:1px solid var(--line)}
+.brand{display:flex;align-items:center;gap:10px;text-decoration:none;margin:0 6px 22px}
+.brand b{font:400 22px/1.1 var(--display)}
+.brand svg{width:34px;height:34px;flex:none}
+.nav-group{margin:0 0 18px}
+.nav-group > span{display:block;font-size:13px;color:var(--ink-3);margin:0 10px 6px}
+.nav a{display:flex;align-items:center;gap:10px;padding:7px 10px;border-radius:9px;color:var(--ink-2);text-decoration:none;font-size:15px;font-weight:500}
+.nav a:hover{color:var(--ink);background:var(--surface-2)}
+.nav a[aria-current="page"]{color:var(--ink);background:var(--surface);box-shadow:inset 0 0 0 1px var(--line)}
+.nav a .pct{margin-left:auto;font-size:13px;color:var(--ink-3);font-variant-numeric:tabular-nums}
+.tdot{width:12px;height:12px;border-radius:50%;background:var(--c);flex:none}
+.save{font-size:13px;color:var(--ink-3);margin:18px 10px 0;display:flex;gap:8px;align-items:center}
+.save i{width:8px;height:8px;border-radius:50%;background:var(--steel-2);flex:none}
+.save[data-s="cloud"] i{background:var(--good)}
+.save[data-s="saving"] i,.save[data-s="offline"] i{background:var(--warn)}
+.acct{margin:10px 0 0}
+.acct-row{display:flex;gap:10px;align-items:center;text-decoration:none;padding:8px 10px;border-radius:10px;font-size:14.5px;line-height:1.3}
+a.acct-row:hover{background:var(--surface-2)}
+.acct-cta{display:inline-block;margin:0 10px;font-size:14px;font-weight:600}
+.acct-btn{margin:0 10px}
+.acct-top{display:block;text-decoration:none}
+.avatar{width:32px;height:32px;border-radius:50%;background:var(--ink);color:var(--paper);display:grid;place-items:center;font-weight:700;font-size:12.5px;flex:none;letter-spacing:.02em}
+pre.code{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px 16px;overflow-x:auto;font:13.5px/1.55 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;margin:0 0 10px;color:var(--ink)}
+code{font:.9em ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;background:var(--surface-2);padding:1px 5px;border-radius:5px}
+.steps li > span{min-width:0}
+#cfgBox{font:13.5px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;min-height:120px}
+
+.main{padding:34px clamp(16px,4vw,56px) 96px;min-width:0}
+.wrap{max-width:1060px}
+h1.title{font:400 clamp(30px,4.2vw,46px)/1.06 var(--display);margin:0 0 12px;letter-spacing:-.005em;max-width:22ch}
+h2.sec{font:400 27px/1.15 var(--display);margin:46px 0 8px}
+h3{font-size:18px;line-height:1.3;font-weight:600;margin:0 0 6px}
+p{margin:0 0 12px;max-width:70ch}
+.lead{font-size:18px;line-height:1.5;color:var(--ink-2);max-width:60ch}
+.muted{color:var(--ink-2)}.small{font-size:14px}.tiny{font-size:13px;color:var(--ink-3)}
+.sec-lead{color:var(--ink-2);margin-bottom:18px}
+
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:18px 20px}
+.grid{display:grid;gap:14px;grid-template-columns:repeat(auto-fill,minmax(250px,1fr))}
+.row{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.pill{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:600;line-height:1.3;padding:3px 9px;border-radius:999px;background:var(--surface-2);color:var(--ink-2);white-space:nowrap}
+.pill.tone{background:color-mix(in srgb,var(--c) 18%,transparent);color:var(--ink)}
+.btn{font:inherit;font-size:15px;font-weight:600;border:0;border-radius:999px;padding:9px 16px;background:var(--btn);color:var(--btn-ink);cursor:pointer;line-height:1.2}
+.btn.quiet{background:transparent;color:var(--ink);box-shadow:inset 0 0 0 1px var(--steel-2)}
+.btn.quiet:hover{background:var(--surface-2)}
+.btn.sm{font-size:14px;padding:7px 12px}
+.seg{display:inline-flex;background:var(--surface-2);border-radius:999px;padding:3px;gap:2px;flex-wrap:wrap}
+.seg button{border:0;background:transparent;padding:7px 14px;border-radius:999px;font:inherit;font-size:14.5px;font-weight:600;color:var(--ink-2);cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--surface);color:var(--ink);box-shadow:0 0 0 1px var(--line)}
+.bar{height:8px;border-radius:999px;background:var(--surface-2);overflow:hidden}
+.bar > i{display:block;height:100%;width:0;background:var(--c,var(--ink));border-radius:inherit;transition:width .4s ease}
+label.check{display:flex;gap:10px;align-items:flex-start;padding:7px 0;cursor:pointer;line-height:1.45}
+input[type="checkbox"]{width:19px;height:19px;accent-color:var(--c,var(--ink));margin:1px 0 0;flex:none;cursor:pointer}
+label.check.done span{color:var(--ink-3);text-decoration:line-through;text-decoration-color:var(--steel-2)}
+.field{display:flex;flex-direction:column;gap:4px;font-size:14px;color:var(--ink-2)}
+.field input,.field select,textarea{font:inherit;font-size:15px;color:var(--ink);background:var(--surface);border:1px solid var(--steel-2);border-radius:10px;padding:8px 10px;min-width:0}
+textarea{width:100%;min-height:84px;resize:vertical;line-height:1.45}
+
+.tbl{overflow-x:auto;border:1px solid var(--line);border-radius:14px;background:var(--surface);margin:0 0 8px}
+table{border-collapse:collapse;width:100%;font-size:15px}
+th,td{text-align:left;padding:10px 14px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-weight:600;color:var(--ink-2);font-size:14px;background:var(--surface-2);white-space:nowrap}
+tr:last-child td{border-bottom:0}
+td.num,th.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+tr.hl td{background:color-mix(in srgb,var(--ink) 5%,transparent)}
+tfoot td{font-weight:700}
+.ic{display:inline-block;vertical-align:middle;width:34px;height:34px;flex:none}
+
+/* Today */
+.hero{display:grid;grid-template-columns:minmax(230px,330px) minmax(0,1fr);gap:clamp(20px,4vw,48px);align-items:center;margin:4px 0 10px}
+.dabba{width:100%;height:auto;display:block}
+.dabba a{cursor:pointer}
+.dabba a:focus-visible circle.k{stroke:var(--focus);stroke-width:4}
+.legend{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px 18px;margin-top:18px}
+.legend a{display:grid;grid-template-columns:auto 1fr auto;gap:4px 10px;align-items:center;text-decoration:none;font-size:14.5px;font-weight:600}
+.legend .bar{grid-column:2 / 4;height:6px}
+.legend .pct{font-size:13px;color:var(--ink-3);font-weight:500;font-variant-numeric:tabular-nums}
+.stats{display:flex;flex-wrap:wrap;gap:10px 28px;margin:18px 0 0}
+.stat b{display:block;font:400 30px/1 var(--display)}
+.stat span{font-size:13.5px;color:var(--ink-2)}
+.slots{list-style:none;padding:0;margin:0 0 0 7px;border-left:2px solid var(--line)}
+.slot{position:relative;padding:2px 0 16px 22px}
+.slot::before{content:"";position:absolute;left:-8px;top:7px;width:14px;height:14px;border-radius:50%;background:var(--paper);box-shadow:inset 0 0 0 2px var(--steel-2)}
+.slot.now::before{background:var(--ink);box-shadow:0 0 0 4px color-mix(in srgb,var(--ink) 15%,transparent)}
+.slot.past{opacity:.6}
+.slot time{font-variant-numeric:tabular-nums;font-weight:700;font-size:14px;color:var(--ink-2);margin-right:8px}
+.slot .what{font-weight:600}
+.slot p{margin:2px 0 0;color:var(--ink-2);font-size:15px}
+.two{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:28px;align-items:start}
+.dish{display:grid;grid-template-columns:64px 1fr;gap:14px;align-items:center;padding:12px 0;border-bottom:1px solid var(--line)}
+.dish:last-child{border-bottom:0}
+.dish svg{width:64px;height:64px}
+.dish h3{margin:0 0 2px;font-size:16.5px}
+.linkish{background:none;border:0;padding:0;font:inherit;color:inherit;text-align:left;cursor:pointer;text-decoration:underline;text-decoration-color:var(--steel-2);text-underline-offset:3px}
+.linkish:hover{text-decoration-color:var(--ink)}
+.upnext{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:6px}
+
+/* Roadmap */
+details.phase{border:1px solid var(--line);border-radius:18px;background:var(--surface);margin:0 0 12px}
+details.phase.current{border-color:var(--ink);box-shadow:inset 0 0 0 1px var(--ink)}
+details.phase > summary{list-style:none;cursor:pointer;padding:16px 20px;display:grid;grid-template-columns:44px minmax(0,1fr) 140px;gap:16px;align-items:center}
+details.phase > summary::-webkit-details-marker{display:none}
+.pnum{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;font:400 20px/1 var(--display);background:var(--surface-2)}
+details.phase.done .pnum{background:var(--ink);color:var(--paper)}
+.phase-body{padding:0 20px 20px 80px;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:24px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{display:inline-flex;align-items:center;gap:6px;border:0;font:inherit;font-size:13.5px;font-weight:600;padding:4px 10px 4px 4px;border-radius:999px;background:var(--surface-2);color:var(--ink);cursor:pointer}
+.chip svg{width:24px;height:24px;border-radius:50%;background:var(--surface)}
+.chip[data-s="1"]{box-shadow:inset 0 0 0 2px var(--c)}
+.chip[data-s="2"]{background:color-mix(in srgb,var(--c) 22%,var(--surface))}
+
+/* Tree */
+.track-head{display:grid;grid-template-columns:minmax(0,1fr) minmax(220px,380px);gap:28px;align-items:center}
+.track-head svg.scene{width:100%;height:auto;display:block}
+.tree-wrap{container-type:inline-size;margin-top:22px}
+.tree{position:relative;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
+.edges{position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none;z-index:0;overflow:visible}
+.edges path{opacity:.42;transition:opacity .15s ease,stroke-width .15s ease}.edges path.lit{opacity:.85}
+.edges.focus path{opacity:.1}.edges.focus path.on{opacity:1;stroke-width:3}
+.tier{position:relative;z-index:1;min-width:0}
+.tier-head{padding:0 8px 10px;margin-bottom:6px;border-bottom:2px dotted var(--line)}
+.tier-head b{display:block;font-weight:700;font-size:15px}
+.tier-head span{font-size:13px;color:var(--ink-3)}
+.tier-nodes{display:flex;flex-direction:column;gap:2px}
+.node{appearance:none;background:none;border:0;color:inherit;font:inherit;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:6px;padding:10px 4px 12px;border-radius:16px;text-align:center;width:100%}
+.node:hover{background:color-mix(in srgb,var(--c) 8%,transparent)}
+.katori{width:86px;height:86px;border-radius:50%;background:var(--surface);box-shadow:inset 0 0 0 3px var(--steel);display:grid;place-items:center;position:relative;transition:box-shadow .25s ease}
+.katori svg{width:64px;height:64px}
+.node[data-s="1"] .katori{box-shadow:inset 0 0 0 4px var(--c)}
+.node[data-s="2"] .katori{background:color-mix(in srgb,var(--c) 16%,var(--surface));box-shadow:inset 0 0 0 4px var(--c),0 0 0 4px var(--paper),0 0 0 7px var(--c)}
+.node[data-lock="1"] .katori svg{opacity:.42;filter:grayscale(.7)}
+.node .mark{position:absolute;right:-4px;bottom:-4px;width:28px;height:28px;border-radius:50%;background:var(--c);display:grid;place-items:center;box-shadow:0 0 0 3px var(--paper)}
+.node .mark svg{width:16px;height:16px}
+.node-name{font-size:14.5px;font-weight:600;line-height:1.25;max-width:160px}
+.node-sub{font-size:12.5px;color:var(--ink-3);line-height:1.3}
+@container (max-width:680px){
+  .tree{grid-template-columns:1fr;gap:20px}
+  .tier-nodes{display:grid;grid-template-columns:repeat(auto-fill,minmax(112px,1fr));gap:2px}
+  .edges{display:none}
+  .katori{width:76px;height:76px}.katori svg{width:56px;height:56px}
+}
+
+/* Dialog */
+dialog.dlg{border:0;padding:0;border-radius:22px;width:min(580px,calc(100vw - 24px));max-height:calc(100dvh - 40px);background:var(--surface);color:var(--ink);box-shadow:0 24px 70px rgba(0,0,0,.28)}
+dialog.dlg::backdrop{background:rgba(16,21,23,.52)}
+.dlg-head{display:grid;grid-template-columns:104px minmax(0,1fr) auto;gap:16px;padding:22px 22px 6px;align-items:center}
+.dlg-head .katori{width:104px;height:104px}.dlg-head .katori svg{width:80px;height:80px}
+.dlg-head h2{font:400 26px/1.1 var(--display);margin:0 0 6px}
+.dlg-body{padding:10px 22px 22px}
+.dlg-body h3{font-size:15px;margin:18px 0 4px;color:var(--ink-2)}
+.x{border:0;background:var(--surface-2);color:var(--ink);width:36px;height:36px;border-radius:50%;cursor:pointer;display:grid;place-items:center;align-self:start}
+.counter{display:inline-flex;align-items:center;gap:10px;font-variant-numeric:tabular-nums}
+.counter b{min-width:2ch;text-align:center;font-size:18px}
+
+/* Menu, weekends, kitchen, progress */
+.days{display:grid;grid-template-columns:repeat(auto-fill,minmax(165px,1fr));gap:12px}
+.day{position:relative;background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:14px 16px}
+.day .day-art{position:absolute;right:10px;top:8px;width:52px;height:52px}
+.day.today{border-color:var(--ink);box-shadow:inset 0 0 0 1px var(--ink)}
+.day h3{display:flex;gap:8px;align-items:center;min-height:40px;margin-right:52px}
+.day dl{margin:0;font-size:14.5px}
+.day dt{color:var(--ink-3);font-size:13px;margin-top:8px}
+.day dd{margin:0;font-weight:500}
+.formulas{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px}
+.formula{display:grid;grid-template-columns:56px 1fr;gap:12px;align-items:start;padding:14px;border-radius:16px;background:var(--surface);border:1px solid var(--line)}
+.formula svg{width:56px;height:56px}
+.formula h3{font-size:16px;margin:0 0 2px}
+button.formula{font:inherit;color:inherit;text-align:left;cursor:pointer;width:100%}
+button.formula:hover{border-color:var(--c);background:color-mix(in srgb,var(--c) 7%,var(--surface))}
+.wk-row td{vertical-align:middle}
+.wk-dish{display:flex;gap:12px;align-items:center;min-width:240px}
+.wk-dish svg{width:44px;height:44px;flex:none}
+.steps{counter-reset:s;list-style:none;padding:0;margin:0}
+.steps li{counter-increment:s;display:grid;grid-template-columns:34px 1fr;gap:10px;padding:8px 0;border-bottom:1px solid var(--line)}
+.steps li:last-child{border-bottom:0}
+.steps li::before{content:counter(s);width:28px;height:28px;border-radius:50%;background:var(--surface-2);display:grid;place-items:center;font-weight:700;font-size:14px}
+.steps.checkable li::before{display:none}
+.steps.checkable li{grid-template-columns:1fr}
+.timeline{display:grid;grid-template-columns:1fr;margin:8px 0 0}
+.timeline div{display:grid;grid-template-columns:62px 1fr;gap:8px;padding:9px 12px;border-left:4px solid var(--steel);font-size:15px}
+.timeline div:last-child{border-left-color:var(--ink)}
+.timeline time{font-weight:700;font-variant-numeric:tabular-nums}
+.calc{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:28px}
+.range{display:grid;grid-template-columns:150px minmax(0,1fr) 64px;gap:12px;align-items:center;margin:0 0 10px;font-size:14.5px;color:var(--ink-2)}
+.range output{font-weight:700;color:var(--ink);text-align:right;font-variant-numeric:tabular-nums}
+input[type="range"]{width:100%;accent-color:var(--ink)}
+.big{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.big div{background:var(--surface-2);border-radius:14px;padding:14px}
+.big b{display:block;font:400 28px/1.05 var(--display);margin-top:2px}
+.big span{font-size:13.5px;color:var(--ink-2)}
+.macro{display:flex;height:14px;border-radius:999px;overflow:hidden;margin:14px 0 8px;background:var(--surface-2)}
+.macro i{display:block;height:100%}
+.chart svg{width:100%;height:auto;display:block}
+.log-form{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end}
+.log-form .field{width:150px}
+.note{border-left:4px solid var(--c,var(--ink));padding:10px 14px;background:var(--surface);border-radius:0 12px 12px 0;margin:12px 0}
+.empty{padding:22px;text-align:center;color:var(--ink-2);border:1px dashed var(--steel-2);border-radius:14px}
+
+@media (max-width:900px){
+  .app{grid-template-columns:1fr}
+  .topbar{display:flex;align-items:center;gap:12px;position:sticky;top:env(safe-area-inset-top,0px);z-index:30;background:var(--paper);padding:10px 16px;border-bottom:1px solid var(--line)}
+  .topbar .brand{margin:0;flex:1}
+  .rail{display:none;position:static;min-height:0;max-height:none;border-right:0;border-bottom:1px solid var(--line);padding:14px 16px}
+  .rail.open{display:block}
+  .rail .brand{display:none}
+  .nav{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:0 16px}
+  .main{padding-top:22px}
+}
+@media (max-width:720px){
+  .hero,.two,.calc,.track-head{grid-template-columns:1fr}
+  .hero{gap:8px}
+  .dabba{max-width:300px;margin:0 auto}
+  details.phase > summary{grid-template-columns:40px minmax(0,1fr);gap:12px;padding:14px 16px}
+  details.phase > summary .bar-wrap{grid-column:2}
+  .phase-body{padding:0 16px 18px;grid-template-columns:1fr}
+  .range{grid-template-columns:110px minmax(0,1fr) 56px}
+  .dlg-head{grid-template-columns:80px minmax(0,1fr) auto}
+  .dlg-head .katori{width:80px;height:80px}.dlg-head .katori svg{width:60px;height:60px}
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="topbar">
+    <a class="brand" href="#today" aria-label="Kitchen roadmap, today"><svg viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="32" r="29" fill="var(--steel-hi)" stroke="var(--steel-2)" stroke-width="3"/><circle cx="32" cy="16" r="7" fill="var(--ni)"/><circle cx="46" cy="24" r="7" fill="var(--si)"/><circle cx="46" cy="40" r="7" fill="var(--ko)"/><circle cx="32" cy="48" r="7" fill="var(--it)"/><circle cx="18" cy="40" r="7" fill="var(--de)"/><circle cx="18" cy="24" r="7" fill="var(--es)"/><circle cx="32" cy="32" r="7" fill="var(--ta)"/></svg><b>Kitchen roadmap</b></a>
+    <span id="acctTop"></span>
+    <button class="btn quiet sm" id="navToggle" aria-expanded="false" aria-controls="rail">Menu</button>
+  </header>
+  <nav class="rail" id="rail" aria-label="Sections"></nav>
+  <main class="main" id="main" tabindex="-1"><div class="wrap"><p class="muted">Loading your roadmap…</p></div></main>
+</div>
+<dialog class="dlg" id="dlg" aria-labelledby="dlgTitle"></dialog>
+<script>
+/* =====================================================================
+   FIREBASE SETUP
+   Paste your web app's config here (Firebase console > Project settings >
+   Your apps), or leave it empty and paste it on the page under
+   "Sync and account". Full steps are on that page.
+   ===================================================================== */
+const FIREBASE_CONFIG = {
+  apiKey: "AIzaSyB8yufAdgVIR330StF73sAq_LULGEOMjXg",
+  authDomain: "cooking-roadmap.firebaseapp.com",
+  projectId: "cooking-roadmap",
+  appId: "1:126186393778:web:02972dd28db28e42f7b9ab"
+};
+const PLAN_START = new Date(2026, 10, 2);
+const TIERS = [
+  {n:"Foundations", s:"Phase 1, Nov"},
+  {n:"Building blocks", s:"Phase 2, Dec"},
+  {n:"Expansion", s:"Phase 3, Jan"},
+  {n:"Chicken and mastery", s:"Phases 4–5, Feb–May"}
+];
+const TRACKS = [
+ {id:"ni", hash:"north-indian", name:"North Indian", short:"North Indian", scene:"thali",
+  blurb:"Dals, gravies, breads and biryani: the everyday core of your weekday cooking.",
+  nodes:[
+  ["dal-tadka","Dal tadka",1,"dal",[],"Phase 1, Week 1","Pressure-cook dal and finish it with a ghee tadka of cumin, garlic and chilli.","Let the cooker release on its own; rushed dal stays grainy."],
+  ["jeera-rice","Jeera rice",1,"rice",[],"Phase 1, Week 1","Cook rice so every grain stays separate, with cumin bloomed in ghee.","Rinse until the water runs clear; use about 1 : 1.5 rice to water in a pressure cooker."],
+  ["dry-sabzi","Aloo gobi and dry sabzis",1,"sabzi",[],"Phase 1","Cook vegetables dry under a lid so they steam in their own moisture.","Salt at the start draws out water; add a splash only if it sticks."],
+  ["raita","Raita and kachumber",1,"raita",[],"Phase 1","Balance curd, salt and roasted cumin; dice onion, tomato and cucumber evenly.","Salt raita just before serving so it doesn’t turn watery."],
+  ["besan-chilla","Besan chilla",1,"chilla",[],"Phase 1, breakfasts","Make a pourable batter and cook thin savoury pancakes on a hot tawa.","The batter should coat a spoon like thick cream; rest it 10 minutes."],
+  ["masala-base","Onion-tomato masala base",2,"masala",["dry-sabzi"],"Phase 2, Sunday prep","Bhuna: cook onions, ginger-garlic, tomatoes and spices until the oil separates.","Patience is the recipe. Rushed masala tastes raw; 25 minutes on medium is normal."],
+  ["rajma","Rajma",2,"rajma",["dal-tadka"],"Phases 1–2, weekdays","Soak and pressure-cook kidney beans until creamy, then simmer them in masala.","Soak 8 hours and cook until a bean crushes easily between two fingers."],
+  ["chole","Chole",2,"chole",["dal-tadka","masala-base"],"Phase 2, weekdays","Build a dark, tangy chickpea gravy with chole masala and amchur.","A tea bag in the cooker gives the classic dark colour."],
+  ["paneer-gravy","Paneer gravies",2,"paneer",["masala-base"],"Phase 2 and Week 6","Matar, palak and butter masala: three gravies from one base, finished differently.","Soak paneer cubes in hot salted water for 10 minutes to keep them soft."],
+  ["pav-bhaji","Pav bhaji",2,"pavbhaji",["masala-base"],"Week 3 weekend","Mash mixed vegetables into a spiced bhaji and toast buttered pav.","Measure the butter; it’s where the calories hide."],
+  ["phulka","Phulka",3,"roti",[],"Phase 3","Knead a soft dough, roll it evenly and puff rotis over an open flame.","Rest the dough 20 minutes; even thickness is what makes it puff."],
+  ["paratha","Aloo and paneer paratha",3,"paratha",["phulka"],"Week 12 weekend","Stuff, seal and roll a paratha without it tearing.","Keep the filling dry and cool; wet filling is why parathas burst."],
+  ["biryani","Egg or veg dum biryani",3,"biryani",["jeera-rice","masala-base"],"Week 9 weekend","Par-boil rice to 70%, layer it with masala and seal the pot to cook on dum.","Salt the boiling water like the sea; it’s your only chance to season the rice."],
+  ["paneer-tikka","Paneer tikka",3,"tikka",["raita"],"Phase 3","Make a thick yogurt marinade that clings and chars on high heat.","Use hung curd, not regular curd, so the marinade doesn’t slide off."],
+  ["dal-makhani","Dal makhani",3,"dalDark",["rajma"],"Phase 3 weekend","Slow-cook whole urad and rajma until creamy and smoky.","Cook it long, not rich: 1 tbsp butter is enough if it simmers 45 minutes."],
+  ["chicken-curry","Home-style chicken curry",4,"chickenCurry",["masala-base"],"Week 14 weekend","Braise bone-in chicken in masala until tender.","Brown the pieces first and don’t crowd the pan.",1,["es.chicken-basics"]],
+  ["chicken-tikka","Chicken tikka",4,"tikkaChicken",["paneer-tikka"],"Week 15 weekend","Marinate overnight, then cook fast and hot for charred edges and a juicy centre.","Thigh stays juicier than breast; check 74 °C in the thickest piece.",1,["es.chicken-basics"]],
+  ["butter-chicken","Butter chicken",4,"butterChicken",["chicken-tikka","paneer-gravy"],"Week 21 weekend","Finish tikka in a silky tomato-cashew gravy.","Blend the gravy smooth and stir the cream in off the heat.",1],
+  ["chicken-biryani","Chicken dum biryani",4,"biryani",["biryani","chicken-curry"],"Week 18 weekend","Combine a marinated chicken layer with par-boiled rice and dum.","Marinate at least 4 hours; the yogurt tenderises the meat.",1],
+  ["naan","Tawa garlic naan",4,"naan",["paratha"],"Week 21 weekend","Make a soft yogurt dough and cook naan on an upturned tawa.","Wet the back of the naan so it sticks, then flip the tawa over the flame."]
+ ]},
+ {id:"si", hash:"south-indian", name:"South Indian", short:"South Indian", scene:"leaf",
+  blurb:"Tempering, batters and fermentation: South Indian food teaches technique you’ll use everywhere.",
+  nodes:[
+  ["poha-upma","Poha and upma",1,"poha",[],"Phase 1, breakfasts","Temper mustard seeds and curry leaves, then cook flattened rice or semolina without lumps.","Rinse poha for 10 seconds only; roast rava until it smells nutty before adding water."],
+  ["poriyal","Poriyal",1,"poriyal",[],"Phase 1, weekdays","Stir-fry finely chopped vegetables with a mustard and urad dal tempering, finished with coconut.","Chop small and even; poriyal should take 8 minutes, not 20."],
+  ["lemon-rice","Lemon rice and curd rice",1,"lemonRice",[],"Phase 1","Turn plain rice into two complete dishes with a tempering and either lemon or curd.","Use cooled rice so the grains stay whole."],
+  ["batter","Idli and dosa batter",2,"batter",[],"Phase 2, Saturday nights","Soak, grind and ferment rice and urad dal into a batter that rises.","In cool weather, ferment it in a switched-off oven with the light on."],
+  ["idli","Idli",2,"idli",["batter"],"Week 5 weekend","Steam soft idlis that hold together and spring back.","Don’t stir fermented batter hard; you’ll knock the air out."],
+  ["dosa","Plain dosa",2,"dosa",["batter"],"Phase 2","Spread a thin dosa in circles and get it crisp without sticking.","Sprinkle water on the tawa: if it sizzles away at once, it’s ready."],
+  ["sambar","Sambar",2,"sambar",["poriyal"],"Week 5 weekend","Cook toor dal with tamarind, vegetables and sambar powder into a tangy stew.","Add tamarind after the vegetables soften; acid stops them cooking."],
+  ["rasam","Rasam",2,"rasam",[],"Phase 2","Make a thin, peppery tamarind-tomato broth.","Turn the heat off the moment it froths; boiled rasam turns bitter."],
+  ["chutneys","Coconut and tomato chutney",2,"chutney",[],"Phase 2","Grind and temper the two chutneys that go with everything.","A little roasted chana dal makes coconut chutney thicker and keeps it longer."],
+  ["masala-dosa","Masala dosa",3,"masalaDosa",["dosa","poriyal"],"Week 7 weekend","Make potato palya and fold it into a crisp dosa.","Keep the palya dry and slightly coarse."],
+  ["uttapam","Uttapam",3,"uttapam",["dosa"],"Phase 3","Cook a thick dosa with onion, tomato and chilli pressed into it.","Batter that’s a day or two older suits uttapam; the extra sourness helps."],
+  ["bisi-bele","Bisi bele bath",3,"bisibele",["sambar"],"Phase 3","Cook rice, dal and vegetables together in one spiced pot.","It thickens as it sits; loosen leftovers with hot water."],
+  ["pongal","Ven pongal",3,"pongal",["poha-upma"],"Phase 3","Cook rice and moong dal soft, tempered with ghee, pepper and cumin.","Crack the pepper coarsely; the peppercorns are the point."],
+  ["medu-vada","Medu vada",4,"vada",["batter"],"Week 24 weekend","Shape and deep-fry crisp lentil doughnuts.","Wet your palm to shape; oil at 175 °C keeps them from soaking it up."],
+  ["appam","Appam",4,"appam",["batter"],"Week 19 weekend","Make a lacy, soft-centred pancake in a curved pan.","Swirl the pan once and cover it; don’t flip."],
+  ["kerala-stew","Kerala chicken stew",4,"stewWhite",["appam"],"Week 19 weekend","Simmer chicken gently in coconut milk with whole spices.","Add thick coconut milk at the end and don’t boil it, or it splits.",1,["es.chicken-basics"]],
+  ["chettinad","Chettinad chicken",4,"chettinad",["sambar"],"Phase 5","Dry-roast and grind your own spice paste for a fiery curry.","Roast spices on low until fragrant, then cool them before grinding.",1,["es.chicken-basics"]]
+ ]},
+ {id:"ta", hash:"tamil", name:"Tamil traditional", short:"Tamil", scene:"kolam",
+  tiers:[{n:"Grandmother basics",s:"Phases 1–2, Nov"},{n:"Kuzhambu and kootu",s:"Phase 2, Dec"},{n:"Millets and tiffin",s:"Phase 3, Jan"},{n:"Feast days and chicken",s:"Phases 4–5, Feb–May"}],
+  blurb:"Ragi kali, koozh, kuzhambu and kootu: simple village and grandmother-style Tamil cooking, rich in millets and greens.",
+  nodes:[
+  ["ragi-kali","Ragi kali",1,"kali",[],"Phase 1, lunches","Cook ragi flour in boiling water into a smooth, firm ball, the traditional kezhvaragu kali.","Let the flour sit on the boiling water for a minute before you stir; that’s what stops lumps."],
+  ["kambu-koozh","Kambu koozh",1,"koozh",[],"Phase 1, hot mornings","Cook pearl millet into a porridge, rest it overnight and thin it with buttermilk, small onions and green chilli.","Make it the night before; the overnight rest gives it the cooling tang."],
+  ["keerai-masiyal","Keerai masiyal",1,"keerai",[],"Phase 1, lunches","Cook greens with garlic and cumin, mash them smooth and finish with a mustard and urad dal tempering.","Cook the greens briefly and uncovered so they stay bright green."],
+  ["sundal","Sundal",1,"sundal",[],"Phase 1, work meals","Toss boiled chickpeas or peanuts with a tempering, grated coconut and curry leaves.","Cook the chana until just tender, not mushy, so it holds its shape in the tiffin."],
+  ["muttai-podimas","Muttai podimas",1,"podimas",[],"Phase 1, breakfasts","Scramble eggs into small onions, green chilli and curry leaves, Tamil style.","Small onions and a pinch of pepper are what make it podimas rather than bhurji."],
+  ["mor-kuzhambu","Mor kuzhambu",2,"morKuzhambu",["kambu-koozh"],"Phase 2, lunches","Make a curd gravy with a coconut, green chilli and cumin paste, cooked with ash gourd or okra.","Take it off the heat as soon as it froths; boiling splits the curd."],
+  ["vatha-kuzhambu","Vatha kuzhambu",2,"vatha",["keerai-masiyal"],"Phase 2, lunches","Simmer a thick tamarind gravy with fried sundakkai or manathakkali vathal in gingelly oil.","Simmer until the oil floats on top; it keeps 3–4 days in the fridge."],
+  ["kootu","Poricha kootu",2,"kootu",["keerai-masiyal"],"Phase 2, lunches","Cook moong dal with chow chow or snake gourd and a coconut, cumin and pepper paste.","Keep it thick, not watery; it should sit on rice, not run."],
+  ["paruppu-usili","Paruppu usili",2,"usili",["sundal"],"Phase 2","Grind soaked toor and chana dal, steam it, crumble it and stir-fry it with beans.","Steaming the ground dal before crumbling keeps it light; it’s one of the most protein-rich vegetable sides."],
+  ["kollu-rasam","Kollu rasam",2,"kolluRasam",["sundal"],"Phase 2, dinners","Pressure-cook horsegram and turn its cooking water into a peppery rasam.","Horsegram needs 6–7 whistles; keep the cooked grains for a sundal."],
+  ["muttai-kuzhambu","Muttai kuzhambu",2,"muttaiKuzhambu",["muttai-podimas"],"Phase 2, lunches","Simmer boiled eggs in a tamarind and coconut kuzhambu.","Add the eggs in the last 5 minutes and slit them so the gravy soaks in."],
+  ["ragi-dosa","Ragi dosa",3,"ragiDosa",["ragi-kali"],"Phase 3, breakfasts","Mix an instant ragi and rice-flour batter and pour it into lacy dosas.","Keep the batter as thin as buttermilk and pour it from the edge inwards instead of spreading.",0,["si.dosa"]],
+  ["millet-pongal","Millet pongal",3,"milletPongal",["kambu-koozh"],"Phase 3, breakfasts","Swap rice for foxtail or barnyard millet in a pepper and cumin pongal.","Rinse the millet well and use a little more water than you would for rice.",0,["si.pongal"]],
+  ["puliyodharai","Puliyodharai",3,"puli",["vatha-kuzhambu"],"Phase 3, lunches","Cook a tamarind pulikachal paste and toss it through rice with roasted peanuts.","The paste keeps 2 weeks in the fridge, so make a jar for fast lunches."],
+  ["ennai-kathirikai","Ennai kathirikai kuzhambu",3,"kathirikai",["vatha-kuzhambu"],"Phase 3","Stuff small brinjals with a roasted spice paste and simmer them in tamarind gravy.","Slit the brinjals in a cross but keep the stem on so they hold together."],
+  ["adai","Adai",3,"adai",["paruppu-usili"],"Phase 3, breakfasts","Grind a coarse batter of rice and mixed dals with red chilli and cook thick, crisp dosas.","Soak 3–4 hours and grind coarse; no fermenting needed, and it’s one of the most protein-rich breakfasts here."],
+  ["sakkarai-pongal","Sakkarai pongal",3,"sakkarai",[],"Week 10, Pongal week","Cook rice and moong dal with melted jaggery, ghee, cardamom and fried cashews.","Melt and strain the jaggery first; it often carries grit."],
+  ["kuzhi-paniyaram","Kuzhi paniyaram",4,"paniyaram",["ragi-dosa"],"Phase 5","Turn leftover idli batter into crisp little dumplings in a paniyaram pan.","Use batter that’s 2–3 days old, add onion and chilli, and turn them with a skewer.",0,["si.batter"]],
+  ["nattu-kozhi","Nattu kozhi kuzhambu",4,"nattuKozhi",["ennai-kathirikai"],"Phase 4","Slow-cook country chicken in a freshly ground pepper, coriander and coconut masala.","Country chicken is tougher; pressure-cook it 4–5 whistles or simmer 45 minutes.",1,["es.chicken-basics"]],
+  ["milagu-kozhi","Milagu kozhi varuval",4,"varuval",["nattu-kozhi"],"Phase 4","Dry-roast chicken with black pepper, small onions and curry leaves until dark and glossy.","Crush the pepper fresh and add half at the end; it should taste of pepper, not chilli.",1],
+  ["pidi-kozhukattai","Pidi kozhukattai",4,"kozhukattai",["sakkarai-pongal"],"Phase 5","Cook rice flour into a dough, press it in your fist and steam the dumplings, sweet or savoury.","Shape the dough while it’s still warm, with lightly oiled hands; the finger marks are the point."],
+  ["virundhu","A banana-leaf virundhu",4,"virundhu",["kootu","sakkarai-pongal"],"Week 26 option","Serve a full Tamil meal on a banana leaf: rice, kuzhambu, rasam, kootu, poriyal, a sweet and buttermilk.","Make the kuzhambu and the sweet the day before and cook the rest that morning."]
+ ]},
+ {id:"ko", hash:"korean", name:"Korean", short:"Korean", scene:"bapsang",
+  blurb:"Bright, fast and protein-friendly: rice bowls, stews and side dishes built on a few sauces.",
+  nodes:[
+  ["gyeran-bap","Gyeran bap",1,"eggRice",[],"Phase 1, dinners","Build a 5-minute rice bowl with a fried egg, soy and sesame oil.","Fry in neutral oil and finish with a few drops of toasted sesame oil."],
+  ["namul","Sigeumchi namul",1,"namul",[],"Phase 1","Blanch spinach, squeeze it dry and season with garlic, sesame and soy.","Squeeze hard; leftover water dilutes the seasoning."],
+  ["muchim","Cucumber muchim",1,"muchim",[],"Phase 1","Salt cucumber, then dress it with gochugaru, vinegar and sesame.","Salt the slices 10 minutes and pat them dry for a crunchier salad."],
+  ["gyeran-jjim","Gyeran-jjim",2,"steamedEgg",["gyeran-bap"],"Phase 2, dinners","Steam eggs gently into a soft, puffed custard.","Use equal parts egg and water, and keep the heat low under a lid."],
+  ["gyeran-mari","Gyeran-mari",2,"rolled",["gyeran-bap"],"Week 4 weekend","Roll thin layers of omelette into a neat log.","Low heat and patience: add each layer before the last one fully sets."],
+  ["kimchi-rice","Kimchi fried rice",2,"kimchiRice",["gyeran-bap"],"Phase 2, dinners","Fry day-old rice with chopped kimchi and gochujang.","Check labels: many shop kimchis contain fish sauce."],
+  ["bibimbap","Bibimbap",2,"bibimbap",["namul","muchim"],"Week 4 weekend","Prepare several small toppings and a gochujang sauce, then assemble.","For the sauce, mix gochujang with sesame oil, a little sugar, vinegar and water."],
+  ["sundubu","Sundubu-jjigae",3,"stew",["kimchi-rice"],"Week 10 weekend","Build a spicy stew base, then cook soft tofu and an egg in it.","Add the tofu in big spoonfuls and stir gently so it stays silky."],
+  ["japchae","Japchae",3,"noodles",["namul"],"Week 20 weekend","Cook glass noodles and stir-fried vegetables separately, then toss them together.","Snip the noodles with scissors after cooking; they’re very long."],
+  ["dubu-jorim","Dubu jorim",3,"tofuBraise",["muchim"],"Phase 3, dinners","Pan-fry tofu, then braise it in a soy-chilli sauce.","Press tofu for 15 minutes so it browns instead of steaming."],
+  ["tteokbokki","Tteokbokki",3,"tteok",["bibimbap"],"Phase 3 weekend","Simmer rice cakes in a sweet-spicy gochujang sauce.","Soak hard rice cakes in warm water for 20 minutes first."],
+  ["dakgalbi","Dakgalbi",4,"dakgalbi",["tteokbokki"],"Week 16 weekend","Marinate chicken in gochujang and stir-fry it with cabbage and sweet potato.","Cut thighs into even pieces so everything cooks at the same rate.",1,["es.chicken-basics"]],
+  ["korean-chicken","Air-fried Korean chicken",4,"kfc",["dakgalbi"],"Week 23 weekend","Cook chicken twice for crunch, then toss it in a sticky glaze.","Glaze at the last minute so the crust stays crisp.",1],
+  ["kimchi","Homemade kimchi",4,"kimchi",["muchim"],"Week 20 weekend","Salt napa cabbage and ferment it in a chilli paste.","Use soy sauce or kelp instead of fish sauce; 1–2 days at room temperature, then the fridge."]
+ ]},
+ {id:"it", hash:"italian", name:"Italian and continental", short:"Italian", scene:"tavola",
+  blurb:"A few great ingredients handled well: pasta, sauces, eggs and, later, the oven.",
+  nodes:[
+  ["aglio-olio","Spaghetti aglio e olio",1,"pasta",[],"Week 2 weekend","Cook pasta al dente and emulsify garlic oil with starchy pasta water.","Take the pasta out a minute early and finish it in the pan."],
+  ["vinaigrette","Salad and vinaigrette",1,"salad",[],"Week 2 weekend","Whisk 3 parts oil to 1 part acid and dress leaves just before eating.","Season the dressing, not the leaves, and taste it on a leaf."],
+  ["garlic-bread","Garlic bread",1,"bread",[],"Week 2 weekend","Toast bread with garlic butter until crisp at the edges.","Grate the garlic finely so it melts into the butter."],
+  ["pomodoro","Pomodoro sauce",2,"sauce",[],"Phase 2","Reduce tomatoes with garlic and olive oil into a sweet, glossy sauce.","Simmer 20 minutes; add a pinch of sugar only if the tomatoes are sharp."],
+  ["pasta-pomodoro","Pasta al pomodoro",2,"pastaRed",["pomodoro","aglio-olio"],"Phase 2, dinners","Toss pasta with sauce so it clings instead of pooling.","Add a ladle of pasta water and toss hard over the heat."],
+  ["frittata","Frittata",2,"frittata",[],"Phase 2, dinners","Set a thick omelette gently, then finish it under a lid or in the oven.","Cook on low; high heat makes it rubbery."],
+  ["shakshuka","Shakshuka",2,"shakshuka",["pomodoro"],"Phase 2, dinners","Poach eggs in a spiced tomato and pepper sauce.","Make wells with a spoon and cover the pan so the whites set."],
+  ["pesto","Coriander-peanut pesto",2,"pesto",["aglio-olio"],"Phase 2","Blend herbs, nuts, garlic, cheese and oil into a bright sauce.","Pulse in short bursts so the herbs don’t heat up and darken."],
+  ["risotto","Mushroom risotto",3,"risotto",["pasta-pomodoro"],"Week 11 weekend","Toast arborio rice and add hot stock a ladle at a time.","Stir often, then finish with butter and cheese off the heat."],
+  ["minestrone","Minestrone",3,"soup",["pomodoro"],"Phase 3","Build a vegetable soup in layers: soffritto, vegetables, beans, then pasta.","Add the small pasta in the last 10 minutes."],
+  ["pizza","Pizza from scratch",3,"pizza",["pomodoro"],"Week 8 weekend","Knead and proof a yeast dough, then bake it very hot.","A heavy pan with a lid works if you don’t have an oven."],
+  ["roast-veg","Roasted vegetables",3,"roastVeg",["vinaigrette"],"Week 11 weekend","Roast at high heat for caramelised edges.","Spread them out; crowded vegetables steam instead of roasting."],
+  ["bruschetta","Bruschetta",3,"bruschetta",["garlic-bread"],"Phase 3","Top grilled bread with fresh tomato and basil.","Salt the tomatoes 10 minutes ahead and drain the juice."],
+  ["lemon-chicken","Lemon-herb chicken",4,"chickenSeared",["roast-veg"],"Week 13 weekend","Pan-sear chicken breast golden, then rest it before slicing.","Pound the breast to an even thickness so it cooks evenly.",1,["es.chicken-basics"]],
+  ["cacciatore","Chicken cacciatore",4,"cacciatore",["pomodoro"],"Week 17 option","Braise chicken in tomato, peppers and herbs.","Brown the chicken first, then simmer gently under a lid.",1,["es.chicken-basics"]],
+  ["fresh-pasta","Fresh egg pasta",4,"freshPasta",["pasta-pomodoro"],"Week 17 weekend","Knead an egg-and-flour dough and roll it thin.","Rest the dough 30 minutes, wrapped; it rolls far more easily."],
+  ["ragu","Chicken ragù",4,"ragu",["fresh-pasta","cacciatore"],"Week 17 weekend","Slow-cook minced chicken in a tomato sauce for pasta.","A splash of milk makes the ragù silky.",1],
+  ["lasagne","Lasagne",4,"lasagne",["fresh-pasta"],"Week 22 weekend","Make a béchamel and layer pasta, sauce and cheese.","Rest it 15 minutes before cutting so the layers hold."]
+ ]},
+ {id:"de", hash:"desserts", name:"Desserts", short:"Desserts", scene:"mithai",
+  tiers:[{n:"No-cook",s:"Nov"},{n:"Stovetop and set",s:"Nov–Jan"},{n:"Baking",s:"Jan–Mar"},{n:"Frying and advanced",s:"Feb–May"}],
+  blurb:"One dessert every Sunday, portioned into five servings for the week, rising from no-cook to caramel.",
+  nodes:[
+  ["energy-balls","Date-nut energy balls",1,"energy",[],"Week 1","Blitz dates and nuts and roll them into balls.","Wet hands stop the mix sticking; freeze extras for Thursday and Friday."],
+  ["shrikhand","Shrikhand",1,"shrikhand",[],"Week 2","Sweeten hung curd and flavour it with cardamom and saffron.","Hang the curd 6 hours; thicker curd means more protein per spoon."],
+  ["chia","Chia pudding",1,"chia",[],"Week 4","Set chia seeds in milk overnight and top with fruit.","Use 3 tbsp chia per cup of milk and stir twice in the first 10 minutes."],
+  ["kheer","Rice kheer",2,"kheer",[],"Week 3","Simmer rice in milk until creamy without scorching.","Use a heavy pan and scrape the bottom every few minutes."],
+  ["gajar-halwa","Gajar halwa",2,"halwa",["kheer"],"Week 5","Cook grated carrots in milk until it reduces, then finish with ghee.","Winter red carrots give the best colour and sweetness."],
+  ["besan-ladoo","Besan ladoo",2,"ladoo",["energy-balls"],"Week 6","Roast besan in ghee slowly until it smells nutty, then shape.","Low heat for 20 minutes; raw besan tastes bitter."],
+  ["steamed-yogurt","Steamed sweet yogurt",2,"yogurtSteamed",["shrikhand"],"Week 7","Steam sweetened yogurt until just set, like bhapa doi.","Cover each cup with foil so condensation doesn’t drip in."],
+  ["kesari","Rava kesari",2,"kesari",["kheer"],"Any Sunday, Phases 2–3","Roast semolina, cook it in water and set it with sugar and ghee.","Add the sugar only after the rava has absorbed the water."],
+  ["panna-cotta","Panna cotta with agar",2,"pannacotta",["shrikhand"],"Week 11","Set yogurt and milk with agar-agar instead of gelatin.","Agar must boil for 2 minutes to set, and it sets fast, so pour quickly."],
+  ["tiramisu","Eggless tiramisu",3,"tiramisu",["panna-cotta"],"Week 8","Layer coffee-dipped biscuits with a whipped cream-cheese filling.","Dip each biscuit for 1 second; soggy layers collapse."],
+  ["crumble","Apple-cinnamon oat crumble",3,"crumble",[],"Week 9","Bake fruit under a buttery oat topping.","Rub cold butter into the oats until it looks like sand."],
+  ["brownies","Fudgy brownies",3,"brownie",["crumble"],"Week 12","Bake a dense chocolate batter and pull it out slightly underdone.","A toothpick should come out with moist crumbs, not clean."],
+  ["cookies","Oat-peanut butter cookies",3,"cookie",["crumble"],"Week 14","Portion and bake cookies evenly.","Chill the dough 30 minutes for thicker cookies."],
+  ["cheesecake","No-bake cheesecake jars",3,"cheesecake",["tiramisu"],"Week 17","Set a cream-cheese and hung-curd filling over a biscuit base.","Chill at least 4 hours before eating."],
+  ["muffins","Ragi-banana muffins",3,"muffin",["cookies"],"Week 19","Mix a muffin batter gently and bake it to a dome.","Stir only until no flour shows; overmixing makes muffins tough."],
+  ["hotteok","Hotteok",4,"hotteok",["cookies"],"Week 16","Fill a yeasted dough with brown sugar and nuts and press it flat in the pan.","Oil your hands, not the dough, when sealing the filling."],
+  ["rasmalai","Rasmalai",4,"rasmalai",["kheer"],"Week 21","Make chhena, shape soft discs, cook them in syrup and soak them in thickened milk.","Knead the chhena until smooth and slightly greasy; that keeps the discs soft."],
+  ["kulfi","No-churn mango kulfi",4,"kulfi",["kheer"],"Week 23","Reduce milk and freeze it with mango into dense kulfi.","Stir the reducing milk often; the browned bits add flavour."],
+  ["gulab-jamun","Gulab jamun",4,"jamun",["besan-ladoo"],"Week 24","Fry soft dough balls on low heat and soak them in syrup.","Fry slowly so the centre cooks before the outside browns."],
+  ["custard","Caramel custard",4,"custard",["steamed-yogurt"],"Week 26","Cook sugar to amber caramel and steam an egg custard over it.","Take the caramel off a shade lighter than you want; it keeps darkening."]
+ ]},
+ {id:"es", hash:"essentials", name:"Eggs and essentials", short:"Essentials", scene:"board",
+  tiers:[{n:"Day one",s:"Phases 0–1"},{n:"Daily confidence",s:"Phase 2"},{n:"Cook’s instincts",s:"Phase 3"},{n:"Chicken and hosting",s:"Phases 4–5"}],
+  blurb:"Knife skills, safety and eggs: the techniques under every other tree, and your gateway to chicken.",
+  nodes:[
+  ["knife","Knife basics",1,"knife",[],"Phase 0","Use a claw grip, dice an onion and chop evenly.","Keep the onion’s root on while you dice; it holds the layers together."],
+  ["safety","Food safety",1,"fridge",[],"Phase 0","Use separate boards, keep the fridge cold and chill leftovers within 2 hours.","Cool cooked rice and refrigerate it within an hour."],
+  ["cooker","Pressure cooking",1,"cooker",[],"Phase 1","Learn whistles, natural release and pot-in-pot dal and rice.","Count whistles but also time it; dals vary by age and type."],
+  ["boiled","Boiled eggs",1,"eggs",[],"Phase 0","Get soft, jammy and hard yolks at 6, 9 and 12 minutes.","Drop them into ice water straight away; they peel far more easily."],
+  ["omelette","Masala omelette",1,"omelette",[],"Phase 0","Whisk, cook on medium and fold before it dries out.","Pull it off the heat while the top is still slightly wet."],
+  ["bhurji","Egg bhurji",2,"bhurji",["omelette"],"Phase 1, breakfasts","Scramble eggs into a spiced onion-tomato base.","Cook the masala first; the eggs go in last and need 2 minutes."],
+  ["scramble","Soft scrambled eggs",2,"scramble",["omelette"],"Phase 1","Stir eggs slowly on low heat into creamy curds.","Move the pan off and on the heat to stay in control."],
+  ["poached","Poached eggs",2,"poached",["boiled"],"Week 4","Poach eggs in barely simmering water.","Use the freshest eggs and strain off the watery white first."],
+  ["egg-curry","Egg curry",2,"curry",["bhurji"],"Phase 1–2, dinners","Simmer boiled eggs in a masala gravy.","Score the boiled eggs so the gravy gets in."],
+  ["batch","Sunday batch prep",2,"boxes",["cooker","knife"],"Phase 2","Run 90 minutes of prep in parallel for a week of meals.","Start whatever takes longest first, usually the pressure cooker."],
+  ["flavour","Fixing flavour",3,"balance",["batch"],"Phase 3","Rescue a dish that’s too salty, flat, spicy or sour.","Flat? Add acid before salt. Too hot? Add curd, coconut milk or a little sugar."],
+  ["marinade","Marinating",3,"marinade",["safety"],"Phase 3","Use yogurt, acid and salt to season and tenderise.","Paneer and tofu need 30 minutes; chicken needs 4 hours or overnight."],
+  ["egg-roast","Kerala egg roast",3,"eggRoast",["egg-curry"],"Phase 3","Cook onions down slowly into a deep, dry masala for eggs.","Let the onions go jammy and brown; that’s the whole flavour."],
+  ["chicken-basics","Chicken safety",4,"thermometer",["marinade","safety"],"Week 13","Handle raw chicken safely and cook it to 74 °C.","Don’t rinse raw chicken; the splashes spread bacteria round the sink.",1],
+  ["seared","Pan-seared chicken breast",4,"breast",["chicken-basics"],"Week 13","Sear chicken golden and rest it before slicing.","Pat it dry and leave it alone in the pan for 4 minutes before turning.",1],
+  ["frying","Deep-frying",4,"fryer",["flavour"],"Week 24","Keep oil at a steady temperature and fry in small batches.","A wooden spoon handle should bubble steadily when the oil is ready."],
+  ["improvise","Cooking without a recipe",4,"fridgeOpen",["flavour"],"Week 25","Plan three courses from what’s already in your fridge.","Pick one protein, one sauce and one texture contrast, then build around them."],
+  ["hosting","Host a four-course dinner",4,"table",["improvise"],"Week 26","Time a full menu so everything is ready together.","Write a backwards timeline from serving time and make dessert the day before."]
+ ]}
+];
+TRACKS.forEach(t=>{
+  t.nodes = t.nodes.map(a=>({id:a[0],n:a[1],t:a[2],art:a[3],req:a[4],when:a[5],learn:a[6],tip:a[7],chicken:!!a[8],xreq:a[9]||[],track:t.id,key:t.id+"."+a[0]}));
+  t.byId = Object.fromEntries(t.nodes.map(n=>[n.id,n]));
+});
+const ORDER = {
+ ni:["dal-tadka","jeera-rice","dry-sabzi","raita","besan-chilla","rajma","chole","masala-base","paneer-gravy","pav-bhaji","dal-makhani","biryani","paneer-tikka","phulka","paratha","chicken-curry","chicken-biryani","chicken-tikka","butter-chicken","naan"],
+ si:["poha-upma","poriyal","lemon-rice","rasam","sambar","batter","dosa","idli","chutneys","pongal","bisi-bele","masala-dosa","uttapam","chettinad","medu-vada","appam","kerala-stew"],
+ ko:["gyeran-bap","namul","muchim","gyeran-jjim","gyeran-mari","kimchi-rice","bibimbap","sundubu","japchae","tteokbokki","dubu-jorim","kimchi","dakgalbi","korean-chicken"],
+ it:["aglio-olio","vinaigrette","garlic-bread","pesto","pasta-pomodoro","pomodoro","shakshuka","frittata","risotto","pizza","minestrone","roast-veg","bruschetta","fresh-pasta","lasagne","ragu","cacciatore","lemon-chicken"],
+ de:["energy-balls","shrikhand","chia","besan-ladoo","panna-cotta","steamed-yogurt","kheer","gajar-halwa","kesari","tiramisu","cheesecake","crumble","brownies","cookies","muffins","gulab-jamun","custard","rasmalai","kulfi","hotteok"],
+ ta:["ragi-kali","kambu-koozh","keerai-masiyal","sundal","muttai-podimas","mor-kuzhambu","vatha-kuzhambu","kootu","paruppu-usili","kollu-rasam","muttai-kuzhambu","ragi-dosa","millet-pongal","puliyodharai","ennai-kathirikai","adai","sakkarai-pongal","kuzhi-paniyaram","nattu-kozhi","milagu-kozhi","pidi-kozhukattai","virundhu"],
+ es:["knife","safety","cooker","boiled","omelette","batch","poached","bhurji","scramble","egg-curry","flavour","marinade","egg-roast","frying","improvise","hosting","chicken-basics","seared"]
+};
+TRACKS.forEach(t=>{const o=ORDER[t.id];t.nodes.sort((a,b)=>o.indexOf(a.id)-o.indexOf(b.id));});
+const NODE = {};
+TRACKS.forEach(t=>t.nodes.forEach(n=>{NODE[n.key]=n;}));
+const TRACK = Object.fromEntries(TRACKS.map(t=>[t.id,t]));
+
+const PHASES = [
+ {n:0,name:"Set up",from:0,to:0,dates:"2–8 Nov 2026",tier:1,focus:"Tools, pantry, knife skills, food safety, and your first dal and omelette.",
+  gates:["Kitchen and pantry stocked","Dice an onion in under 2 minutes","Cook dal, rice and an omelette in one session"]},
+ {n:1,name:"Foundations",from:1,to:4,dates:"9 Nov–6 Dec",tier:1,focus:"Indian home basics and six egg styles: tadka, pressure cooking, dry sabzis and raita.",
+  gates:["Dal, rice and a sabzi from memory in 45 minutes","Five egg styles without a recipe","120 g+ protein on 5 of 7 days for two weeks"]},
+ {n:2,name:"Building blocks",from:5,to:8,dates:"7 Dec–3 Jan",tier:2,focus:"Gravies, batters and sauces you can batch: masala base, fermentation, pomodoro, Korean egg dishes.",
+  gates:["Sunday batch prep in 90 minutes, three weekends running","A batter that ferments and gives crisp dosas","One gravy, one South Indian, one Italian and one Korean dish without a recipe"]},
+ {n:3,name:"Expansion",from:9,to:12,dates:"4–31 Jan 2027",tier:3,focus:"Doughs, one-pot meals, tofu and layered dishes: phulka, paratha, biryani, risotto, stews.",
+  gates:["Phulkas that puff on most rolls","Biryani with separate, fluffy grains","Cook a three-dish meal for a friend"]},
+ {n:4,name:"Chicken and confidence",from:13,to:18,dates:"1 Feb–14 Mar",tier:4,focus:"Cook chicken safely and well, from pan-seared breast to biryani, while eggs and dairy stay your base.",
+  gates:["A juicy breast that reads 74 °C","Three weekday chicken meals in rotation","One weekend chicken showpiece"]},
+ {n:5,name:"Mastery and improvisation",from:19,to:26,dates:"15 Mar–9 May",tier:4,focus:"Cook without recipes, plan your own weeks, and host: fresh pasta, kimchi, deep-frying, caramel.",
+  gates:["Plan and cook a full week without this plan","Make kimchi from scratch","Host a four-course dinner"]}
+];
+
+const RHYTHM = [
+ {t:"05:40",m:340,k:"pre",what:"Pre-workout",kcal:100,p:"1 g"},
+ {t:"06:00",m:360,k:"train",what:"Training until 08:30",kcal:0,p:""},
+ {t:"08:45",m:525,k:"b",what:"Breakfast",kcal:500,p:"30–35 g"},
+ {t:"10:30",m:630,k:"cook",what:"Cook block",kcal:0,p:""},
+ {t:"11:20",m:680,k:"l",what:"Lunch",kcal:600,p:"30 g"},
+ {t:"16:00",m:960,k:"w",what:"Work meal",kcal:350,p:"15–20 g"},
+ {t:"18:30",m:1110,k:"boost",what:"Booster and dessert",kcal:270,p:"25–30 g"},
+ {t:"21:30",m:1290,k:"d",what:"Dinner",kcal:400,p:"25–30 g"},
+ {t:"22:45",m:1365,k:"sleep",what:"Lights out",kcal:0,p:""}
+];
+
+const MENU = {
+ A:[
+  {day:"Mon",b:"Masala omelette, 2 toast, milky coffee",l:"Dal tadka, jeera rice, soya-beans poriyal, curd",d:"Paneer bhurji, 1 phulka, kachumber",skill:"Tadka",art:"dal"},
+  {day:"Tue",b:"2 besan chillas with paneer filling, mint chutney",l:"Rajma, rice, cucumber raita",d:"Egg curry (3 eggs on masala base), 1 phulka",skill:"Pressure-cooking beans",art:"rajma"},
+  {day:"Wed",b:"Overnight oats with milk, Greek yogurt, chia, banana",l:"Soya chunk veg pulao, boondi raita",d:"Gyeran bap: 2 fried eggs, rice, sesame spinach, soy",skill:"One-pot rice",art:"eggRice"},
+  {day:"Thu",b:"Egg bhurji, 2 toast",l:"Chole, 2 phulkas, onion salad",d:"Shakshuka (3 eggs), 1 toast",skill:"Tomato sauce",art:"shakshuka"},
+  {day:"Fri",b:"Poha with peanuts, 2 boiled eggs",l:"Palak paneer, 2 phulkas, salad",d:"Moong dal khichdi, curd",skill:"Blanching greens",art:"palak"}
+ ],
+ B:[
+  {day:"Mon",b:"Moong dal chilla with paneer",l:"Sambar, 3 idlis, coconut chutney, 2 boiled eggs",d:"Kimchi fried rice with 2 eggs",skill:"Fermented batter",art:"idli"},
+  {day:"Tue",b:"Savoury masala oats with 3 egg whites",l:"Paneer-capsicum masala, 2 phulkas, salad",d:"Gyeran-jjim, ½ cup rice, cucumber muchim",skill:"Gentle steaming",art:"steamedEgg"},
+  {day:"Wed",b:"2 egg dosas, tomato chutney",l:"Soya chunk curry, rice, cabbage poriyal",d:"Spinach-onion frittata (3 eggs), 1 toast",skill:"Frittata",art:"frittata"},
+  {day:"Thu",b:"Greek yogurt bowl with oats, fruit, seeds; 2 boiled eggs",l:"Masoor dal, lemon rice, beans poriyal, curd",d:"Gochujang tofu and veg stir-fry, ½ cup rice",skill:"High-heat stir-fry",art:"tofuBraise"},
+  {day:"Fri",b:"Veg upma, 2 boiled eggs",l:"Rasam, rice, egg roast, curd",d:"Aglio e olio with spinach and 2 fried eggs",skill:"Emulsifying",art:"pasta"}
+ ]
+};
+const WORK_MEALS = [
+ ["2 boiled eggs, a fruit and 15 g peanuts","eggs"],
+ ["Chana chaat with onion, tomato, lemon and chaat masala, plus buttermilk","chaat"],
+ ["Hung-curd dip with carrot and cucumber sticks, plus 2 boiled eggs","raita"],
+ ["The lunch curry rolled in a phulka with salad","wrap"],
+ ["Paneer or egg sandwich on whole-wheat bread with mint chutney","sandwich"]
+];
+const WORKED = [
+ ["05:40","1 banana, black coffee",105,1],
+ ["08:45","Masala omelette (2 eggs + 3 whites, 1 tsp oil), 2 slices whole-wheat toast, coffee with 200 ml milk",520,36],
+ ["11:20","Dal tadka (50 g dry dal), ¾ cup jeera rice, soya-beans poriyal (25 g dry soya), 150 g curd",640,33],
+ ["16:00","2 boiled eggs, 1 apple, 15 g peanuts",310,16],
+ ["18:30","1 scoop whey in water, 100 g shrikhand",270,30],
+ ["21:30","Paneer bhurji (60 g paneer), 1 phulka, kachumber",390,16]
+];
+const FORMULAS = [
+ ["Bhurji plate","Eggs or paneer, 2 tbsp masala base, 1 phulka","bhurji"],
+ ["Korean rice bowl","Egg or tofu, ½ cup rice, veg, soy-sesame or gochujang","eggRice"],
+ ["Pasta night","60 g pasta, eggs or paneer, veg, garlic oil","pasta"],
+ ["Dal and eggs","Reheated dal, 2 boiled eggs, salad, 1 phulka","dal"],
+ ["Chilla night","Besan or moong batter, paneer filling, chutney","chilla"],
+ ["Eggs in sauce","Masala base or tomato sauce with 3 eggs poached in it","shakshuka"],
+ ["Wrap","Phulka, filling, hung-curd dip, crunchy veg","wrap"]
+];
+
+const WEEKENDS = [
+ [1,"Dhaba-style dal fry, jeera rice and kachumber","Layering whole spices","ni","ni.dal-tadka","dal","Date-nut energy balls","N","de.energy-balls","energy"],
+ [2,"Spaghetti aglio e olio, garlic bread, green salad","Pasta timing, garlic oil","it","it.aglio-olio","pasta","Shrikhand","N","de.shrikhand","shrikhand"],
+ [3,"Pav bhaji","Spice blends, mashing","ni","ni.pav-bhaji","pavbhaji","Rice kheer","T","de.kheer","kheer"],
+ [4,"Bibimbap with gochujang sauce, gyeran-mari","Prepping many small parts","ko","ko.bibimbap","bibimbap","Chia pudding with fruit","N","de.chia","chia"],
+ [5,"Idli, sambar and coconut chutney from scratch","Grinding and fermenting batter","si","si.idli","idli","Gajar halwa","T","de.gajar-halwa","halwa"],
+ [6,"Paneer butter masala, jeera rice","Cashew-tomato gravy","ni","ni.paneer-gravy","paneer","Besan ladoo","T","de.besan-ladoo","ladoo"],
+ [7,"Masala dosa with potato palya","Spreading and crisping dosa","si","si.masala-dosa","masalaDosa","Steamed sweet yogurt","N","de.steamed-yogurt","yogurtSteamed"],
+ [8,"Pizza from scratch dough, pan or oven","Yeast dough","it","it.pizza","pizza","Eggless tiramisu","T","de.tiramisu","tiramisu"],
+ [9,"Egg dum biryani, raita","Layering and dum","ni","ni.biryani","biryani","Apple-cinnamon oat crumble","N","de.crumble","crumble"],
+ [10,"Sundubu-jjigae with rice and two side dishes","Stew base, banchan","ko","ko.sundubu","stew","Sakkarai pongal for Pongal week","T","ta.sakkarai-pongal","sakkarai"],
+ [11,"Mushroom risotto, roasted vegetables","Toasting rice, ladling stock","it","it.risotto","risotto","Greek yogurt panna cotta with agar","N","de.panna-cotta","pannacotta"],
+ [12,"Aloo and paneer parathas, white butter","Stuffing and rolling","ni","ni.paratha","paratha","Fudgy brownies","T","de.brownies","brownie"],
+ [13,"Pan-seared lemon-herb chicken, mash, greens","Searing, thermometer, resting","it","it.lemon-chicken","chickenSeared","Makhana kheer","N","","makhana"],
+ [14,"Home-style chicken curry, jeera rice","Bone-in braise","ni","ni.chicken-curry","chickenCurry","Oat-peanut butter cookies","N","de.cookies","cookie"],
+ [15,"Chicken tikka, mint chutney","Yogurt marinade, high heat","ni","ni.chicken-tikka","tikkaChicken","Fruit frozen-yogurt bark","N","","bark"],
+ [16,"Dakgalbi in lettuce wraps","Gochujang marinade","ko","ko.dakgalbi","dakgalbi","Hotteok, Korean sweet pancakes","T","de.hotteok","hotteok"],
+ [17,"Fresh egg pasta with chicken ragù","Pasta dough","it","it.fresh-pasta","freshPasta","No-bake cheesecake jars","T","de.cheesecake","cheesecake"],
+ [18,"Chicken dum biryani","Marinade and dum together","ni","ni.chicken-biryani","biryani","Semiya payasam","T","","payasam"],
+ [19,"Kerala chicken stew with appam","Coconut milk, appam batter","si","si.kerala-stew","stewWhite","Ragi-banana muffins","N","de.muffins","muffin"],
+ [20,"Japchae and homemade cabbage kimchi","Fermenting vegetables","ko","ko.japchae","noodles","Dark chocolate oat bars","N","","oatbars"],
+ [21,"Butter chicken, tawa garlic naan","Finishing sauces, naan","ni","ni.butter-chicken","butterChicken","Rasmalai","T","de.rasmalai","rasmalai"],
+ [22,"Vegetable or chicken lasagne","Béchamel, layering","it","it.lasagne","lasagne","Mango shrikhand","N","de.shrikhand","shrikhand"],
+ [23,"Air-fried Korean chicken, pickled radish","Double-cooking, glazes","ko","ko.korean-chicken","kfc","No-churn mango kulfi","T","de.kulfi","kulfi"],
+ [24,"Medu vada with sambar","Deep-frying","si","si.medu-vada","vada","Gulab jamun","T","de.gulab-jamun","jamun"],
+ [25,"Fridge-raid challenge: three courses, no recipe","Improvising","es","es.improvise","fridgeOpen","A dessert you invent","E","","custard"],
+ [26,"Host a dinner: starter, two mains, dessert","Timing a full menu","es","es.hosting","table","Caramel custard","T","de.custard","custard"]
+].map(a=>({w:a[0],dish:a[1],skill:a[2],track:a[3],link:a[4],art:a[5],des:a[6],type:a[7],dlink:a[8],dart:a[9]}));
+const OVEN_WEEKS = [9,12,14,19,22];
+
+const MICROS = [
+ ["Vitamin B12","Mostly found in animal foods; low levels are common in Indian vegetarians","Eggs, milk, curd, paneer; test and supplement if low"],
+ ["Vitamin D","Most people in India test low despite the sun","Egg yolks, 15–20 minutes of morning sun on bare arms; test first"],
+ ["Iron","Plant iron absorbs poorly","Dals, rajma, chana, spinach, ragi; add lemon or amla; keep tea and coffee 1 hour from meals"],
+ ["Calcium (about 1,000 mg)","Bones and muscle contraction","Milk, curd, paneer, ragi, sesame"],
+ ["Omega-3","No fish in your diet yet","1 tbsp ground flaxseed, walnuts, chia"],
+ ["Zinc and magnesium","Recovery and sleep","Pumpkin seeds, chana, cashews, whole grains"]
+];
+const PROTEIN = [
+ ["Whey protein","1 scoop (~30 g)",23.5,120,"Optional booster","whey"],
+ ["Chicken breast, raw","100 g",22.5,120,"From Phase 4","breast"],
+ ["Paneer, full-fat","100 g",19,282,"Calorie-dense; weigh it","paneerBlock"],
+ ["Chicken thigh, skinless, raw","100 g",18.5,132,"Juicier, more forgiving","drumstick"],
+ ["Soya chunks, dry","30 g",15.5,105,"Best protein per kcal for vegetarians","soya"],
+ ["Tofu, firm","100 g",12.5,122,"Brands vary; check the label","tofuBlock"],
+ ["Greek yogurt or hung curd","150 g",12,135,"Straining raises protein","yogurt"],
+ ["Toor, moong or masoor dal, dry","50 g",11.5,170,"Pair with rice or roti","lentils"],
+ ["Besan","50 g",11,190,"Chilla, kadhi","besan"],
+ ["Horsegram (kollu), dry","50 g",11,160,"Rasam or sundal","kolluRasam"],
+ ["Rajma or chana, dry","50 g",10,170,"Soak overnight","beans"],
+ ["Milk, toned","250 ml",8,145,"","milk"],
+ ["Peanuts","30 g",7.5,170,"Mostly fat; portion it","peanuts"],
+ ["Whole egg","1 large",6,72,"The yolk carries most vitamins","egg"],
+ ["Roasted chana","30 g",6,110,"Great work snack","chaat"],
+ ["Curd, toned milk","150 g",5,90,"","curd"],
+ ["Ragi flour","50 g",3.7,165,"Mostly carbs, but very high in calcium","kali"],
+ ["Egg white","1",3.5,17,"Leanest option","eggWhite"]
+];
+
+const PREP = [
+ "Saturday night from Phase 2: grind idli/dosa batter so it ferments overnight",
+ "Start the pressure cooker with rajma or chana soaked since Saturday (about 25 minutes)",
+ "Make the masala base from 1 kg onions and 1 kg tomatoes; freeze extra as cubes",
+ "Boil 8–10 eggs and keep them in the shell in the fridge",
+ "Hang 1 kg curd in muslin for about 500 g hung curd",
+ "Wash, dry and chop 3 days of vegetables; grind ginger-garlic paste and green chutney",
+ "Portion snacks into 30 g bags: roasted chana, makhana, nuts",
+ "Make the week’s dessert and portion it into five boxes",
+ "Plan next week’s menu and shopping list (10 minutes)"
+];
+const COOK_BLOCK = [
+ ["10:30","Pressure cooker on with dal and rice pot-in-pot, or pasta water on to boil"],
+ ["10:35","Sabzi or curry on the stove, starting from the masala base"],
+ ["10:55","Pack the work meal and set aside tonight’s component"],
+ ["11:05","Tadka and finishing touches; wash up while it rests"],
+ ["11:20","Eat"]
+];
+const STORAGE = [
+ ["Cooked dal or curry","3 days","1 month"],["Cooked rice","1 day, chilled within 1 hour","1 month"],["Masala base","5 days","1 month as cubes"],
+ ["Boiled eggs, in shell","7 days","–"],["Idli/dosa batter","4–5 days","–"],["Hung curd","4 days","–"],["Chopped vegetables","3 days","–"],
+ ["Green chutney","3 days","1 month as cubes"],["Cooked chicken (Phase 4)","3 days","2 months"]
+];
+const DESSERT_LIFE = [
+ ["Hung-curd and set desserts","Shrikhand, panna cotta, cheesecake jars, tiramisu","3–4 days","–"],
+ ["Milk puddings","Kheer, payasam, rasmalai","3 days","–"],
+ ["Halwas","Gajar halwa, rava kesari","4–7 days","1 month (gajar halwa)"],
+ ["Ladoos and bars","Besan, date-nut, oat bars","2 weeks","2 months"],
+ ["Bakes","Brownies, cookies, muffins, crumble","1 week","2–3 months"],
+ ["Frozen","Kulfi, frozen-yogurt bark","–","1 month"]
+];
+const EQUIP = [
+ ["3 L pressure cooker with 2 separator tins","Dal and rice together (pot-in-pot)",0,"cooker"],
+ ["Heavy kadai, 24 cm","Sabzi and curries",0,"kadai"],
+ ["Non-stick pan, 24–26 cm","Eggs and chillas",0,"panEmpty"],
+ ["Saucepan with lid","Rice, pasta, sauces",0,"saucepan"],
+ ["20 cm chef’s knife and a paring knife","Everything",0,"knife"],
+ ["Two chopping boards in different colours","Veg now, raw chicken later",0,"boards"],
+ ["Kitchen scale and measuring spoons","Portions and macros",0,"scale"],
+ ["Mixer-grinder","Chutneys, pastes, batter",0,"grinder"],
+ ["Steel tiffin and glass boxes","Work meals and prep",0,"boxes"],
+ ["Muslin cloth","Hung curd",0,"muslin"],
+ ["Tawa, rolling pin and board","Rotis, dosas, chillas",1,"tawa"],
+ ["Idli stand","Idlis",2,"idli"],
+ ["Oven, OTG or air fryer (optional)","Bakes, tikka, roasted veg",3,"oven"],
+ ["Instant-read thermometer","Chicken to 74 °C",4,"thermometer"],
+ ["Paniyaram pan (optional)","Kuzhi paniyaram",5,"paniyaram"]
+];
+const PANTRY = [
+ ["Indian spices","ni","Turmeric, Kashmiri chilli powder, coriander powder, cumin and mustard seeds, garam masala, hing, fenugreek seeds, dried red chillies, kasuri methi, chaat masala, and whole bay leaf, cardamom, cloves and cinnamon. Add sambar and rasam powder in Phase 2."],
+ ["Grains, dals and flours","si","Whole-wheat atta, rice, poha, rava, rolled oats, besan, ragi flour; toor, moong, masoor and urad dal; rajma, chana, soya chunks. Add idli rice in Phase 2."],
+ ["Korean","ko","Gochujang, light soy sauce, toasted sesame oil, rice vinegar, sesame seeds, firm and soft tofu. Add gochugaru and glass noodles in Phase 3."],
+ ["Italian and continental","it","Olive oil, durum or whole-wheat pasta, canned whole tomatoes, dried oregano, chilli flakes, black pepper, balsamic vinegar, mozzarella, a hard cheese. Add arborio rice in Phase 3."],
+ ["Tamil traditional","ta","Ragi flour, kambu (pearl millet), thinai or kuthiraivali (foxtail or barnyard millet), horsegram, sundakkai or manathakkali vathal, tamarind, jaggery, gingelly oil (nallennai) and small onions."],
+ ["Fridge","es","About 40 eggs a week, milk, curd, paneer, Greek yogurt, butter, ghee."],
+ ["Fresh, weekly","de","Onions, tomatoes, ginger, garlic, green chillies, coriander, mint, curry leaves, lemons, spinach, 2–3 seasonal vegetables, fruit."]
+];
+const TAMIL_SWAPS = [
+ ["Breakfast","Ragi dosa or adai with coconut chutney, plus 2 boiled eggs","adai","ta.adai"],
+ ["Lunch","Ragi kali with keerai masiyal and muttai kuzhambu","kali","ta.ragi-kali"],
+ ["Lunch","Rice with poricha kootu, kollu rasam and paruppu usili","kootu","ta.kootu"],
+ ["Work meal","Chana or peanut sundal with a glass of buttermilk","sundal","ta.sundal"],
+ ["Dinner","Kollu rasam, ½ cup rice and muttai podimas","kolluRasam","ta.kollu-rasam"],
+ ["Hot mornings","Kambu koozh with buttermilk and small onions, alongside your eggs","koozh","ta.kambu-koozh"]
+];
+const RULES = [
+ ["Weight falls 0.3–0.6 kg a week and strength holds","Change nothing"],
+ ["Weight falls less than 0.2 kg a week","Cut 150 kcal (one phulka or ½ cup rice)"],
+ ["Weight falls more than 0.8 kg a week, or strength drops","Add 150–200 kcal of carbs at breakfast or lunch"],
+ ["Scale is flat but waist is shrinking","You’re gaining muscle while losing fat; keep going"],
+ ["You’re very hungry at night","Move 100 kcal from lunch to dinner and add more veg"],
+ ["You reach your goal weight or a waist you’re happy with","Add 100 kcal a week until you’re back at maintenance"]
+];
+
+const ST="var(--steel)",SH="var(--steel-hi)",S2="var(--steel-2)";
+const c=(x,y,r,f,a="")=>`<circle cx="${x}" cy="${y}" r="${r}" fill="${f}" ${a}/>`;
+const el=(x,y,rx,ry,f,a="")=>`<ellipse cx="${x}" cy="${y}" rx="${rx}" ry="${ry}" fill="${f}" ${a}/>`;
+const pa=(d,f,a="")=>`<path d="${d}" fill="${f}" ${a}/>`;
+const re=(x,y,w,h,f,rx=2,a="")=>`<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${rx}" fill="${f}" ${a}/>`;
+const st=(d,s,w=1.6)=>`<path d="${d}" fill="none" stroke="${s}" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round"/>`;
+const lf=(x,y,rot=0,f="#3E8E41")=>`<ellipse cx="${x}" cy="${y}" rx="2.8" ry="1.4" fill="${f}" transform="rotate(${rot} ${x} ${y})"/>`;
+const herbs=pts=>pts.map(q=>lf(q[0],q[1],q[2]||0,q[3])).join("");
+const dots=(pts,r,f)=>pts.map(q=>c(q[0],q[1],r,f)).join("");
+const BOWL=(fill,g="")=>pa("M7 31 Q9 53 32 54 Q55 53 57 31 Z",ST)+el(32,31,25,8.5,S2)+el(32,31,22,6.6,fill)+g;
+const PLATE=(g="")=>el(32,38,29,18,S2)+el(32,37,29,17.5,SH)+el(32,37,20,11.5,"none",`stroke="${ST}" stroke-width="1.2"`)+g;
+const PAN=(fill,g="")=>re(47,31,16,4.5,"#3A4043",2.2)+el(28,35,23,14.5,"#2F3538")+el(28,34,20,12,fill)+g;
+const POT=(fill,g="")=>pa("M12 26 L52 26 L49 50 Q32 56 15 50 Z","#4A4644")+el(32,26,20,6,"#5A5552")+el(32,26,17,4.6,fill)+re(6,27,7,3,"#4A4644",1.5)+re(51,27,7,3,"#4A4644",1.5)+g;
+const GLASS=(layers,top="")=>{
+  const xl=y=>18+(y-12)*0.1,xr=y=>46-(y-12)*0.1;
+  let s=pa("M17 12 L47 12 L43 54 Q32 57 21 54 Z",SH,`stroke="${S2}" stroke-width="1.4"`);
+  layers.forEach(([a,b,f])=>{s+=pa(`M${xl(a)} ${a} L${xr(a)} ${a} L${xr(b)} ${b} L${xl(b)} ${b} Z`,f);});
+  return s+top;
+};
+const EGG=(x,y,s=1)=>el(x,y,9*s,7*s,"#FFFFFF",`stroke="#E7E2D6" stroke-width="0.8"`)+c(x+1*s,y-0.5*s,3.4*s,"#F2A814");
+const CUBE=(x,y,f="#FFF3DA")=>re(x,y,6,5,f,1.2);
+const DRUM=(x,y,rot=0,f="#C9803E")=>`<g transform="rotate(${rot} ${x} ${y})">${el(x,y,9,6.5,f)}${re(x+7,y-1.6,9,3.2,"#F3E9D6",1.6)}${c(x+16.5,y-1.8,2.2,"#F3E9D6")}${c(x+16.5,y+1.6,2.2,"#F3E9D6")}</g>`;
+const RICE=(x,y,w,h,f="#F7F2E4")=>pa(`M${x-w} ${y} Q${x-w*0.8} ${y-h} ${x} ${y-h} Q${x+w*0.8} ${y-h} ${x+w} ${y} Z`,f);
+
+const ART={
+ dal:()=>BOWL("#E9B53B",herbs([[25,29,20],[30,32,-30],[40,30,10]])+c(36,29,1.7,"#8C2A16")+dots([[27,32],[43,32],[33,28]],1,"#3A2814")),
+ dalDark:()=>BOWL("#5B2C1D",st("M22 30 q10 -5 20 0","#F4E9D8",2)+herbs([[37,33,10]])),
+ rajma:()=>BOWL("#9C3A21",[[24,30],[30,32],[37,29],[42,32],[29,28]].map(([x,y])=>el(x,y,2.6,1.5,"#5A1A0E",`transform="rotate(25 ${x} ${y})"`)).join("")+herbs([[34,33]])),
+ chole:()=>BOWL("#8E5E2C",dots([[23,30],[28,33],[33,29],[38,32],[43,30],[31,31]],2,"#D7B072")+st("M24 28 l6 1","#F2EBD9",1.6)),
+ paneer:()=>BOWL("#E1782C",CUBE(21,27)+CUBE(30,29)+CUBE(38,26)+st("M24 34 q8 -3 16 0","#FFF7EA",1.6)),
+ palak:()=>BOWL("#4C8A39",CUBE(22,28)+CUBE(33,30)+st("M37 27 q4 -2 7 1","#FFF7EA",1.5)),
+ masala:()=>BOWL("#B5452A",dots([[26,30],[36,32],[41,29]],1.3,"#F1D9A8")+herbs([[31,29,30]])),
+ curry:()=>BOWL("#C4552A",EGG(26,30,0.6)+EGG(38,31,0.6)+herbs([[32,27,10]])),
+ sambar:()=>BOWL("#C9762A",re(22,28,6,3,"#E9C46A",1)+re(35,30,5,4,"#7A9E3B",1)+c(41,28,2.2,"#D95B2A")+herbs([[29,32,0,"#2E6B2F"]])),
+ rasam:()=>BOWL("#C2462C",c(27,30,2,"#E9785A")+c(38,31,1.6,"#E9785A")+herbs([[33,28,20,"#2E6B2F"],[42,29,-20,"#2E6B2F"]])+dots([[30,32],[24,29]],0.8,"#2B1A10")),
+ kheer:()=>BOWL("#F6EEDC",re(27,28,4,1.6,"#C9A15A",0.8)+re(35,30,4,1.6,"#7DA33F",0.8)+c(40,28,1.3,"#E7A33C")),
+ makhana:()=>BOWL("#F3E6CB",dots([[25,30],[31,28],[37,31],[42,29],[29,32]],2.3,"#FFFFFF")+c(35,29,1,"#7DA33F")),
+ payasam:()=>BOWL("#F2E4C6",st("M22 30 q4 -3 8 0 t8 0 t8 0","#D9B36C",1.3)+c(40,29,1.4,"#C9A15A")),
+ butterChicken:()=>BOWL("#E06A2A",re(22,27,7,5,"#C47A3D",2)+re(33,29,7,5,"#C47A3D",2)+st("M24 34 q9 -3 18 0","#FFF4E3",1.8)+herbs([[41,27]])),
+ chickenCurry:()=>BOWL("#A9441F",DRUM(28,30,-10,"#8A4A22")+herbs([[42,30]])),
+ chettinad:()=>BOWL("#6B2A17",re(22,28,7,5,"#8C4A25",2)+re(34,30,7,5,"#8C4A25",2)+herbs([[30,27,0,"#2E6B2F"],[42,30,30,"#2E6B2F"]])),
+ stewWhite:()=>BOWL("#F4EEDF",re(22,28,7,4.5,"#E2C59A",2)+c(38,30,2.6,"#E2A23C")+herbs([[32,32,0,"#2E6B2F"],[44,29,30,"#2E6B2F"]])),
+ bisibele:()=>BOWL("#B8642B",dots([[25,30],[31,32],[38,29]],1.6,"#F3D9A6")+c(42,31,1.6,"#E9C46A")+herbs([[34,30]])),
+ pongal:()=>BOWL("#EEDC9A",dots([[26,30],[33,32],[40,29]],1,"#2B1A10")+re(30,28,4,2,"#E7C27A",1)+herbs([[38,32,0,"#2E6B2F"]])),
+ raita:()=>BOWL("#F6F3EA",dots([[25,30],[31,32],[38,29],[42,32]],1.6,"#8DBA58")+dots([[34,29]],0.9,"#8A5A2B")),
+ yogurt:()=>BOWL("#F8F6EF",c(28,29,2.4,"#C2364A")+c(34,31,2,"#6A3B8A")+c(39,29,1.6,"#E2A23C")),
+ curd:()=>BOWL("#F8F6EF",st("M24 30 q8 -2 16 0","#E8E2D2",1.4)),
+ soya:()=>BOWL("#D8B27A",dots([[24,30],[30,32],[36,28],[42,31],[30,28]],2.6,"#C39557")),
+ lentils:()=>BOWL("#F0B53A",dots([[24,30],[28,32],[33,29],[37,32],[42,30],[30,28],[39,28]],1.3,"#D69520")),
+ beans:()=>BOWL("#E6D3B0",[[24,30],[30,32],[37,29],[42,32],[30,28]].map(([x,y])=>el(x,y,2.6,1.5,"#8E2F1C",`transform="rotate(25 ${x} ${y})"`)).join("")+dots([[34,31]],2,"#D7B072")),
+ besan:()=>BOWL("#F0CF6A",st("M24 31 q8 -3 16 0","#E2B94A",1.4)),
+ peanuts:()=>BOWL("#E9D6B3",[[24,30],[30,32],[36,28],[42,31],[33,30]].map(([x,y])=>el(x,y,2.8,1.8,"#B97A3E")).join("")),
+ chaat:()=>BOWL("#D9B072",dots([[24,30],[29,32],[35,29],[41,31]],2,"#B98A45")+re(30,27,3,3,"#D8473A",0.8)+re(38,32,3,2,"#F2EBD9",0.8)+herbs([[27,28]])),
+ rice:()=>PLATE(RICE(32,40,17,13)+dots([[26,33],[33,30],[38,35],[30,37]],0.9,"#7A5A2E")+herbs([[37,30,30]])),
+ lemonRice:()=>PLATE(RICE(30,40,16,12,"#F2D35A")+dots([[25,34],[31,31],[35,36]],1,"#3A2814")+herbs([[29,30,0,"#2E6B2F"],[37,33,30,"#2E6B2F"]])+c(46,40,5,"#F4E04D")+c(46,40,3.6,"#FBF1A0")),
+ sabzi:()=>PLATE(dots([[24,36],[30,39],[37,35],[42,39],[33,33],[27,41]],3.6,"#E9B53B")+dots([[28,35],[38,40],[34,38]],3.2,"#F4EAD2")+herbs([[31,36],[40,36,20]])),
+ poriyal:()=>PLATE([[22,36,20],[27,39,-15],[33,35,10],[38,39,-20],[43,36,15],[30,41,0]].map(([x,y,r])=>re(x-3,y-1.2,7,2.4,"#5C9E3A",1.2,`transform="rotate(${r} ${x} ${y})"`)).join("")+dots([[26,34],[35,38],[41,40],[31,37]],1.1,"#FFFFFF")),
+ chilla:()=>PLATE(pa("M14 40 A18 12 0 0 1 50 40 Z","#E5B04A")+dots([[24,35],[32,33],[40,36],[30,38]],1.2,"#B9792A")+herbs([[27,37],[38,34,30]])),
+ poha:()=>PLATE(RICE(32,41,17,12,"#F1D15A")+dots([[25,35],[32,32],[38,37]],1.6,"#B97A3E")+herbs([[29,34,0,"#2E6B2F"],[36,33,30,"#2E6B2F"]])+c(47,41,4.2,"#F4E04D")),
+ pavbhaji:()=>PLATE(el(25,38,11,7,"#C2482B")+re(36,30,13,8,"#E0A957",4)+re(36,39,13,8,"#E0A957",4)+re(36,38,13,1.4,"#F3D9A6",0.6)+re(22,33,6,1.4,"#F7F0DE",0.7)+herbs([[27,36]])),
+ roti:()=>PLATE(el(32,37,18,11,"#D9AE6B")+el(32,35,18,11,"#E8C687")+dots([[26,33],[36,36],[30,38],[40,32],[33,31]],1.4,"#B5823F")),
+ paratha:()=>PLATE(el(32,37,18,11,"#D59E55")+el(32,36,13,8,"none",`stroke="#B5823F" stroke-width="1"`)+el(32,36,7,4,"none",`stroke="#B5823F" stroke-width="1"`)+re(29,32,6,4,"#FFF1B8",1)),
+ naan:()=>PLATE(pa("M14 38 Q20 24 40 28 Q54 33 48 42 Q36 50 18 44 Z","#E8C687")+dots([[24,36],[33,33],[40,38],[29,41]],1.6,"#B07A3A")+herbs([[36,34],[27,38,40]])),
+ biryani:()=>pa("M12 30 Q10 52 32 54 Q54 52 52 30 Z","#9C5A3C")+el(32,30,20,6,"#B06A48")+RICE(32,32,17,8,"#F7EFD8")+st("M22 28 q4 -2 8 0","#E9A21C",1.6)+st("M33 26 q4 -2 8 1","#E9A21C",1.6)+herbs([[28,25],[38,28,30]])+re(8,28,6,3,"#7A4430",1.5)+re(50,28,6,3,"#7A4430",1.5),
+ tikka:()=>PLATE(st("M10 46 L56 26","#8A8F92",1.8)+[[20,42],[29,38],[38,34],[47,30]].map(([x,y])=>re(x-4,y-4,8,8,"#E58B3A",2.4)).join("")+dots([[19,40],[30,36],[46,29]],1.1,"#9A4A1E")+re(14,44,5,3,"#4E8B3A",1)),
+ tikkaChicken:()=>PLATE(st("M10 46 L56 26","#8A8F92",1.8)+[[20,42],[29,38],[38,34],[47,30]].map(([x,y])=>re(x-4,y-4,8,8,"#C9542A",2.4)).join("")+dots([[19,40],[30,36],[46,29]],1.2,"#6A2612")+el(16,46,4,2,"#F4E04D")),
+ idli:()=>PLATE(el(22,38,8,4.5,"#F3F1EA",`stroke="#E2DED3" stroke-width="0.8"`)+el(33,35,8,4.5,"#F7F5EE",`stroke="#E2DED3" stroke-width="0.8"`)+el(27,42,8,4.5,"#FBF9F3",`stroke="#E2DED3" stroke-width="0.8"`)+el(44,41,5,3.2,"#F2EEDC")+el(44,32,4.4,2.8,"#D8573A")),
+ dosa:()=>PLATE(pa("M8 44 L54 30 L56 36 L10 48 Z","#D9A54A")+pa("M8 44 L54 30 L55 32 L9 46 Z","#E9C06A")+st("M18 43 L48 34","#B8822F",0.8)),
+ masalaDosa:()=>PLATE(pa("M8 44 L54 30 L56 36 L10 48 Z","#D9A54A")+pa("M8 44 L54 30 L55 32 L9 46 Z","#E9C06A")+el(22,42,5,2.6,"#F2CF4A")+el(46,44,4,2.4,"#F2EEDC")),
+ uttapam:()=>PLATE(el(32,37,17,10.5,"#E6C076")+dots([[25,34],[34,33],[40,38],[29,40]],1.8,"#D8473A")+dots([[31,36],[37,34],[24,38]],1.4,"#F3EAF4")+herbs([[35,40],[27,35,30]])),
+ vada:()=>PLATE(el(24,37,9,6,"#B86E2A")+el(24,37,2.8,1.8,SH)+el(40,38,9,6,"#C27A33")+el(40,38,2.8,1.8,SH)+herbs([[31,44,0,"#2E6B2F"]])),
+ appam:()=>PLATE(el(32,37,19,12,"#F6EDD8")+el(32,37,19,12,"none",`stroke="#E3CFA4" stroke-width="2" stroke-dasharray="2 2"`)+el(32,37,8,5,"#F2DFB6")),
+ batter:()=>re(14,20,36,32,ST,6)+el(32,20,18,5,S2)+el(32,20,15.5,3.8,"#F7F3E8")+dots([[26,20],[33,19],[38,21]],1,"#E6DDC8")+re(14,30,36,2,S2,1),
+ chutney:()=>PLATE(el(22,37,8,5,ST)+el(22,36,6.5,3.8,"#F2EEDC")+el(42,37,8,5,ST)+el(42,36,6.5,3.8,"#D8573A")+el(32,44,7,4.4,ST)+el(32,43,5.6,3.3,"#6BA34A")+c(22,35,0.8,"#2B1A10")),
+ eggRice:()=>BOWL("#F7F2E4",EGG(32,29,1)+dots([[24,31],[41,32],[38,27]],0.8,"#2B1A10")+herbs([[22,29,0,"#4C9A3A"]])),
+ namul:()=>PLATE(pa("M18 40 Q22 30 32 32 Q44 30 46 40 Q32 46 18 40 Z","#3F8A36")+dots([[26,36],[33,34],[38,38],[30,39]],0.9,"#F7F0DE")),
+ muchim:()=>PLATE([[23,37],[31,34],[39,37],[27,42],[36,42]].map(([x,y])=>el(x,y,5,3.3,"#B9D78A",`stroke="#3F7A2E" stroke-width="1.2"`)).join("")+dots([[25,35],[33,40],[40,35],[29,39]],0.9,"#C2362B")),
+ steamedEgg:()=>pa("M10 30 Q12 52 32 53 Q52 52 54 30 Z","#6B4A3A")+el(32,30,22,7,"#7E5A48")+pa("M14 30 Q16 18 32 18 Q48 18 50 30 Z","#F2CB4A")+el(32,30,18,5.5,"#F2CB4A")+herbs([[28,22,0,"#3E8E41"],[36,23,30,"#3E8E41"]]),
+ rolled:()=>PLATE([[20,37],[32,37],[44,37]].map(([x,y])=>c(x,y,6.4,"#F2C33A")+c(x,y,4.4,"none",`stroke="#F9E08A" stroke-width="1.2"`)+c(x,y,2,"#F9E08A")).join("")+dots([[19,35],[31,38],[45,35]],0.8,"#4E8B3A")),
+ kimchiRice:()=>BOWL("#D35A3A",EGG(33,28,0.9)+dots([[23,31],[42,32]],1.4,"#9C2A1E")+herbs([[26,28,0,"#4C9A3A"]])),
+ bibimbap:()=>BOWL("#F7F2E4",pa("M14 29 Q20 25 28 27 L26 33 Q18 33 14 29 Z","#E68A2E")+pa("M36 25 Q46 26 50 30 Q46 34 38 33 Z","#3F8A36")+pa("M20 33 Q28 36 36 34 L34 31 Q26 31 20 33 Z","#C2362B")+EGG(32,29,0.7)),
+ stew:()=>POT("#D0402C",CUBE(22,23,"#FBF7EC")+CUBE(36,24,"#FBF7EC")+c(31,26,2.6,"#F2A814")+herbs([[42,24,0,"#4C9A3A"],[27,27,30,"#4C9A3A"]])),
+ noodles:()=>PLATE(st("M16 38 q6 -6 12 0 t12 0 t12 0","#B9A27A",1.4)+st("M18 42 q6 -6 12 0 t12 0 t10 0","#C9B48A",1.4)+re(22,31,6,2,"#E68A2E",1)+re(36,33,6,2,"#3F8A36",1)+re(30,40,6,2,"#C2362B",1)),
+ tofuBraise:()=>PLATE([[20,33],[30,31],[40,33],[25,40],[36,40]].map(([x,y])=>re(x-4,y-3.5,9,7,"#B9733A",2)).join("")+dots([[24,34],[34,38],[42,35]],1,"#C2362B")+herbs([[30,36,0,"#4C9A3A"]])),
+ tteok:()=>PLATE(el(32,37,19,11,"#D6402C")+[[22,35,20],[30,38,-10],[38,34,30],[34,41,10],[42,39,-20]].map(([x,y,r])=>re(x-5,y-2,10,4,"#F6E9E4",2,`transform="rotate(${r} ${x} ${y})"`)).join("")),
+ dakgalbi:()=>PAN("#C93A2A",re(16,28,8,5,"#E6905A",2)+re(30,32,8,5,"#E6905A",2)+re(22,36,7,4,"#F3EBC8",1.5)+re(36,27,7,4,"#3F8A36",1.5)),
+ kfc:()=>PLATE([[22,36],[34,33],[42,40],[28,42]].map(([x,y])=>el(x,y,7,5.4,"#B8321F")).join("")+dots([[22,34],[34,31],[42,38]],0.8,"#F7F0DE")+re(42,28,8,5,"#F3F1E4",1.5)),
+ kimchi:()=>re(17,16,30,38,"#E9F2F4",8,`stroke="${S2}" stroke-width="1.4"`)+re(20,10,24,7,S2,2)+pa("M20 28 Q32 20 44 28 L44 50 Q32 54 20 50 Z","#D0402C")+st("M23 36 q9 -4 18 0","#F7D9C9",1.6)+st("M23 44 q9 -4 18 0","#F7D9C9",1.6),
+ pasta:()=>PLATE(st("M20 37 q12 -10 24 0 q-12 10 -22 0","#F0CF6A",2)+st("M23 37 q9 -7 18 0 q-9 7 -16 0","#E8C155",2)+st("M26 37 q6 -4 12 0","#F0CF6A",2)+dots([[30,34],[36,39]],1,"#F7EEC4")+herbs([[40,32,30]])+re(42,40,1.6,1.6,"#D8473A",0.4)),
+ pastaRed:()=>PLATE(st("M20 37 q12 -10 24 0 q-12 10 -22 0","#F0CF6A",2)+st("M24 37 q8 -6 16 0","#E8C155",2)+el(32,35,7,4.4,"#C9361F")+lf(31,33,20,"#3E8E41")+lf(35,34,-30,"#3E8E41")),
+ ragu:()=>PLATE(st("M18 39 q6 -5 12 0 t12 0 t12 0","#F0CF6A",3.2)+st("M20 34 q6 -5 12 0 t12 0","#E8C155",3.2)+el(32,35,8,4.6,"#9C3A21")+dots([[29,34],[35,35]],1.2,"#6A2612")),
+ freshPasta:()=>PLATE(st("M18 36 q7 -9 14 -1 t14 -1","#F0CF6A",3.6)+st("M18 41 q7 -9 14 -1 t14 -1","#E8C155",3.6)+dots([[18,30],[22,28],[45,46]],0.8,"#F7F2E4")+c(45,30,2.4,"#F2A814")),
+ pesto:()=>PLATE(st("M20 37 q12 -10 24 0 q-12 10 -22 0","#8DBA4A",2.2)+st("M24 37 q8 -6 16 0","#7AAA3A",2.2)+dots([[30,35],[36,38]],1.4,"#D9B072")),
+ sauce:()=>PAN("#C9361F",st("M16 33 q6 -3 12 0","#E9634A",1.6)+lf(30,31,20,"#3E8E41")+lf(34,33,-20,"#3E8E41")+c(22,36,1.4,"#F7F0DE")),
+ frittata:()=>PAN("#F0C44A",dots([[18,32],[26,36],[34,31],[22,38],[32,38]],2,"#3F8A36")+dots([[28,31],[36,36]],1.6,"#D8473A")),
+ shakshuka:()=>PAN("#C9361F",EGG(20,33,0.7)+EGG(34,35,0.7)+herbs([[28,30,0],[24,39,30]])),
+ risotto:()=>PLATE(el(32,37,17,10,"#F3E8C8")+dots([[24,35],[30,38],[36,34],[40,39]],0.9,"#E2D4A8")+el(28,35,3.2,2,"#8A6A4A")+el(37,38,3.2,2,"#8A6A4A")+herbs([[33,33,20]])),
+ soup:()=>BOWL("#D86A3A",dots([[25,29],[38,32]],1.8,"#F2D9A6")+re(30,28,4,3,"#5C9E3A",1)+re(40,28,4,2,"#E9B53B",1)+st("M22 32 l4 -1","#F0CF6A",1.4)),
+ pizza:()=>pa("M10 18 Q32 8 54 18 L32 56 Z","#E5B65E")+pa("M14 21 Q32 13 50 21 L32 52 Z","#C9361F")+pa("M16 22 Q32 15 48 22 L32 49 Z","#F6E6B8")+dots([[26,26],[37,25],[32,35]],2.4,"#B8321F")+herbs([[30,30],[38,31,40]]),
+ roastVeg:()=>re(8,24,48,28,"#3A4043",4)+re(11,27,42,22,"#4A5154",3)+dots([[18,33],[28,31],[40,34],[24,42],[36,43],[46,41]],3.6,"#E68A2E")+dots([[22,37],[33,37],[44,32]],3.2,"#8A4A8C")+herbs([[30,44],[45,37]]),
+ salad:()=>BOWL("#6BA34A",herbs([[22,29,20,"#4C8A39"],[28,32,-30,"#8DBA58"],[35,28,40,"#3E8E41"],[42,31,-10,"#8DBA58"],[31,29,70,"#4C8A39"]])+c(26,30,2.4,"#D8473A")+c(39,32,2.2,"#D8473A")+re(33,30,4,2,"#F2EBD9",1)),
+ kali:()=>PLATE(pa("M17 41 Q17 22 31 22 Q45 22 45 41 Z","#6E4334")+el(31,41,14,3.2,"#5E392C")+el(25,30,4,2.4,"#8E5E4C")+el(48,43,7.5,4.2,ST)+el(48,42,6,3.2,"#3F7A32")+c(46,42,0.9,"#F3EFE2")),
+ koozh:()=>pa("M14 24 Q9 46 32 53 Q55 46 50 24 Z","#A85A34")+el(32,24,18,5.5,"#8E4A2A")+el(32,24,15.5,4,"#D9CFB4")+c(27,23,1.5,"#B8708A")+c(35,25,1.3,"#B8708A")+re(38,22,5,1.4,"#4E9A3A",0.7)+st("M18 36 q14 4 28 0","#C9703F",1.2),
+ keerai:()=>BOWL("#3D7A30",dots([[25,30],[37,29],[31,32]],1.2,"#F3EFE2")+dots([[29,29],[41,31],[22,31]],0.8,"#1E2A14")),
+ sundal:()=>BOWL("#E9DDBF",dots([[23,30],[28,32],[33,29],[38,32],[43,30],[30,28],[36,27]],2,"#C9A15A")+dots([[26,29],[40,30],[33,32]],1,"#FFFFFF")+herbs([[31,30,30,"#2E6B2F"],[41,28,-20,"#2E6B2F"]])),
+ podimas:()=>PAN("#F2C33A",dots([[17,31],[24,36],[31,30],[20,38],[29,38],[35,34],[26,32]],2,"#E9A21C")+dots([[22,34],[33,37]],1.6,"#C88AA8")+herbs([[27,30,0,"#2E6B2F"],[34,31,40,"#2E6B2F"],[19,35,-30,"#2E6B2F"]])+dots([[30,34],[23,31]],0.7,"#1E1E1E")),
+ vatha:()=>BOWL("#4A1E12",st("M20 30 q6 -3 12 0","#C0753A",1.4)+st("M34 32 q5 -2 9 0","#C0753A",1.2)+dots([[26,31],[31,29],[38,30],[43,31],[29,33]],1.5,"#22120A")+herbs([[36,28,20,"#2E6B2F"]])),
+ morKuzhambu:()=>BOWL("#F0D978",re(21,28,6,4,"#E4EED6",1.2)+re(34,30,6,4,"#E4EED6",1.2)+c(41,28,1.4,"#C2362B")+herbs([[29,31,10,"#2E6B2F"]])),
+ kootu:()=>BOWL("#D6C35E",re(21,28,5,4,"#B9D78A",1)+re(30,30,5,4,"#B9D78A",1)+re(38,27,5,4,"#B9D78A",1)+dots([[27,29],[35,32],[42,31]],1,"#FFFFFF")+herbs([[24,32,0,"#2E6B2F"]])),
+ usili:()=>PLATE([[22,36,20],[28,40,-15],[36,35,10],[42,39,-20]].map(([x,y,r])=>re(x-3,y-1.2,7,2.4,"#5C9E3A",1.2,`transform="rotate(${r} ${x} ${y})"`)).join("")+dots([[25,38],[31,35],[33,40],[39,37],[45,36],[27,34],[37,41]],1.8,"#E9B53B")+dots([[30,38],[41,35]],0.8,"#1E1E1E")),
+ kolluRasam:()=>BOWL("#8E5634",dots([[25,30],[31,32],[37,29],[42,31],[28,28]],1.4,"#5A3620")+herbs([[34,31,20,"#2E6B2F"]])+dots([[22,31],[39,32]],0.8,"#1E1E1E")),
+ muttaiKuzhambu:()=>BOWL("#7A2E1A",EGG(25,30,0.6)+EGG(39,31,0.6)+herbs([[32,28,10,"#2E6B2F"]])),
+ ragiDosa:()=>PLATE(el(30,37,18,11,"#7E5040")+dots([[22,34],[28,32],[35,35],[30,40],[38,39],[24,39],[33,31]],1.4,"#9C6C5A")+el(47,42,5,3,"#F2EEDC")),
+ adai:()=>PLATE(el(30,37,17,10.5,"#C9803E")+dots([[23,34],[29,32],[36,35],[31,40],[38,39]],1.3,"#E9C46A")+dots([[26,38],[34,33]],1.1,"#B8321F")+herbs([[30,36,0,"#2E6B2F"]])+re(44,38,8,6,"#8A4E24",1.5)),
+ milletPongal:()=>BOWL("#E6DAB5",dots([[25,30],[33,32],[40,29]],1,"#1E1E1E")+re(29,28,4,2,"#E7C27A",1)+re(37,31,4,2,"#E7C27A",1)+dots([[22,31],[30,30],[36,28],[44,31]],0.7,"#CFC29A")+herbs([[34,30,0,"#2E6B2F"]])),
+ sakkarai:()=>BOWL("#9A5A26",re(24,28,4.4,2.2,"#EBCB86",1)+re(34,30,4.4,2.2,"#EBCB86",1)+c(30,31,1.4,"#3A1E0E")+c(40,28,1.4,"#3A1E0E")+st("M22 32 q4 -2 8 0","#D9A24A",1.2)),
+ puli:()=>PLATE(RICE(32,40,17,12,"#B9762E")+dots([[25,35],[31,32],[38,36],[34,38]],1.7,"#E4B57A")+herbs([[28,32,0,"#2E6B2F"],[37,33,30,"#2E6B2F"]])+re(40,30,6,2,"#B8321F",1)),
+ kathirikai:()=>BOWL("#5A2A18",[[24,29],[33,31],[41,28]].map(([x,y])=>el(x,y,4.6,3.2,"#5B2C6F")+re(x-1,y-5,2,2.6,"#4E8B3A",0.8)).join("")+st("M22 32 q4 -1 7 0","#C0753A",1.2)),
+ paniyaram:()=>el(32,36,27,16,"#2F3538")+el(32,35,25,14,"#3A4043")+re(57,33,7,4,"#3A4043",2)+[[20,30],[32,28],[44,30],[18,39],[30,37],[42,39],[32,45]].map(([x,y])=>c(x,y,4.6,"#C98A3E")+c(x-1,y-1.4,1.6,"#E6B470")).join(""),
+ kozhukattai:()=>PLATE([[22,37],[33,34],[43,38]].map(([x,y])=>el(x,y,6.5,4.4,"#F7F3E6",`stroke="#E2DACA" stroke-width="0.8"`)+st(`M${x-4} ${y-1} q2 2 4 0 q2 2 4 0`,"#D6CCB6",0.8)).join("")),
+ nattuKozhi:()=>BOWL("#6E2412",DRUM(27,30,-10,"#7A3A1A")+herbs([[41,29,0,"#2E6B2F"],[38,32,40,"#2E6B2F"]])+st("M20 32 q4 -1 7 0","#C0753A",1.2)),
+ varuval:()=>PLATE([[22,36],[31,33],[40,37],[27,41],[37,42]].map(([x,y])=>el(x,y,5,3.8,"#5E2A14")).join("")+dots([[22,34],[31,31],[40,35],[36,40]],0.9,"#1E1E1E")+herbs([[30,38,0,"#2E6B2F"],[44,33,30,"#2E6B2F"],[19,40,-20,"#2E6B2F"]])),
+ virundhu:()=>pa("M4 44 Q10 18 40 18 Q60 20 62 34 Q58 52 32 54 Q12 54 4 44 Z","#3E8E41")+st("M6 42 Q34 36 60 34","#2D6B2F",1.4)+RICE(30,46,10,8,"#F7F2E4")+el(30,39,5,2.6,"#C9762A")+c(14,36,4,"#5C9E3A")+c(22,28,3.6,"#E9B53B")+c(46,28,4,"#B8321F")+c(51,41,5,"#F3E6CB")+c(37,26,3,"#F2EEDC"),
+ bread:()=>PLATE([[20,37],[32,35],[44,37]].map(([x,y])=>re(x-6,y-7,12,14,"#E8C687",4)+re(x-4,y-5,8,10,"#F6E3A8",3)).join("")+dots([[20,36],[32,34],[44,36]],1,"#5C9E3A")),
+ bruschetta:()=>PLATE([[23,37],[41,37]].map(([x,y])=>re(x-9,y-6,18,12,"#D9AE6B",4)+dots([[x-4,y-2],[x+2,y-1],[x-1,y+2],[x+4,y+2]],2,"#C9361F")+lf(x+1,y-3,20,"#3E8E41")).join("")),
+ lasagne:()=>PLATE(re(17,27,30,20,"#F3D88A",3)+re(17,30,30,3,"#C9361F",1)+re(17,36,30,3,"#F7F0DE",1)+re(17,42,30,3,"#C9361F",1)+re(17,26,30,3,"#E2A64A",1.5)+herbs([[30,25,20]])),
+ chickenSeared:()=>PLATE(pa("M16 36 Q20 26 34 28 Q46 30 44 40 Q36 46 22 44 Z","#D9893A")+st("M22 33 l14 2 M21 38 l16 2","#A85A22",1.2)+c(47,30,4.6,"#F4E04D")+c(47,30,3,"#FBF1A0")+herbs([[24,44],[40,44,30]])),
+ breast:()=>PLATE(pa("M16 36 Q20 26 34 28 Q46 30 44 40 Q36 46 22 44 Z","#E6A066")+st("M22 33 l14 2 M21 38 l16 2","#B96A30",1.2)+herbs([[42,30]])),
+ cacciatore:()=>PAN("#B8361F",DRUM(20,32,-10,"#9A4A22")+re(30,36,6,3,"#3F8A36",1)+re(32,28,6,3,"#E9B53B",1)),
+ drumstick:()=>PLATE(DRUM(24,37,-15,"#F0B79A")),
+ energy:()=>PLATE(c(24,37,6.5,"#7A4A2A")+c(38,38,6.5,"#6E4226")+c(31,31,6.5,"#865330")+dots([[22,35],[36,36],[30,29],[40,40]],0.9,"#F2E2C0")),
+ ladoo:()=>PLATE(c(24,38,6.6,"#E9A53A")+c(38,38,6.6,"#E19A2E")+c(31,31,6.6,"#F0B24A")+dots([[24,36],[38,36],[31,29]],1.1,"#7DA33F")),
+ jamun:()=>BOWL("#E7C27A",c(25,29,5.4,"#5A2512")+c(37,30,5.4,"#6A2D16")+c(31,26,5,"#4E200F")+el(24,27,1.8,1,"#9A5A3A")+el(36,28,1.8,1,"#9A5A3A")),
+ halwa:()=>PLATE(pa("M16 40 Q20 26 32 26 Q44 26 48 40 Z","#E0621F")+dots([[26,32],[34,30],[39,35]],1.4,"#E7D2A5")+re(29,34,4,1.6,"#7DA33F",0.8)),
+ kesari:()=>PLATE([[22,36],[33,35],[44,36],[27,42],[39,42]].map(([x,y])=>re(x-5,y-4,10,8,"#F2A23A",1.6)).join("")+dots([[22,35],[44,35],[33,41]],1.2,"#C9A15A")),
+ shrikhand:()=>GLASS([[30,53,"#F6E0A0"]],el(32,29,13,3,"#F9EAB8")+dots([[28,28],[35,29]],1.1,"#E9A21C")+re(31,26,4,1.6,"#7DA33F",0.8)),
+ chia:()=>GLASS([[38,53,"#ECE7DB"],[30,38,"#F3EFE6"]],dots([[24,44],[30,47],[38,43],[34,50],[27,40]],0.9,"#3A3A3A")+el(32,29,13,3,"#E2A23C")+c(29,27,2.4,"#C2364A")+c(36,27,2,"#6A3B8A")),
+ tiramisu:()=>GLASS([[44,53,"#7A4A2A"],[36,44,"#F4EAD6"],[30,36,"#8A5A36"]],el(32,29,13,3,"#F4EAD6")+dots([[26,29],[32,28],[38,29]],1,"#4A2A18")),
+ cheesecake:()=>GLASS([[46,53,"#C8955A"],[32,46,"#F7F1E3"]],el(32,31,13,3,"#C2364A")+c(30,29,2,"#E24A5A")+c(36,29,1.8,"#E24A5A")),
+ pannacotta:()=>PLATE(pa("M20 42 Q20 24 32 24 Q44 24 44 42 Z","#F8F4EA",`stroke="#E7E0D0" stroke-width="1"`)+el(32,42,12,3,"#F1EBDC")+c(30,26,2.4,"#C2364A")+c(35,25,2,"#C2364A")+lf(33,22,10,"#3E8E41")),
+ yogurtSteamed:()=>pa("M14 26 L50 26 L46 48 Q32 53 18 48 Z","#B9774E")+el(32,26,18,5,"#C98A5E")+el(32,26,15.5,3.8,"#F3DDB0")+dots([[28,26],[36,26]],1,"#C9A15A"),
+ crumble:()=>re(10,26,44,24,"#F3F1EA",6,`stroke="${S2}" stroke-width="1.4"`)+re(13,29,38,18,"#D9A55A",4)+dots([[18,33],[25,31],[33,34],[41,32],[22,40],[30,42],[39,40],[46,38]],2.4,"#E9C27A")+dots([[28,37],[44,44]],1.6,"#B33A2A"),
+ brownie:()=>PLATE(re(16,28,14,10,"#4A2A18",2)+re(32,28,14,10,"#55301C",2)+re(24,39,14,10,"#4E2C1A",2)+dots([[20,31],[36,32],[29,42]],1,"#C9A15A")),
+ cookie:()=>PLATE(c(24,37,8.5,"#D9A55A")+c(40,36,8.5,"#D29A4E")+dots([[22,35],[27,39],[24,40],[38,33],[43,37],[39,39]],1.3,"#6A3B1E")),
+ muffin:()=>pa("M20 34 L44 34 L41 52 L23 52 Z","#9A5A3A")+st("M25 36 L26 51 M32 36 L32 51 M39 36 L38 51","#7A4430",1)+pa("M17 35 Q17 18 32 18 Q47 18 47 35 Z","#8A5236")+dots([[26,26],[34,23],[39,29],[30,30]],1.3,"#E9C27A"),
+ hotteok:()=>PLATE(el(32,37,17,10.5,"#D9A04A")+el(32,36,13,8,"#E5B460")+el(32,37,6,3.4,"#7A3A1A")+dots([[28,36],[35,38]],1,"#C9A15A")),
+ rasmalai:()=>BOWL("#F5E7C2",el(25,30,6,3.2,"#FBF6EA",`stroke="#EADFC4" stroke-width="0.8"`)+el(38,31,6,3.2,"#FBF6EA",`stroke="#EADFC4" stroke-width="0.8"`)+re(30,27,4,1.4,"#7DA33F",0.6)+dots([[33,32],[22,32]],0.9,"#E9A21C")),
+ kulfi:()=>re(30,42,4,16,"#D9B072",1.5)+pa("M22 16 Q22 10 32 10 Q42 10 42 16 L40 44 Q32 47 24 44 Z","#F4C54A")+pa("M22 16 Q22 10 32 10 Q42 10 42 16 L41.5 22 Q32 25 22.5 22 Z","#F8DC84")+dots([[28,30],[35,36],[31,40]],1.1,"#7DA33F"),
+ custard:()=>PLATE(pa("M18 42 L22 28 L42 28 L46 42 Z","#F3CF6A")+el(32,28,10,3,"#B5651D")+pa("M22 28 Q32 33 42 28 L42 30 Q32 35 22 30 Z","#C9772A")),
+ bark:()=>PLATE([[22,35,-10],[36,33,15],[30,42,5]].map(([x,y,r])=>re(x-7,y-5,14,10,"#FBF8F0",2,`transform="rotate(${r} ${x} ${y})"`)).join("")+dots([[21,34],[36,32],[30,41]],1.6,"#C2364A")+dots([[25,37],[39,35]],1.3,"#6A3B8A")),
+ oatbars:()=>PLATE(re(16,30,30,7,"#C9955A",2)+re(18,39,30,7,"#BE8A50",2)+st("M16 32 L46 32","#4A2A18",2)+st("M18 41 L48 41","#4A2A18",2)+dots([[22,34],[32,35],[40,44]],1,"#F3E0B0")),
+ oats:()=>BOWL("#E9D9B4",dots([[24,30],[30,32],[36,29],[42,31]],1.6,"#D8C49A")+el(36,29,4,2,"#F4E59A")+c(27,29,1.8,"#6A3B8A")),
+ wrap:()=>PLATE(pa("M14 44 L44 26 Q52 24 50 32 L22 50 Q14 52 14 44 Z","#E8C687")+el(47,29,5,4,"#F0D9A0")+dots([[46,28],[49,30]],1.5,"#5C9E3A")+c(47,31,1.4,"#C9361F")),
+ sandwich:()=>PLATE(pa("M14 42 L32 24 L50 42 Z","#E8C687")+pa("M17 42 L32 27 L47 42 Z","#7AB04A")+pa("M19 42 L32 29 L45 42 Z","#F6E6B8")),
+ egg:()=>PLATE(EGG(32,37,1.1)),
+ eggWhite:()=>PLATE(el(32,37,12,8,"#FFFFFF",`stroke="#E7E2D6" stroke-width="0.8"`)),
+ eggs:()=>PLATE(el(22,37,8,6.2,"#FFFFFF",`stroke="#E7E2D6" stroke-width="0.8"`)+c(22,37,3.4,"#F2A814")+el(38,37,8,6.2,"#FFFFFF",`stroke="#E7E2D6" stroke-width="0.8"`)+c(38,37,3.4,"#F7C64A")+dots([[20,35],[37,35]],0.6,"#B53A1A")),
+ omelette:()=>PLATE(pa("M12 40 A20 12 0 0 1 52 40 Z","#F2C33A")+dots([[22,35],[31,32],[40,35],[28,38]],1.3,"#3F8A36")+dots([[25,37],[36,37]],1.1,"#D8473A")),
+ scramble:()=>PLATE(re(14,30,22,16,"#D9A55A",4)+[[34,34],[40,37],[36,40],[44,33],[42,41]].map(([x,y])=>c(x,y,4.6,"#F5CF4A")).join("")+herbs([[40,35,0,"#3E8E41"]])),
+ bhurji:()=>PAN("#F2C33A",dots([[18,32],[26,36],[33,31],[22,38],[31,38],[36,35]],2,"#E9A21C")+dots([[21,35],[29,33]],1.3,"#D8473A")+herbs([[27,31],[34,37,30]])),
+ poached:()=>PLATE(re(16,32,32,14,"#D9A55A",4)+pa("M20 34 Q20 24 32 24 Q44 24 44 34 Z","#FFFFFF",`stroke="#E7E2D6" stroke-width="0.8"`)+c(32,30,3,"#F2A814")+dots([[30,27]],0.7,"#2B1A10")),
+ eggRoast:()=>PAN("#7E2A16",EGG(19,33,0.6)+EGG(33,35,0.6)+herbs([[28,29,0,"#2E6B2F"],[24,39,30,"#2E6B2F"]])),
+ paneerBlock:()=>PLATE(re(18,28,28,16,"#FFF4DC",2,`stroke="#EADFC4" stroke-width="1"`)+st("M27 28 L27 44 M36 28 L36 44","#EADFC4",1)),
+ tofuBlock:()=>PLATE(re(18,28,28,16,"#F7F3E6",3,`stroke="#E4DCC8" stroke-width="1"`)+dots([[24,33],[34,37],[40,32]],0.8,"#E4DCC8")),
+ whey:()=>re(22,16,20,38,"#3A4043",5)+re(24,10,16,8,"#2B3033",2)+re(24,26,16,12,"#E6EEF0",2)+st("M28 32 L36 32","#3A4043",1.4),
+ milk:()=>pa("M20 14 L44 14 L41 54 L23 54 Z",SH,`stroke="${S2}" stroke-width="1.4"`)+pa("M20.8 24 L43.2 24 L41 54 L23 54 Z","#FBFAF5"),
+ cooker:()=>pa("M12 30 L50 30 L48 52 Q31 56 14 52 Z",ST)+el(31,30,19,5,S2)+re(12,24,38,7,"#2F3538",3)+re(48,26,14,4,"#2F3538",2)+re(28,14,6,11,"#2F3538",2)+c(31,13,3,"#C2362B"),
+ knife:()=>pa("M8 40 L44 30 L48 33 L12 44 Z","#D7DDE0")+re(44,28,14,6,"#3A2A1E",2,`transform="rotate(-15 51 31)"`)+el(22,50,9,6,"#B8708A")+el(22,50,6,4,"#E8C3D2")+c(36,50,5,"#E8C3D2"),
+ fridge:()=>re(16,8,32,50,"#E9F2F4",5,`stroke="${S2}" stroke-width="1.6"`)+st("M16 26 L48 26",S2,1.6)+re(42,14,2.4,8,S2,1)+re(42,32,2.4,10,S2,1)+c(30,40,4,"#3E8E41")+c(24,46,3,"#C2362B"),
+ fridgeOpen:()=>re(10,8,30,50,"#E9F2F4",4,`stroke="${S2}" stroke-width="1.6"`)+st("M10 24 L40 24 M10 40 L40 40",S2,1.4)+re(14,30,8,9,"#F0CF6A",2)+re(25,32,10,7,"#C2362B",2)+c(18,48,4,"#3E8E41")+re(26,44,8,10,"#F7F0DE",2)+pa("M40 8 L54 14 L54 52 L40 58 Z",SH,`stroke="${S2}" stroke-width="1.4"`),
+ thermometer:()=>st("M22 46 L46 14","#8A8F92",2.4)+c(20,48,7,"#2F3538")+c(20,48,4.6,"#E6EEF0")+st("M20 48 L23 45","#C2362B",1.6)+DRUM(28,50,-20,"#E6A066"),
+ boxes:()=>re(8,30,22,20,"#E6EEF0",4,`stroke="${S2}" stroke-width="1.4"`)+re(8,26,22,6,"#4F7C82",2)+re(34,30,22,20,"#E6EEF0",4,`stroke="${S2}" stroke-width="1.4"`)+re(34,26,22,6,"#C2362B",2)+re(12,36,14,10,"#E9B53B",2)+re(38,36,14,10,"#5C9E3A",2)+re(20,12,24,12,"#E6EEF0",3,`stroke="${S2}" stroke-width="1.4"`)+re(24,15,16,6,"#F7F0DE",2),
+ balance:()=>st("M32 12 L32 50 M14 20 L50 20",S2,2.2)+re(24,48,16,4,S2,2)+st("M14 20 L8 34 M14 20 L20 34 M50 20 L44 34 M50 20 L56 34",S2,1.2)+pa("M6 34 Q14 42 22 34 Z","#E9B53B")+pa("M42 34 Q50 42 58 34 Z","#C2362B")+c(14,34,1.6,"#FFFFFF")+c(50,33,1.6,"#3E8E41"),
+ marinade:()=>BOWL("#E58B3A",re(22,27,7,5,"#F3E9D6",2)+re(34,29,7,5,"#F3E9D6",2)+st("M38 20 L52 8","#8A6A4A",2.4)+el(37,22,3,2,"#E58B3A")),
+ fryer:()=>pa("M8 30 Q10 52 32 53 Q54 52 56 30 Z","#2F3538")+el(32,30,24,7,"#3A4043")+el(32,30,21,5.4,"#E2B04A")+dots([[22,29],[30,31],[40,29],[35,28]],1.4,"#F5D98A")+el(27,30,5,2.6,"#B86E2A")+el(38,31,5,2.6,"#B86E2A"),
+ table:()=>re(6,40,52,5,"#8A5A3A",2)+re(10,45,4,12,"#7A4A2E",1)+re(50,45,4,12,"#7A4A2E",1)+el(22,38,9,2.6,SH,`stroke="${S2}" stroke-width="1"`)+el(42,38,9,2.6,SH,`stroke="${S2}" stroke-width="1"`)+re(30,20,4,18,"#F7F0DE",1.5)+pa("M32 12 Q35 16 32 20 Q29 16 32 12 Z","#F2A814"),
+ kadai:()=>pa("M8 28 Q10 50 32 51 Q54 50 56 28 Z","#2F3538")+el(32,28,24,7,"#3A4043")+el(32,28,21,5.4,"#4A5154")+st("M4 26 Q2 32 8 32","#2F3538",2.4)+st("M60 26 Q62 32 56 32","#2F3538",2.4),
+ panEmpty:()=>PAN("#4A5154"),
+ saucepan:()=>re(12,26,34,24,ST,5)+el(29,26,17,4.5,S2)+re(44,30,18,4.5,"#2F3538",2.2)+re(10,20,38,5,"#3A4043",2.5)+re(26,15,6,6,"#3A4043",2),
+ boards:()=>re(8,22,32,24,"#D9AE6B",5)+c(14,28,2.2,SH)+re(24,30,32,24,"#6A9AA6",5)+c(30,36,2.2,SH),
+ scale:()=>re(10,34,44,18,ST,5)+re(14,38,16,8,"#2F3538",2)+st("M17 42 L27 42","#6FD48A",1.6)+el(32,30,20,4,S2)+c(44,43,2.4,"#2F3538"),
+ grinder:()=>re(18,38,28,16,"#3A4043",4)+pa("M20 38 L22 16 L42 16 L44 38 Z","#E6EEF0",`stroke="${S2}" stroke-width="1.4"`)+re(20,11,24,6,"#2F3538",2)+re(28,42,8,6,"#C2362B",2)+pa("M22 32 L42 32 L43 38 L21 38 Z","#6BA34A"),
+ muslin:()=>pa("M14 18 Q32 10 50 18 L44 44 Q32 50 20 44 Z","#F4EFE2",`stroke="#E2D8C2" stroke-width="1.2"`)+st("M20 16 L28 44 M32 13 L32 47 M44 16 L36 44","#E2D8C2",0.9)+pa("M24 46 Q32 54 40 46","#F8F6EF"),
+ tawa:()=>el(28,36,22,13,"#2F3538")+el(28,35,19,10.5,"#3A4043")+re(46,33,16,4.5,"#5A3A2A",2.2)+el(28,35,10,6,"#E8C687"),
+ oven:()=>re(8,14,48,38,"#3A4043",5)+re(12,20,30,26,"#2B3033",3)+re(15,23,24,20,"#E2A04A",2,`opacity="0.8"`)+c(48,24,2.6,SH)+c(48,32,2.6,SH)+c(48,40,2.6,SH)
+};
+function art(k,cls=""){
+  const f=ART[k]||ART.dal;
+  return `<svg viewBox="0 0 64 64" class="${cls}" aria-hidden="true" focusable="false">${f()}</svg>`;
+}
+function place(k,x,y,s){return `<g transform="translate(${x} ${y}) scale(${s})">${(ART[k]||ART.dal)()}</g>`;}
+const SCENES={
+ thali:()=>el(180,96,150,80,S2)+el(180,94,150,78,SH)+el(180,94,124,62,"none",`stroke="${ST}" stroke-width="2"`)+place("dal",64,28,1.1)+place("paneer",140,10,1.1)+place("raita",214,28,1.1)+place("roti",96,92,1.15)+place("rice",182,92,1.15)+lf(150,110,20)+lf(158,106,-30),
+ leaf:()=>pa("M14 120 Q60 30 200 30 Q330 34 346 96 Q330 168 190 170 Q50 168 14 120 Z","#3E8E41")+st("M24 118 Q180 96 340 98","#2D6B2F",2.4)+[70,120,170,220,270,310].map(x=>st(`M${x} ${103-(x-70)/40} Q${x+10} ${70} ${x+30} ${52}`,"#56A858",1.2)).join("")+place("idli",36,60,1.05)+place("dosa",112,38,1.3)+place("chutney",216,52,1.1)+place("vada",270,74,0.95),
+ bapsang:()=>re(10,24,340,136,"#7A4A2E",16)+re(18,32,324,120,"#8A5A3A",12)+place("bibimbap",128,22,1.6)+place("namul",22,40,0.95)+place("muchim",22,96,0.95)+place("kimchi",244,30,0.9)+place("stew",262,88,1.0)+st("M100 150 L130 60 M108 152 L136 62","#C9A15A",2.4),
+ tavola:()=>{let s="";for(let i=0;i<9;i++)for(let j=0;j<4;j++){if((i+j)%2===0)s+=re(i*40,j*45,40,45,"var(--it)",0,`opacity="0.16"`);}return s+place("pastaRed",108,8,1.85)+place("bread",18,86,1.1)+place("salad",250,30,1.1)+re(26,20,22,60,"#C9B45A",6,`opacity="0.9"`)+re(32,8,10,14,"#3A4043",2)+c(300,140,14,"#C9361F")+lf(300,126,0,"#3E8E41");},
+ mithai:()=>el(180,150,150,20,S2)+el(180,148,150,18,SH)+place("ladoo",30,58,1.25)+place("kheer",116,40,1.4)+place("brownie",216,62,1.2)+place("shrikhand",292,26,1.05),
+ kolam:()=>{let s=re(0,0,360,180,"var(--ta)",16,'opacity="0.1"');for(let i=0;i<9;i++)for(let j=0;j<4;j++){const x=20+i*40,y=22+j*46;s+=c(x,y,2,"var(--ta)",'opacity="0.55"');if((i+j)%2===0)s+=`<circle cx="${x}" cy="${y}" r="13" fill="none" stroke="var(--ta)" stroke-opacity="0.3" stroke-width="1.5"/>`;}return s+place("koozh",12,40,1.3)+place("kali",102,10,1.6)+place("kathirikai",214,20,1.25)+place("paniyaram",264,90,1.1)+place("sundal",128,108,1.0);},
+ board:()=>re(20,40,320,120,"#D9AE6B",14)+re(30,50,300,100,"#E4BC7E",10)+place("knife",40,48,1.4)+place("eggs",140,60,1.15)+place("cooker",230,26,1.5)+c(122,140,9,"#C2362B")+c(140,146,7,"#E9B53B")
+};
+function scene(k){return `<svg viewBox="0 0 360 180" class="scene" aria-hidden="true" focusable="false">${(SCENES[k]||SCENES.thali)()}</svg>`;}
+function plateRule(){
+  return `<svg viewBox="0 0 240 160" aria-hidden="true" focusable="false" style="width:100%;max-width:260px;height:auto">
+  ${el(120,84,104,70,S2)}${el(120,82,104,69,SH)}
+  ${pa("M120 82 L120 18 A100 64 0 0 0 120 146 Z","#5C9E3A",`opacity="0.9"`)}
+  ${pa("M120 82 L120 18 A100 64 0 0 1 220 82 Z","#E9B53B",`opacity="0.9"`)}
+  ${pa("M120 82 L220 82 A100 64 0 0 1 120 146 Z","#F7F2E4")}
+  ${dots([[60,60],[78,96],[52,104],[90,52]],7,"#3E8E41")}${dots([[70,80],[96,118]],6,"#C2362B")}
+  ${EGG(160,56,1.3)}${re(182,58,14,11,"#FFF3DA",2)}
+  ${RICE(170,120,30,22)}
+  <text x="66" y="156" font-size="12" fill="var(--ink-2)" text-anchor="middle" font-family="var(--sans)">Half veg</text>
+  <text x="196" y="14" font-size="12" fill="var(--ink-2)" text-anchor="middle" font-family="var(--sans)">Quarter protein</text>
+  <text x="196" y="158" font-size="12" fill="var(--ink-2)" text-anchor="middle" font-family="var(--sans)">Quarter carbs</text>
+  </svg>`;
+}
+const CHECK=`<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3.5 8.5 L6.6 11.4 L12.5 4.8" fill="none" stroke="var(--surface)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+
+const DAY=864e5;
+const $=s=>document.querySelector(s);
+const esc=s=>String(s==null?"":s).replace(/[&<>"']/g,ch=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[ch]));
+const fmtN=n=>Math.round(n).toLocaleString("en-IN");
+const obj=x=>(x&&typeof x==="object"&&!Array.isArray(x))?x:{};
+const num=(x,d,lo,hi)=>{const n=Number(x);return Number.isFinite(n)?Math.min(hi,Math.max(lo,n)):d;};
+function today0(){const d=new Date();d.setHours(0,0,0,0);return d;}
+function isoDate(d){return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;}
+function parseIso(s){const [y,m,d]=String(s).split("-").map(Number);return new Date(y,(m||1)-1,d||1);}
+function planWeek(d=today0()){return Math.floor(Math.round((d-PLAN_START)/DAY)/7);}
+function phaseOf(w){if(w<0)return PHASES[0];for(const p of PHASES){if(w>=p.from&&w<=p.to)return p;}return PHASES[5];}
+function satOfWeek(w){return new Date(2026,10,14+7*(w-1));}
+function fmtDay(d,o={weekday:"short",day:"numeric",month:"short"}){return d.toLocaleDateString("en-GB",o);}
+function weekLetter(w){return (w<=0||w%2===1)?"A":"B";}
+
+/* ---------- state and saving ---------- */
+const LS_KEY="kitchen-roadmap-v1";
+function defaultState(){return {v:1,t:0,owner:"",nodes:{},gates:{},wk:{},prep:{},equip:{},log:[],profile:{sex:"m",age:28,ht:170,wt:72,gw:65,act:1.6,def:450}};}
+function normalize(o){
+  const d=defaultState();o=obj(o);
+  const pr=Object.assign({},d.profile,obj(o.profile));
+  return {v:1,t:Number(o.t)||0,owner:typeof o.owner==="string"?o.owner.slice(0,128):"",nodes:obj(o.nodes),gates:obj(o.gates),wk:obj(o.wk),prep:obj(o.prep),equip:obj(o.equip),
+    log:Array.isArray(o.log)?o.log.filter(e=>e&&typeof e.d==="string"&&Number.isFinite(Number(e.w))).slice(-500):[],
+    profile:{sex:pr.sex==="f"?"f":"m",age:num(pr.age,28,16,80),ht:num(pr.ht,170,140,210),wt:num(pr.wt,72,40,160),gw:num(pr.gw,65,40,160),act:num(pr.act,1.6,1.2,1.9),def:num(pr.def,450,0,900)}};
+}
+function loadLocal(){try{const s=localStorage.getItem(LS_KEY);return s?normalize(JSON.parse(s)):null;}catch(e){return null;}}
+function saveLocal(){try{localStorage.setItem(LS_KEY,JSON.stringify(state));}catch(e){}}
+let state=loadLocal()||defaultState();
+const store={ref:null,writing:false,dirty:false,timer:null,retried:false,status:"device"};
+const ui={dlgKey:null,menuWeek:null,psort:"portion"};
+
+function setStatus(s){store.status=s;const el=$("#saveStatus");if(!el)return;el.dataset.s=s;
+  el.querySelector("span").textContent={cloud:"Synced to your Google account",saving:"Saving…",device:"Saved on this device",offline:"Offline; changes sync when you’re back",signedout:"Signed out; saved on this device",setup:"Saved on this device; sync not set up"}[s]||"Saved on this device";}
+function commit(rerender=true){
+  state.t=Date.now();saveLocal();
+  if(store.ref){store.dirty=true;setStatus("saving");clearTimeout(store.timer);store.timer=setTimeout(flush,700);}
+  if(rerender)render();
+}
+/* ---------- Firebase sync ---------- */
+const FB_VER="12.2.1";
+const FB_CFG_KEY="kitchen-roadmap-fbconfig";
+const FILE_CFG=!!(FIREBASE_CONFIG&&FIREBASE_CONFIG.apiKey&&FIREBASE_CONFIG.projectId);
+const RULES_TXT=`rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /users/{uid} {
+      allow read, write: if request.auth != null && request.auth.uid == uid;
+    }
+  }
+}`;
+const fb={cfg:null,auth:null,db:null,mod:null,user:null,unsub:null,err:""};
+fb.cfg=getConfig();
+function getConfig(){
+  if(FILE_CFG)return FIREBASE_CONFIG;
+  try{const c=JSON.parse(localStorage.getItem(FB_CFG_KEY)||"null");if(c&&c.apiKey&&c.projectId&&c.appId)return c;}catch(e){}
+  return null;
+}
+function parseConfig(txt){
+  const out={},re=/(apiKey|authDomain|projectId|storageBucket|messagingSenderId|appId|measurementId)["']?\s*:\s*["']([^"']+)["']/g;let m;
+  while((m=re.exec(String(txt))))out[m[1]]=m[2];
+  if(out.projectId&&!out.authDomain)out.authDomain=out.projectId+".firebaseapp.com";
+  return out.apiKey&&out.projectId&&out.appId?out:null;
+}
+function errText(code){
+  const c=String(code||"");
+  if(c==="file")return "Google sign-in only works when this page is opened from a web address, not from a file on your computer. See step 5 below.";
+  if(c==="load")return "Couldn’t load Firebase. Check your connection and reload the page.";
+  if(c==="config")return "That doesn’t look like a complete Firebase config. It needs at least apiKey, projectId and appId.";
+  if(c==="rules"||c==="permission-denied")return "Firestore refused to save. Paste the security rules below into Firestore Database, Rules, and publish them.";
+  if(c.includes("unauthorized-domain"))return `This address (${location.host||"this page"}) isn’t on your authorized domains. Add it in Firebase under Authentication, Settings, Authorized domains.`;
+  if(c.includes("operation-not-allowed"))return "Google sign-in isn’t switched on. Enable it in Firebase under Authentication, Sign-in method.";
+  if(c.includes("network-request-failed"))return "Couldn’t reach Google. Check your connection and try again.";
+  if(c.includes("api-key"))return "Firebase didn’t accept the API key. Paste your config again below.";
+  if(c.includes("failed-precondition")||c.includes("not-found"))return "Firestore isn’t ready. Create a Firestore database in your Firebase project (step 4).";
+  return `Something went wrong (${c}). Try again in a moment.`;
+}
+function initials(){const n=(fb.user&&(fb.user.name||fb.user.email))||"?";return esc(n.split(/[\s@.]+/).filter(Boolean).slice(0,2).map(w=>w[0].toUpperCase()).join(""));}
+function avatar(){return `<span class="avatar" aria-hidden="true">${initials()}</span>`;}
+async function initFirebase(){
+  fb.cfg=getConfig();
+  if(!fb.cfg){setStatus("setup");render();return;}
+  setStatus("signedout");
+  if(location.protocol==="file:"){fb.err="file";render();return;}
+  try{
+    const [appM,authM,fsM]=await Promise.all([
+      import(`https://www.gstatic.com/firebasejs/${FB_VER}/firebase-app.js`),
+      import(`https://www.gstatic.com/firebasejs/${FB_VER}/firebase-auth.js`),
+      import(`https://www.gstatic.com/firebasejs/${FB_VER}/firebase-firestore.js`)]);
+    fb.mod={appM,authM,fsM};
+    const app=appM.initializeApp(fb.cfg);
+    fb.auth=authM.getAuth(app);
+    try{fb.db=fsM.initializeFirestore(app,{localCache:fsM.persistentLocalCache({tabManager:fsM.persistentMultipleTabManager()})});}
+    catch(e){fb.db=fsM.getFirestore(app);}
+    authM.getRedirectResult(fb.auth).catch(e=>{fb.err=e.code||"auth";render();});
+    authM.onAuthStateChanged(fb.auth,onUser);
+  }catch(e){fb.err="load";setStatus("device");render();}
+}
+function onUser(u){
+  if(fb.unsub){fb.unsub();fb.unsub=null;}
+  store.ref=null;store.dirty=false;
+  if(!u){fb.user=null;setStatus("signedout");render();return;}
+  fb.user={uid:u.uid,name:u.displayName||"",email:u.email||""};fb.err="";
+  const {doc,onSnapshot}=fb.mod.fsM;
+  const ref=doc(fb.db,"users",u.uid);
+  let first=true;
+  setStatus(navigator.onLine?"saving":"offline");render();
+  fb.unsub=onSnapshot(ref,snap=>{
+    if(store.writing||store.dirty)return;
+    const exists=snap.exists();
+    let remote=null;
+    if(exists){try{remote=normalize(JSON.parse(snap.data().stateJson||"{}"));}catch(e){remote=null;}}
+    if(first){
+      store.ref=ref;first=false;
+      if(state.owner&&state.owner!==u.uid){state=remote||defaultState();state.owner=u.uid;saveLocal();render();if(!snap.metadata.fromCache)setStatus("cloud");return;}
+      state.owner=u.uid;
+      if(!remote){if(state.t>0){store.dirty=true;flush();}else if(!snap.metadata.fromCache)setStatus("cloud");saveLocal();return;}
+      if(remote.t>state.t){state=remote;state.owner=u.uid;saveLocal();render();}
+      else if(state.t>remote.t){store.dirty=true;flush();return;}
+      if(!snap.metadata.fromCache)setStatus("cloud");
+      return;
+    }
+    if(remote&&remote.t>state.t){state=remote;state.owner=u.uid;saveLocal();render();}
+    if(!snap.metadata.fromCache&&!store.dirty)setStatus("cloud");
+  },err=>{fb.err=err.code==="permission-denied"?"rules":(err.code||"error");store.ref=null;setStatus("device");render();});
+}
+async function flush(){
+  if(!store.ref||store.writing||!store.dirty)return;
+  store.writing=true;store.dirty=false;
+  const body=JSON.parse(JSON.stringify(state));
+  if(fb.user)body.owner=fb.user.uid;
+  let retry=false;
+  if(!navigator.onLine)setStatus("offline");
+  try{
+    const {setDoc,serverTimestamp}=fb.mod.fsM;
+    await setDoc(store.ref,{stateJson:JSON.stringify(body),t:body.t,updatedAt:serverTimestamp()});
+    setStatus("cloud");if(fb.err==="rules"){fb.err="";renderNav();}
+  }catch(e){
+    if(e&&e.code==="unavailable"&&!store.retried){store.retried=true;store.dirty=true;retry=true;}
+    else{fb.err=e&&e.code==="permission-denied"?"rules":(e&&e.code)||"error";setStatus("device");renderNav();}
+  }
+  store.writing=false;
+  if(retry){setTimeout(()=>{store.retried=false;flush();},1200+Math.random()*1200);}
+  else{store.retried=false;if(store.dirty){clearTimeout(store.timer);store.timer=setTimeout(flush,700);}}
+}
+async function signIn(){
+  if(!fb.mod){if(location.protocol==="file:")fb.err="file";location.hash="sync";render();return;}
+  const {GoogleAuthProvider,signInWithPopup,signInWithRedirect}=fb.mod.authM;
+  const p=new GoogleAuthProvider();p.setCustomParameters({prompt:"select_account"});
+  try{await signInWithPopup(fb.auth,p);}
+  catch(e){
+    const code=e&&e.code||"";
+    if(code==="auth/popup-blocked"||code==="auth/operation-not-supported-in-this-environment"){try{await signInWithRedirect(fb.auth,p);}catch(e2){fb.err=e2.code||"auth";render();}}
+    else if(code!=="auth/popup-closed-by-user"&&code!=="auth/cancelled-popup-request"){fb.err=code||"auth";render();}
+  }
+}
+async function signOutNow(){
+  if(store.dirty){clearTimeout(store.timer);await flush();}
+  if(fb.mod)await fb.mod.authM.signOut(fb.auth);
+}
+window.addEventListener("online",()=>{if(fb.user&&!store.dirty&&!store.writing)setStatus("cloud");});
+window.addEventListener("offline",()=>{if(fb.user)setStatus("offline");});
+window.addEventListener("pagehide",()=>{if(store.dirty){clearTimeout(store.timer);flush();}});
+
+/* ---------- progress helpers ---------- */
+const ns=k=>obj(state.nodes[k]);
+const sOf=k=>Math.min(2,Math.max(0,Number(ns(k).s)||0));
+function setNode(k,patch){state.nodes[k]=Object.assign({s:0,c:0,note:""},ns(k),patch);}
+function locked(n){return n.req.some(r=>sOf(n.track+"."+r)<1);}
+function trackProgress(t){let sum=0,tried=0,mem=0;t.nodes.forEach(n=>{const s=sOf(n.key);sum+=s;if(s>=1)tried++;if(s===2)mem++;});return {pct:sum/(2*t.nodes.length),tried,mem,total:t.nodes.length};}
+function gateKey(p,i){return `p${p}-${i}`;}
+function gatesDone(p){return p.gates.filter((g,i)=>state.gates[gateKey(p.n,i)]).length;}
+function allGates(){let d=0,t=0;PHASES.forEach(p=>{t+=p.gates.length;d+=gatesDone(p);});return {d,t,pct:t?d/t:0};}
+function tierLabel(t,i){return (t.tiers||TIERS)[i-1];}
+function stateWord(s){return ["Not started","Tried it","From memory"][s];}
+function calc(){
+  const p=state.profile;const bmr=10*p.wt+6.25*p.ht-5*p.age+(p.sex==="m"?5:-161);
+  const tdee=Math.round(bmr*p.act/50)*50,tgt=Math.round((bmr*p.act-p.def)/50)*50,P=Math.round(1.8*p.wt),F=Math.round(0.9*p.wt),C=Math.max(0,Math.round((tgt-P*4-F*9)/4));
+  const lose=Math.max(0,p.wt-p.gw),weeks=p.def>0?lose*7700/(p.def*7):Infinity;
+  return {bmr,tdee,tgt,P,F,C,lose,weeks};
+}
+
+/* ---------- shell ---------- */
+const BASE_VIEWS=["today","roadmap","weekends","nutrition","menu","kitchen","progress","sync"];
+function currentView(){const h=(location.hash||"").replace(/^#/,"");if(BASE_VIEWS.includes(h))return h;if(TRACKS.some(t=>t.hash===h))return h;return "today";}
+function renderNav(){
+  const v=currentView();
+  const a=(h,label,extra="")=>`<a href="#${h}" ${v===h?'aria-current="page"':""}>${extra}${label}</a>`;
+  $("#rail").innerHTML=`
+  <a class="brand" href="#today" aria-label="Kitchen roadmap, today">${$(".topbar .brand svg").outerHTML}<b>Kitchen roadmap</b></a>
+  <div class="nav">
+   <div class="nav-group"><span>Plan</span>${a("today","Today")}${a("roadmap","Roadmap")}${a("weekends","Weekend calendar")}</div>
+   <div class="nav-group"><span>Skill trees</span>${TRACKS.map(t=>a(t.hash,`${esc(t.short)}<span class="pct">${Math.round(trackProgress(t).pct*100)}%</span>`,`<i class="tdot" style="--c:var(--${t.id})"></i>`)).join("")}</div>
+   <div class="nav-group"><span>Reference</span>${a("nutrition","Nutrition")}${a("menu","Weekday menus")}${a("kitchen","Kitchen and prep")}</div>
+   <div class="nav-group"><span>Tracking</span>${a("progress","Weight and waist")}${a("sync","Sync and account")}</div>
+  </div>
+  <div class="save" id="saveStatus" data-s="${store.status}" role="status"><i></i><span></span></div>
+  <div class="acct">${acctHtml()}</div>`;
+  setStatus(store.status);
+  const top=document.getElementById("acctTop");
+  if(top)top.innerHTML=fb.user?`<a href="#sync" class="acct-top" aria-label="Your account">${avatar()}</a>`:(fb.cfg&&fb.mod?`<button class="btn sm" type="button" data-act="signin" data-k="si-top">Sign in</button>`:"");
+}
+function render(){
+  const ae=document.activeElement,fk=ae&&ae.dataset?ae.dataset.k:null;
+  renderNav();
+  const v=currentView();
+  const t=TRACKS.find(x=>x.hash===v);
+  const html=t?viewTrack(t):({today:viewToday,roadmap:viewRoadmap,weekends:viewWeekends,nutrition:viewNutrition,menu:viewMenu,kitchen:viewKitchen,progress:viewProgress,sync:viewSync}[v])();
+  $("#main").innerHTML=`<div class="wrap">${html}</div>`;
+  if(t)requestAnimationFrame(drawEdges);
+  if(v==="nutrition")updateCalc();
+  if(ui.dlgKey&&$("#dlg").open)$("#dlg").innerHTML=nodeDialog(ui.dlgKey);
+  if(fk){const el=document.querySelector(`[data-k="${CSS.escape(fk)}"]`);if(el)el.focus({preventScroll:true});}
+}
+
+
+function acctHtml(){
+  if(!fb.cfg)return `<a class="acct-cta" href="#sync">Set up Google sync</a>`;
+  if(fb.user)return `<a class="acct-row" href="#sync">${avatar()}<span><b>${esc(fb.user.name||fb.user.email||"Signed in")}</b><br><span class="tiny">Signed in with Google</span></span></a>`;
+  if(!fb.mod)return `<a class="acct-cta" href="#sync">${fb.err?"Sync needs attention":"Connecting to Firebase…"}</a>`;
+  return `<button class="btn sm acct-btn" type="button" data-act="signin" data-k="si-rail">Sign in with Google</button>`;
+}
+function viewSync(){
+  const cfg=fb.cfg;
+  let status;
+  if(!cfg)status=`<p>Sync isn’t set up yet, so your progress lives in this browser only. Do the one-time setup below, then paste your Firebase config.</p>`;
+  else if(fb.user)status=`<div class="acct-row" style="margin:4px 0 12px;padding:0">${avatar()}<span><b>${esc(fb.user.name||"Signed in")}</b><br><span class="tiny">${esc(fb.user.email)}</span></span></div>
+    <p class="small muted">Your progress is stored in your own Firebase project and syncs to any device where you sign in with this Google account.</p>
+    <button class="btn quiet" type="button" data-act="signout" data-k="so">Sign out</button>`;
+  else if(!fb.mod)status=`<p>${fb.err?"Sign-in isn’t available yet; see the message below.":"Connecting to Firebase…"}</p>`;
+  else status=`<p>Sign in to back up your progress and pick it up on your phone or laptop. Anything you’ve already ticked on this device is uploaded the first time.</p>
+    <button class="btn" type="button" data-act="signin" data-k="si">Sign in with Google</button>`;
+  const err=fb.err?`<div class="note" style="--c:var(--ko)" role="alert">${esc(errText(fb.err))}</div>`:"";
+  const cfgBox=FILE_CFG?`<p class="small muted">Set in the file’s FIREBASE_CONFIG, project <b>${esc(cfg.projectId)}</b>.</p>`
+    :`<p class="sec-lead">${cfg?`Connected to project <b>${esc(cfg.projectId)}</b>, saved in this browser. Paste a new config to change it.`:"Paste the firebaseConfig block from your Firebase project settings; the whole snippet is fine."}</p>
+    <textarea id="cfgBox" data-k="cfgbox" spellcheck="false" placeholder="const firebaseConfig = { apiKey: &quot;…&quot;, authDomain: &quot;…&quot;, projectId: &quot;…&quot;, appId: &quot;…&quot; };"></textarea>
+    <div class="row" style="margin-top:10px"><button class="btn" type="button" data-act="savecfg" data-k="savecfg">Save config</button>${cfg?`<button class="btn quiet" type="button" data-act="clearcfg" data-k="clearcfg">Remove config</button>`:""}<span class="tiny" id="cfgErr" role="alert"></span></div>`;
+  return `<h1 class="title">Sync and account</h1>
+  <p class="lead">Sign in with Google to keep your progress in your own Firebase project, so it follows you across devices.</p>
+  <div class="panel" style="margin-top:18px"><h3>${fb.user?"Signed in":"Your account"}</h3>${status}${err}</div>
+  <h2 class="sec">Your Firebase config</h2>${cfgBox}
+  <h2 class="sec">One-time setup</h2><p class="sec-lead">About 10 minutes, all in the free Spark plan.</p>
+  <ol class="steps">
+   <li><span>Go to <a href="https://console.firebase.google.com" target="_blank" rel="noopener">console.firebase.google.com</a> and create a project. Google Analytics is optional.</span></li>
+   <li><span>In Project settings, under Your apps, add a Web app (the &lt;/&gt; icon) and copy the <code>firebaseConfig</code> it shows.</span></li>
+   <li><span>In Build, Authentication, click Get started, open Sign-in method and enable Google.</span></li>
+   <li><span>In Build, Firestore Database, create a database in production mode. Then open its Rules tab, paste the rules below and publish.</span></li>
+   <li><span>Give this page a web address. The simplest is Firebase Hosting: install the Firebase CLI, run <code>firebase init hosting</code> in an empty folder, save this file as <code>public/index.html</code> and run <code>firebase deploy</code>. To try it on your laptop first, run <code>npx serve</code> in the file’s folder and open the localhost address it prints.</span></li>
+   <li><span>If you host it anywhere other than Firebase Hosting (GitHub Pages, Netlify), add that domain under Authentication, Settings, Authorized domains. Localhost is allowed already.</span></li>
+   <li><span>Open the page from its web address, paste your config above (or into <code>FIREBASE_CONFIG</code> at the top of the file’s script) and sign in.</span></li>
+  </ol>
+  <h2 class="sec">Firestore security rules</h2><p class="sec-lead">Each signed-in person can read and write only their own progress, stored at users/your-user-id.</p>
+  <pre class="code">${esc(RULES_TXT)}</pre>
+  <div class="row"><button class="btn quiet sm" type="button" data-act="copyrules" data-k="copyrules">Copy rules</button><span class="tiny" id="copyMsg" role="status"></span></div>
+  <h2 class="sec">Good to know</h2>
+  <ul class="small" style="max-width:70ch;padding-left:20px;line-height:1.7">
+   <li>The apiKey in a Firebase web config isn’t a secret; it only identifies your project. The security rules are what keep your data private.</li>
+   <li>The first time you sign in, progress already on this device is uploaded. After that, whichever copy changed most recently wins.</li>
+   <li>Changes made offline are kept on the device and sync when you’re back online.</li>
+   <li>If someone else signs in on this device, their own progress loads instead; yours isn’t mixed into their account.</li>
+  </ul>
+  ${!fb.user?`<h2 class="sec">This device</h2><p class="sec-lead">While you’re signed out, progress stays in this browser. On a shared computer you can remove it.</p><button class="btn quiet" type="button" data-act="clearlocal" data-k="clearlocal">Remove progress from this device</button>`:""}`;
+}
+/* ---------- shared pieces ---------- */
+function nodeBtn(n,opts={}){
+  const s=sOf(n.key),lock=locked(n),c=Number(ns(n.key).c)||0;
+  let sub=stateWord(s);
+  if(s===1&&c)sub=`Tried, cooked ${c}×`;
+  if(s===0&&lock){const m=n.req.find(r=>sOf(n.track+"."+r)<1);sub=`After ${TRACK[n.track].byId[m].n}`;}
+  else if(s===0&&n.chicken)sub="Chicken, from 1 Feb";
+  return `<button class="node" type="button" data-node="${n.key}" data-k="n-${n.key}" data-s="${s}" data-lock="${lock&&s===0?1:0}" style="--c:var(--${n.track})" aria-label="${esc(n.n)}: ${esc(sub)}">
+   <span class="katori" ${opts.noId?"":`id="k-${n.key}"`}>${art(n.art)}${s===2?`<span class="mark">${CHECK}</span>`:""}</span>
+   <span class="node-name">${esc(n.n)}</span>${opts.track?`<span class="node-sub">${esc(TRACK[n.track].short)}</span>`:`<span class="node-sub">${esc(sub)}</span>`}</button>`;
+}
+function chip(n){return `<button class="chip" type="button" data-node="${n.key}" data-k="c-${n.key}" data-s="${sOf(n.key)}" style="--c:var(--${n.track})">${art(n.art)}${esc(n.n)}</button>`;}
+function dabba(){
+  const cx=150,cy=150,N=TRACKS.length,R=N>6?95:88,r=N>6?33:40,rc=N>6?39:42,sc=r*1.35/64,parts=[];
+  const defs=[];
+  TRACKS.forEach((t,i)=>{
+    const a=(-90+i*360/N)*Math.PI/180,x=cx+R*Math.cos(a),y=cy+R*Math.sin(a),pr=trackProgress(t).pct;
+    defs.push(`<clipPath id="dk-${t.id}"><circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${r-3}"/></clipPath>`);
+    const h=(2*(r-3))*pr;
+    parts.push(`<a href="#${t.hash}" aria-label="${esc(t.name)}, ${Math.round(pr*100)}% done"><title>${esc(t.name)}: ${Math.round(pr*100)}%</title>
+     <circle class="k" cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${r}" fill="var(--surface)" stroke="var(--steel)" stroke-width="3"/>
+     <circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${r-3}" fill="var(--${t.id})" opacity="0.14"/>
+     <rect clip-path="url(#dk-${t.id})" x="${(x-r).toFixed(1)}" y="${(y+r-3-h).toFixed(1)}" width="${2*r}" height="${h.toFixed(1)}" fill="var(--${t.id})"/>
+     ${place({ni:"dal",si:"idli",ta:"kali",ko:"bibimbap",it:"pasta",de:"ladoo",es:"eggs"}[t.id],(x-32*sc).toFixed(1),(y-32*sc).toFixed(1),sc.toFixed(3))}
+     <circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${r-3}" fill="none" stroke="var(--${t.id})" stroke-opacity="0.35" stroke-width="1.5"/></a>`);
+  });
+  const g=allGates(),gh=(2*(rc-3))*g.pct;
+  defs.push(`<clipPath id="dk-c"><circle cx="${cx}" cy="${cy}" r="${rc-3}"/></clipPath>`);
+  return `<svg class="dabba" viewBox="0 0 300 300" role="img" aria-label="Masala dabba of your progress: one katori per skill tree, the centre for roadmap gates">
+   <defs>${defs.join("")}</defs>
+   <circle cx="${cx}" cy="${cy}" r="144" fill="var(--steel-hi)" stroke="var(--steel-2)" stroke-width="3"/>
+   <circle cx="${cx}" cy="${cy}" r="136" fill="none" stroke="var(--steel)" stroke-width="1.5"/>
+   ${parts.join("")}
+   <a href="#roadmap" aria-label="Roadmap gates, ${g.d} of ${g.t} ticked"><title>Roadmap gates: ${g.d} of ${g.t}</title>
+    <circle class="k" cx="${cx}" cy="${cy}" r="${rc}" fill="var(--surface)" stroke="var(--steel)" stroke-width="3"/>
+    <circle cx="${cx}" cy="${cy}" r="${rc-3}" fill="var(--ink)" opacity="0.08"/>
+    <rect clip-path="url(#dk-c)" x="${cx-rc}" y="${(cy+rc-3-gh).toFixed(1)}" width="${2*rc}" height="${gh.toFixed(1)}" fill="var(--ink)"/>
+    <text x="${cx}" y="${cy+6}" text-anchor="middle" font-size="17" font-weight="700" fill="${g.pct>0.55?"var(--paper)":"var(--ink)"}" font-family="var(--sans)">${g.d}/${g.t}</text></a>
+  </svg>`;
+}
+
+/* ---------- views ---------- */
+function viewToday(){
+  const w=planWeek(),ph=phaseOf(w),now=new Date(),dow=now.getDay();
+  const nodesAll=TRACKS.flatMap(t=>t.nodes);
+  const tried=nodesAll.filter(n=>sOf(n.key)>=1).length,mem=nodesAll.filter(n=>sOf(n.key)===2).length;
+  const g=allGates(),cl=calc(),last=[...state.log].sort((a,b)=>a.d<b.d?-1:1).at(-1);
+  let title,lead;
+  if(w<0){title="Your plan starts on Monday 2 November";lead="Use the time to stock the kitchen and read through Phase 0.";}
+  else if(w>26){title="You’ve finished the 26-week plan";lead="Keep cooking from memory, plan your own weeks, and revisit any tree that isn’t full.";}
+  else{title=`Week ${w} of 26: ${ph.name.toLowerCase()}`;lead=`Phase ${ph.n}, ${ph.dates}. ${ph.focus}`;}
+  const gates=ph.gates.map((gt,i)=>{const k=gateKey(ph.n,i),on=!!state.gates[k];return `<label class="check ${on?"done":""}"><input type="checkbox" data-gate="${k}" data-k="g-${k}" ${on?"checked":""}><span>${esc(gt)}</span></label>`;}).join("");
+  const legend=TRACKS.map(t=>{const p=trackProgress(t);return `<a href="#${t.hash}" style="--c:var(--${t.id})"><i class="tdot"></i><span>${esc(t.short)}</span><span class="pct">${p.mem}/${p.total}</span><span class="bar"><i style="width:${Math.round(p.pct*100)}%"></i></span></a>`;}).join("");
+  // today's slots
+  const L=weekLetter(Math.max(w,0)),wk=WEEKENDS[Math.min(25,Math.max(0,w-1))],dessertName=w>=1&&w<=26?wk.des:"this week’s dessert";
+  let slots=[];
+  if(dow>=1&&dow<=5){
+    const m=MENU[L][dow-1];
+    slots=[["05:40",340,"Pre-workout","1 banana or 2 dates, black coffee","~100 kcal"],["06:00",360,"Training","Calisthenics and cardio until 08:30; sip 500–750 ml water an hour",""],
+      ["08:45",525,"Breakfast",m.b,"~500 kcal, 30–35 g protein"],["10:30",630,"Cook block","Cook lunch, pack the work meal, prep tonight’s base",""],
+      ["11:20",680,"Lunch",m.l,"~600 kcal, 30 g protein"],["16:00",960,"Work meal",WORK_MEALS[dow-1][0],"~350 kcal, 15–20 g protein"],
+      ["18:30",1110,"Booster and dessert",`Whey shake or Greek yogurt, plus one portion of ${dessertName}`,"~270 kcal, 25–30 g protein"],
+      ["21:30",1290,"Dinner",m.d,"~400 kcal, 25–30 g protein"],["22:45",1365,"Lights out","Aim for 7 hours of sleep",""]];
+  }else if(dow===6){
+    slots=[["09:00",540,"Brunch","A bigger egg breakfast: masala omelette or bhurji with toast and fruit",""],["11:00",660,"Exploration dish",w>=1&&w<=26?wk.dish:"Pick any dish from your trees",`New skill: ${w>=1&&w<=26?wk.skill:"your choice"}`],
+      ["16:00",960,"Snack","Fruit with a handful of roasted chana",""],["18:30",1110,"Booster","Whey shake or Greek yogurt",""],["20:30",1230,"Light dinner","Moong dal khichdi or soup with eggs",""]];
+  }else{
+    slots=[["09:00",540,"Brunch","Eggs, toast and fruit",""],["10:30",630,"Sunday batch prep","90 minutes: masala base, eggs, hung curd, chopped veg","See Kitchen and prep"],
+      ["15:00",900,"Make the dessert",w>=0&&w<=26?WEEKENDS[Math.min(25,Math.max(0,w-1))].des:"Your choice","Portion it into five boxes"],["18:30",1110,"Booster","Whey shake or Greek yogurt",""],["20:30",1230,"Dinner from the prep","Dal or curry with phulka and salad",""]];
+  }
+  const nowM=now.getHours()*60+now.getMinutes();let cur=-1;slots.forEach((s,i)=>{if(s[1]<=nowM)cur=i;});
+  const slotHtml=slots.map((s,i)=>`<li class="slot ${i===cur?"now":""} ${i<cur?"past":""}"><time>${s[0]}</time><span class="what">${esc(s[2])}</span><p>${esc(s[3])}${s[4]?`<br><span class="tiny">${esc(s[4])}</span>`:""}</p></li>`).join("");
+  const wkIdx=w<1?1:Math.min(26,w),wd=WEEKENDS[wkIdx-1];
+  const wkLabel=w<1?"Your first weekend project":`This weekend, Week ${wkIdx}`;
+  const wkHtml=weekendItems(wd);
+  const next=nodesAll.filter(n=>sOf(n.key)===0&&!locked(n)&&n.t<=ph.tier&&(!n.chicken||w>=12)).sort((a,b)=>a.t-b.t).slice(0,8);
+  return `
+  <section class="hero">${dabba()}
+   <div><h1 class="title">${esc(title)}</h1><p class="lead">${esc(lead)}</p>
+    ${w>=0&&w<=26?`<h3 style="margin-top:18px">${ph.n<5?`Gates to tick before Phase ${ph.n+1}`:"Final gates"}</h3>${gates}`:""}
+    <div class="stats">
+     <div class="stat"><b>${tried}</b><span>dishes tried</span></div>
+     <div class="stat"><b>${mem}</b><span>cooked from memory</span></div>
+     <div class="stat"><b>${fmtN(cl.tgt)}</b><span>kcal a day target</span></div>
+     <div class="stat"><b>${last?Number(last.w).toFixed(1):"–"}</b><span>${last?"kg, latest weigh-in":"no weigh-in yet"}</span></div>
+    </div></div>
+  </section>
+  <div class="legend">${legend}</div>
+  <div class="two" style="margin-top:8px">
+   <section><h2 class="sec">Today’s plate</h2><p class="sec-lead">${esc(fmtDay(now,{weekday:"long",day:"numeric",month:"long"}))}${dow>=1&&dow<=5?`, Week ${L} menu`:""}.</p><ol class="slots">${slotHtml}</ol></section>
+   <section><h2 class="sec">${esc(wkLabel)}</h2><p class="sec-lead">${esc(fmtDay(satOfWeek(wkIdx),{weekday:"long",day:"numeric",month:"long"}))}.</p>${wkHtml}
+    <h2 class="sec">Up next in your trees</h2><p class="sec-lead">Unlocked dishes from this phase you haven’t tried yet.</p>
+    ${next.length?`<div class="upnext">${next.map(n=>nodeBtn(n,{track:true,noId:true})).join("")}</div>`:`<div class="empty">Everything unlocked for this phase is started. Open a tree to push further.</div>`}
+   </section>
+  </div>`;
+}
+function weekendItems(wd){
+  const k1=`w${wd.w}s`,k2=`w${wd.w}d`;
+  const n1=NODE[wd.link],n2=NODE[wd.dlink];
+  const typ={N:"Nourishing",T:"Treat",E:"Either"}[wd.type];
+  return `<div class="dish" style="--c:var(--${wd.track})">${art(wd.art)}<div><h3>${n1?`<button class="linkish" type="button" data-node="${n1.key}" data-k="wl-${wd.w}">${esc(wd.dish)}</button>`:esc(wd.dish)}</h3>
+    <p class="small muted" style="margin:0 0 4px">Saturday, ${esc(TRACK[wd.track].short)}. New skill: ${esc(wd.skill)}</p>
+    <label class="check" style="padding:2px 0"><input type="checkbox" data-wk="${k1}" data-k="wk-${k1}" ${state.wk[k1]?"checked":""}><span class="small">Cooked it</span></label></div></div>
+   <div class="dish" style="--c:var(--de)">${art(wd.dart)}<div><h3>${n2?`<button class="linkish" type="button" data-node="${n2.key}" data-k="wd-${wd.w}">${esc(wd.des)}</button>`:esc(wd.des)}</h3>
+    <p class="small muted" style="margin:0 0 4px">Sunday dessert, ${typ.toLowerCase()}, five portions of ~150 kcal</p>
+    <label class="check" style="padding:2px 0"><input type="checkbox" data-wk="${k2}" data-k="wk-${k2}" ${state.wk[k2]?"checked":""}><span class="small">Made it</span></label></div></div>`;
+}
+function phaseNodes(p){
+  const all=TRACKS.flatMap(t=>t.nodes);
+  const p0=["es.knife","es.safety","es.boiled","es.omelette","ni.dal-tadka","ni.jeera-rice"];
+  if(p.n===0)return p0.map(k=>NODE[k]);
+  if(p.n===1)return all.filter(n=>n.t===1&&!p0.includes(n.key));
+  if(p.n===4)return all.filter(n=>n.t===4&&n.chicken);
+  if(p.n===5)return all.filter(n=>n.t===4&&!n.chicken);
+  return all.filter(n=>n.t===p.tier);
+}
+function viewRoadmap(){
+  const w=planWeek(),cur=phaseOf(w);
+  const ph=PHASES.map(p=>{
+    const d=gatesDone(p),done=d===p.gates.length,isCur=p.n===cur.n&&w>=0&&w<=26;
+    const nodes=phaseNodes(p),nd=nodes.filter(n=>sOf(n.key)===2).length;
+    const wks=WEEKENDS.filter(x=>x.w>=Math.max(1,p.from)&&x.w<=p.to);
+    return `<details class="phase ${isCur?"current":""} ${done?"done":""}" ${isCur?"open":""}>
+     <summary><span class="pnum">${p.n}</span><span><h3 style="margin:0">${esc(p.name)} ${isCur?'<span class="pill">You are here</span>':""}</h3><span class="small muted">${esc(p.dates)}${p.n>0?`, weeks ${p.from}–${p.to}`:", week 0"}. ${esc(p.focus)}</span></span>
+      <span class="bar-wrap"><span class="tiny">${d} of ${p.gates.length} gates</span><div class="bar"><i style="width:${Math.round(d/p.gates.length*100)}%"></i></div></span></summary>
+     <div class="phase-body"><div><h3>Gate</h3>${p.gates.map((gt,i)=>{const k=gateKey(p.n,i),on=!!state.gates[k];return `<label class="check ${on?"done":""}"><input type="checkbox" data-gate="${k}" data-k="g-${k}" ${on?"checked":""}><span>${esc(gt)}</span></label>`;}).join("")}
+      ${wks.length?`<h3 style="margin-top:14px">Weekend projects</h3><p class="small muted">${wks.map(x=>`Week ${x.w}: ${esc(x.dish)}`).join("<br>")}</p>`:""}</div>
+      <div><h3>In your skill trees <span class="tiny">${nd} of ${nodes.length} from memory</span></h3><div class="chips">${nodes.map(chip).join("")}</div></div></div>
+    </details>`;}).join("");
+  return `<h1 class="title">Your 26-week roadmap</h1>
+  <p class="lead">Six phases from first dal to hosting a dinner. Phases 0–3 stay eggetarian; chicken joins in Phase 4. Move on when you tick a phase’s gate, not just when the date passes.</p>
+  <div style="margin-top:22px">${ph}</div>`;
+}
+function viewTrack(t){
+  const p=trackProgress(t),tiers=t.tiers||TIERS;
+  const cols=[1,2,3,4].map(i=>`<section class="tier"><div class="tier-head"><b>${esc(tiers[i-1].n)}</b><span>${esc(tiers[i-1].s)}</span></div><div class="tier-nodes">${t.nodes.filter(n=>n.t===i).map(n=>nodeBtn(n)).join("")}</div></section>`).join("");
+  const wks=WEEKENDS.filter(x=>t.id==="de"?!!x.dlink||true:x.track===t.id);
+  const wkRows=t.id==="de"
+    ?WEEKENDS.map(x=>`<tr><td class="num">${x.w}</td><td>${esc(fmtDay(new Date(satOfWeek(x.w).getTime()+DAY),{day:"numeric",month:"short"}))}</td><td>${esc(x.des)}</td><td>${{N:"Nourishing",T:"Treat",E:"Either"}[x.type]}</td></tr>`).join("")
+    :wks.map(x=>`<tr><td class="num">${x.w}</td><td>${esc(fmtDay(satOfWeek(x.w),{day:"numeric",month:"short"}))}</td><td>${esc(x.dish)}</td><td>${esc(x.skill)}</td></tr>`).join("");
+  return `<div class="track-head" style="--c:var(--${t.id})"><div>
+    <h1 class="title">${esc(t.name)}</h1><p class="lead">${esc(t.blurb)}</p>
+    <div class="row" style="margin:14px 0 8px"><span class="pill tone">${p.tried} of ${p.total} tried</span><span class="pill tone">${p.mem} from memory</span><span class="pill">${Math.round(p.pct*100)}% of the tree</span></div>
+    <div class="bar" style="max-width:420px"><i style="width:${Math.round(p.pct*100)}%"></i></div>
+    <p class="tiny" style="margin-top:10px">Tap a dish to mark it tried or cooked from memory, count how often you’ve made it and keep notes. A dish unlocks once you’ve tried what comes before it.</p>
+   </div>${scene(t.scene)}</div>
+  <div class="tree-wrap"><div class="tree" id="tree" style="--c:var(--${t.id})"><svg class="edges" id="edges" aria-hidden="true"></svg>${cols}</div></div>
+  ${t.id==="de"||wks.length?`<h2 class="sec">${t.id==="de"?"Sunday dessert calendar":"Weekend projects in this cuisine"}</h2>
+  <div class="tbl"><table><thead><tr><th class="num">Week</th><th>${t.id==="de"?"Sunday":"Saturday"}</th><th>${t.id==="de"?"Dessert":"Dish"}</th><th>${t.id==="de"?"Type":"New skill"}</th></tr></thead><tbody>${wkRows}</tbody></table></div>`:""}
+  ${t.id==="ta"?`<h2 class="sec">Where it fits your week</h2><p class="sec-lead">These dishes are quick enough for weekdays, so they slot into the cook block rather than the weekend calendar.</p>
+  <div class="formulas">${TAMIL_SWAPS.map(f=>`<button class="formula" type="button" data-node="${f[3]}" data-k="tt-${f[3]}" style="--c:var(--ta)">${art(f[2])}<span><h3>${esc(f[0])}</h3><span class="small muted">${esc(f[1])}</span></span></button>`).join("")}</div>
+  <div class="note" style="--c:var(--ta)">Week 10’s Sunday dessert is now sakkarai pongal for Pongal week. In Week 26 you can host a banana-leaf virundhu as your dinner. Kali, koozh and millet dishes are mostly carbs, so pair them with eggs, dal or sundal.</div>`:""}
+  ${t.id==="de"?`<h2 class="sec">How long desserts keep</h2><p class="sec-lead">Short-life desserts cover Monday to Wednesday; keep a freezer stash of energy balls or ladoos for Thursday and Friday.</p><div class="tbl"><table><thead><tr><th>Type</th><th>Examples</th><th>Fridge</th><th>Freezer</th></tr></thead><tbody>${DESSERT_LIFE.map(r=>`<tr><td>${esc(r[0])}</td><td>${esc(r[1])}</td><td>${esc(r[2])}</td><td>${esc(r[3])}</td></tr>`).join("")}</tbody></table></div>`:""}`;
+}
+function drawEdges(){
+  const tree=document.getElementById("tree"),svg=document.getElementById("edges");
+  if(!tree||!svg)return;
+  if(getComputedStyle(svg).display==="none"){svg.innerHTML="";return;}
+  const tb=tree.getBoundingClientRect();svg.setAttribute("viewBox",`0 0 ${tb.width} ${tb.height}`);
+  const t=TRACK[tree.querySelector(".node").dataset.node.split(".")[0]];
+  let out="";
+  t.nodes.forEach(n=>n.req.forEach(r=>{
+    const a=document.getElementById("k-"+t.id+"."+r),b=document.getElementById("k-"+n.key);if(!a||!b)return;
+    const ar=a.getBoundingClientRect(),br=b.getBoundingClientRect();
+    const lit=sOf(t.id+"."+r)>=1,col=lit?`var(--${t.id})`:"var(--steel-2)";
+    let d;
+    if(Math.abs(ar.left-br.left)<8){
+      const ax=ar.left-tb.left+4,ay=ar.top+ar.height/2-tb.top,bx=br.left-tb.left+4,by=br.top+br.height/2-tb.top;
+      d=`M${ax} ${ay} C${ax-34} ${ay+12}, ${bx-34} ${by-12}, ${bx} ${by}`;
+    }else{
+      const ax=ar.right-tb.left,ay=ar.top+ar.height/2-tb.top,bx=br.left-tb.left,by=br.top+br.height/2-tb.top,mx=(ax+bx)/2;
+      d=`M${ax} ${ay} C${mx} ${ay}, ${mx} ${by}, ${bx} ${by}`;
+    }
+    out+=`<path d="${d}" class="${lit?"lit":""}" data-a="${t.id}.${r}" data-b="${n.key}" fill="none" stroke="${col}" stroke-width="2" stroke-linecap="round"/>`;
+  }));
+  svg.innerHTML=out;
+}
+function nodeDialog(k){
+  const n=NODE[k];if(!n)return "";
+  const t=TRACK[n.track],s=sOf(k),c=Number(ns(k).c)||0,tl=tierLabel(t,n.t);
+  const reqs=[...n.req.map(r=>NODE[n.track+"."+r]),...n.xreq.map(x=>NODE[x])].filter(Boolean);
+  const unl=t.nodes.filter(m=>m.req.includes(n.id));
+  const link=m=>`<button class="chip" type="button" data-node="${m.key}" data-k="dl-${m.key}" data-s="${sOf(m.key)}" style="--c:var(--${m.track})">${art(m.art)}${esc(m.n)}${m.track!==n.track?` <span class="tiny">(${esc(TRACK[m.track].short)})</span>`:""}</button>`;
+  return `<div style="--c:var(--${n.track})">
+  <div class="dlg-head"><div class="node" data-s="${s}" style="padding:0;pointer-events:none"><span class="katori">${art(n.art)}${s===2?`<span class="mark">${CHECK}</span>`:""}</span></div>
+   <div><h2 id="dlgTitle">${esc(n.n)}</h2><div class="row" style="gap:6px"><span class="pill tone">${esc(t.short)}</span><span class="pill">${esc(tl.n)}</span><span class="pill">${esc(n.when)}</span>${n.chicken?'<span class="pill">Chicken</span>':""}</div></div>
+   <button class="x" type="button" data-act="close" aria-label="Close"><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M3 3 L13 13 M13 3 L3 13" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button></div>
+  <div class="dlg-body">
+   <h3>What you learn</h3><p>${esc(n.learn)}</p>
+   <h3>Tip</h3><p>${esc(n.tip)}</p>
+   ${reqs.length?`<h3>Before this</h3><div class="chips">${reqs.map(link).join("")}</div>`:""}
+   ${unl.length?`<h3>Unlocks</h3><div class="chips">${unl.map(link).join("")}</div>`:""}
+   <h3>Your progress</h3>
+   <div class="row"><div class="seg" role="group" aria-label="Progress">${[0,1,2].map(v=>`<button type="button" data-act="state" data-v="${v}" data-k="st-${v}" aria-pressed="${s===v}">${stateWord(v)}</button>`).join("")}</div>
+    <span class="counter"><span class="small muted">Times cooked</span><button class="btn quiet sm" type="button" data-act="cook" data-d="-1" data-k="ck-m" aria-label="One fewer">−</button><b>${c}</b><button class="btn quiet sm" type="button" data-act="cook" data-d="1" data-k="ck-p" aria-label="One more">+</button></span></div>
+   <h3>Your notes</h3><textarea data-note="${k}" data-k="note" placeholder="Used 1.5 cups water; next time less chilli">${esc(ns(k).note||"")}</textarea>
+  </div></div>`;
+}
+function openNode(k){if(!NODE[k])return;ui.dlgKey=k;const d=$("#dlg");d.innerHTML=nodeDialog(k);if(!d.open)d.showModal();}
+
+function viewNutrition(){
+  const p=state.profile;
+  const rng=(id,label,min,max,step,val,unit="")=>`<div class="range"><label for="r-${id}">${label}</label><input type="range" id="r-${id}" data-prof="${id}" data-k="r-${id}" min="${min}" max="${max}" step="${step}" value="${val}"><output id="o-${id}">${val}${unit}</output></div>`;
+  const rows=[...PROTEIN].map(r=>({r,per:r[2]/r[3]*100}));
+  if(ui.psort==="kcal")rows.sort((a,b)=>b.per-a.per);
+  const maxPer=Math.max(...rows.map(x=>x.per)),maxP=Math.max(...rows.map(x=>x.r[2]));
+  return `<h1 class="title">Nutrition</h1>
+  <p class="lead" id="nutLead"></p>
+  <h2 class="sec">Your numbers</h2><p class="sec-lead">Change anything that doesn’t match you; the plan’s menus are built for about 2,200 kcal and 130 g protein.</p>
+  <div class="calc panel"><div>
+   <div class="range"><span>Sex</span><div class="seg" role="group" aria-label="Sex"><button type="button" data-act="sex" data-v="m" data-k="sx-m" aria-pressed="${p.sex==="m"}">Male</button><button type="button" data-act="sex" data-v="f" data-k="sx-f" aria-pressed="${p.sex==="f"}">Female</button></div><span></span></div>
+   ${rng("age","Age",16,70,1,p.age)}${rng("ht","Height (cm)",145,200,1,p.ht)}${rng("wt","Weight (kg)",45,120,0.5,p.wt)}${rng("gw","Goal weight (kg)",45,110,0.5,p.gw)}
+   <div class="range"><label for="r-act">Activity</label><select id="r-act" data-prof="act" data-k="r-act" style="font:inherit;font-size:14.5px;padding:7px;border-radius:10px;border:1px solid var(--steel-2);background:var(--surface);color:var(--ink);min-width:0">
+    ${[[1.375,"Light, 1–3 sessions"],[1.55,"Moderate, 3–5 sessions"],[1.6,"Your plan, 5 long"],[1.725,"Very active, daily"]].map(([v,l])=>`<option value="${v}" ${Number(p.act)===v?"selected":""}>${l}</option>`).join("")}</select><span></span></div>
+   ${rng("def","Daily deficit (kcal)",0,700,50,p.def)}
+  </div><div>
+   <div class="big"><div><span>Maintenance</span><b id="c-tdee"></b><span id="c-bmr"></span></div><div><span>Daily target</span><b id="c-tgt"></b><span>maintenance minus deficit</span></div>
+    <div><span>Protein</span><b id="c-p"></b><span>1.8 g per kg</span></div><div><span>Time to goal</span><b id="c-wk"></b><span id="c-date"></span></div></div>
+   <div class="macro" aria-hidden="true"><i id="m-p" style="background:var(--si)"></i><i id="m-f" style="background:var(--ni)"></i><i id="m-c" style="background:var(--it)"></i></div>
+   <div class="row small"><span><i class="tdot" style="--c:var(--si);display:inline-block;vertical-align:-1px"></i> <span id="l-p"></span></span><span><i class="tdot" style="--c:var(--ni);display:inline-block;vertical-align:-1px"></i> <span id="l-f"></span></span><span><i class="tdot" style="--c:var(--it);display:inline-block;vertical-align:-1px"></i> <span id="l-c"></span></span></div>
+   <p class="tiny" id="c-warn" style="margin-top:10px"></p>
+  </div></div>
+  <h2 class="sec">Daily targets</h2>
+  <div class="tbl"><table><thead><tr><th>Nutrient</th><th>Daily target</th><th>Why it matters</th><th>Easy check</th></tr></thead><tbody id="tgtBody"></tbody></table></div>
+  <h2 class="sec">The plate rule</h2>
+  <div class="row" style="align-items:center;gap:28px">${plateRule()}<div style="flex:1;min-width:240px"><p>Every main meal: a palm or two of protein, half the plate vegetables, a fist of rice or 2 phulkas, and 1 tsp of oil per dish.</p><p class="muted">Oil is the biggest hidden calorie source in home cooking, so measure it with a spoon instead of pouring. Up to 3–4 whole eggs a day is common for lifters; if your cholesterol is high, lean on egg whites and ask your doctor.</p></div></div>
+  <h2 class="sec">Micronutrient watchlist</h2><p class="sec-lead">What an eggetarian diet most often runs short on.</p>
+  <div class="tbl"><table><thead><tr><th>Nutrient</th><th>Why watch it</th><th>Your best sources</th></tr></thead><tbody>${MICROS.map(r=>`<tr><td><b>${esc(r[0])}</b></td><td>${esc(r[1])}</td><td>${esc(r[2])}</td></tr>`).join("")}</tbody></table></div>
+  <h2 class="sec">Supplements, all optional</h2>
+  <div class="grid">
+   <div class="panel">${art("whey","ic")}<h3 style="margin-top:8px">Whey protein</h3><p class="small muted">Convenience, not magic. One scoop gives about 24 g protein and makes 130 g a day easy on an eggetarian diet. Pick a third-party tested brand.</p></div>
+   <div class="panel">${art("scale","ic")}<h3 style="margin-top:8px">Creatine monohydrate</h3><p class="small muted">3–5 g a day. The best-studied strength supplement; vegetarians tend to respond well because their baseline stores are lower.</p></div>
+   <div class="panel">${art("milk","ic")}<h3 style="margin-top:8px">Vitamin D3 and B12</h3><p class="small muted">Only after a blood test or your doctor’s advice. This is general guidance, not medical advice.</p></div>
+  </div>
+  <h2 class="sec">Protein cheat sheet</h2>
+  <div class="row" style="margin-bottom:12px"><div class="seg" role="group" aria-label="Sort by"><button type="button" data-act="psort" data-v="portion" data-k="ps-portion" aria-pressed="${ui.psort==="portion"}">Most protein per portion</button><button type="button" data-act="psort" data-v="kcal" data-k="ps-kcal" aria-pressed="${ui.psort==="kcal"}">Most protein per 100 kcal</button></div></div>
+  <div class="tbl"><table><thead><tr><th>Food</th><th>Portion</th><th class="num">Protein</th><th class="num">kcal</th><th>${ui.psort==="kcal"?"Protein per 100 kcal":"Protein per portion"}</th><th>Note</th></tr></thead><tbody>
+  ${rows.map(({r,per})=>`<tr><td><span class="row" style="gap:10px;flex-wrap:nowrap">${art(r[5],"ic")}<span>${esc(r[0])}</span></span></td><td>${esc(r[1])}</td><td class="num">${r[2]} g</td><td class="num">${r[3]}</td>
+   <td style="min-width:140px"><div class="row" style="gap:8px;flex-wrap:nowrap"><div class="bar" style="flex:1;--c:var(--si)"><i style="width:${Math.round((ui.psort==="kcal"?per/maxPer:r[2]/maxP)*100)}%"></i></div><span class="tiny" style="min-width:4ch;text-align:right">${ui.psort==="kcal"?per.toFixed(1)+" g":""}</span></div></td><td class="small muted">${esc(r[4])}</td></tr>`).join("")}
+  </tbody></table></div><p class="tiny">Approximate averages; packaged foods vary, so check labels.</p>`;
+}
+function updateCalc(){
+  const p=state.profile,cl=calc();const set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v;};
+  ["age","ht","wt","gw","def"].forEach(k=>set("o-"+k,String(p[k])));
+  set("c-tdee",fmtN(cl.tdee)+" kcal");set("c-bmr",`BMR ${fmtN(cl.bmr)} × ${p.act}`);set("c-tgt",fmtN(cl.tgt)+" kcal");set("c-p",cl.P+" g");
+  if(cl.lose<=0){set("c-wk","At goal");set("c-date","eat at maintenance");}
+  else if(!Number.isFinite(cl.weeks)){set("c-wk","–");set("c-date","set a deficit to lose weight");}
+  else{set("c-wk",Math.round(cl.weeks)+" weeks");const d=new Date(today0().getTime()+cl.weeks*7*DAY);set("c-date","around "+d.toLocaleDateString("en-GB",{month:"long",year:"numeric"}));}
+  const pk=cl.P*4,fk=cl.F*9,ck=cl.C*4,t=pk+fk+ck||1;
+  const w=(id,v)=>{const e=document.getElementById(id);if(e)e.style.width=(v/t*100)+"%";};w("m-p",pk);w("m-f",fk);w("m-c",ck);
+  set("l-p",`Protein ${cl.P} g (${Math.round(pk/t*100)}%)`);set("l-f",`Fat ${cl.F} g (${Math.round(fk/t*100)}%)`);set("l-c",`Carbs ${cl.C} g (${Math.round(ck/t*100)}%)`);
+  set("c-warn",p.def>600?"A deficit above 600 kcal makes it harder to keep muscle while you train this much.":"Formulas can be off by about 10%; let your two-week weight trend decide.");
+  set("nutLead",`Eat about ${fmtN(cl.tgt)} kcal a day, about ${fmtN(p.def)} below your estimated maintenance, split into ${cl.P} g protein, ${cl.F} g fat and ${cl.C} g carbs.`);
+  const tb=document.getElementById("tgtBody");
+  if(tb)tb.innerHTML=[
+   ["Calories",`${fmtN(cl.tgt)} kcal (±100)`,"Steady fat loss without losing strength","7-day average weight"],
+   ["Protein",`${cl.P} g`,"Keeps and builds muscle in a deficit","25–35 g at each main meal"],
+   ["Fat",`${cl.F-5}–${cl.F+5} g`,"Hormones and vitamin absorption","4–5 tsp oil or ghee a day in total"],
+   ["Carbs",`about ${cl.C} g`,"Fuel for 2.5 h of training","Most of them at breakfast and lunch"],
+   ["Fibre","30–35 g","Fullness and gut health","400 g+ veg, 2 fruits, whole grains and dals"],
+   ["Water","3.5–4 L","You sweat for 2.5 h a day","Pale-yellow urine"],
+   ["Salt","About 5 g (1 level tsp)","Blood pressure","Go easy on pickles, papad and bottled sauces"]
+  ].map(r=>`<tr><td><b>${r[0]}</b></td><td>${r[1]}</td><td>${r[2]}</td><td>${r[3]}</td></tr>`).join("");
+}
+function viewMenu(){
+  const w=planWeek(),L=ui.menuWeek||weekLetter(Math.max(w,0)),now=new Date(),dow=now.getDay(),curL=weekLetter(Math.max(w,0));
+  const days=MENU[L].map((m,i)=>`<article class="day ${L===curL&&dow===i+1?"today":""}">${art(m.art,"day-art")}<h3>${m.day}${L===curL&&dow===i+1?' <span class="pill">Today</span>':""}</h3>
+   <dl><dt>Breakfast</dt><dd>${esc(m.b)}</dd><dt>Lunch, from the cook block</dt><dd>${esc(m.l)}</dd><dt>Dinner, 15 minutes</dt><dd>${esc(m.d)}</dd><dt>Skill practised</dt><dd>${esc(m.skill)}</dd></dl></article>`).join("");
+  const tot=WORKED.reduce((a,r)=>[a[0]+r[2],a[1]+r[3]],[0,0]);
+  return `<h1 class="title">Weekday menus</h1>
+  <p class="lead">Alternate Week A and Week B. With the work meal, booster and dessert, each day lands near 2,200 kcal and 130 g protein.</p>
+  <div class="row" style="margin:20px 0 14px"><div class="seg" role="group" aria-label="Menu week"><button type="button" data-act="menuw" data-v="A" data-k="mw-A" aria-pressed="${L==="A"}">Week A, Phases 1–2</button><button type="button" data-act="menuw" data-v="B" data-k="mw-B" aria-pressed="${L==="B"}">Week B, Phases 2–3</button></div><span class="tiny">This week uses Week ${curL}.</span></div>
+  <div class="days">${days}</div>
+  <h2 class="sec">Work meal rotation</h2><p class="sec-lead">Packed for 16:00; one per weekday, Monday to Friday.</p>
+  <div class="grid">${WORK_MEALS.map((x,i)=>`<div class="formula">${art(x[1])}<div><h3>${["Mon","Tue","Wed","Thu","Fri"][i]}</h3><p class="small muted" style="margin:0">${esc(x[0])}</p></div></div>`).join("")}</div>
+  <h2 class="sec">Tamil swaps</h2><p class="sec-lead">Simple traditional dishes from your Tamil tree that slot straight into any weekday. Tap one to open it in the tree.</p>
+  <div class="formulas">${TAMIL_SWAPS.map(f=>`<button class="formula" type="button" data-node="${f[3]}" data-k="ts-${f[3]}" style="--c:var(--ta)">${art(f[2])}<span><h3>${esc(f[0])}</h3><span class="small muted">${esc(f[1])}</span></span></button>`).join("")}</div>
+  <div class="note" style="--c:var(--ta)">Kali, koozh and millet dishes are mostly carbs, though rich in fibre and calcium. Pair them with eggs, dal or sundal so each meal still carries 25–35 g protein. A ball of ragi kali from 60 g flour is about 200 kcal.</div>
+  <h2 class="sec">15-minute dinner formulas</h2><p class="sec-lead">Mix and match when you’re tired at 21:30.</p>
+  <div class="formulas">${FORMULAS.map(f=>`<div class="formula">${art(f[2])}<div><h3>${esc(f[0])}</h3><p class="small muted" style="margin:0">${esc(f[1])}</p></div></div>`).join("")}</div>
+  <h2 class="sec">How a day adds up</h2><p class="sec-lead">Monday of Week A, weighed out. Weigh portions for the first two weeks until you can eyeball them.</p>
+  <div class="tbl"><table><thead><tr><th>Time</th><th>Food</th><th class="num">~kcal</th><th class="num">~Protein</th></tr></thead><tbody>${WORKED.map(r=>`<tr><td class="num" style="text-align:left">${r[0]}</td><td>${esc(r[1])}</td><td class="num">${r[2]}</td><td class="num">${r[3]} g</td></tr>`).join("")}</tbody>
+  <tfoot><tr><td></td><td>Total</td><td class="num">${fmtN(tot[0])}</td><td class="num">${tot[1]} g</td></tr></tfoot></table></div>
+  <h2 class="sec">Weekends and chicken</h2>
+  <p><b>Saturday:</b> brunch at 09:00, the exploration dish from 11:00 to 14:00 (it becomes lunch), then a light dinner such as khichdi or soup with eggs. <b>Sunday:</b> brunch, the 90-minute prep from 10:30, the dessert in the afternoon, and dinner from the prep. Weekend meals can run 300–500 kcal over; the weekly average is what counts.</p>
+  <p>From Phase 4, swap the paneer or egg dinner on 3 days a week for 120 g raw chicken. Keep eggs at breakfast and dal or dairy at lunch.</p>`;
+}
+function viewWeekends(){
+  const w=planWeek();let done=0;WEEKENDS.forEach(x=>{if(state.wk[`w${x.w}s`])done++;if(state.wk[`w${x.w}d`])done++;});
+  const rows=WEEKENDS.map(x=>{const n1=NODE[x.link],n2=NODE[x.dlink],k1=`w${x.w}s`,k2=`w${x.w}d`,cur=x.w===w;
+   return `<tr class="wk-row ${cur?"hl":""}"><td class="num">${x.w}${cur?'<br><span class="pill">This week</span>':""}</td><td style="white-space:nowrap">${esc(fmtDay(satOfWeek(x.w),{day:"numeric",month:"short"}))}</td>
+    <td style="--c:var(--${x.track})"><div class="wk-dish">${art(x.art)}<div>${n1?`<button class="linkish" type="button" data-node="${n1.key}" data-k="wr-${x.w}">${esc(x.dish)}</button>`:esc(x.dish)}<br><span class="tiny">${esc(TRACK[x.track].short)}. ${esc(x.skill)}</span></div></div></td>
+    <td style="--c:var(--${x.track})"><input type="checkbox" aria-label="Cooked ${esc(x.dish)}" data-wk="${k1}" data-k="wk-${k1}" ${state.wk[k1]?"checked":""}></td>
+    <td style="--c:var(--de)"><div class="wk-dish">${art(x.dart)}<div>${n2?`<button class="linkish" type="button" data-node="${n2.key}" data-k="wq-${x.w}">${esc(x.des)}</button>`:esc(x.des)}<br><span class="tiny">${{N:"Nourishing",T:"Treat",E:"Either"}[x.type]}${OVEN_WEEKS.includes(x.w)?", needs an oven or air fryer":""}</span></div></div></td>
+    <td style="--c:var(--de)"><input type="checkbox" aria-label="Made ${esc(x.des)}" data-wk="${k2}" data-k="wk-${k2}" ${state.wk[k2]?"checked":""}></td></tr>`;}).join("");
+  return `<h1 class="title">Weekend calendar</h1>
+  <p class="lead">One showpiece dish every Saturday and one make-ahead dessert every Sunday, rotating through all four cuisines and alternating nourishing and treat desserts.</p>
+  <div class="row" style="margin:16px 0 18px"><span class="pill">${done} of 52 done</span><div class="bar" style="flex:1;max-width:360px"><i style="width:${Math.round(done/52*100)}%"></i></div></div>
+  <div class="tbl"><table><thead><tr><th class="num">Week</th><th>Saturday</th><th>Exploration dish</th><th>Cooked</th><th>Sunday dessert</th><th>Made</th></tr></thead><tbody>${rows}</tbody></table></div>
+  <p class="tiny">Weeks 9, 12, 14, 19 and 22 need an oven, OTG or air fryer for the dessert; swap in a stovetop one if you don’t have one. The pizza, tikka and Korean chicken also work in a heavy pan.</p>`;
+}
+function sundayKey(){const d=today0();d.setDate(d.getDate()+((7-d.getDay())%7));return isoDate(d);}
+function viewKitchen(){
+  const sk=sundayKey(),arr=Array.isArray(state.prep[sk])?state.prep[sk]:[],done=PREP.filter((x,i)=>arr[i]).length;
+  return `<h1 class="title">Kitchen and prep</h1>
+  <p class="lead">A 90-minute Sunday prep turns every weekday meal into a 15–50 minute job. The checklist resets each week.</p>
+  <div class="two" style="margin-top:12px"><section><h2 class="sec">Sunday prep, ${esc(fmtDay(parseIso(sk),{weekday:"long",day:"numeric",month:"short"}))}</h2>
+   <div class="row" style="margin-bottom:6px"><span class="pill">${done} of ${PREP.length}</span><div class="bar" style="flex:1"><i style="width:${Math.round(done/PREP.length*100)}%"></i></div>${done?`<button class="btn quiet sm" type="button" data-act="prepclear" data-k="prepclear">Clear</button>`:""}</div>
+   <ol class="steps checkable">${PREP.map((x,i)=>`<li><label class="check ${arr[i]?"done":""}"><input type="checkbox" data-prep="${i}" data-k="pr-${i}" ${arr[i]?"checked":""}><span>${esc(x)}</span></label></li>`).join("")}</ol></section>
+   <section><h2 class="sec">Weekday cook block</h2><p class="sec-lead">50 minutes, 10:30 to 11:20.</p>
+    <div class="timeline">${COOK_BLOCK.map(s=>`<div><time>${s[0]}</time>${esc(s[1])}</div>`).join("")}</div>
+    <h2 class="sec">How long prepped food keeps</h2>
+    <div class="tbl"><table><thead><tr><th>Food</th><th>Fridge</th><th>Freezer</th></tr></thead><tbody>${STORAGE.map(r=>`<tr><td>${esc(r[0])}</td><td>${esc(r[1])}</td><td>${esc(r[2])}</td></tr>`).join("")}</tbody></table></div></section></div>
+  <h2 class="sec">Equipment</h2><p class="sec-lead">Ten tools cover Phases 0–1; buy the rest only when a phase needs it. Tick what you own.</p>
+  <div class="grid">${EQUIP.map((e,i)=>`<label class="panel check" style="display:grid;grid-template-columns:auto 44px 1fr;gap:12px;align-items:center;padding:12px 14px"><input type="checkbox" data-equip="${i}" data-k="eq-${i}" ${state.equip[i]?"checked":""}>${art(e[3],"ic")}<span><b style="font-weight:600">${esc(e[0])}</b><br><span class="tiny">${esc(e[1])}. Phase ${e[2]}</span></span></label>`).join("")}</div>
+  <h2 class="sec">Pantry by cuisine</h2>
+  <div class="grid">${PANTRY.map(p=>`<div class="panel" style="--c:var(--${p[1]});border-top:4px solid var(--c)"><h3>${esc(p[0])}</h3><p class="small muted" style="margin:0">${esc(p[2])}</p></div>`).join("")}</div>
+  <div class="note" style="--c:var(--ko)"><b>Check labels.</b> Most shop kimchi contains fish sauce or salted shrimp, and parmesan is usually made with animal rennet. Look for vegetarian versions.</div>`;
+}
+function viewProgress(){
+  const p=state.profile,cl=calc(),log=[...state.log].map((e,i)=>({...e,i})).sort((a,b)=>a.d<b.d?-1:1);
+  const last=log.at(-1),first=log[0];
+  let rate=null;
+  if(log.length>=3&&last){const cut=parseIso(last.d).getTime()-21*DAY;const pts=log.filter(e=>parseIso(e.d).getTime()>=cut);
+    if(pts.length>=3){const xs=pts.map(e=>parseIso(e.d).getTime()/DAY),ys=pts.map(e=>Number(e.w));const span=Math.max(...xs)-Math.min(...xs);
+     if(span>=7){const mx=xs.reduce((a,b)=>a+b)/xs.length,my=ys.reduce((a,b)=>a+b)/ys.length;let nu=0,de=0;xs.forEach((x,i)=>{nu+=(x-mx)*(ys[i]-my);de+=(x-mx)**2;});rate=de?nu/de*7:null;}}}
+  let advice="Log at least three weigh-ins across a week or more to see your trend.",ruleIdx=-1;
+  if(rate!==null){if(rate>-0.2){ruleIdx=1;}else if(rate<-0.8){ruleIdx=2;}else{ruleIdx=0;}advice=`You’re ${rate<0?"losing":"gaining"} about ${Math.abs(rate).toFixed(2)} kg a week. ${RULES[ruleIdx][1]}.`;}
+  return `<h1 class="title">Weight and waist</h1>
+  <p class="lead">Judge progress by two-week trends in weight, waist and strength, then change calories in 150 kcal steps.</p>
+  <form class="panel log-form" id="logForm" style="margin-top:18px">
+   <label class="field">Date<input type="date" name="d" value="${isoDate(today0())}" required data-k="lf-d"></label>
+   <label class="field">Weight (kg)<input type="number" name="w" step="0.1" min="30" max="200" required placeholder="${last?Number(last.w).toFixed(1):p.wt}" data-k="lf-w"></label>
+   <label class="field">Waist at navel (cm)<input type="number" name="wa" step="0.5" min="40" max="200" placeholder="Optional" data-k="lf-wa"></label>
+   <button class="btn" type="submit" data-k="lf-s">Add weigh-in</button><p class="tiny" id="logErr" role="alert" style="margin:0;flex-basis:100%"></p></form>
+  <div class="stats" style="margin:22px 0 8px">
+   <div class="stat"><b>${first?Number(first.w).toFixed(1):p.wt}</b><span>kg at start</span></div>
+   <div class="stat"><b>${last?Number(last.w).toFixed(1):"–"}</b><span>kg latest</span></div>
+   <div class="stat"><b>${first&&last?(last.w-first.w>0?"+":last.w-first.w<0?"−":"")+Math.abs(last.w-first.w).toFixed(1):"–"}</b><span>kg change</span></div>
+   <div class="stat"><b>${p.gw}</b><span>kg goal</span></div></div>
+  <div class="note" style="--c:var(--${ruleIdx===0?"si":ruleIdx<0?"es":"ni"})">${esc(advice)}</div>
+  <div class="panel chart" style="margin-top:12px">${weightChart(log,cl)}</div>
+  ${log.length?`<h2 class="sec">Your weigh-ins</h2><div class="tbl"><table><thead><tr><th>Date</th><th class="num">Weight</th><th class="num">Waist</th><th></th></tr></thead><tbody>${[...log].reverse().map(e=>`<tr><td>${esc(fmtDay(parseIso(e.d)))}</td><td class="num">${Number(e.w).toFixed(1)} kg</td><td class="num">${e.wa?Number(e.wa).toFixed(1)+" cm":"–"}</td><td style="text-align:right"><button class="btn quiet sm" type="button" data-act="logdel" data-i="${e.i}" data-k="ld-${e.i}">Delete</button></td></tr>`).join("")}</tbody></table></div>`:""}
+  <h2 class="sec">When to adjust</h2>
+  <div class="tbl"><table><thead><tr><th>If, over two weeks…</th><th>Then</th></tr></thead><tbody>${RULES.map((r,i)=>`<tr class="${i===ruleIdx?"hl":""}"><td>${esc(r[0])}</td><td>${esc(r[1])}</td></tr>`).join("")}</tbody></table></div>
+  <h2 class="sec">Habits that make the numbers honest</h2>
+  <ul class="small" style="max-width:70ch;padding-left:20px;line-height:1.7"><li>Weigh 3–7 mornings a week after the toilet and use the weekly average.</li><li>Measure your waist at the navel every Sunday and take photos every two weeks.</li><li>Log your key calisthenics numbers; steady or rising means you’re keeping muscle.</li><li>Log food in any tracking app for the first 3–4 weeks, then spot-check one day a week.</li><li>Consider a baseline blood test (B12, vitamin D, ferritin, lipids) and repeat it in six months.</li></ul>`;
+}
+function weightChart(log,cl){
+  const p=state.profile,W=720,H=280,x0=52,x1=W-70,y0=18,y1=H-40;
+  const start=new Date(2026,10,9),rateKg=p.def*7/7700;
+  const goalWeeks=rateKg>0?Math.max(0,(p.wt-p.gw)/rateKg):26;
+  const goalDate=new Date(start.getTime()+goalWeeks*7*DAY);
+  const ts=log.map(e=>parseIso(e.d).getTime());
+  const tMin=Math.min(start.getTime()-7*DAY,...ts),tMax=Math.max(goalDate.getTime()+14*DAY,...ts.map(t=>t+14*DAY),start.getTime()+16*7*DAY);
+  const ws=log.map(e=>Number(e.w));
+  const vMin=Math.floor(Math.min(p.gw-1,...ws)),vMax=Math.ceil(Math.max(p.wt+1,...ws));
+  const X=t=>x0+(t-tMin)/(tMax-tMin)*(x1-x0),Y=v=>y1-(v-vMin)/(vMax-vMin)*(y1-y0);
+  let g="";const step=(vMax-vMin)>10?2:1;
+  for(let v=vMin;v<=vMax;v+=step)g+=`<line x1="${x0}" x2="${x1}" y1="${Y(v)}" y2="${Y(v)}" stroke="var(--line)"/><text x="${x0-8}" y="${Y(v)+4}" text-anchor="end" font-size="12" fill="var(--ink-3)">${v}</text>`;
+  const mth=new Date(tMin);mth.setDate(1);mth.setMonth(mth.getMonth()+1);
+  for(let d=new Date(mth);d.getTime()<=tMax;d.setMonth(d.getMonth()+1))g+=`<text x="${X(d.getTime())}" y="${y1+22}" text-anchor="middle" font-size="12" fill="var(--ink-3)">${d.toLocaleDateString("en-GB",{month:"short"})}</text><line x1="${X(d.getTime())}" x2="${X(d.getTime())}" y1="${y1}" y2="${y1+5}" stroke="var(--steel-2)"/>`;
+  const plan=`<path d="M${X(start.getTime())} ${Y(p.wt)} L${X(goalDate.getTime())} ${Y(p.gw)} L${X(tMax)} ${Y(p.gw)}" fill="none" stroke="var(--steel-2)" stroke-width="2" stroke-dasharray="6 6"/><text x="${(X(start.getTime())+X(goalDate.getTime()))/2+10}" y="${(Y(p.wt)+Y(p.gw))/2-10}" font-size="12" fill="var(--ink-2)">Plan, ${rateKg.toFixed(2)} kg a week</text>`;
+  const goal=`<line x1="${x0}" x2="${x1}" y1="${Y(p.gw)}" y2="${Y(p.gw)}" stroke="var(--si)" stroke-width="1.5"/><text x="${x1+6}" y="${Y(p.gw)+4}" font-size="12" font-weight="600" fill="var(--ink)">Goal ${p.gw}</text>`;
+  let avg="";
+  if(log.length>1){const pts=log.map((e,i)=>{const t=parseIso(e.d).getTime();const win=log.filter(f=>{const u=parseIso(f.d).getTime();return u<=t&&u>t-7*DAY;});return [X(t),Y(win.reduce((a,f)=>a+Number(f.w),0)/win.length)];});
+    avg=`<path d="${pts.map((q,i)=>(i?"L":"M")+q[0].toFixed(1)+" "+q[1].toFixed(1)).join(" ")}" fill="none" stroke="var(--ink)" stroke-width="2.5" stroke-linejoin="round"/>`;}
+  const dots=log.map(e=>`<circle cx="${X(parseIso(e.d).getTime()).toFixed(1)}" cy="${Y(Number(e.w)).toFixed(1)}" r="4" fill="var(--surface)" stroke="var(--ink)" stroke-width="2"><title>${esc(fmtDay(parseIso(e.d)))}: ${Number(e.w).toFixed(1)} kg</title></circle>`).join("");
+  const title=log.length?`${log.length} weigh-in${log.length>1?"s":""}; the solid line is your 7-day average`:"Your planned path to the goal; add a weigh-in to start your line";
+  return `<h3>${esc(title)}</h3><svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Weight over time against the plan and goal">${g}${goal}${plan}${avg}${dots}<text x="${x0-30}" y="${(y0+y1)/2}" text-anchor="middle" font-size="12" fill="var(--ink-3)" transform="rotate(-90 ${x0-30} ${(y0+y1)/2})">kg</text></svg>`;
+}
+
+/* ---------- events ---------- */
+function hlEdges(key){const svg=document.getElementById("edges");if(!svg)return;svg.classList.toggle("focus",!!key);svg.querySelectorAll("path").forEach(p=>p.classList.toggle("on",!!key&&(p.dataset.a===key||p.dataset.b===key)));}
+document.addEventListener("pointerover",e=>{const n=e.target.closest&&e.target.closest(".tree .node");hlEdges(n?n.dataset.node:null);});
+document.addEventListener("focusin",e=>{const n=e.target.closest&&e.target.closest(".tree .node");hlEdges(n?n.dataset.node:null);});
+document.addEventListener("click",e=>{
+  const nb=e.target.closest("[data-node]");if(nb){openNode(nb.dataset.node);return;}
+  const a=e.target.closest("[data-act]");
+  if(a){const act=a.dataset.act;
+    if(act==="close"){$("#dlg").close();return;}
+    if(act==="state"&&ui.dlgKey){setNode(ui.dlgKey,{s:Number(a.dataset.v)});commit();return;}
+    if(act==="cook"&&ui.dlgKey){const c=Math.max(0,(Number(ns(ui.dlgKey).c)||0)+Number(a.dataset.d));const patch={c};if(c>0&&sOf(ui.dlgKey)===0)patch.s=1;setNode(ui.dlgKey,patch);commit();return;}
+    if(act==="menuw"){ui.menuWeek=a.dataset.v;render();return;}
+    if(act==="psort"){ui.psort=a.dataset.v;render();return;}
+    if(act==="sex"){state.profile.sex=a.dataset.v;commit();return;}
+    if(act==="logdel"){const i=Number(a.dataset.i);state.log.splice(i,1);commit();return;}
+    if(act==="prepclear"){delete state.prep[sundayKey()];commit();return;}
+    if(act==="signin"){signIn();return;}
+    if(act==="signout"){signOutNow();return;}
+    if(act==="savecfg"){const c=parseConfig(($("#cfgBox")||{}).value||"");if(!c){$("#cfgErr").textContent=errText("config");return;}try{localStorage.setItem(FB_CFG_KEY,JSON.stringify(c));}catch(err){$("#cfgErr").textContent="This browser won’t store the config; set FIREBASE_CONFIG in the file instead.";return;}location.reload();return;}
+    if(act==="clearcfg"){(async()=>{try{await signOutNow();}catch(err){}try{localStorage.removeItem(FB_CFG_KEY);}catch(err){}location.reload();})();return;}
+    if(act==="copyrules"){const m=$("#copyMsg");(navigator.clipboard?navigator.clipboard.writeText(RULES_TXT):Promise.reject()).then(()=>{m.textContent="Copied";},()=>{m.textContent="Select the rules above and copy them";});return;}
+    if(act==="clearlocal"){if(confirm("Remove all progress saved in this browser? Anything already synced to your Google account stays there.")){try{localStorage.removeItem(LS_KEY);}catch(err){}state=defaultState();render();}return;}
+  }
+  const rl=e.target.closest(".rail a");if(rl){$("#rail").classList.remove("open");$("#navToggle").setAttribute("aria-expanded","false");}
+});
+$("#navToggle").addEventListener("click",()=>{const r=$("#rail"),o=!r.classList.contains("open");r.classList.toggle("open",o);$("#navToggle").setAttribute("aria-expanded",String(o));});
+document.addEventListener("change",e=>{
+  const t=e.target;
+  if(t.dataset.gate){state.gates[t.dataset.gate]=t.checked;commit();return;}
+  if(t.dataset.wk){state.wk[t.dataset.wk]=t.checked;
+    const wd=WEEKENDS.find(x=>`w${x.w}s`===t.dataset.wk||`w${x.w}d`===t.dataset.wk);
+    if(t.checked&&wd){const k=t.dataset.wk.endsWith("s")?wd.link:wd.dlink;if(k&&NODE[k]&&sOf(k)===0)setNode(k,{s:1,c:Math.max(1,Number(ns(k).c)||0)});}
+    commit();return;}
+  if(t.dataset.prep!==undefined){const sk=sundayKey();const arr=Array.isArray(state.prep[sk])?state.prep[sk].slice():[];arr[Number(t.dataset.prep)]=t.checked;
+    const keep={};Object.keys(state.prep).sort().slice(-3).forEach(k=>keep[k]=state.prep[k]);keep[sk]=arr;state.prep=keep;commit();return;}
+  if(t.dataset.equip!==undefined){state.equip[t.dataset.equip]=t.checked;commit();return;}
+  if(t.dataset.prof){const k=t.dataset.prof;state.profile[k]=Number(t.value);commit(false);updateCalc();renderNav();return;}
+});
+document.addEventListener("input",e=>{
+  const t=e.target;
+  if(t.dataset.prof&&t.type==="range"){state.profile[t.dataset.prof]=Number(t.value);updateCalc();return;}
+  if(t.dataset.note){const k=t.dataset.note;setNode(k,{note:t.value.slice(0,4000)});clearTimeout(ui.noteTimer);ui.noteTimer=setTimeout(()=>commit(false),600);}
+});
+document.addEventListener("submit",e=>{
+  if(e.target.id!=="logForm")return;e.preventDefault();
+  const f=new FormData(e.target),d=String(f.get("d")||""),w=Number(f.get("w")),wa=f.get("wa")?Number(f.get("wa")):null;
+  const err=$("#logErr");
+  if(!/^\d{4}-\d{2}-\d{2}$/.test(d)){err.textContent="Pick a date for this weigh-in.";return;}
+  if(!(w>=30&&w<=200)){err.textContent="Enter your weight in kg, between 30 and 200.";return;}
+  const ex=state.log.findIndex(x=>x.d===d);const entry={d,w:Math.round(w*10)/10};if(wa)entry.wa=Math.round(wa*2)/2;
+  if(ex>=0)state.log[ex]=entry;else state.log.push(entry);commit();
+});
+$("#dlg").addEventListener("close",()=>{ui.dlgKey=null;render();});
+$("#dlg").addEventListener("click",e=>{if(e.target===$("#dlg"))$("#dlg").close();});
+window.addEventListener("hashchange",()=>{if($("#dlg").open)$("#dlg").close();render();window.scrollTo(0,0);});
+let rsz;if(window.ResizeObserver){new ResizeObserver(()=>{cancelAnimationFrame(rsz);rsz=requestAnimationFrame(drawEdges);}).observe($("#main"));}
+if(document.fonts&&document.fonts.ready)document.fonts.ready.then(()=>requestAnimationFrame(drawEdges));
+render();
+initFirebase();
+
+</script>
+</body>
+</html>
