@@ -69,6 +69,7 @@ a.acct-row:hover{background:var(--surface-2)}
 pre.code{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px 16px;overflow-x:auto;font:13.5px/1.55 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;margin:0 0 10px;color:var(--ink)}
 code{font:.9em ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;background:var(--surface-2);padding:1px 5px;border-radius:5px}
 .steps li > span{min-width:0}
+details.setup-ref > summary{cursor:pointer;line-height:1.5}
 #cfgBox{font:13.5px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;min-height:120px}
 
 .main{padding:34px clamp(16px,4vw,56px) 96px;min-width:0}
@@ -279,21 +280,22 @@ input[type="range"]{width:100%;accent-color:var(--ink)}
 <script>
 /* =====================================================================
    FIREBASE SETUP
-   Paste your web app's config here (Firebase console > Project settings >
-   Your apps), or leave it empty and paste it on the page under
-   "Sync and account". Full steps are on that page.
+   On Firebase Hosting you can leave this empty: the page reads your
+   project's config from the site automatically.
+   Hosting somewhere else? Paste your web app's config here (Firebase
+   console > Project settings > Your apps), or on the page's Account tab.
    ===================================================================== */
 const FIREBASE_CONFIG = {
-  apiKey: "",
-  authDomain: "",
-  projectId: "",
-  appId: ""
+  apiKey: "AIzaSyB8yufAdgVIR330StF73sAq_LULGEOMjXg",
+  authDomain: "cooking-roadmap.firebaseapp.com",
+  projectId: "cooking-roadmap",
+  appId: "1:126186393778:web:02972dd28db28e42f7b9ab"
 };
 const TIERS = [
   {n:"Foundations", s:"Phase 1, Month 1"},
   {n:"Building blocks", s:"Phase 2, Month 2"},
   {n:"Expansion", s:"Phase 3, Month 3"},
-  {n:"Chicken and mastery", s:"Phases 4–5, Months 4–6"}
+  {n:"Chicken, fish and mastery", s:"Phases 4–5, Months 4–6"}
 ];
 const TRACKS = [
  {id:"ni", hash:"north-indian", name:"North Indian", short:"North Indian", scene:"thali",
@@ -318,6 +320,7 @@ const TRACKS = [
   ["chicken-tikka","Chicken tikka",4,"tikkaChicken",["paneer-tikka"],"Week 15 weekend","Marinate overnight, then cook fast and hot for charred edges and a juicy centre.","Thigh stays juicier than breast; check 74 °C in the thickest piece.",1,["es.chicken-basics"]],
   ["butter-chicken","Butter chicken",4,"butterChicken",["chicken-tikka","paneer-gravy"],"Week 21 weekend","Finish tikka in a silky tomato-cashew gravy.","Blend the gravy smooth and stir the cream in off the heat.",1],
   ["chicken-biryani","Chicken dum biryani",4,"biryani",["biryani","chicken-curry"],"Week 18 weekend","Combine a marinated chicken layer with par-boiled rice and dum.","Marinate at least 4 hours; the yogurt tenderises the meat.",1],
+  ["tawa-fish","Tawa fish fry",4,"tawaFish",["paneer-tikka"],"Phase 5, weekends","Rub firm fish steaks with a chilli, turmeric and lemon masala and shallow-fry them on a tawa.","Pat the fish dry and don’t move it for the first 2–3 minutes, so the crust forms and it doesn’t stick.",2,["es.fish-basics"]],
   ["naan","Tawa garlic naan",4,"naan",["paratha"],"Week 21 weekend","Make a soft yogurt dough and cook naan on an upturned tawa.","Wet the back of the naan so it sticks, then flip the tawa over the flame."]
  ]},
  {id:"si", hash:"south-indian", name:"South Indian", short:"South Indian", scene:"leaf",
@@ -336,13 +339,14 @@ const TRACKS = [
   ["uttapam","Uttapam",3,"uttapam",["dosa"],"Phase 3","Cook a thick dosa with onion, tomato and chilli pressed into it.","Batter that’s a day or two older suits uttapam; the extra sourness helps."],
   ["bisi-bele","Bisi bele bath",3,"bisibele",["sambar"],"Phase 3","Cook rice, dal and vegetables together in one spiced pot.","It thickens as it sits; loosen leftovers with hot water."],
   ["pongal","Ven pongal",3,"pongal",["poha-upma"],"Phase 3","Cook rice and moong dal soft, tempered with ghee, pepper and cumin.","Crack the pepper coarsely; the peppercorns are the point."],
+  ["fish-curry","Kerala fish curry",4,"fishCurry",["sambar"],"Phase 5, weekends","Simmer fish in a red chilli and kudampuli (or tamarind) gravy finished with coconut oil.","Add the fish last and shake the pan instead of stirring, so the pieces stay whole.",2,["es.fish-basics"]],
   ["medu-vada","Medu vada",4,"vada",["batter"],"Week 24 weekend","Shape and deep-fry crisp lentil doughnuts.","Wet your palm to shape; oil at 175 °C keeps them from soaking it up."],
   ["appam","Appam",4,"appam",["batter"],"Week 19 weekend","Make a lacy, soft-centred pancake in a curved pan.","Swirl the pan once and cover it; don’t flip."],
   ["kerala-stew","Kerala chicken stew",4,"stewWhite",["appam"],"Week 19 weekend","Simmer chicken gently in coconut milk with whole spices.","Add thick coconut milk at the end and don’t boil it, or it splits.",1,["es.chicken-basics"]],
   ["chettinad","Chettinad chicken",4,"chettinad",["sambar"],"Phase 5","Dry-roast and grind your own spice paste for a fiery curry.","Roast spices on low until fragrant, then cool them before grinding.",1,["es.chicken-basics"]]
  ]},
  {id:"ta", hash:"tamil", name:"Tamil traditional", short:"Tamil", scene:"kolam",
-  tiers:[{n:"Grandmother basics",s:"Phases 1–2, Months 1–2"},{n:"Kuzhambu and kootu",s:"Phase 2, Month 2"},{n:"Millets and tiffin",s:"Phase 3, Month 3"},{n:"Feast days and chicken",s:"Phases 4–5, Months 4–6"}],
+  tiers:[{n:"Grandmother basics",s:"Phases 1–2, Months 1–2"},{n:"Kuzhambu and kootu",s:"Phase 2, Month 2"},{n:"Millets and tiffin",s:"Phase 3, Month 3"},{n:"Feast days, chicken and fish",s:"Phases 4–5, Months 4–6"}],
   blurb:"Ragi kali, koozh, kuzhambu and kootu: simple village and grandmother-style Tamil cooking, rich in millets and greens.",
   nodes:[
   ["ragi-kali","Ragi kali",1,"kali",[],"Phase 1, lunches","Cook ragi flour in boiling water into a smooth, firm ball, the traditional kezhvaragu kali.","Let the flour sit on the boiling water for a minute before you stir; that’s what stops lumps."],
@@ -365,6 +369,8 @@ const TRACKS = [
   ["kuzhi-paniyaram","Kuzhi paniyaram",4,"paniyaram",["ragi-dosa"],"Phase 5","Turn leftover idli batter into crisp little dumplings in a paniyaram pan.","Use batter that’s 2–3 days old, add onion and chilli, and turn them with a skewer.",0,["si.batter"]],
   ["nattu-kozhi","Nattu kozhi kuzhambu",4,"nattuKozhi",["ennai-kathirikai"],"Phase 4","Slow-cook country chicken in a freshly ground pepper, coriander and coconut masala.","Country chicken is tougher; pressure-cook it 4–5 whistles or simmer 45 minutes.",1,["es.chicken-basics"]],
   ["milagu-kozhi","Milagu kozhi varuval",4,"varuval",["nattu-kozhi"],"Phase 4","Dry-roast chicken with black pepper, small onions and curry leaves until dark and glossy.","Crush the pepper fresh and add half at the end; it should taste of pepper, not chilli.",1],
+  ["meen-kuzhambu","Meen kuzhambu",4,"meenKuzhambu",["ennai-kathirikai"],"Phase 5, weekends","Cook fish in a tangy tamarind kuzhambu with small onions, garlic and gingelly oil.","Simmer the gravy fully first; the fish needs only 6–8 minutes, and it tastes even better the next day.",2,["es.fish-basics"]],
+  ["meen-varuval","Meen varuval",4,"meenVaruval",["meen-kuzhambu"],"Phase 5, weekends","Marinate fish slices in a red chilli, pepper and turmeric paste and pan-fry them crisp.","Rest the marinated fish 20 minutes, and fry in hot oil in a single layer.",2,["es.fish-basics"]],
   ["pidi-kozhukattai","Pidi kozhukattai",4,"kozhukattai",["sakkarai-pongal"],"Phase 5","Cook rice flour into a dough, press it in your fist and steam the dumplings, sweet or savoury.","Shape the dough while it’s still warm, with lightly oiled hands; the finger marks are the point."],
   ["virundhu","A banana-leaf virundhu",4,"virundhu",["kootu","sakkarai-pongal"],"Week 26 option","Serve a full Tamil meal on a banana leaf: rice, kuzhambu, rasam, kootu, poriyal, a sweet and buttermilk.","Make the kuzhambu and the sweet the day before and cook the rest that morning."]
  ]},
@@ -384,6 +390,7 @@ const TRACKS = [
   ["tteokbokki","Tteokbokki",3,"tteok",["bibimbap"],"Phase 3 weekend","Simmer rice cakes in a sweet-spicy gochujang sauce.","Soak hard rice cakes in warm water for 20 minutes first."],
   ["dakgalbi","Dakgalbi",4,"dakgalbi",["tteokbokki"],"Week 16 weekend","Marinate chicken in gochujang and stir-fry it with cabbage and sweet potato.","Cut thighs into even pieces so everything cooks at the same rate.",1,["es.chicken-basics"]],
   ["korean-chicken","Air-fried Korean chicken",4,"kfc",["dakgalbi"],"Week 23 weekend","Cook chicken twice for crunch, then toss it in a sticky glaze.","Glaze at the last minute so the crust stays crisp.",1],
+  ["saengseon-gui","Saengseon-gui",4,"grilledFish",["dubu-jorim"],"Phase 5, weekends","Salt a whole small fish or fillets and pan-grill them simply, Korean style, with rice and banchan.","Salt it 15 minutes ahead and pat it dry; mackerel or any oily fish works best.",2,["es.fish-basics"]],
   ["kimchi","Homemade kimchi",4,"kimchi",["muchim"],"Week 20 weekend","Salt napa cabbage and ferment it in a chilli paste.","Use soy sauce or kelp instead of fish sauce; 1–2 days at room temperature, then the fridge."]
  ]},
  {id:"it", hash:"italian", name:"Italian and continental", short:"Italian", scene:"tavola",
@@ -406,7 +413,8 @@ const TRACKS = [
   ["cacciatore","Chicken cacciatore",4,"cacciatore",["pomodoro"],"Week 17 option","Braise chicken in tomato, peppers and herbs.","Brown the chicken first, then simmer gently under a lid.",1,["es.chicken-basics"]],
   ["fresh-pasta","Fresh egg pasta",4,"freshPasta",["pasta-pomodoro"],"Week 17 weekend","Knead an egg-and-flour dough and roll it thin.","Rest the dough 30 minutes, wrapped; it rolls far more easily."],
   ["ragu","Chicken ragù",4,"ragu",["fresh-pasta","cacciatore"],"Week 17 weekend","Slow-cook minced chicken in a tomato sauce for pasta.","A splash of milk makes the ragù silky.",1],
-  ["lasagne","Lasagne",4,"lasagne",["fresh-pasta"],"Week 22 weekend","Make a béchamel and layer pasta, sauce and cheese.","Rest it 15 minutes before cutting so the layers hold."]
+  ["lasagne","Lasagne",4,"lasagne",["fresh-pasta"],"Week 22 weekend","Make a béchamel and layer pasta, sauce and cheese.","Rest it 15 minutes before cutting so the layers hold."],
+  ["lemon-fish","Pan-seared fish, lemon butter",4,"searedFish",["lemon-chicken"],"Phase 5, weekends","Sear a fish fillet skin-side down until crisp, then baste it with lemon butter.","Press the fillet flat for the first 30 seconds so the skin doesn’t curl, and cook it 80% on the skin side.",2,["es.fish-basics"]]
  ]},
  {id:"de", hash:"desserts", name:"Desserts", short:"Desserts", scene:"mithai",
   tiers:[{n:"No-cook",s:"Month 1"},{n:"Stovetop and set",s:"Months 1–3"},{n:"Baking",s:"Months 3–5"},{n:"Frying and advanced",s:"Months 4–6"}],
@@ -434,7 +442,7 @@ const TRACKS = [
   ["custard","Caramel custard",4,"custard",["steamed-yogurt"],"Week 26","Cook sugar to amber caramel and steam an egg custard over it.","Take the caramel off a shade lighter than you want; it keeps darkening."]
  ]},
  {id:"es", hash:"essentials", name:"Eggs and essentials", short:"Essentials", scene:"board",
-  tiers:[{n:"Day one",s:"Phases 0–1"},{n:"Daily confidence",s:"Phase 2"},{n:"Cook’s instincts",s:"Phase 3"},{n:"Chicken and hosting",s:"Phases 4–5"}],
+  tiers:[{n:"Day one",s:"Phases 0–1"},{n:"Daily confidence",s:"Phase 2"},{n:"Cook’s instincts",s:"Phase 3"},{n:"Chicken, fish and hosting",s:"Phases 4–5"}],
   blurb:"Knife skills, safety and eggs: the techniques under every other tree, and your gateway to chicken.",
   nodes:[
   ["knife","Knife basics",1,"knife",[],"Phase 0","Use a claw grip, dice an onion and chop evenly.","Keep the onion’s root on while you dice; it holds the layers together."],
@@ -454,21 +462,22 @@ const TRACKS = [
   ["seared","Pan-seared chicken breast",4,"breast",["chicken-basics"],"Week 13","Sear chicken golden and rest it before slicing.","Pat it dry and leave it alone in the pan for 4 minutes before turning.",1],
   ["frying","Deep-frying",4,"fryer",["flavour"],"Week 24","Keep oil at a steady temperature and fry in small batches.","A wooden spoon handle should bubble steadily when the oil is ready."],
   ["improvise","Cooking without a recipe",4,"fridgeOpen",["flavour"],"Week 25","Plan three courses from what’s already in your fridge.","Pick one protein, one sauce and one texture contrast, then build around them."],
-  ["hosting","Host a four-course dinner",4,"table",["improvise"],"Week 26","Time a full menu so everything is ready together.","Write a backwards timeline from serving time and make dessert the day before."]
+  ["hosting","Host a four-course dinner",4,"table",["improvise"],"Week 26","Time a full menu so everything is ready together.","Write a backwards timeline from serving time and make dessert the day before."],
+  ["fish-basics","Fish basics",4,"fishBasics",["chicken-basics"],"Phase 5","Choose fresh fish, clean it and cook it until the flesh turns opaque and flakes, at 63 °C.","Fresh fish has clear eyes, red gills and firm flesh. Cook it the day you buy it, keep it on ice in the fridge until then, and eat it fresh rather than in a packed dinner.",2]
  ]}
 ];
 TRACKS.forEach(t=>{
-  t.nodes = t.nodes.map(a=>({id:a[0],n:a[1],t:a[2],art:a[3],req:a[4],when:a[5],learn:a[6],tip:a[7],chicken:!!a[8],xreq:a[9]||[],track:t.id,key:t.id+"."+a[0]}));
+  t.nodes = t.nodes.map(a=>({id:a[0],n:a[1],t:a[2],art:a[3],req:a[4],when:a[5],learn:a[6],tip:a[7],chicken:a[8]===1,fish:a[8]===2,xreq:a[9]||[],track:t.id,key:t.id+"."+a[0]}));
   t.byId = Object.fromEntries(t.nodes.map(n=>[n.id,n]));
 });
 const ORDER = {
- ni:["dal-tadka","jeera-rice","dry-sabzi","raita","besan-chilla","rajma","chole","masala-base","paneer-gravy","pav-bhaji","dal-makhani","biryani","paneer-tikka","phulka","paratha","chicken-curry","chicken-biryani","chicken-tikka","butter-chicken","naan"],
- si:["poha-upma","poriyal","lemon-rice","rasam","sambar","batter","dosa","idli","chutneys","pongal","bisi-bele","masala-dosa","uttapam","chettinad","medu-vada","appam","kerala-stew"],
- ko:["gyeran-bap","namul","muchim","gyeran-jjim","gyeran-mari","kimchi-rice","bibimbap","sundubu","japchae","tteokbokki","dubu-jorim","kimchi","dakgalbi","korean-chicken"],
- it:["aglio-olio","vinaigrette","garlic-bread","pesto","pasta-pomodoro","pomodoro","shakshuka","frittata","risotto","pizza","minestrone","roast-veg","bruschetta","fresh-pasta","lasagne","ragu","cacciatore","lemon-chicken"],
+ ni:["dal-tadka","jeera-rice","dry-sabzi","raita","besan-chilla","rajma","chole","masala-base","paneer-gravy","pav-bhaji","dal-makhani","biryani","paneer-tikka","phulka","paratha","chicken-curry","chicken-biryani","chicken-tikka","tawa-fish","butter-chicken","naan"],
+ si:["poha-upma","poriyal","lemon-rice","rasam","sambar","batter","dosa","idli","chutneys","pongal","bisi-bele","masala-dosa","uttapam","chettinad","fish-curry","medu-vada","appam","kerala-stew"],
+ ko:["gyeran-bap","namul","muchim","gyeran-jjim","gyeran-mari","kimchi-rice","bibimbap","sundubu","japchae","tteokbokki","dubu-jorim","kimchi","dakgalbi","korean-chicken","saengseon-gui"],
+ it:["aglio-olio","vinaigrette","garlic-bread","pesto","pasta-pomodoro","pomodoro","shakshuka","frittata","risotto","pizza","minestrone","roast-veg","bruschetta","fresh-pasta","lasagne","ragu","cacciatore","lemon-chicken","lemon-fish"],
  de:["energy-balls","shrikhand","chia","besan-ladoo","panna-cotta","steamed-yogurt","kheer","gajar-halwa","kesari","tiramisu","cheesecake","crumble","brownies","cookies","muffins","gulab-jamun","custard","rasmalai","kulfi","hotteok"],
- ta:["ragi-kali","kambu-koozh","keerai-masiyal","sundal","muttai-podimas","mor-kuzhambu","vatha-kuzhambu","kootu","paruppu-usili","kollu-rasam","muttai-kuzhambu","ragi-dosa","millet-pongal","puliyodharai","ennai-kathirikai","adai","sakkarai-pongal","kuzhi-paniyaram","nattu-kozhi","milagu-kozhi","pidi-kozhukattai","virundhu"],
- es:["knife","safety","cooker","boiled","omelette","batch","poached","bhurji","scramble","egg-curry","flavour","marinade","egg-roast","frying","improvise","hosting","chicken-basics","seared"]
+ ta:["ragi-kali","kambu-koozh","keerai-masiyal","sundal","muttai-podimas","mor-kuzhambu","vatha-kuzhambu","kootu","paruppu-usili","kollu-rasam","muttai-kuzhambu","ragi-dosa","millet-pongal","puliyodharai","ennai-kathirikai","adai","sakkarai-pongal","kuzhi-paniyaram","nattu-kozhi","milagu-kozhi","meen-kuzhambu","meen-varuval","pidi-kozhukattai","virundhu"],
+ es:["knife","safety","cooker","boiled","omelette","batch","poached","bhurji","scramble","egg-curry","flavour","marinade","egg-roast","frying","improvise","hosting","chicken-basics","seared","fish-basics"]
 };
 TRACKS.forEach(t=>{const o=ORDER[t.id];t.nodes.sort((a,b)=>o.indexOf(a.id)-o.indexOf(b.id));});
 const NODE = {};
@@ -486,57 +495,74 @@ const PHASES = [
   gates:["Phulkas that puff on most rolls","Biryani with separate, fluffy grains","Cook a three-dish meal for a friend"]},
  {n:4,name:"Chicken and confidence",from:13,to:18,dates:"Weeks 13–18, Months 4–5",tier:4,focus:"Cook chicken safely and well, from pan-seared breast to biryani, while eggs and dairy stay your base.",
   gates:["A juicy breast that reads 74 °C","Three weekday chicken meals in rotation","One weekend chicken showpiece"]},
- {n:5,name:"Mastery and improvisation",from:19,to:26,dates:"Weeks 19–26, Months 5–6",tier:4,focus:"Cook without recipes, plan your own weeks, and host: fresh pasta, kimchi, deep-frying, caramel.",
+ {n:5,name:"Mastery and improvisation",from:19,to:26,dates:"Weeks 19–26, Months 5–6",tier:4,focus:"Cook without recipes, try basic fish, plan your own weeks, and host: fresh pasta, kimchi, deep-frying, caramel.",
   gates:["Plan and cook a full week without this plan","Make kimchi from scratch","Host a four-course dinner"]}
-];
-
-const RHYTHM = [
- {t:"05:40",m:340,k:"pre",what:"Pre-workout",kcal:100,p:"1 g"},
- {t:"06:00",m:360,k:"train",what:"Training until 08:30",kcal:0,p:""},
- {t:"08:45",m:525,k:"b",what:"Breakfast",kcal:500,p:"30–35 g"},
- {t:"10:30",m:630,k:"cook",what:"Cook block",kcal:0,p:""},
- {t:"11:20",m:680,k:"l",what:"Lunch",kcal:600,p:"30 g"},
- {t:"16:00",m:960,k:"w",what:"Work meal",kcal:350,p:"15–20 g"},
- {t:"18:30",m:1110,k:"boost",what:"Booster and dessert",kcal:270,p:"25–30 g"},
- {t:"21:30",m:1290,k:"d",what:"Dinner",kcal:400,p:"25–30 g"},
- {t:"22:45",m:1365,k:"sleep",what:"Lights out",kcal:0,p:""}
 ];
 
 const MENU = {
  A:[
-  {day:"Mon",b:"Masala omelette, 2 toast, milky coffee",l:"Dal tadka, jeera rice, soya-beans poriyal, curd",d:"Paneer bhurji, 1 phulka, kachumber",skill:"Tadka",art:"dal"},
-  {day:"Tue",b:"2 besan chillas with paneer filling, mint chutney",l:"Rajma, rice, cucumber raita",d:"Egg curry (3 eggs on masala base), 1 phulka",skill:"Pressure-cooking beans",art:"rajma"},
-  {day:"Wed",b:"Overnight oats with milk, Greek yogurt, chia, banana",l:"Soya chunk veg pulao, boondi raita",d:"Gyeran bap: 2 fried eggs, rice, sesame spinach, soy",skill:"One-pot rice",art:"eggRice"},
-  {day:"Thu",b:"Egg bhurji, 2 toast",l:"Chole, 2 phulkas, onion salad",d:"Shakshuka (3 eggs), 1 toast",skill:"Tomato sauce",art:"shakshuka"},
-  {day:"Fri",b:"Poha with peanuts, 2 boiled eggs",l:"Palak paneer, 2 phulkas, salad",d:"Moong dal khichdi, curd",skill:"Blanching greens",art:"palak"}
+  {day:"Mon",qb:"eggplate",b:"Masala omelette, 2 toast",l:"Dal tadka, jeera rice, soya-beans poriyal, curd",d:"Paneer bhurji rolled in 2 phulkas, kachumber",share:"One tadka and one masala base cover both",skill:"Tadka",art:"dal"},
+  {day:"Tue",qb:"oats",b:"2 besan chillas with paneer filling, mint chutney",l:"Rajma, rice, cucumber raita",d:"Egg curry (3 eggs on masala base), 1 phulka",share:"The cooker does rajma and eggs together",skill:"Pressure-cooking beans",art:"rajma"},
+  {day:"Wed",qb:"yogurt",b:"Spinach omelette (2 eggs + 2 whites), 2 toast",l:"Soya chunk veg pulao, boondi raita",d:"Gyeran bap with soy-marinated boiled eggs, rice, sesame spinach",share:"One pot of rice feeds both tiffins",skill:"One-pot rice",art:"eggRice"},
+  {day:"Thu",qb:"mugegg",b:"Egg bhurji, 2 toast",l:"Chole, 2 phulkas, onion salad",d:"Shakshuka with firm-cooked eggs, 1 phulka",share:"Phulkas rolled once for both meals",skill:"Tomato sauce",art:"shakshuka"},
+  {day:"Fri",qb:"sattu",b:"Poha with peanuts, 2 boiled eggs",l:"Palak paneer, 2 phulkas, salad",d:"Moong dal khichdi, with curd packed separately",share:"Blanched spinach and dal cook side by side",skill:"Blanching greens",art:"palak"}
  ],
  B:[
-  {day:"Mon",b:"Moong dal chilla with paneer",l:"Sambar, 3 idlis, coconut chutney, 2 boiled eggs",d:"Kimchi fried rice with 2 eggs",skill:"Fermented batter",art:"idli"},
-  {day:"Tue",b:"Savoury masala oats with 3 egg whites",l:"Paneer-capsicum masala, 2 phulkas, salad",d:"Gyeran-jjim, ½ cup rice, cucumber muchim",skill:"Gentle steaming",art:"steamedEgg"},
-  {day:"Wed",b:"2 egg dosas, tomato chutney",l:"Soya chunk curry, rice, cabbage poriyal",d:"Spinach-onion frittata (3 eggs), 1 toast",skill:"Frittata",art:"frittata"},
-  {day:"Thu",b:"Greek yogurt bowl with oats, fruit, seeds; 2 boiled eggs",l:"Masoor dal, lemon rice, beans poriyal, curd",d:"Gochujang tofu and veg stir-fry, ½ cup rice",skill:"High-heat stir-fry",art:"tofuBraise"},
-  {day:"Fri",b:"Veg upma, 2 boiled eggs",l:"Rasam, rice, egg roast, curd",d:"Aglio e olio with spinach and 2 fried eggs",skill:"Emulsifying",art:"pasta"}
+  {day:"Mon",qb:"idli",b:"Moong dal chilla with paneer",l:"Sambar, 3 idlis, coconut chutney, 2 boiled eggs",d:"Kimchi fried rice with 2 eggs",share:"Rice for the fried rice cooks with the sambar dal",skill:"Fermented batter",art:"idli"},
+  {day:"Tue",qb:"masalaoats",b:"Savoury masala oats with 3 egg whites",l:"Paneer-capsicum masala, 2 phulkas, salad",d:"Gyeran-jjim, ½ cup rice, cucumber muchim",share:"Steam the egg while the masala cooks",skill:"Gentle steaming",art:"steamedEgg"},
+  {day:"Wed",qb:"sandwich",b:"2 egg dosas, tomato chutney",l:"Soya chunk curry, rice, cabbage poriyal",d:"Spinach-onion frittata (3 eggs), 1 phulka",share:"Frittata bakes in the pan while the curry simmers",skill:"Frittata",art:"frittata"},
+  {day:"Thu",qb:"oats",b:"Ragi dosa with coconut chutney, 2 boiled eggs",l:"Masoor dal, lemon rice, beans poriyal, curd",d:"Gochujang tofu and veg stir-fry, ½ cup rice",share:"One rice batch, split for lemon rice and the stir-fry",skill:"High-heat stir-fry",art:"tofuBraise"},
+  {day:"Fri",qb:"eggplate",b:"Veg upma, 2 boiled eggs",l:"Rasam, rice, egg roast, curd",d:"Aglio e olio with spinach and 2 boiled eggs",share:"Boil the eggs and pasta water in one go",skill:"Emulsifying",art:"pasta"}
  ]
 };
-const WORK_MEALS = [
- ["2 boiled eggs, a fruit and 15 g peanuts","eggs"],
- ["Chana chaat with onion, tomato, lemon and chaat masala, plus buttermilk","chaat"],
- ["Hung-curd dip with carrot and cucumber sticks, plus 2 boiled eggs","raita"],
- ["The lunch curry rolled in a phulka with salad","wrap"],
- ["Paneer or egg sandwich on whole-wheat bread with mint chutney","sandwich"]
+const QUICK_BREAKFASTS = [
+ {id:"eggplate",n:"Boiled-egg plate",build:"3 boiled eggs with salt, pepper and chaat masala, 2 slices whole-wheat toast, 150 g curd and an apple",kcal:525,p:30,needs:"No cooking",art:"eggs"},
+ {id:"oats",n:"Overnight oats",build:"50 g oats, 200 ml milk, 150 g Greek yogurt, 1 tbsp chia and half a banana, mixed the night before",kcal:540,p:29,needs:"No cooking",art:"chia"},
+ {id:"yogurt",n:"Greek yogurt bowl",build:"200 g Greek yogurt or hung curd, 30 g oats or muesli, a fruit and 1 tbsp seeds, with 2 boiled eggs",kcal:555,p:35,needs:"No cooking",art:"yogurt"},
+ {id:"sattu",n:"Sattu and sprouts",build:"40 g sattu whisked into 300 ml buttermilk with lemon and cumin, a cup of sprouts chaat and 2 boiled eggs",kcal:470,p:31,needs:"No cooking",art:"sattu"},
+ {id:"sandwich",n:"Paneer sandwich and milk",build:"2 slices whole-wheat bread, 60 g paneer, mint chutney, cucumber and tomato, with 250 ml milk",kcal:490,p:26,needs:"No cooking",art:"sandwich"},
+ {id:"mugegg",n:"Microwave mug scramble",build:"2 eggs and 3 whites with onion, tomato and coriander: 60 seconds, stir, then 30–45 seconds more. With 2 toast and 200 ml milk",kcal:495,p:37,needs:"Microwave",art:"scramble"},
+ {id:"masalaoats",n:"Microwave masala oats",build:"50 g oats, water, chopped veg and masala with 4 egg whites stirred in, 3–4 minutes. With a cup of curd and a fruit",kcal:460,p:27,needs:"Microwave",art:"oats"},
+ {id:"idli",n:"Microwave idli",build:"4 idlis from Sunday’s batter in a microwave mould, 2–3 minutes, with chutney, 2 boiled eggs and a cup of curd (from Phase 2)",kcal:545,p:26,needs:"Microwave",art:"idli"}
+];
+const QB = Object.fromEntries(QUICK_BREAKFASTS.map(q=>[q.id,q]));
+const SNACKS = [
+ ["A fruit and 20 g roasted chana","chaat"],
+ ["Sundal packed in a small box","sundal"],
+ ["Carrot and cucumber sticks with hung-curd dip","raita"],
+ ["A handful of peanuts and a fruit","peanuts"],
+ ["Buttermilk and a bowl of roasted makhana","makhana"]
 ];
 const WORKED = [
  ["05:40","1 banana, black coffee",105,1],
- ["08:45","Masala omelette (2 eggs + 3 whites, 1 tsp oil), 2 slices whole-wheat toast, coffee with 200 ml milk",520,36],
- ["11:20","Dal tadka (50 g dry dal), ¾ cup jeera rice, soya-beans poriyal (25 g dry soya), 150 g curd",640,33],
- ["16:00","2 boiled eggs, 1 apple, 15 g peanuts",310,16],
- ["18:30","1 scoop whey in water, 100 g shrikhand",270,30],
- ["21:30","Paneer bhurji (60 g paneer), 1 phulka, kachumber",390,16]
+ ["08:45","Boiled-egg plate: 3 boiled eggs, 2 slices whole-wheat toast, 150 g curd, 1 apple",525,30],
+ ["10:00","Coffee with 150 ml milk, the last caffeine of the day",90,5],
+ ["12:00","1 scoop whey in water, 1 orange or guava",200,25],
+ ["15:00","Packed lunch: dal tadka (50 g dry dal), ½ cup jeera rice, soya-beans poriyal (25 g dry soya), 150 g curd",590,32],
+ ["17:30","20 g roasted chana, 100 g shrikhand",225,10],
+ ["20:00","Packed dinner: egg-paneer bhurji (2 eggs + 40 g paneer), 1 phulka, kachumber",475,25]
+];
+const PACKING = [
+ ["Cool before you pack","Spread hot food in shallow boxes for 15–20 minutes, then put the lids on. Warm food in a sealed box stays in the danger zone longest."],
+ ["Keep dinner cold until 20:00","It waits about 8 hours. Use the office fridge, or an insulated bag with an ice pack. Rice, dal, egg and paneer dishes shouldn’t sit out for more than 2 hours, or 1 hour on very hot days."],
+ ["Reheat until steaming","Microwave until it’s steaming hot all the way through, stirring halfway."],
+ ["Glass, not steel, for the microwave","Steel tiffins can’t go in a microwave. Pack in glass or microwave-safe boxes, or tip the food onto a plate first."],
+ ["Wet and dry apart","Rasam, raita and chutney go in leak-proof jars; wrap phulkas in a cloth or foil so they stay soft."],
+ ["No microwave at work?","Pick dinners that taste good cool: frittata, parathas, pulao, kimchi rice, sundal and wraps."]
+];
+const MICROWAVE = [
+ ["Oats","50 g oats with 200 ml water or milk in a large bowl, 2–3 minutes, stirring once.","oats"],
+ ["Mug scramble","Eggs and chopped veg in a greased mug, 60 seconds, stir, then 30–45 seconds more.","scramble"],
+ ["Steamed vegetables","Chopped veg with 2 tbsp water, covered, 2–3 minutes. Season or temper afterwards.","poriyal"],
+ ["Idli","Sunday’s batter in a microwave idli mould, 2–3 minutes.","idli"],
+ ["Gyeran-jjim","Eggs whisked with equal water, covered, 2–3 minutes at half power.","steamedEgg"],
+ ["Papad and makhana","Roast in 30–60 seconds, with no oil.","makhana"],
+ ["Mug cake","A single portioned treat in about 90 seconds, so there’s no tray left to finish.","brownie"]
 ];
 const FORMULAS = [
- ["Bhurji plate","Eggs or paneer, 2 tbsp masala base, 1 phulka","bhurji"],
- ["Korean rice bowl","Egg or tofu, ½ cup rice, veg, soy-sesame or gochujang","eggRice"],
- ["Pasta night","60 g pasta, eggs or paneer, veg, garlic oil","pasta"],
+ ["Bhurji wrap","Eggs or paneer, 2 tbsp masala base, rolled in phulkas","bhurji"],
+ ["Korean rice bowl","Soy-marinated boiled eggs or tofu, ½ cup rice, veg, soy-sesame or gochujang","eggRice"],
+ ["Pasta box","60 g pasta, boiled eggs or paneer, veg, garlic oil","pasta"],
  ["Dal and eggs","Reheated dal, 2 boiled eggs, salad, 1 phulka","dal"],
  ["Chilla night","Besan or moong batter, paneer filling, chutney","chilla"],
  ["Eggs in sauce","Masala base or tomato sauce with 3 eggs poached in it","shakshuka"],
@@ -585,6 +611,7 @@ const PROTEIN = [
  ["Whey protein","1 scoop (~30 g)",23.5,120,"Optional booster","whey"],
  ["Chicken breast, raw","100 g",22.5,120,"From Phase 4","breast"],
  ["Paneer, full-fat","100 g",19,282,"Calorie-dense; weigh it","paneerBlock"],
+ ["Fish fillet, raw (seer, rohu, basa)","100 g",19,115,"From Phase 5","searedFish"],
  ["Chicken thigh, skinless, raw","100 g",18.5,132,"Juicier, more forgiving","drumstick"],
  ["Soya chunks, dry","30 g",15.5,105,"Best protein per kcal for vegetarians","soya"],
  ["Tofu, firm","100 g",12.5,122,"Brands vary; check the label","tofuBlock"],
@@ -596,6 +623,7 @@ const PROTEIN = [
  ["Milk, toned","250 ml",8,145,"","milk"],
  ["Peanuts","30 g",7.5,170,"Mostly fat; portion it","peanuts"],
  ["Whole egg","1 large",6,72,"The yolk carries most vitamins","egg"],
+ ["Sattu (roasted chana flour)","40 g",8.5,160,"No-cook breakfast drink","sattu"],
  ["Roasted chana","30 g",6,110,"Great work snack","chaat"],
  ["Curd, toned milk","150 g",5,90,"","curd"],
  ["Ragi flour","50 g",3.7,165,"Mostly carbs, but very high in calcium","kali"],
@@ -606,19 +634,21 @@ const PREP = [
  "Saturday night from Phase 2: grind idli/dosa batter so it ferments overnight",
  "Start the pressure cooker with rajma or chana soaked since Saturday (about 25 minutes)",
  "Make the masala base from 1 kg onions and 1 kg tomatoes; freeze extra as cubes",
- "Boil 8–10 eggs and keep them in the shell in the fridge",
+ "Boil 12 eggs for quick breakfasts and keep them in the shell; boil 6 more midweek",
+ "Mix 2 jars of overnight oats for Monday and Tuesday",
  "Hang 1 kg curd in muslin for about 500 g hung curd",
  "Wash, dry and chop 3 days of vegetables; grind ginger-garlic paste and green chutney",
- "Portion snacks into 30 g bags: roasted chana, makhana, nuts",
+ "Portion snacks into 30 g bags: roasted chana, makhana, nuts; soak moong for sprouts",
  "Make the week’s dessert and portion it into five boxes",
  "Plan next week’s menu and shopping list (10 minutes)"
 ];
 const COOK_BLOCK = [
- ["10:30","Pressure cooker on with dal and rice pot-in-pot, or pasta water on to boil"],
- ["10:35","Sabzi or curry on the stove, starting from the masala base"],
- ["10:55","Pack the work meal and set aside tonight’s component"],
- ["11:05","Tadka and finishing touches; wash up while it rests"],
- ["11:20","Eat"]
+ ["10:30","Pressure cooker on with dal and rice pot-in-pot; start the dinner base on the stove"],
+ ["10:45","Lunch sabzi or curry, starting from the masala base"],
+ ["11:00","Dinner main: bhurji, egg curry, frittata or stir-fry"],
+ ["11:20","Phulkas or tadka, then spread everything in shallow boxes to cool for 15 minutes"],
+ ["11:40","Pack lunch and dinner, dinner with an ice pack; wash up"],
+ ["12:00","Shake or yogurt with a fruit, then leave"]
 ];
 const STORAGE = [
  ["Cooked dal or curry","3 days","1 month"],["Cooked rice","1 day, chilled within 1 hour","1 month"],["Masala base","5 days","1 month as cubes"],
@@ -642,11 +672,13 @@ const EQUIP = [
  ["Two chopping boards in different colours","Veg now, raw chicken later",0,"boards"],
  ["Kitchen scale and measuring spoons","Portions and macros",0,"scale"],
  ["Mixer-grinder","Chutneys, pastes, batter",0,"grinder"],
- ["Steel tiffin and glass boxes","Work meals and prep",0,"boxes"],
+ ["Microwave-safe glass tiffin boxes","Lunch and dinner, reheated in their boxes",0,"boxes"],
+ ["Insulated lunch bag and 2 ice packs","Keeps the packed dinner safe until 20:00",0,"lunchbag"],
  ["Muslin cloth","Hung curd",0,"muslin"],
  ["Tawa, rolling pin and board","Rotis, dosas, chillas",1,"tawa"],
  ["Idli stand","Idlis",2,"idli"],
- ["Oven, OTG or air fryer (optional)","Bakes, tikka, roasted veg",3,"oven"],
+ ["Microwave; a convection model also bakes","Quick breakfasts, steaming and reheating",1,"microwave"],
+ ["Oven, OTG or air fryer (optional with a convection microwave)","Bakes, tikka, roasted veg",3,"oven"],
  ["Instant-read thermometer","Chicken to 74 °C",4,"thermometer"],
  ["Paniyaram pan (optional)","Kuzhi paniyaram",5,"paniyaram"]
 ];
@@ -698,6 +730,8 @@ const GLASS=(layers,top="")=>{
 const EGG=(x,y,s=1)=>el(x,y,9*s,7*s,"#FFFFFF",`stroke="#E7E2D6" stroke-width="0.8"`)+c(x+1*s,y-0.5*s,3.4*s,"#F2A814");
 const CUBE=(x,y,f="#FFF3DA")=>re(x,y,6,5,f,1.2);
 const DRUM=(x,y,rot=0,f="#C9803E")=>`<g transform="rotate(${rot} ${x} ${y})">${el(x,y,9,6.5,f)}${re(x+7,y-1.6,9,3.2,"#F3E9D6",1.6)}${c(x+16.5,y-1.8,2.2,"#F3E9D6")}${c(x+16.5,y+1.6,2.2,"#F3E9D6")}</g>`;
+const FISHW=(x,y,s,f,stripe="#7E8F98")=>`<g transform="translate(${x} ${y}) scale(${s})">${pa("M-14 0 Q-4 -8.5 10 -4 L18 -9.5 L16.5 0 L18 9.5 L10 4 Q-4 8.5 -14 0 Z",f)}${st("M-5 -5.5 Q-2.5 0 -5 5.5",stripe,0.9)}${c(-9.5,-1.2,1.3,"#1E1E1E")}</g>`;
+const STEAK=(x,y,f,rot=0)=>`<g transform="rotate(${rot} ${x} ${y})">${el(x,y,7,5,f)}${el(x,y,7,5,"none",`stroke="#00000022" stroke-width="0.8"`)}${c(x,y,1.1,"#F3E9D6")}</g>`;
 const RICE=(x,y,w,h,f="#F7F2E4")=>pa(`M${x-w} ${y} Q${x-w*0.8} ${y-h} ${x} ${y-h} Q${x+w*0.8} ${y-h} ${x+w} ${y} Z`,f);
 
 const ART={
@@ -799,6 +833,16 @@ const ART={
  nattuKozhi:()=>BOWL("#6E2412",DRUM(27,30,-10,"#7A3A1A")+herbs([[41,29,0,"#2E6B2F"],[38,32,40,"#2E6B2F"]])+st("M20 32 q4 -1 7 0","#C0753A",1.2)),
  varuval:()=>PLATE([[22,36],[31,33],[40,37],[27,41],[37,42]].map(([x,y])=>el(x,y,5,3.8,"#5E2A14")).join("")+dots([[22,34],[31,31],[40,35],[36,40]],0.9,"#1E1E1E")+herbs([[30,38,0,"#2E6B2F"],[44,33,30,"#2E6B2F"],[19,40,-20,"#2E6B2F"]])),
  virundhu:()=>pa("M4 44 Q10 18 40 18 Q60 20 62 34 Q58 52 32 54 Q12 54 4 44 Z","#3E8E41")+st("M6 42 Q34 36 60 34","#2D6B2F",1.4)+RICE(30,46,10,8,"#F7F2E4")+el(30,39,5,2.6,"#C9762A")+c(14,36,4,"#5C9E3A")+c(22,28,3.6,"#E9B53B")+c(46,28,4,"#B8321F")+c(51,41,5,"#F3E6CB")+c(37,26,3,"#F2EEDC"),
+ sattu:()=>GLASS([[22,53,"#E8D9B5"]],el(32,22,13,3,"#F1E6C8")+c(38,19,4.5,"#F4E04D")+c(38,19,3,"#FBF1A0")+dots([[27,30],[33,36],[29,44]],0.9,"#B99A5E")),
+ microwave:()=>re(6,14,52,36,"#3A4043",5)+re(10,18,32,28,"#2B3033",3)+re(13,21,26,22,"#E2A04A",2,`opacity="0.55"`)+el(26,38,8,3,"#F7F2E4",`opacity="0.8"`)+re(45,19,9,6,"#6FB0BB",1.5)+dots([[47,30],[52,30],[47,35],[52,35],[47,40],[52,40]],1.3,SH)+re(10,50,6,3,"#2B3033",1)+re(48,50,6,3,"#2B3033",1),
+ lunchbag:()=>re(10,22,44,32,"#3E7480",7)+re(10,22,44,9,"#356670",6)+st("M24 22 Q24 12 32 12 Q40 12 40 22","#2F5A63",3)+re(16,36,14,12,"#9BD3E0",3)+re(34,36,14,12,"#E6EEF0",3)+st("M19 42 h8 M37 42 h8","#5A7A82",1.2),
+ fishBasics:()=>re(5,28,54,24,"#D9AE6B",5)+re(8,31,48,18,"#E4BC7E",4)+FISHW(30,40,1.35,"#A9BCC6")+c(52,22,5,"#F4E04D")+c(52,22,3.4,"#FBF1A0")+herbs([[12,24,20],[16,22,-30]]),
+ tawaFish:()=>PLATE(STEAK(21,36,"#C9542A",-10)+STEAK(33,33,"#B8471F",15)+STEAK(43,39,"#C9542A",5)+dots([[19,35],[33,31],[44,38]],0.9,"#6A2612")+el(26,43,4,2.2,"none",`stroke="#C88AA8" stroke-width="1.2"`)+c(48,30,3.6,"#F4E04D")),
+ fishCurry:()=>BOWL("#C0361F",re(20,27,9,5.5,"#F1D9B8",2.5)+re(34,29,9,5.5,"#F1D9B8",2.5)+st("M21 29 h7 M35 31 h7","#C0361F",1)+herbs([[31,32,0,"#2E6B2F"],[44,28,30,"#2E6B2F"]])),
+ meenKuzhambu:()=>BOWL("#6A2412",re(20,27,9,5.5,"#E9C9A0",2.5)+re(34,29,9,5.5,"#E9C9A0",2.5)+c(29,33,1.8,"#C88AA8")+c(44,31,1.6,"#C88AA8")+herbs([[31,28,10,"#2E6B2F"]])+st("M22 32 q4 -1 7 0","#C0753A",1.2)),
+ meenVaruval:()=>PLATE(STEAK(21,36,"#8E2A14",-10)+STEAK(33,33,"#7E2410",15)+STEAK(43,39,"#8E2A14",5)+herbs([[27,41,0,"#2E6B2F"],[39,31,30,"#2E6B2F"],[47,34,-20,"#2E6B2F"]])+el(16,42,3.6,2,"#F4E04D")),
+ grilledFish:()=>PLATE(FISHW(31,37,1.25,"#B9824E","#8A5A30")+st("M22 33 l3 8 M28 32 l3 9 M34 32 l3 9","#7A4A26",1.1)+el(49,44,4,2.4,"#F4E04D")+el(15,44,4.5,2.6,"#F2EEDC")),
+ searedFish:()=>PLATE(re(17,30,28,13,"#F0E2C8",5)+re(17,30,28,5,"#E3A85E",4)+st("M18 46 q12 3 26 0","#F2CB4A",1.6)+c(48,33,4.6,"#F4E04D")+c(48,33,3,"#FBF1A0")+herbs([[24,31,10],[36,30,-20]])),
  bread:()=>PLATE([[20,37],[32,35],[44,37]].map(([x,y])=>re(x-6,y-7,12,14,"#E8C687",4)+re(x-4,y-5,8,10,"#F6E3A8",3)).join("")+dots([[20,36],[32,34],[44,36]],1,"#5C9E3A")),
  bruschetta:()=>PLATE([[23,37],[41,37]].map(([x,y])=>re(x-9,y-6,18,12,"#D9AE6B",4)+dots([[x-4,y-2],[x+2,y-1],[x-1,y+2],[x+4,y+2]],2,"#C9361F")+lf(x+1,y-3,20,"#3E8E41")).join("")),
  lasagne:()=>PLATE(re(17,27,30,20,"#F3D88A",3)+re(17,30,30,3,"#C9361F",1)+re(17,36,30,3,"#F7F0DE",1)+re(17,42,30,3,"#C9361F",1)+re(17,26,30,3,"#E2A64A",1.5)+herbs([[30,25,20]])),
@@ -938,7 +982,8 @@ function commit(rerender=true){
 /* ---------- Firebase sync ---------- */
 const FB_VER="12.2.1";
 const FB_CFG_KEY="kitchen-roadmap-fbconfig";
-const FILE_CFG=!!(FIREBASE_CONFIG&&FIREBASE_CONFIG.apiKey&&FIREBASE_CONFIG.projectId);
+const FILE_CFG_OBJ=(()=>{let c=null;try{c=(typeof FIREBASE_CONFIG!=="undefined"&&FIREBASE_CONFIG)||(typeof firebaseConfig!=="undefined"&&firebaseConfig)||null;}catch(e){c=null;}return c&&c.apiKey&&c.projectId?c:null;})();
+const FILE_CFG=!!FILE_CFG_OBJ;
 const RULES_TXT=`rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
@@ -947,13 +992,19 @@ service cloud.firestore {
     }
   }
 }`;
-const fb={cfg:null,auth:null,db:null,mod:null,user:null,unsub:null,err:""};
-fb.cfg=getConfig();
-function getConfig(){
-  if(FILE_CFG)return FIREBASE_CONFIG;
-  try{const c=JSON.parse(localStorage.getItem(FB_CFG_KEY)||"null");if(c&&c.apiKey&&c.projectId&&c.appId)return c;}catch(e){}
+const fb={cfg:null,src:"",auth:null,db:null,mod:null,user:null,unsub:null,err:""};
+function syncConfig(){
+  if(FILE_CFG)return {cfg:FILE_CFG_OBJ,src:"file"};
+  try{const c=JSON.parse(localStorage.getItem(FB_CFG_KEY)||"null");if(c&&c.apiKey&&c.projectId)return {cfg:c,src:"browser"};}catch(e){}
+  return {cfg:null,src:""};
+}
+async function hostingConfig(){
+  if(!/^https?:$/.test(location.protocol))return null;
+  try{const r=await fetch("/__/firebase/init.json",{cache:"no-store"});if(!r.ok)return null;const c=await r.json();
+    if(c&&c.apiKey&&c.projectId){if(!c.authDomain)c.authDomain=c.projectId+".firebaseapp.com";return c;}}catch(e){}
   return null;
 }
+{const r0=syncConfig();fb.cfg=r0.cfg;fb.src=r0.src;}
 function parseConfig(txt){
   const out={},re=/(apiKey|authDomain|projectId|storageBucket|messagingSenderId|appId|measurementId)["']?\s*:\s*["']([^"']+)["']/g;let m;
   while((m=re.exec(String(txt))))out[m[1]]=m[2];
@@ -976,7 +1027,9 @@ function errText(code){
 function initials(){const n=(fb.user&&(fb.user.name||fb.user.email))||"?";return esc(n.split(/[\s@.]+/).filter(Boolean).slice(0,2).map(w=>w[0].toUpperCase()).join(""));}
 function avatar(){return `<span class="avatar" aria-hidden="true">${initials()}</span>`;}
 async function initFirebase(){
-  fb.cfg=getConfig();
+  let r=syncConfig();
+  if(r.src!=="file"){const h=await hostingConfig();if(h)r={cfg:h,src:"hosting"};}
+  fb.cfg=r.cfg;fb.src=r.src;
   if(!fb.cfg){setStatus("setup");render();return;}
   setStatus("signedout");
   if(location.protocol==="file:"){fb.err="file";render();return;}
@@ -1090,7 +1143,7 @@ function renderNav(){
    <div class="nav-group"><span>Plan</span>${a("today","Today")}${a("roadmap","Roadmap")}${a("weekends","Weekend calendar")}</div>
    <div class="nav-group"><span>Skill trees</span>${TRACKS.map(t=>a(t.hash,`${esc(t.short)}<span class="pct">${Math.round(trackProgress(t).pct*100)}%</span>`,`<i class="tdot" style="--c:var(--${t.id})"></i>`)).join("")}</div>
    <div class="nav-group"><span>Reference</span>${a("nutrition","Nutrition")}${a("menu","Weekday menus")}${a("kitchen","Kitchen and prep")}</div>
-   <div class="nav-group"><span>Tracking</span>${a("progress","Weight and waist")}${a("sync","Sync and account")}</div>
+   <div class="nav-group"><span>Tracking</span>${a("progress","Weight and waist")}${a("sync",fb.cfg?"Account":"Set up sync")}</div>
   </div>
   <div class="save" id="saveStatus" data-s="${store.status}" role="status"><i></i><span></span></div>
   <div class="acct">${acctHtml()}</div>`;
@@ -1129,35 +1182,45 @@ function viewSync(){
   else status=`<p>Sign in to back up your progress and pick it up on your phone or laptop. Anything you’ve already ticked on this device is uploaded the first time.</p>
     <button class="btn" type="button" data-act="signin" data-k="si">Sign in with Google</button>`;
   const err=fb.err?`<div class="note" style="--c:var(--ko)" role="alert">${esc(errText(fb.err))}</div>`:"";
-  const cfgBox=FILE_CFG?`<p class="small muted">Set in the file’s FIREBASE_CONFIG, project <b>${esc(cfg.projectId)}</b>.</p>`
-    :`<p class="sec-lead">${cfg?`Connected to project <b>${esc(cfg.projectId)}</b>, saved in this browser. Paste a new config to change it.`:"Paste the firebaseConfig block from your Firebase project settings; the whole snippet is fine."}</p>
+  const srcText={file:"set in this file",hosting:"picked up automatically from Firebase Hosting",browser:"saved in this browser"}[fb.src]||"";
+  const connected=cfg?`<p class="tiny" style="margin:14px 0 0">Connected to Firebase project <b>${esc(cfg.projectId)}</b>, ${srcText}.</p>`:"";
+  const pasteBox=`<p class="sec-lead">${cfg?"Paste a new config to switch projects.":"Paste the firebaseConfig block from your Firebase project settings; the whole snippet is fine."}</p>
     <textarea id="cfgBox" data-k="cfgbox" spellcheck="false" placeholder="const firebaseConfig = { apiKey: &quot;…&quot;, authDomain: &quot;…&quot;, projectId: &quot;…&quot;, appId: &quot;…&quot; };"></textarea>
-    <div class="row" style="margin-top:10px"><button class="btn" type="button" data-act="savecfg" data-k="savecfg">Save config</button>${cfg?`<button class="btn quiet" type="button" data-act="clearcfg" data-k="clearcfg">Remove config</button>`:""}<span class="tiny" id="cfgErr" role="alert"></span></div>`;
-  return `<h1 class="title">Sync and account</h1>
-  <p class="lead">Sign in with Google to keep your progress in your own Firebase project, so it follows you across devices.</p>
-  <div class="panel" style="margin-top:18px"><h3>${fb.user?"Signed in":"Your account"}</h3>${status}${err}</div>
-  <h2 class="sec">Your Firebase config</h2>${cfgBox}
-  <h2 class="sec">One-time setup</h2><p class="sec-lead">About 10 minutes, all in the free Spark plan.</p>
-  <ol class="steps">
+    <div class="row" style="margin-top:10px"><button class="btn" type="button" data-act="savecfg" data-k="savecfg">Save config</button>${fb.src==="browser"?`<button class="btn quiet" type="button" data-act="clearcfg" data-k="clearcfg">Remove config</button>`:""}<span class="tiny" id="cfgErr" role="alert"></span></div>`;
+  const steps=`<ol class="steps">
    <li><span>Go to <a href="https://console.firebase.google.com" target="_blank" rel="noopener">console.firebase.google.com</a> and create a project. Google Analytics is optional.</span></li>
-   <li><span>In Project settings, under Your apps, add a Web app (the &lt;/&gt; icon) and copy the <code>firebaseConfig</code> it shows.</span></li>
-   <li><span>In Build, Authentication, click Get started, open Sign-in method and enable Google.</span></li>
-   <li><span>In Build, Firestore Database, create a database in production mode. Then open its Rules tab, paste the rules below and publish.</span></li>
-   <li><span>Give this page a web address. The simplest is Firebase Hosting: install the Firebase CLI, run <code>firebase init hosting</code> in an empty folder, save this file as <code>public/index.html</code> and run <code>firebase deploy</code>. To try it on your laptop first, run <code>npx serve</code> in the file’s folder and open the localhost address it prints.</span></li>
-   <li><span>If you host it anywhere other than Firebase Hosting (GitHub Pages, Netlify), add that domain under Authentication, Settings, Authorized domains. Localhost is allowed already.</span></li>
-   <li><span>Open the page from its web address, paste your config above (or into <code>FIREBASE_CONFIG</code> at the top of the file’s script) and sign in.</span></li>
-  </ol>
-  <h2 class="sec">Firestore security rules</h2><p class="sec-lead">Each signed-in person can read and write only their own progress, stored at users/your-user-id.</p>
+   <li><span>In Project settings, under Your apps, add a Web app (the &lt;/&gt; icon).</span></li>
+   <li><span>Open Authentication (under Security, or Build on older layouts), click Get started, open Sign-in method and enable Google.</span></li>
+   <li><span>Open Firestore (under Databases &amp; Storage, or Build), create a database in production mode, then paste the rules below into its Rules tab and publish.</span></li>
+   <li><span>Host this file with Firebase Hosting: run <code>firebase init hosting</code> in an empty folder, save this file as <code>public/index.html</code> and run <code>firebase deploy --only hosting</code>.</span></li>
+   <li><span>Open your Hosting URL and sign in. On Firebase Hosting the page finds your config by itself. Anywhere else, paste the config on this page or into <code>FIREBASE_CONFIG</code> at the top of the file, and add the domain under Authentication, Settings, Authorized domains.</span></li>
+  </ol>`;
+  const rules=`<h3 style="margin-top:18px">Firestore security rules</h3><p class="small muted">Each signed-in person can read and write only their own progress, stored at users/your-user-id.</p>
   <pre class="code">${esc(RULES_TXT)}</pre>
-  <div class="row"><button class="btn quiet sm" type="button" data-act="copyrules" data-k="copyrules">Copy rules</button><span class="tiny" id="copyMsg" role="status"></span></div>
-  <h2 class="sec">Good to know</h2>
-  <ul class="small" style="max-width:70ch;padding-left:20px;line-height:1.7">
-   <li>The apiKey in a Firebase web config isn’t a secret; it only identifies your project. The security rules are what keep your data private.</li>
+  <div class="row"><button class="btn quiet sm" type="button" data-act="copyrules" data-k="copyrules">Copy rules</button><span class="tiny" id="copyMsg" role="status"></span></div>`;
+  const notes=`<ul class="small" style="max-width:70ch;padding-left:20px;line-height:1.7">
    <li>The first time you sign in, progress already on this device is uploaded. After that, whichever copy changed most recently wins.</li>
    <li>Changes made offline are kept on the device and sync when you’re back online.</li>
    <li>If someone else signs in on this device, their own progress loads instead; yours isn’t mixed into their account.</li>
-  </ul>
-  ${!fb.user?`<h2 class="sec">This device</h2><p class="sec-lead">While you’re signed out, progress stays in this browser. On a shared computer you can remove it.</p><button class="btn quiet" type="button" data-act="clearlocal" data-k="clearlocal">Remove progress from this device</button>`:""}`;
+   <li>The apiKey in a Firebase web config isn’t a secret; it only identifies your project. The security rules keep your data private.</li>
+  </ul>`;
+  const device=!fb.user?`<h2 class="sec">This device</h2><p class="sec-lead">While you’re signed out, progress stays in this browser. On a shared computer you can remove it.</p><button class="btn quiet" type="button" data-act="clearlocal" data-k="clearlocal">Remove progress from this device</button>`:"";
+  if(cfg){
+    return `<h1 class="title">Account</h1>
+    <p class="lead">Sign in with Google to keep your progress in sync between your laptop and phone.</p>
+    <div class="panel" style="margin-top:18px"><h3>${fb.user?"Signed in":"Your account"}</h3>${status}${err}${connected}</div>
+    <h2 class="sec">How sync works</h2>${notes}
+    ${device}
+    <details class="panel setup-ref" style="margin-top:32px"><summary><b>Setup details and security rules</b> <span class="tiny">for reference only; sync is already set up</span></summary>
+     <div style="margin-top:14px">${fb.src==="browser"?`<h3>Your Firebase config</h3>${pasteBox}`:""}${steps}${rules}</div></details>`;
+  }
+  return `<h1 class="title">Set up sync</h1>
+  <p class="lead">Sign in with Google to keep your progress in your own Firebase project, so it follows you across devices.</p>
+  <div class="panel" style="margin-top:18px"><h3>Your account</h3>${status}${err}</div>
+  <h2 class="sec">Your Firebase config</h2>${pasteBox}
+  <h2 class="sec">One-time setup</h2><p class="sec-lead">About 15 minutes, all on the free Spark plan.</p>${steps}${rules}
+  <h2 class="sec">Good to know</h2>${notes}
+  ${device}`;
 }
 /* ---------- shared pieces ---------- */
 function nodeBtn(n,opts={}){
@@ -1166,6 +1229,7 @@ function nodeBtn(n,opts={}){
   if(s===1&&c)sub=`Tried, cooked ${c}×`;
   if(s===0&&lock){const m=n.req.find(r=>sOf(n.track+"."+r)<1);sub=`After ${TRACK[n.track].byId[m].n}`;}
   else if(s===0&&n.chicken)sub="Chicken, from Week 13";
+  else if(s===0&&n.fish)sub="Fish, from Week 19";
   return `<button class="node" type="button" data-node="${n.key}" data-k="n-${n.key}" data-s="${s}" data-lock="${lock&&s===0?1:0}" style="--c:var(--${n.track})" aria-label="${esc(n.n)}: ${esc(sub)}">
    <span class="katori" ${opts.noId?"":`id="k-${n.key}"`}>${art(n.art)}${s===2?`<span class="mark">${CHECK}</span>`:""}</span>
    <span class="node-name">${esc(n.n)}</span>${opts.track?`<span class="node-sub">${esc(TRACK[n.track].short)}</span>`:`<span class="node-sub">${esc(sub)}</span>`}</button>`;
@@ -1216,17 +1280,21 @@ function viewToday(){
   const L=weekLetter(Math.max(w,0)),wk=WEEKENDS[Math.min(25,Math.max(0,w-1))],dessertName=w>=1&&w<=26?wk.des:"this week’s dessert";
   let slots=[];
   if(dow>=1&&dow<=5){
-    const m=MENU[L][dow-1];
-    slots=[["05:40",340,"Pre-workout","1 banana or 2 dates, black coffee","~100 kcal"],["06:00",360,"Training","Calisthenics and cardio until 08:30; sip 500–750 ml water an hour",""],
-      ["08:45",525,"Breakfast",m.b,"~500 kcal, 30–35 g protein"],["10:30",630,"Cook block","Cook lunch, pack the work meal, prep tonight’s base",""],
-      ["11:20",680,"Lunch",m.l,"~600 kcal, 30 g protein"],["16:00",960,"Work meal",WORK_MEALS[dow-1][0],"~350 kcal, 15–20 g protein"],
-      ["18:30",1110,"Booster and dessert",`Whey shake or Greek yogurt, plus one portion of ${dessertName}`,"~270 kcal, 25–30 g protein"],
-      ["21:30",1290,"Dinner",m.d,"~400 kcal, 25–30 g protein"],["22:45",1365,"Lights out","Aim for 7 hours of sleep",""]];
+    const m=MENU[L][dow-1],qb=QB[m.qb];
+    slots=[["05:40",340,"Pre-workout and coffee","1 banana or 2 dates, black coffee","~100 kcal"],["06:00",360,"Training","Calisthenics and cardio until 08:30; sip 500–750 ml water an hour",""],
+      ["08:45",525,"Breakfast",`${qb.n}: ${qb.build.charAt(0).toLowerCase()+qb.build.slice(1)}.`,`~${qb.kcal} kcal, ${qb.p} g protein. Got 15 minutes? Cook ${m.b.charAt(0).toLowerCase()+m.b.slice(1)} instead.`],
+      ["10:00",600,"Coffee","Milky coffee, your last caffeine before noon",""],
+      ["10:30",630,"Cook block","Cook lunch and dinner, cool them, then pack both",m.share],
+      ["12:00",720,"Before you leave","Whey shake or Greek yogurt, plus a fruit","~200 kcal, 25 g protein"],
+      ["15:00",900,"Packed lunch",m.l,"~600 kcal, 30 g protein"],
+      ["17:30",1050,"Tea-time snack and dessert",`${SNACKS[dow-1][0]}, plus one portion of ${dessertName}`,"~250 kcal, 10 g protein"],
+      ["20:00",1200,"Packed dinner",m.d,"~450 kcal, 25–30 g protein. Reheat until steaming hot"],
+      ["22:30",1350,"Home","Warm milk only if you’re hungry; lights out by 23:15",""]];
   }else if(dow===6){
-    slots=[["09:00",540,"Brunch","A bigger egg breakfast: masala omelette or bhurji with toast and fruit",""],["11:00",660,"Exploration dish",w>=1&&w<=26?wk.dish:"Pick any dish from your trees",`New skill: ${w>=1&&w<=26?wk.skill:"your choice"}`],
+    slots=[["09:00",540,"Brunch and coffee","A bigger egg breakfast: masala omelette or bhurji with toast and fruit","Coffee before noon"],["11:00",660,"Exploration dish",w>=1&&w<=26?wk.dish:"Pick any dish from your trees",`New skill: ${w>=1&&w<=26?wk.skill:"your choice"}`],
       ["16:00",960,"Snack","Fruit with a handful of roasted chana",""],["18:30",1110,"Booster","Whey shake or Greek yogurt",""],["20:30",1230,"Light dinner","Moong dal khichdi or soup with eggs",""]];
   }else{
-    slots=[["09:00",540,"Brunch","Eggs, toast and fruit",""],["10:30",630,"Sunday batch prep","90 minutes: masala base, eggs, hung curd, chopped veg","See Kitchen and prep"],
+    slots=[["09:00",540,"Brunch and coffee","Eggs, toast and fruit","Coffee before noon"],["10:30",630,"Sunday batch prep","90 minutes: masala base, 12 boiled eggs, overnight oats, hung curd, chopped veg","See Kitchen and prep"],
       ["15:00",900,"Make the dessert",w>=0&&w<=26?WEEKENDS[Math.min(25,Math.max(0,w-1))].des:"Your choice","Portion it into five boxes"],["18:30",1110,"Booster","Whey shake or Greek yogurt",""],["20:30",1230,"Dinner from the prep","Dal or curry with phulka and salad",""]];
   }
   const nowM=now.getHours()*60+now.getMinutes();let cur=-1;slots.forEach((s,i)=>{if(s[1]<=nowM)cur=i;});
@@ -1234,7 +1302,7 @@ function viewToday(){
   const wkIdx=w<1?1:Math.min(26,w),wd=WEEKENDS[wkIdx-1];
   const wkLabel=w<1?"Your first weekend project":`This weekend, Week ${wkIdx}`;
   const wkHtml=weekendItems(wd);
-  const next=nodesAll.filter(n=>sOf(n.key)===0&&!locked(n)&&n.t<=ph.tier&&(!n.chicken||w>=12)).sort((a,b)=>a.t-b.t).slice(0,8);
+  const next=nodesAll.filter(n=>sOf(n.key)===0&&!locked(n)&&n.t<=ph.tier&&(!n.chicken||w>=12)&&(!n.fish||w>=18)).sort((a,b)=>a.t-b.t).slice(0,8);
   return `
   <section class="hero">${dabba()}
    <div><h1 class="title">${esc(title)}</h1><p class="lead">${esc(lead)}</p>${w>=0?`<p class="tiny" style="margin-top:-4px">Not the week you’re on? <a href="#roadmap">Adjust it on the roadmap</a>.</p>`:""}
@@ -1289,7 +1357,7 @@ function viewRoadmap(){
       <div><h3>In your skill trees <span class="tiny">${nd} of ${nodes.length} from memory</span></h3><div class="chips">${nodes.map(chip).join("")}</div></div></div>
     </details>`;}).join("");
   return `<h1 class="title">Your 26-week roadmap</h1>
-  <p class="lead">Six phases from first dal to hosting a dinner. Phases 0–3 stay eggetarian; chicken joins in Phase 4. Move on when you tick a phase’s gate, not just when the week changes.</p>
+  <p class="lead">Six phases from first dal to hosting a dinner. Phases 0–3 stay eggetarian; chicken joins in Phase 4 and basic fish in Phase 5. Move on when you tick a phase’s gate, not just when the week changes.</p>
   <div class="panel row" style="margin-top:18px;justify-content:space-between"><span><b>You’re in ${esc(w<0?"Week 0":w>26?"the weeks after the plan":weekLabel(w))}.</b> <span class="small muted">Weeks count from the Monday you started; shift them if you’ve paused or jumped ahead.</span></span>
    <span class="row" style="gap:8px"><button class="btn quiet sm" type="button" data-act="shiftweek" data-d="-1" data-k="sw-m" ${w<=0?"disabled":""}>Back a week</button><button class="btn quiet sm" type="button" data-act="shiftweek" data-d="1" data-k="sw-p" ${w>=27?"disabled":""}>Forward a week</button></span></div>
   <div style="margin-top:16px">${ph}</div>`;
@@ -1346,7 +1414,7 @@ function nodeDialog(k){
   const link=m=>`<button class="chip" type="button" data-node="${m.key}" data-k="dl-${m.key}" data-s="${sOf(m.key)}" style="--c:var(--${m.track})">${art(m.art)}${esc(m.n)}${m.track!==n.track?` <span class="tiny">(${esc(TRACK[m.track].short)})</span>`:""}</button>`;
   return `<div style="--c:var(--${n.track})">
   <div class="dlg-head"><div class="node" data-s="${s}" style="padding:0;pointer-events:none"><span class="katori">${art(n.art)}${s===2?`<span class="mark">${CHECK}</span>`:""}</span></div>
-   <div><h2 id="dlgTitle">${esc(n.n)}</h2><div class="row" style="gap:6px"><span class="pill tone">${esc(t.short)}</span><span class="pill">${esc(tl.n)}</span><span class="pill">${esc(n.when)}</span>${n.chicken?'<span class="pill">Chicken</span>':""}</div></div>
+   <div><h2 id="dlgTitle">${esc(n.n)}</h2><div class="row" style="gap:6px"><span class="pill tone">${esc(t.short)}</span><span class="pill">${esc(tl.n)}</span><span class="pill">${esc(n.when)}</span>${n.chicken?'<span class="pill">Chicken</span>':""}${n.fish?'<span class="pill">Fish</span>':""}</div></div>
    <button class="x" type="button" data-act="close" aria-label="Close"><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M3 3 L13 13 M13 3 L3 13" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button></div>
   <div class="dlg-body">
    <h3>What you learn</h3><p>${esc(n.learn)}</p>
@@ -1428,25 +1496,28 @@ function updateCalc(){
 function viewMenu(){
   const w=planWeek(),L=ui.menuWeek||weekLetter(Math.max(w,0)),now=new Date(),dow=now.getDay(),curL=weekLetter(Math.max(w,0));
   const days=MENU[L].map((m,i)=>`<article class="day ${L===curL&&dow===i+1?"today":""}">${art(m.art,"day-art")}<h3>${m.day}${L===curL&&dow===i+1?' <span class="pill">Today</span>':""}</h3>
-   <dl><dt>Breakfast</dt><dd>${esc(m.b)}</dd><dt>Lunch, from the cook block</dt><dd>${esc(m.l)}</dd><dt>Dinner, 15 minutes</dt><dd>${esc(m.d)}</dd><dt>Skill practised</dt><dd>${esc(m.skill)}</dd></dl></article>`).join("");
+   <dl><dt>Quick breakfast</dt><dd>${esc(QB[m.qb].n)}</dd><dt>Or, with 15 minutes</dt><dd>${esc(m.b)}</dd><dt>Packed lunch, 15:00</dt><dd>${esc(m.l)}</dd><dt>Packed dinner, 20:00</dt><dd>${esc(m.d)}</dd><dt>Cooked together</dt><dd>${esc(m.share)}</dd><dt>Skill practised</dt><dd>${esc(m.skill)}</dd></dl></article>`).join("");
   const tot=WORKED.reduce((a,r)=>[a[0]+r[2],a[1]+r[3]],[0,0]);
   return `<h1 class="title">Weekday menus</h1>
-  <p class="lead">Alternate Week A and Week B. With the work meal, booster and dessert, each day lands near 2,200 kcal and 130 g protein.</p>
+  <p class="lead">Alternate Week A and Week B. Breakfast is a 5-minute option most days, and lunch and dinner both come out of one cook block and travel to work with you. Each day lands near 2,200 kcal and 130 g protein.</p>
   <div class="row" style="margin:20px 0 14px"><div class="seg" role="group" aria-label="Menu week"><button type="button" data-act="menuw" data-v="A" data-k="mw-A" aria-pressed="${L==="A"}">Week A, Phases 1–2</button><button type="button" data-act="menuw" data-v="B" data-k="mw-B" aria-pressed="${L==="B"}">Week B, Phases 2–3</button></div><span class="tiny">This week uses Week ${curL}.</span></div>
   <div class="days">${days}</div>
-  <h2 class="sec">Work meal rotation</h2><p class="sec-lead">Packed for 16:00; one per weekday, Monday to Friday.</p>
-  <div class="grid">${WORK_MEALS.map((x,i)=>`<div class="formula">${art(x[1])}<div><h3>${["Mon","Tue","Wed","Thu","Fri"][i]}</h3><p class="small muted" style="margin:0">${esc(x[0])}</p></div></div>`).join("")}</div>
+  <h2 class="sec">Quick breakfasts</h2><p class="sec-lead">No stove, 5 minutes or less, each around 450–550 kcal and 25–35 g protein. Swap any of them into any day.</p>
+  <div class="formulas">${QUICK_BREAKFASTS.map(q=>`<div class="formula">${art(q.art)}<div><h3>${esc(q.n)}</h3><p class="small muted" style="margin:0 0 6px">${esc(q.build)}</p><span class="row" style="gap:6px"><span class="pill">${q.needs}</span><span class="pill">${q.kcal} kcal</span><span class="pill">${q.p} g protein</span></span></div></div>`).join("")}</div>
+  <h2 class="sec">Tea-time snacks at work</h2><p class="sec-lead">Around 17:30, between the two packed meals, with your dessert portion.</p>
+  <div class="grid">${SNACKS.map((x,i)=>`<div class="formula">${art(x[1])}<div><h3>${["Mon","Tue","Wed","Thu","Fri"][i]}</h3><p class="small muted" style="margin:0">${esc(x[0])}</p></div></div>`).join("")}</div>
   <h2 class="sec">Tamil swaps</h2><p class="sec-lead">Simple traditional dishes from your Tamil tree that slot straight into any weekday. Tap one to open it in the tree.</p>
   <div class="formulas">${TAMIL_SWAPS.map(f=>`<button class="formula" type="button" data-node="${f[3]}" data-k="ts-${f[3]}" style="--c:var(--ta)">${art(f[2])}<span><h3>${esc(f[0])}</h3><span class="small muted">${esc(f[1])}</span></span></button>`).join("")}</div>
   <div class="note" style="--c:var(--ta)">Kali, koozh and millet dishes are mostly carbs, though rich in fibre and calcium. Pair them with eggs, dal or sundal so each meal still carries 25–35 g protein. A ball of ragi kali from 60 g flour is about 200 kcal.</div>
-  <h2 class="sec">15-minute dinner formulas</h2><p class="sec-lead">Mix and match when you’re tired at 21:30.</p>
+  <h2 class="sec">Fast dinner formulas</h2><p class="sec-lead">Each adds about 15 minutes to the cook block and packs well.</p>
   <div class="formulas">${FORMULAS.map(f=>`<div class="formula">${art(f[2])}<div><h3>${esc(f[0])}</h3><p class="small muted" style="margin:0">${esc(f[1])}</p></div></div>`).join("")}</div>
-  <h2 class="sec">How a day adds up</h2><p class="sec-lead">Monday of Week A, weighed out. Weigh portions for the first two weeks until you can eyeball them.</p>
+  <h2 class="sec">How a day adds up</h2><p class="sec-lead">Monday of Week A with the quick breakfast, weighed out. Weigh portions for the first two weeks until you can eyeball them.</p>
   <div class="tbl"><table><thead><tr><th>Time</th><th>Food</th><th class="num">~kcal</th><th class="num">~Protein</th></tr></thead><tbody>${WORKED.map(r=>`<tr><td class="num" style="text-align:left">${r[0]}</td><td>${esc(r[1])}</td><td class="num">${r[2]}</td><td class="num">${r[3]} g</td></tr>`).join("")}</tbody>
   <tfoot><tr><td></td><td>Total</td><td class="num">${fmtN(tot[0])}</td><td class="num">${tot[1]} g</td></tr></tfoot></table></div>
   <h2 class="sec">Weekends and chicken</h2>
   <p><b>Saturday:</b> brunch at 09:00, the exploration dish from 11:00 to 14:00 (it becomes lunch), then a light dinner such as khichdi or soup with eggs. <b>Sunday:</b> brunch, the 90-minute prep from 10:30, the dessert in the afternoon, and dinner from the prep. Weekend meals can run 300–500 kcal over; the weekly average is what counts.</p>
-  <p>From Phase 4, swap the paneer or egg dinner on 3 days a week for 120 g raw chicken. Keep eggs at breakfast and dal or dairy at lunch.</p>`;
+  <p>From Phase 4, swap the paneer or egg dinner on 3 days a week for 120 g raw chicken. Keep eggs at breakfast and dal or dairy at lunch. Packed chicken needs the same cold chain as any dinner: chill it, carry it with an ice pack and reheat it until steaming. Fish arrives in Phase 5; cook it on weekends and eat it fresh rather than packing it.</p>
+  <p class="small muted">Coffee stays before noon: a black coffee before training and a milky one around 10:00, an hour after breakfast so it doesn’t get in the way of iron from your food. With work ending at 22:00 and a 05:30 alarm, you’ll get about 6 hours of sleep; if your strength stalls, try a 06:00 alarm and 2 hours of training.</p>`;
 }
 function viewWeekends(){
   const w=planWeek();let done=0;WEEKENDS.forEach(x=>{if(state.wk[`w${x.w}s`])done++;if(state.wk[`w${x.w}d`])done++;});
@@ -1454,27 +1525,32 @@ function viewWeekends(){
    return `<tr class="wk-row ${cur?"hl":""}"><td class="num">${x.w}${cur?'<br><span class="pill">This week</span>':""}</td><td class="num">${monthOf(x.w)}</td>
     <td style="--c:var(--${x.track})"><div class="wk-dish">${art(x.art)}<div>${n1?`<button class="linkish" type="button" data-node="${n1.key}" data-k="wr-${x.w}">${esc(x.dish)}</button>`:esc(x.dish)}<br><span class="tiny">${esc(TRACK[x.track].short)}. ${esc(x.skill)}</span></div></div></td>
     <td style="--c:var(--${x.track})"><input type="checkbox" aria-label="Cooked ${esc(x.dish)}" data-wk="${k1}" data-k="wk-${k1}" ${state.wk[k1]?"checked":""}></td>
-    <td style="--c:var(--de)"><div class="wk-dish">${art(x.dart)}<div>${n2?`<button class="linkish" type="button" data-node="${n2.key}" data-k="wq-${x.w}">${esc(x.des)}</button>`:esc(x.des)}<br><span class="tiny">${{N:"Nourishing",T:"Treat",E:"Either"}[x.type]}${OVEN_WEEKS.includes(x.w)?", needs an oven or air fryer":""}</span></div></div></td>
+    <td style="--c:var(--de)"><div class="wk-dish">${art(x.dart)}<div>${n2?`<button class="linkish" type="button" data-node="${n2.key}" data-k="wq-${x.w}">${esc(x.des)}</button>`:esc(x.des)}<br><span class="tiny">${{N:"Nourishing",T:"Treat",E:"Either"}[x.type]}${OVEN_WEEKS.includes(x.w)?", needs an oven, convection microwave or air fryer":""}</span></div></div></td>
     <td style="--c:var(--de)"><input type="checkbox" aria-label="Made ${esc(x.des)}" data-wk="${k2}" data-k="wk-${k2}" ${state.wk[k2]?"checked":""}></td></tr>`;}).join("");
   return `<h1 class="title">Weekend calendar</h1>
   <p class="lead">One showpiece dish every Saturday and one make-ahead dessert every Sunday, rotating through all four cuisines and alternating nourishing and treat desserts.</p>
   <div class="row" style="margin:16px 0 18px"><span class="pill">${done} of 52 done</span><div class="bar" style="flex:1;max-width:360px"><i style="width:${Math.round(done/52*100)}%"></i></div></div>
   <div class="tbl"><table><thead><tr><th class="num">Week</th><th class="num">Month</th><th>Saturday dish</th><th>Cooked</th><th>Sunday dessert</th><th>Made</th></tr></thead><tbody>${rows}</tbody></table></div>
-  <p class="tiny">Weeks 9, 12, 14, 19 and 22 need an oven, OTG or air fryer for the dessert; swap in a stovetop one if you don’t have one. The pizza, tikka and Korean chicken also work in a heavy pan. If mangoes aren’t in season for weeks 22–23, use any ripe fruit.</p>`;
+  <p class="tiny">Weeks 9, 12, 14, 19 and 22 need an oven, OTG, convection microwave or air fryer for the dessert; swap in a stovetop one if you don’t have one. The pizza, tikka and Korean chicken also work in a heavy pan. If mangoes aren’t in season for weeks 22–23, use any ripe fruit.</p>`;
 }
 function sundayKey(){const d=today0();d.setDate(d.getDate()+((7-d.getDay())%7));return isoDate(d);}
 function viewKitchen(){
   const sk=sundayKey(),arr=Array.isArray(state.prep[sk])?state.prep[sk]:[],done=PREP.filter((x,i)=>arr[i]).length;
   return `<h1 class="title">Kitchen and prep</h1>
-  <p class="lead">A 90-minute Sunday prep turns every weekday meal into a 15–50 minute job. The checklist resets each week.</p>
+  <p class="lead">A 90-minute Sunday prep and a 90-minute weekday cook block cover breakfast, lunch and dinner. The Sunday checklist resets each week.</p>
   <div class="two" style="margin-top:12px"><section><h2 class="sec">This Sunday’s prep</h2>
    <div class="row" style="margin-bottom:6px"><span class="pill">${done} of ${PREP.length}</span><div class="bar" style="flex:1"><i style="width:${Math.round(done/PREP.length*100)}%"></i></div>${done?`<button class="btn quiet sm" type="button" data-act="prepclear" data-k="prepclear">Clear</button>`:""}</div>
    <ol class="steps checkable">${PREP.map((x,i)=>`<li><label class="check ${arr[i]?"done":""}"><input type="checkbox" data-prep="${i}" data-k="pr-${i}" ${arr[i]?"checked":""}><span>${esc(x)}</span></label></li>`).join("")}</ol></section>
-   <section><h2 class="sec">Weekday cook block</h2><p class="sec-lead">50 minutes, 10:30 to 11:20.</p>
+   <section><h2 class="sec">Weekday cook block</h2><p class="sec-lead">90 minutes, 10:30 to 12:00, for both tiffins.</p>
     <div class="timeline">${COOK_BLOCK.map(s=>`<div><time>${s[0]}</time>${esc(s[1])}</div>`).join("")}</div>
     <h2 class="sec">How long prepped food keeps</h2>
     <div class="tbl"><table><thead><tr><th>Food</th><th>Fridge</th><th>Freezer</th></tr></thead><tbody>${STORAGE.map(r=>`<tr><td>${esc(r[0])}</td><td>${esc(r[1])}</td><td>${esc(r[2])}</td></tr>`).join("")}</tbody></table></div></section></div>
-  <h2 class="sec">Equipment</h2><p class="sec-lead">Ten tools cover Phases 0–1; buy the rest only when a phase needs it. Tick what you own.</p>
+  <h2 class="sec">Packing lunch and dinner</h2><p class="sec-lead">Dinner is cooked at 11:00 and eaten at 20:00, so it needs a cold chain.</p>
+  <div class="grid">${PACKING.map(x=>`<div class="panel" style="border-left:4px solid var(--es)"><h3>${esc(x[0])}</h3><p class="small muted" style="margin:0">${esc(x[1])}</p></div>`).join("")}</div>
+  <h2 class="sec">Microwave shortcuts</h2><p class="sec-lead">If you get a microwave, these save time. A convection model also bakes and grills, which covers the oven weeks on the weekend calendar.</p>
+  <div class="formulas">${MICROWAVE.map(x=>`<div class="formula">${art(x[2])}<div><h3>${esc(x[0])}</h3><p class="small muted" style="margin:0">${esc(x[1])}</p></div></div>`).join("")}</div>
+  <div class="note" style="--c:var(--ko)"><b>Microwave safety.</b> No steel or foil inside. Never microwave eggs in their shells, and pierce any whole yolk first, or they can burst.</div>
+  <h2 class="sec">Equipment</h2><p class="sec-lead">A dozen basics cover Phases 0–1; buy the rest only when a phase needs it. Tick what you own.</p>
   <div class="grid">${EQUIP.map((e,i)=>`<label class="panel check" style="display:grid;grid-template-columns:auto 44px 1fr;gap:12px;align-items:center;padding:12px 14px"><input type="checkbox" data-equip="${i}" data-k="eq-${i}" ${state.equip[i]?"checked":""}>${art(e[3],"ic")}<span><b style="font-weight:600">${esc(e[0])}</b><br><span class="tiny">${esc(e[1])}. Phase ${e[2]}</span></span></label>`).join("")}</div>
   <h2 class="sec">Pantry by cuisine</h2>
   <div class="grid">${PANTRY.map(p=>`<div class="panel" style="--c:var(--${p[1]});border-top:4px solid var(--c)"><h3>${esc(p[0])}</h3><p class="small muted" style="margin:0">${esc(p[2])}</p></div>`).join("")}</div>
