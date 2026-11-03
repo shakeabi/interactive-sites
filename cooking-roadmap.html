@@ -241,6 +241,19 @@ input[type="range"]{width:100%;accent-color:var(--ink)}
 .log-form{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end}
 .log-form .field{width:150px}
 .note{border-left:4px solid var(--c,var(--ink));padding:10px 14px;background:var(--surface);border-radius:0 12px 12px 0;margin:12px 0}
+.meal-act{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center;margin-top:8px}
+.cook-btn{font:inherit;font-size:13.5px;font-weight:600;border:0;border-radius:999px;padding:5px 12px;background:var(--surface-2);color:var(--ink);cursor:pointer;display:inline-flex;gap:6px;align-items:center;line-height:1.3}
+.cook-btn:hover{box-shadow:inset 0 0 0 1px var(--steel-2)}
+.cook-btn[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
+.cook-btn svg{width:14px;height:14px}
+.nudges{background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--ni);border-radius:0 16px 16px 0;padding:12px 16px 6px;margin:46px 0 0}
+.nudges h3{margin:0 0 2px}
+.rv-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px}
+.rv{display:flex;flex-direction:column;align-items:center;gap:2px;padding:0 6px 12px;border-radius:16px;background:var(--surface);border:1px solid var(--line)}
+.shop-cols{columns:2 300px;column-gap:32px}
+.shop-group{break-inside:avoid;margin:0 0 20px}
+.shop-group h3{margin:0 0 4px}
+.shop-group label.check{padding:5px 0}
 .empty{padding:22px;text-align:center;color:var(--ink-2);border:1px dashed var(--steel-2);border-radius:14px}
 
 @media (max-width:900px){
@@ -501,18 +514,18 @@ const PHASES = [
 
 const MENU = {
  A:[
-  {day:"Mon",qb:"eggplate",b:"Masala omelette, 2 toast",l:"Dal tadka, jeera rice, soya-beans poriyal, curd",d:"Paneer bhurji rolled in 2 phulkas, kachumber",share:"One tadka and one masala base cover both",skill:"Tadka",art:"dal"},
-  {day:"Tue",qb:"oats",b:"2 besan chillas with paneer filling, mint chutney",l:"Rajma, rice, cucumber raita",d:"Egg curry (3 eggs on masala base), 1 phulka",share:"The cooker does rajma and eggs together",skill:"Pressure-cooking beans",art:"rajma"},
-  {day:"Wed",qb:"yogurt",b:"Spinach omelette (2 eggs + 2 whites), 2 toast",l:"Soya chunk veg pulao, boondi raita",d:"Gyeran bap with soy-marinated boiled eggs, rice, sesame spinach",share:"One pot of rice feeds both tiffins",skill:"One-pot rice",art:"eggRice"},
-  {day:"Thu",qb:"mugegg",b:"Egg bhurji, 2 toast",l:"Chole, 2 phulkas, onion salad",d:"Shakshuka with firm-cooked eggs, 1 phulka",share:"Phulkas rolled once for both meals",skill:"Tomato sauce",art:"shakshuka"},
-  {day:"Fri",qb:"sattu",b:"Poha with peanuts, 2 boiled eggs",l:"Palak paneer, 2 phulkas, salad",d:"Moong dal khichdi, with curd packed separately",share:"Blanched spinach and dal cook side by side",skill:"Blanching greens",art:"palak"}
+  {day:"Mon",qb:"eggplate",b:"Masala omelette, 2 toast",nb:["es.omelette"],l:"Dal tadka, jeera rice, soya-beans poriyal, curd",nl:["ni.dal-tadka","ni.jeera-rice","si.poriyal"],d:"Paneer bhurji rolled in 2 phulkas, kachumber",nd:["es.bhurji","ni.phulka","ni.raita"],share:"One tadka and one masala base cover both",skill:"Tadka",art:"dal",night:[],ing:"toor rice soya beans paneer atta ghee",bi:"bread"},
+  {day:"Tue",qb:"oats",b:"2 besan chillas with paneer filling, mint chutney",nb:["ni.besan-chilla"],l:"Rajma, rice, cucumber raita",nl:["ni.rajma","ni.raita"],d:"Egg curry (3 eggs on masala base), 1 phulka",nd:["es.egg-curry","ni.phulka"],share:"The cooker does rajma and eggs together",skill:"Pressure-cooking beans",art:"rajma",night:["Soak 75 g rajma for tomorrow’s lunch"],ing:"rajma rice atta",bi:"besan paneer mint"},
+  {day:"Wed",qb:"yogurt",b:"Spinach omelette (2 eggs + 2 whites), 2 toast",nb:["es.omelette"],l:"Soya chunk veg pulao, boondi raita",nl:["ni.raita"],d:"Gyeran bap with soy-marinated boiled eggs, rice, sesame spinach",nd:["ko.gyeran-bap","ko.namul"],share:"One pot of rice feeds both tiffins",skill:"One-pot rice",art:"eggRice",night:["Make 4 soy-marinated eggs: boil them, then soak overnight in soy sauce, water, garlic and chilli"],ing:"soya basmati peas beans spinach soy sesameoil",bi:"spinach bread"},
+  {day:"Thu",qb:"mugegg",b:"Egg bhurji, 2 toast",nb:["es.bhurji"],l:"Chole, 2 phulkas, onion salad",nl:["ni.chole","ni.phulka"],d:"Shakshuka with firm-cooked eggs, 1 phulka",nd:["it.shakshuka","ni.phulka"],share:"Phulkas rolled once for both meals",skill:"Tomato sauce",art:"shakshuka",night:["Soak 60 g chana for tomorrow’s chole","Soak a handful of moong for Friday’s sprouts"],ing:"chana cholem atta capsicum",bi:"bread"},
+  {day:"Fri",qb:"sattu",b:"Poha with peanuts, 2 boiled eggs",nb:["si.poha-upma","es.boiled"],l:"Palak paneer, 2 phulkas, salad",nl:["ni.paneer-gravy","ni.phulka"],d:"Moong dal khichdi, with curd packed separately",nd:[],share:"Blanched spinach and dal cook side by side",skill:"Blanching greens",art:"palak",night:["Check the moong has sprouted for tomorrow’s sattu breakfast"],ing:"spinach paneer cream atta moong rice",bi:"poha peanuts"}
  ],
  B:[
-  {day:"Mon",qb:"idli",b:"Moong dal chilla with paneer",l:"Sambar, 3 idlis, coconut chutney, 2 boiled eggs",d:"Kimchi fried rice with 2 eggs",share:"Rice for the fried rice cooks with the sambar dal",skill:"Fermented batter",art:"idli"},
-  {day:"Tue",qb:"masalaoats",b:"Savoury masala oats with 3 egg whites",l:"Paneer-capsicum masala, 2 phulkas, salad",d:"Gyeran-jjim, ½ cup rice, cucumber muchim",share:"Steam the egg while the masala cooks",skill:"Gentle steaming",art:"steamedEgg"},
-  {day:"Wed",qb:"sandwich",b:"2 egg dosas, tomato chutney",l:"Soya chunk curry, rice, cabbage poriyal",d:"Spinach-onion frittata (3 eggs), 1 phulka",share:"Frittata bakes in the pan while the curry simmers",skill:"Frittata",art:"frittata"},
-  {day:"Thu",qb:"oats",b:"Ragi dosa with coconut chutney, 2 boiled eggs",l:"Masoor dal, lemon rice, beans poriyal, curd",d:"Gochujang tofu and veg stir-fry, ½ cup rice",share:"One rice batch, split for lemon rice and the stir-fry",skill:"High-heat stir-fry",art:"tofuBraise"},
-  {day:"Fri",qb:"eggplate",b:"Veg upma, 2 boiled eggs",l:"Rasam, rice, egg roast, curd",d:"Aglio e olio with spinach and 2 boiled eggs",share:"Boil the eggs and pasta water in one go",skill:"Emulsifying",art:"pasta"}
+  {day:"Mon",qb:"idli",b:"Moong dal chilla with paneer",nb:[],l:"Sambar, 3 idlis, coconut chutney, 2 boiled eggs",nl:["si.sambar","si.idli","si.chutneys","es.boiled"],d:"Kimchi fried rice with 2 eggs",nd:["ko.kimchi-rice"],share:"Rice for the fried rice cooks with the sambar dal",skill:"Fermented batter",art:"idli",night:["Check the idli batter has risen; if not, leave it somewhere warm overnight"],ing:"toor sambarveg sambarp tamarind coconut kimchi rice",bi:"moong paneer"},
+  {day:"Tue",qb:"masalaoats",b:"Masala omelette (2 eggs + 2 whites), 2 toast",nb:["es.omelette"],l:"Paneer-capsicum masala, 2 phulkas, salad",nl:["ni.paneer-gravy","ni.phulka"],d:"Gyeran-jjim, ½ cup rice, cucumber muchim",nd:["ko.gyeran-jjim","ko.muchim"],share:"Steam the egg while the masala cooks",skill:"Gentle steaming",art:"steamedEgg",night:[],ing:"paneer capsicum atta rice gochugaru",bi:"bread"},
+  {day:"Wed",qb:"sandwich",b:"2 egg dosas, tomato chutney",nb:["si.dosa"],l:"Soya chunk curry, rice, cabbage poriyal",nl:["si.poriyal"],d:"Spinach-onion frittata (3 eggs), 1 phulka",nd:["it.frittata","ni.phulka"],share:"Frittata cooks in the pan while the curry simmers",skill:"Frittata",art:"frittata",night:["Keep 2 ladles of dosa batter aside for the egg dosas"],ing:"soya rice cabbage coconut spinach atta",bi:"idlirice urad"},
+  {day:"Thu",qb:"oats",b:"Ragi dosa with coconut chutney, 2 boiled eggs",nb:["ta.ragi-dosa"],l:"Masoor dal, lemon rice, beans poriyal, curd",nl:["si.lemon-rice","si.poriyal"],d:"Gochujang tofu and veg stir-fry, ½ cup rice",nd:["ko.dubu-jorim"],share:"One rice batch, split for lemon rice and the stir-fry",skill:"High-heat stir-fry",art:"tofuBraise",night:[],ing:"masoor rice beans tofu gochujang capsicum",bi:"ragi coconut"},
+  {day:"Fri",qb:"eggplate",b:"Veg upma, 2 boiled eggs",nb:["si.poha-upma","es.boiled"],l:"Rasam, rice, egg roast, curd",nl:["si.rasam","es.egg-roast"],d:"Aglio e olio with spinach and 2 boiled eggs",nd:["it.aglio-olio","es.boiled"],share:"Boil the eggs and pasta water in one go",skill:"Emulsifying",art:"pasta",night:[],ing:"tamarind rasamp rice pasta spinach oliveoil",bi:"rava"}
  ]
 };
 const QUICK_BREAKFASTS = [
@@ -525,7 +538,58 @@ const QUICK_BREAKFASTS = [
  {id:"masalaoats",n:"Microwave masala oats",build:"50 g oats, water, chopped veg and masala with 4 egg whites stirred in, 3–4 minutes. With a cup of curd and a fruit",kcal:460,p:27,needs:"Microwave",art:"oats"},
  {id:"idli",n:"Microwave idli",build:"4 idlis from Sunday’s batter in a microwave mould, 2–3 minutes, with chutney, 2 boiled eggs and a cup of curd (from Phase 2)",kcal:545,p:26,needs:"Microwave",art:"idli"}
 ];
+const QB_ING={eggplate:"bread apple",oats:"oats gy chia",yogurt:"gy oats seeds",sattu:"sattu buttermilk sprouts",sandwich:"bread paneer mint",mugegg:"bread",masalaoats:"oats peas",idli:"idlirice urad"};
+const QB_NODES={eggplate:["es.boiled"],yogurt:["es.boiled"],sattu:["es.boiled"],idli:["si.idli","es.boiled"]};
+QUICK_BREAKFASTS.forEach(q=>{q.ing=QB_ING[q.id]||"";q.nodes=QB_NODES[q.id]||[];});
 const QB = Object.fromEntries(QUICK_BREAKFASTS.map(q=>[q.id,q]));
+const LOW_DAY = {
+ lunch:[{n:"Moong dal khichdi with ghee, curd and cucumber",nodes:[]},{n:"Pressure-cooker soya chunk pulao with raita",nodes:["ni.raita"]},{n:"Curd rice with 2 boiled eggs and a pickle",nodes:["si.lemon-rice","es.boiled"]}],
+ dinner:[{n:"Egg and paneer wrap: 2 boiled eggs, 50 g paneer, hung-curd dip, 2 phulkas or bread",nodes:["es.boiled"]},{n:"Sundal with 2 boiled eggs and a buttermilk",nodes:["ta.sundal","es.boiled"]},{n:"A dal or curry portion from the freezer with rice and 2 boiled eggs",nodes:["es.boiled"]}]
+};
+const ING = {
+ onion:"Onions|p",tomato:"Tomatoes|p",ginger:"Ginger|p",garlic:"Garlic|p",chilli:"Green chillies|p",coriander:"Coriander leaves|p",mint:"Mint|p",curry:"Curry leaves|p",lemon:"Lemons|p",cucumber:"Cucumbers|p",carrot:"Carrots|p",beans:"French beans|p",cabbage:"Cabbage|p",napa:"Napa cabbage|p",peas:"Green peas, fresh or frozen|p",spinach:"Spinach or palak|p",capsicum:"Capsicum|p",potato:"Potatoes|p",cauli:"Cauliflower|p",mushroom:"Mushrooms|p",sambarveg:"Sambar vegetables (drumstick, brinjal, pumpkin)|p",banana:"Bananas|p",fruit:"Seasonal fruit|p",apple:"Apples|p",mango:"Mangoes|p",lettuce:"Lettuce|p",basil:"Basil|p",springonion:"Spring onions|p",sweetpotato:"Sweet potato|p",radish:"Radish|p",coconut:"Coconut, fresh or grated|p",
+ eggs:"Eggs|d",milk:"Milk|d",curd:"Curd|d",paneer:"Paneer|d",gy:"Greek yogurt|d",butter:"Butter|d",ghee:"Ghee|d",cream:"Fresh cream|d",mozz:"Mozzarella|d",ccheese:"Cream cheese|d",hcheese:"Hard cheese (vegetarian)|d",buttermilk:"Buttermilk|d",khoya:"Khoya or milk powder|d",
+ rice:"Rice|g",basmati:"Basmati rice|g",atta:"Whole-wheat atta|g",bread:"Whole-wheat bread|g",pav:"Pav buns|g",oats:"Rolled oats|g",poha:"Poha|g",rava:"Rava (semolina)|g",besan:"Besan|g",toor:"Toor dal|g",moong:"Moong dal|g",masoor:"Masoor dal|g",rajma:"Rajma|g",chana:"Kabuli chana|g",soya:"Soya chunks|g",urad:"Urad dal|g",idlirice:"Idli rice|g",pasta:"Pasta|g",arborio:"Arborio rice|g",ragi:"Ragi flour|g",sattu:"Sattu|g",sprouts:"Whole moong for sprouting|g",rchana:"Roasted chana|g",peanuts:"Peanuts|g",makhana:"Makhana|g",chia:"Chia seeds|g",seeds:"Pumpkin or sunflower seeds|g",glassnoodles:"Glass noodles|g",tteok:"Rice cakes (tteok)|g",tofu:"Firm tofu|g",softtofu:"Soft tofu|g",maida:"Plain flour (maida)|g",vermicelli:"Semiya (vermicelli)|g",dates:"Dates|g",nuts:"Mixed nuts|g",cashews:"Cashews|g",raisins:"Raisins|g",biscuits:"Plain biscuits|g",choc:"Dark chocolate or cocoa|g",
+ chicken:"Chicken|m",chickenbone:"Chicken, curry cut|m",
+ spices:"Everyday spices (turmeric, chilli, coriander, cumin, mustard, garam masala)|s",oil:"Cooking oil|s",whey:"Whey protein|s",coffee:"Coffee|s",tamarind:"Tamarind|s",jaggery:"Jaggery|s",sugar:"Sugar|s",oliveoil:"Olive oil|s",sesameoil:"Toasted sesame oil|s",soy:"Soy sauce|s",gochujang:"Gochujang|s",gochugaru:"Gochugaru|s",kimchi:"Vegetarian kimchi|s",vinegar:"Rice vinegar|s",cardamom:"Cardamom|s",saffron:"Saffron|s",coconutmilk:"Coconut milk|s",cannedtom:"Canned whole tomatoes|s",yeast:"Instant yeast|s",agar:"Agar-agar|s",sambarp:"Sambar powder|s",rasamp:"Rasam powder|s",cholem:"Chole masala|s",pb:"Peanut butter|s"
+};
+Object.keys(ING).forEach(k=>{ING[k]=ING[k].split("|");});
+const QTY = {eggs:"about 40",milk:"about 3 litres",curd:"about 2 kg, including 1 kg to hang",banana:"about 7"};
+const STAPLES = "onion tomato ginger garlic chilli coriander curry lemon eggs milk curd banana fruit cucumber carrot coffee spices oil whey";
+const SNACK_ING = "rchana chana peanuts makhana buttermilk";
+const WEEKEND_EXTRA = {
+ 1:{wi:"toor basmati ghee",di:"dates nuts"},
+ 2:{wi:"pasta oliveoil bread butter lettuce",di:"sugar cardamom saffron",pre:[[6,"Hang 500 g curd tonight for Sunday’s shrikhand"]]},
+ 3:{wi:"pav potato cauli peas capsicum butter",di:"rice sugar cardamom nuts"},
+ 4:{wi:"rice spinach gochujang sesameoil",di:"chia",pre:[[6,"Chia pudding sets overnight; mix it tonight or first thing on Sunday"]]},
+ 5:{wi:"idlirice urad toor sambarveg sambarp tamarind coconut",di:"sugar ghee nuts",pre:[[4,"Soak idli rice and urad dal in the morning for Saturday’s idlis"],[5,"Grind the idli batter tonight so it ferments by Saturday"]]},
+ 6:{wi:"paneer cashews cream butter basmati",di:"besan ghee sugar cardamom"},
+ 7:{wi:"idlirice urad potato coconut",di:"sugar cardamom",pre:[[4,"Soak rice and urad dal in the morning for Saturday’s masala dosa"],[5,"Grind the dosa batter tonight and boil potatoes for the palya"]]},
+ 8:{wi:"maida yeast cannedtom mozz capsicum mushroom basil",di:"ccheese cream biscuits choc",pre:[[5,"Pizza dough needs 1–2 hours to rise, so make it first thing tomorrow"],[6,"Tiramisu needs 6 hours in the fridge; make it Sunday morning"]]},
+ 9:{wi:"basmati mint saffron ghee",di:"apple oats butter maida sugar"},
+ 10:{wi:"softtofu gochugaru kimchi springonion rice spinach",di:"rice moong jaggery ghee cashews cardamom"},
+ 11:{wi:"arborio mushroom butter hcheese capsicum oliveoil",di:"gy agar sugar",pre:[[6,"Panna cotta needs 4 hours to set; make it Sunday morning"]]},
+ 12:{wi:"atta potato paneer butter",di:"choc butter sugar maida",pre:[[5,"Boil potatoes tonight for the paratha filling; cold, dry filling rolls best"]]},
+ 13:{wi:"chicken potato butter spinach",di:"makhana sugar cardamom nuts"},
+ 14:{wi:"chickenbone basmati",di:"oats pb jaggery",pre:[[5,"Marinate the chicken in curd, ginger-garlic and spices tonight"]]},
+ 15:{wi:"chicken mint",di:"gy",pre:[[5,"Marinate the chicken tikka tonight"]]},
+ 16:{wi:"chicken gochujang cabbage sweetpotato lettuce tteok",di:"maida yeast sugar nuts",pre:[[5,"Marinate the chicken in gochujang tonight"]]},
+ 17:{wi:"maida chicken cannedtom",di:"ccheese gy biscuits butter",pre:[[5,"Make the egg pasta dough tomorrow morning; it needs a 30-minute rest"],[6,"Hang curd tonight for Sunday’s cheesecake jars"]]},
+ 18:{wi:"chickenbone basmati mint saffron ghee",di:"vermicelli sugar cashews raisins",pre:[[5,"Marinate the biryani chicken tonight"]]},
+ 19:{wi:"chicken coconutmilk potato rice coconut yeast",di:"ragi butter jaggery",pre:[[5,"Make the appam batter tonight so it ferments by Saturday"]]},
+ 20:{wi:"glassnoodles spinach mushroom soy sesameoil napa gochugaru radish springonion",di:"oats choc dates pb",pre:[[5,"Salt the cabbage for kimchi first thing tomorrow; it needs 2 hours"]]},
+ 21:{wi:"chicken cashews cream butter maida",di:"sugar saffron cardamom nuts",pre:[[5,"Marinate the chicken for the tikka tonight"]]},
+ 22:{wi:"pasta cannedtom butter maida mozz spinach mushroom",di:"mango sugar",pre:[[6,"Hang 500 g curd tonight for Sunday’s mango shrikhand"]]},
+ 23:{wi:"chicken gochujang soy radish vinegar sugar",di:"mango sugar nuts",pre:[[5,"Marinate the chicken tonight"],[6,"Kulfi needs 8 hours to freeze; start it Sunday morning"]]},
+ 24:{wi:"urad toor sambarveg sambarp tamarind coconut",di:"khoya maida sugar cardamom",pre:[[5,"Soak urad dal first thing tomorrow, 4 hours before frying"]]},
+ 25:{wi:"",di:""},
+ 26:{wi:"",di:"sugar"}
+};
+const RECIPE_Q = {
+ "es.knife":"how to dice an onion knife skills","es.safety":"kitchen food safety basics leftovers","es.cooker":"how to use a pressure cooker dal and rice pot in pot","es.boiled":"perfect boiled eggs soft jammy hard","es.omelette":"masala omelette recipe","es.batch":"Indian meal prep Sunday batch cooking","es.flavour":"how to fix food that is too salty or too spicy","es.marinade":"how to marinate paneer tofu chicken with yogurt","es.chicken-basics":"how to handle and cook raw chicken safely","es.seared":"juicy pan seared chicken breast","es.frying":"deep frying at home oil temperature tips","es.improvise":"how to cook without a recipe","es.hosting":"how to plan a dinner party menu timeline","es.fish-basics":"how to clean and cook fish for beginners",
+ "ni.masala-base":"onion tomato masala base batch recipe","ni.paneer-gravy":"matar paneer palak paneer recipe","ni.dry-sabzi":"aloo gobi dry sabzi recipe","ni.raita":"cucumber raita and kachumber salad","si.batter":"idli dosa batter recipe mixer grinder","si.chutneys":"coconut chutney and tomato chutney recipe","si.lemon-rice":"lemon rice and curd rice recipe","si.poha-upma":"poha and upma recipe","ta.millet-pongal":"millet pongal recipe","ta.virundhu":"Tamil banana leaf meal menu","de.energy-balls":"date nut energy balls recipe"
+};
+
 const SNACKS = [
  ["A fruit and 20 g roasted chana","chaat"],
  ["Sundal packed in a small box","sundal"],
@@ -598,6 +662,7 @@ const WEEKENDS = [
  [26,"Host a dinner: starter, two mains, dessert","Timing a full menu","es","es.hosting","table","Caramel custard","T","de.custard","custard"]
 ].map(a=>({w:a[0],dish:a[1],skill:a[2],track:a[3],link:a[4],art:a[5],des:a[6],type:a[7],dlink:a[8],dart:a[9]}));
 const OVEN_WEEKS = [9,12,14,19,22];
+WEEKENDS.forEach(x=>Object.assign(x,{wi:"",di:"",pre:[]},WEEKEND_EXTRA[x.w]||{}));
 
 const MICROS = [
  ["Vitamin B12","Mostly found in animal foods; low levels are common in Indian vegetarians","Eggs, milk, curd, paneer; test and supplement if low"],
@@ -950,18 +1015,18 @@ function mondayOf(d){const x=new Date(d);x.setHours(0,0,0,0);x.setDate(x.getDate
 function planStart(){const s=state&&state.start;return s&&/^\d{4}-\d{2}-\d{2}$/.test(s)?parseIso(s):mondayOf(today0());}
 function planWeek(d=today0()){return Math.floor(Math.round((d-planStart())/DAY)/7);}
 function monthOf(w){return w<1?0:Math.min(6,Math.ceil(w/4.34));}
-function weekLabel(w){return w<1?"Week 0":`Week ${w}, Month ${monthOf(w)}`;}
+function weekLabel(w){return w<1?"Week 0":w>26?`Week ${w}, after the plan`:`Week ${w}, Month ${monthOf(w)}`;}
 function phaseOf(w){if(w<0)return PHASES[0];for(const p of PHASES){if(w>=p.from&&w<=p.to)return p;}return PHASES[5];}
 function fmtDay(d,o={weekday:"short",day:"numeric",month:"short"}){return d.toLocaleDateString("en-GB",o);}
 function weekLetter(w){return (w<=0||w%2===1)?"A":"B";}
 
 /* ---------- state and saving ---------- */
 const LS_KEY="kitchen-roadmap-v1";
-function defaultState(){return {v:1,t:0,owner:"",start:"",nodes:{},gates:{},wk:{},prep:{},equip:{},log:[],profile:{sex:"m",age:28,ht:170,wt:72,gw:65,act:1.6,def:450}};}
+function defaultState(){return {v:1,t:0,owner:"",start:"",nodes:{},gates:{},wk:{},prep:{},equip:{},cooked:{},low:{},shop:{},pick:{},nudge:{},log:[],profile:{sex:"m",age:28,ht:170,wt:72,gw:65,act:1.6,def:450}};}
 function normalize(o){
   const d=defaultState();o=obj(o);
   const pr=Object.assign({},d.profile,obj(o.profile));
-  return {v:1,t:Number(o.t)||0,start:typeof o.start==="string"&&/^\d{4}-\d{2}-\d{2}$/.test(o.start)?o.start:"",owner:typeof o.owner==="string"?o.owner.slice(0,128):"",nodes:obj(o.nodes),gates:obj(o.gates),wk:obj(o.wk),prep:obj(o.prep),equip:obj(o.equip),
+  return {v:1,t:Number(o.t)||0,start:typeof o.start==="string"&&/^\d{4}-\d{2}-\d{2}$/.test(o.start)?o.start:"",owner:typeof o.owner==="string"?o.owner.slice(0,128):"",nodes:obj(o.nodes),gates:obj(o.gates),wk:obj(o.wk),prep:obj(o.prep),equip:obj(o.equip),cooked:obj(o.cooked),low:obj(o.low),shop:obj(o.shop),pick:obj(o.pick),nudge:obj(o.nudge),
     log:Array.isArray(o.log)?o.log.filter(e=>e&&typeof e.d==="string"&&Number.isFinite(Number(e.w))).slice(-500):[],
     profile:{sex:pr.sex==="f"?"f":"m",age:num(pr.age,28,16,80),ht:num(pr.ht,170,140,210),wt:num(pr.wt,72,40,160),gw:num(pr.gw,65,40,160),act:num(pr.act,1.6,1.2,1.9),def:num(pr.def,450,0,900)}};
 }
@@ -973,12 +1038,22 @@ const ui={dlgKey:null,menuWeek:null,psort:"portion"};
 
 function setStatus(s){store.status=s;const el=$("#saveStatus");if(!el)return;el.dataset.s=s;
   el.querySelector("span").textContent={cloud:"Synced to your Google account",saving:"Saving…",device:"Saved on this device",offline:"Offline; changes sync when you’re back",signedout:"Signed out; saved on this device",setup:"Saved on this device; sync not set up"}[s]||"Saved on this device";}
+function pruneState(){
+  const cut=isoDate(new Date(today0().getTime()-60*DAY));
+  ["cooked","low","nudge"].forEach(f=>{const o=obj(state[f]);Object.keys(o).forEach(k=>{if(k<cut)delete o[k];});state[f]=o;});
+  const sh=obj(state.shop),ks=Object.keys(sh).sort((a,b)=>Number(a.slice(1))-Number(b.slice(1)));while(ks.length>4)delete sh[ks.shift()];state.shop=sh;
+}
 function commit(rerender=true){
   if(!state.start)state.start=isoDate(planStart());
+  pruneState();
   state.t=Date.now();saveLocal();
   if(store.ref){store.dirty=true;setStatus("saving");clearTimeout(store.timer);store.timer=setTimeout(flush,700);}
   if(rerender)render();
 }
+/* ---------- clean up the old install-as-an-app files, if they were ever deployed ---------- */
+if("serviceWorker" in navigator){navigator.serviceWorker.getRegistrations().then(rs=>rs.forEach(r=>r.unregister())).catch(()=>{});}
+if(window.caches&&caches.keys){caches.keys().then(ks=>ks.filter(k=>k.startsWith("kitchen-roadmap")).forEach(k=>caches.delete(k))).catch(()=>{});}
+
 /* ---------- Firebase sync ---------- */
 const FB_VER="12.2.1";
 const FB_CFG_KEY="kitchen-roadmap-fbconfig";
@@ -1132,15 +1207,16 @@ function calc(){
 }
 
 /* ---------- shell ---------- */
-const BASE_VIEWS=["today","roadmap","weekends","nutrition","menu","kitchen","progress","sync"];
-function currentView(){const h=(location.hash||"").replace(/^#/,"");if(BASE_VIEWS.includes(h))return h;if(TRACKS.some(t=>t.hash===h))return h;return "today";}
+const BASE_VIEWS=["today","roadmap","weekends","shopping","revisit","nutrition","menu","kitchen","progress","sync"];
+function validView(h){return BASE_VIEWS.includes(h)||TRACKS.some(t=>t.hash===h);}
+function currentView(){const h=ui.view||(location.hash||"").replace(/^#/,"");if(BASE_VIEWS.includes(h))return h;if(TRACKS.some(t=>t.hash===h))return h;return "today";}
 function renderNav(){
   const v=currentView();
   const a=(h,label,extra="")=>`<a href="#${h}" ${v===h?'aria-current="page"':""}>${extra}${label}</a>`;
   $("#rail").innerHTML=`
   <a class="brand" href="#today" aria-label="Kitchen roadmap, today">${$(".topbar .brand svg").outerHTML}<b>Kitchen roadmap</b></a>
   <div class="nav">
-   <div class="nav-group"><span>Plan</span>${a("today","Today")}${a("roadmap","Roadmap")}${a("weekends","Weekend calendar")}</div>
+   <div class="nav-group"><span>Plan</span>${a("today","Today")}${a("roadmap","Roadmap")}${a("weekends","Weekend calendar")}${a("shopping","Shopping list")}${(()=>{const n=revisitList().filter(x=>x.r.due).length;return a("revisit",`Revisit${n?`<span class="pct">${n} due</span>`:""}`);})()}</div>
    <div class="nav-group"><span>Skill trees</span>${TRACKS.map(t=>a(t.hash,`${esc(t.short)}<span class="pct">${Math.round(trackProgress(t).pct*100)}%</span>`,`<i class="tdot" style="--c:var(--${t.id})"></i>`)).join("")}</div>
    <div class="nav-group"><span>Reference</span>${a("nutrition","Nutrition")}${a("menu","Weekday menus")}${a("kitchen","Kitchen and prep")}</div>
    <div class="nav-group"><span>Tracking</span>${a("progress","Weight and waist")}${a("sync",fb.cfg?"Account":"Set up sync")}</div>
@@ -1152,11 +1228,26 @@ function renderNav(){
   if(top)top.innerHTML=fb.user?`<a href="#sync" class="acct-top" aria-label="Your account">${avatar()}</a>`:(fb.cfg&&fb.mod?`<button class="btn sm" type="button" data-act="signin" data-k="si-top">Sign in</button>`:"");
 }
 function render(){
+  try{renderInner();}
+  catch(err){
+    console.error(err);
+    const m=document.getElementById("main");
+    if(m)m.innerHTML=`<div class="wrap"><h1 class="title">Something went wrong</h1><p class="lead">This page hit an error: ${esc(err&&err.message||err)}. Your progress is safe. Try reloading, and if it keeps happening, send me this message.</p><button class="btn" type="button" data-act="reload" data-k="reload">Reload</button></div>`;
+  }
+}
+function go(h){
+  if(!validView(h))return;
+  ui.view=h;
+  if(location.hash!=="#"+h){try{history.pushState(null,"","#"+h);}catch(e){try{location.hash=h;}catch(e2){}}}
+  const d=document.getElementById("dlg");if(d&&d.open){ui.dlgKey=null;d.close();}
+  render();window.scrollTo(0,0);
+}
+function renderInner(){
   const ae=document.activeElement,fk=ae&&ae.dataset?ae.dataset.k:null;
   renderNav();
   const v=currentView();
   const t=TRACKS.find(x=>x.hash===v);
-  const html=t?viewTrack(t):({today:viewToday,roadmap:viewRoadmap,weekends:viewWeekends,nutrition:viewNutrition,menu:viewMenu,kitchen:viewKitchen,progress:viewProgress,sync:viewSync}[v])();
+  const html=t?viewTrack(t):({today:viewToday,roadmap:viewRoadmap,weekends:viewWeekends,nutrition:viewNutrition,menu:viewMenu,kitchen:viewKitchen,progress:viewProgress,sync:viewSync,shopping:viewShopping,revisit:viewRevisit}[v])();
   $("#main").innerHTML=`<div class="wrap">${html}</div>`;
   if(t)requestAnimationFrame(drawEdges);
   if(v==="nutrition")updateCalc();
@@ -1204,7 +1295,7 @@ function viewSync(){
    <li>If someone else signs in on this device, their own progress loads instead; yours isn’t mixed into their account.</li>
    <li>The apiKey in a Firebase web config isn’t a secret; it only identifies your project. The security rules keep your data private.</li>
   </ul>`;
-  const device=!fb.user?`<h2 class="sec">This device</h2><p class="sec-lead">While you’re signed out, progress stays in this browser. On a shared computer you can remove it.</p><button class="btn quiet" type="button" data-act="clearlocal" data-k="clearlocal">Remove progress from this device</button>`:"";
+  const device=(!fb.user?`<h2 class="sec">This device</h2><p class="sec-lead">While you’re signed out, progress stays in this browser. On a shared computer you can remove it.</p><button class="btn quiet" type="button" data-act="clearlocal" data-k="clearlocal">Remove progress from this device</button>`:"");
   if(cfg){
     return `<h1 class="title">Account</h1>
     <p class="lead">Sign in with Google to keep your progress in sync between your laptop and phone.</p>
@@ -1230,9 +1321,10 @@ function nodeBtn(n,opts={}){
   if(s===0&&lock){const m=n.req.find(r=>sOf(n.track+"."+r)<1);sub=`After ${TRACK[n.track].byId[m].n}`;}
   else if(s===0&&n.chicken)sub="Chicken, from Week 13";
   else if(s===0&&n.fish)sub="Fish, from Week 19";
+  if(opts.sub)sub=opts.sub;
   return `<button class="node" type="button" data-node="${n.key}" data-k="n-${n.key}" data-s="${s}" data-lock="${lock&&s===0?1:0}" style="--c:var(--${n.track})" aria-label="${esc(n.n)}: ${esc(sub)}">
    <span class="katori" ${opts.noId?"":`id="k-${n.key}"`}>${art(n.art)}${s===2?`<span class="mark">${CHECK}</span>`:""}</span>
-   <span class="node-name">${esc(n.n)}</span>${opts.track?`<span class="node-sub">${esc(TRACK[n.track].short)}</span>`:`<span class="node-sub">${esc(sub)}</span>`}</button>`;
+   <span class="node-name">${esc(n.n)}</span>${opts.track&&!opts.sub?`<span class="node-sub">${esc(TRACK[n.track].short)}</span>`:`<span class="node-sub">${esc(sub)}</span>`}</button>`;
 }
 function chip(n){return `<button class="chip" type="button" data-node="${n.key}" data-k="c-${n.key}" data-s="${sOf(n.key)}" style="--c:var(--${n.track})">${art(n.art)}${esc(n.n)}</button>`;}
 function dabba(){
@@ -1265,43 +1357,100 @@ function dabba(){
 }
 
 /* ---------- views ---------- */
+function todayIso(){return isoDate(today0());}
+function daysBetween(a,b){return Math.round((parseIso(b)-parseIso(a))/DAY);}
+function relDays(n){if(n<=0)return "today";if(n===1)return "yesterday";if(n<7)return `${n} days ago`;const w=Math.round(n/7);return w===1?"a week ago":`${w} weeks ago`;}
+const CHECK_INK=`<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3.5 8.5 L6.6 11.4 L12.5 4.8" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+function nodeDates(k){const d=ns(k).d;return Array.isArray(d)?d.filter(x=>/^\d{4}-\d{2}-\d{2}$/.test(x)):[];}
+function nodeLast(k){const ds=nodeDates(k).sort();let last=ds.length?ds[ds.length-1]:"";const lt=ns(k).lt;if(typeof lt==="string"&&/^\d{4}-\d{2}-\d{2}$/.test(lt)&&(!last||lt>last))last=lt;return last;}
+function revisitInfo(k){
+  const s=sOf(k);if(s<1)return null;
+  const last=nodeLast(k)||isoDate(planStart());
+  const reps=Math.max(Number(ns(k).c)||0,nodeDates(k).length,1);
+  const iv=s===2?60:[7,21,42][Math.min(reps,3)-1];
+  const since=Math.max(0,daysBetween(last,todayIso()));
+  return {last,since,iv,due:since>=iv,inDays:iv-since};
+}
+function revisitList(){return TRACKS.flatMap(t=>t.nodes).map(n=>({n,r:revisitInfo(n.key)})).filter(x=>x.r).sort((a,b)=>a.r.inDays-b.r.inDays);}
+function logCook(k,iso,on,keepDate){
+  if(!NODE[k])return;
+  const s=Object.assign({s:0,c:0,note:""},ns(k));const d=nodeDates(k);
+  if(on){if(!d.includes(iso))d.push(iso);s.c=(Number(s.c)||0)+1;if(!(Number(s.s)>=1))s.s=1;}
+  else{if(!keepDate){const i=d.indexOf(iso);if(i>=0)d.splice(i,1);}s.c=Math.max(0,(Number(s.c)||0)-1);}
+  s.d=d.sort().slice(-30);state.nodes[k]=s;
+}
+function cookBtn(slot,keys){
+  const on=!!obj(state.cooked[todayIso()])[slot],list=(keys||[]).map(k=>NODE[k]).filter(Boolean);
+  return `<span class="meal-act"><button class="cook-btn" type="button" data-act="cooked" data-slot="${slot}" data-nodes="${(keys||[]).join(" ")}" data-k="ck-${slot}" aria-pressed="${on}">${on?CHECK_INK+"Cooked":"Cooked it"}</button>${list.length?`<span class="tiny">Counts toward ${list.map(n=>`<button class="linkish" type="button" data-node="${n.key}" data-k="mn-${slot}-${n.key}">${esc(n.n)}</button>`).join(", ")}</span>`:""}</span>`;
+}
+function nudges(){
+  const t=today0(),dow=t.getDay(),w=planWeek(),out=[];
+  const tom=new Date(t.getTime()+DAY),tdow=tom.getDay(),tw=planWeek(tom);
+  if(tdow>=1&&tdow<=5){const m=MENU[weekLetter(Math.max(tw,0))][tdow-1];(m.night||[]).forEach(x=>out.push(x));if(m.qb==="oats")out.push("Mix a jar of overnight oats for breakfast; it takes 2 minutes");}
+  if(dow===3)out.push("Boil 6 more eggs for the rest of the week");
+  const wd=w>=1&&w<=26?WEEKENDS[w-1]:null;
+  if(wd)(wd.pre||[]).filter(p=>p[0]===dow).forEach(p=>out.push(p[1]));
+  if(dow===6){if(w>=5)out.push("Grind idli/dosa batter so it ferments by Sunday");out.push("Soak rajma or chana for Sunday’s prep");}
+  return out;
+}
+function weekendPick(w){
+  const off=Number(obj(state.pick)[w])||0;
+  const dishes=TRACKS.filter(t=>t.id!=="de"&&t.id!=="es").flatMap(t=>t.nodes).filter(n=>n.t>=2&&!locked(n)&&sOf(n.key)<2);
+  const des=TRACK.de.nodes.filter(n=>!locked(n)&&sOf(n.key)<2);
+  const pool=dishes.length?dishes:TRACKS.flatMap(t=>t.nodes).filter(n=>n.track!=="de"&&n.track!=="es");
+  const dpool=des.length?des:TRACK.de.nodes;
+  const a=pool[(w*7+off)%pool.length],b=dpool[(w*3+off)%dpool.length];
+  return {w,dish:a.n,skill:a.learn,track:a.track,link:a.key,art:a.art,des:b.n,type:"E",dlink:b.key,dart:b.art,pick:true};
+}
 function viewToday(){
-  const w=planWeek(),ph=phaseOf(w),now=new Date(),dow=now.getDay();
+  const w=planWeek(),ph=phaseOf(w),now=new Date(),dow=now.getDay(),iso=todayIso();
   const nodesAll=TRACKS.flatMap(t=>t.nodes);
   const tried=nodesAll.filter(n=>sOf(n.key)>=1).length,mem=nodesAll.filter(n=>sOf(n.key)===2).length;
   const g=allGates(),cl=calc(),last=[...state.log].sort((a,b)=>a.d<b.d?-1:1).at(-1);
+  const post=w>26;
   let title,lead;
   if(w<0){title="Your plan hasn’t started yet";lead="Use the time to stock the kitchen and read through Phase 0.";}
-  else if(w>26){title="You’ve finished the 26-week plan";lead="Keep cooking from memory, plan your own weeks, and revisit any tree that isn’t full.";}
+  else if(post){title=`Week ${w}: cooking on your own`;lead="The 26-week plan is done. The menus keep rotating, the revisit list keeps dishes fresh, and each weekend suggests a project from your trees.";}
   else{title=`Week ${w} of 26: ${ph.name.toLowerCase()}`;lead=`Phase ${ph.n}, ${ph.dates}. ${ph.focus}`;}
   const gates=ph.gates.map((gt,i)=>{const k=gateKey(ph.n,i),on=!!state.gates[k];return `<label class="check ${on?"done":""}"><input type="checkbox" data-gate="${k}" data-k="g-${k}" ${on?"checked":""}><span>${esc(gt)}</span></label>`;}).join("");
   const legend=TRACKS.map(t=>{const p=trackProgress(t);return `<a href="#${t.hash}" style="--c:var(--${t.id})"><i class="tdot"></i><span>${esc(t.short)}</span><span class="pct">${p.mem}/${p.total}</span><span class="bar"><i style="width:${Math.round(p.pct*100)}%"></i></span></a>`;}).join("");
-  // today's slots
-  const L=weekLetter(Math.max(w,0)),wk=WEEKENDS[Math.min(25,Math.max(0,w-1))],dessertName=w>=1&&w<=26?wk.des:"this week’s dessert";
+  const L=weekLetter(Math.max(w,0));
+  const wd=w<1?WEEKENDS[0]:(post?weekendPick(w):WEEKENDS[w-1]);
+  const dessertName=w>=1?wd.des:"this week’s dessert";
+  const low=!!obj(state.low)[iso];
   let slots=[];
   if(dow>=1&&dow<=5){
     const m=MENU[L][dow-1],qb=QB[m.qb];
-    slots=[["05:40",340,"Pre-workout and coffee","1 banana or 2 dates, black coffee","~100 kcal"],["06:00",360,"Training","Calisthenics and cardio until 08:30; sip 500–750 ml water an hour",""],
-      ["08:45",525,"Breakfast",`${qb.n}: ${qb.build.charAt(0).toLowerCase()+qb.build.slice(1)}.`,`~${qb.kcal} kcal, ${qb.p} g protein. Got 15 minutes? Cook ${m.b.charAt(0).toLowerCase()+m.b.slice(1)} instead.`],
-      ["10:00",600,"Coffee","Milky coffee, your last caffeine before noon",""],
-      ["10:30",630,"Cook block","Cook lunch and dinner, cool them, then pack both",m.share],
-      ["12:00",720,"Before you leave","Whey shake or Greek yogurt, plus a fruit","~200 kcal, 25 g protein"],
-      ["15:00",900,"Packed lunch",m.l,"~600 kcal, 30 g protein"],
-      ["17:30",1050,"Tea-time snack and dessert",`${SNACKS[dow-1][0]}, plus one portion of ${dessertName}`,"~250 kcal, 10 g protein"],
-      ["20:00",1200,"Packed dinner",m.d,"~450 kcal, 25–30 g protein. Reheat until steaming hot"],
-      ["22:30",1350,"Home","Warm milk only if you’re hungry; lights out by 23:15",""]];
+    const lunch=low?LOW_DAY.lunch[(dow-1)%3]:{n:m.l,nodes:m.nl},dinner=low?LOW_DAY.dinner[(dow-1)%3]:{n:m.d,nodes:m.nd};
+    slots=[
+      {t:"05:40",m:340,h:"Pre-workout and coffee",x:"1 banana or 2 dates, black coffee",s:"~100 kcal"},
+      {t:"06:00",m:360,h:"Training",x:low?"A shorter session is fine today: 45–60 minutes, or rest":"Calisthenics and cardio until 08:30; sip 500–750 ml water an hour",s:""},
+      {t:"08:45",m:525,h:"Breakfast",x:`${qb.n}: ${qb.build.charAt(0).toLowerCase()+qb.build.slice(1)}.`,s:low?`~${qb.kcal} kcal, ${qb.p} g protein`:`~${qb.kcal} kcal, ${qb.p} g protein. Got 15 minutes? Cook ${m.b.charAt(0).toLowerCase()+m.b.slice(1)} instead.`,cook:low?null:["b",m.nb||[]]},
+      {t:"10:00",m:600,h:"Coffee",x:"Milky coffee, your last caffeine before noon",s:""},
+      {t:"10:30",m:630,h:low?"Cook block, 30 minutes":"Cook block",x:low?"One pressure cooker for lunch; dinner needs no cooking":"Cook lunch and dinner, cool them, then pack both",s:low?"Freezer cubes of dal or masala base help here":m.share},
+      {t:"12:00",m:720,h:"Before you leave",x:"Whey shake or Greek yogurt, plus a fruit",s:"~200 kcal, 25 g protein"},
+      {t:"15:00",m:900,h:"Packed lunch",x:lunch.n,s:"~600 kcal, 30 g protein",cook:["l",lunch.nodes]},
+      {t:"17:30",m:1050,h:"Tea-time snack and dessert",x:`${SNACKS[dow-1][0]}, plus one portion of ${dessertName}`,s:"~250 kcal, 10 g protein"},
+      {t:"20:00",m:1200,h:"Packed dinner",x:dinner.n,s:"~450 kcal, 25–30 g protein. Reheat until steaming hot",cook:["d",dinner.nodes]},
+      {t:"22:30",m:1350,h:"Home",x:low?"Early night if you can; you’re back on the plan tomorrow":"Warm milk only if you’re hungry; lights out by 23:15",s:""}];
   }else if(dow===6){
-    slots=[["09:00",540,"Brunch and coffee","A bigger egg breakfast: masala omelette or bhurji with toast and fruit","Coffee before noon"],["11:00",660,"Exploration dish",w>=1&&w<=26?wk.dish:"Pick any dish from your trees",`New skill: ${w>=1&&w<=26?wk.skill:"your choice"}`],
-      ["16:00",960,"Snack","Fruit with a handful of roasted chana",""],["18:30",1110,"Booster","Whey shake or Greek yogurt",""],["20:30",1230,"Light dinner","Moong dal khichdi or soup with eggs",""]];
+    slots=[{t:"09:00",m:540,h:"Brunch and coffee",x:"A bigger egg breakfast: masala omelette or bhurji with toast and fruit",s:"Coffee before noon"},
+      {t:"11:00",m:660,h:"Exploration dish",x:w>=1?wd.dish:"Pick any dish from your trees",s:w>=1?`New skill: ${wd.skill}`:""},
+      {t:"16:00",m:960,h:"Snack",x:"Fruit with a handful of roasted chana",s:""},{t:"18:30",m:1110,h:"Booster",x:"Whey shake or Greek yogurt",s:""},
+      {t:"20:30",m:1230,h:"Light dinner",x:"Moong dal khichdi or soup with eggs",s:""}];
   }else{
-    slots=[["09:00",540,"Brunch and coffee","Eggs, toast and fruit","Coffee before noon"],["10:30",630,"Sunday batch prep","90 minutes: masala base, 12 boiled eggs, overnight oats, hung curd, chopped veg","See Kitchen and prep"],
-      ["15:00",900,"Make the dessert",w>=0&&w<=26?WEEKENDS[Math.min(25,Math.max(0,w-1))].des:"Your choice","Portion it into five boxes"],["18:30",1110,"Booster","Whey shake or Greek yogurt",""],["20:30",1230,"Dinner from the prep","Dal or curry with phulka and salad",""]];
+    slots=[{t:"09:00",m:540,h:"Brunch and coffee",x:"Eggs, toast and fruit",s:"Coffee before noon"},
+      {t:"10:30",m:630,h:"Sunday batch prep",x:"90 minutes: masala base, 12 boiled eggs, overnight oats, hung curd, chopped veg",s:"See Kitchen and prep"},
+      {t:"15:00",m:900,h:"Make the dessert",x:w>=0?wd.des:"Your choice",s:"Portion it into five boxes"},
+      {t:"18:30",m:1110,h:"Booster",x:"Whey shake or Greek yogurt",s:""},{t:"20:30",m:1230,h:"Dinner from the prep",x:"Dal or curry with phulka and salad",s:""}];
   }
-  const nowM=now.getHours()*60+now.getMinutes();let cur=-1;slots.forEach((s,i)=>{if(s[1]<=nowM)cur=i;});
-  const slotHtml=slots.map((s,i)=>`<li class="slot ${i===cur?"now":""} ${i<cur?"past":""}"><time>${s[0]}</time><span class="what">${esc(s[2])}</span><p>${esc(s[3])}${s[4]?`<br><span class="tiny">${esc(s[4])}</span>`:""}</p></li>`).join("");
-  const wkIdx=w<1?1:Math.min(26,w),wd=WEEKENDS[wkIdx-1];
-  const wkLabel=w<1?"Your first weekend project":`This weekend, Week ${wkIdx}`;
-  const wkHtml=weekendItems(wd);
+  const nowM=now.getHours()*60+now.getMinutes();let cur=-1;slots.forEach((s,i)=>{if(s.m<=nowM)cur=i;});
+  const slotHtml=slots.map((s,i)=>`<li class="slot ${i===cur?"now":""} ${i<cur?"past":""}"><time>${s.t}</time><span class="what">${esc(s.h)}</span><p>${esc(s.x)}${s.s?`<br><span class="tiny">${esc(s.s)}</span>`:""}</p>${s.cook?cookBtn(s.cook[0],s.cook[1]):""}</li>`).join("");
+  const nd=nudges(),ndone=obj(obj(state.nudge)[iso]);
+  const nudgeHtml=nd.length?`<div class="nudges"><h3>Tonight, for tomorrow</h3>${nd.map((x,i)=>`<label class="check ${ndone[i]?"done":""}"><input type="checkbox" data-nudge="${i}" data-k="nu-${i}" ${ndone[i]?"checked":""}><span>${esc(x)}</span></label>`).join("")}</div>`:"";
+  const wkIdx=w<1?1:w;
+  const wkLabel=w<1?"Your first weekend project":(post?`This weekend’s pick, Week ${w}`:`This weekend, Week ${wkIdx}`);
+  const due=revisitList().filter(x=>x.r.due);
   const next=nodesAll.filter(n=>sOf(n.key)===0&&!locked(n)&&n.t<=ph.tier&&(!n.chicken||w>=12)&&(!n.fish||w>=18)).sort((a,b)=>a.t-b.t).slice(0,8);
   return `
   <section class="hero">${dabba()}
@@ -1310,14 +1459,19 @@ function viewToday(){
     <div class="stats">
      <div class="stat"><b>${tried}</b><span>dishes tried</span></div>
      <div class="stat"><b>${mem}</b><span>cooked from memory</span></div>
-     <div class="stat"><b>${fmtN(cl.tgt)}</b><span>kcal a day target</span></div>
+     <div class="stat"><b>${due.length}</b><span>due for a revisit</span></div>
      <div class="stat"><b>${last?Number(last.w).toFixed(1):"–"}</b><span>${last?"kg, latest weigh-in":"no weigh-in yet"}</span></div>
     </div></div>
   </section>
   <div class="legend">${legend}</div>
   <div class="two" style="margin-top:8px">
-   <section><h2 class="sec">Today’s plate</h2><p class="sec-lead">${esc(now.toLocaleDateString("en-GB",{weekday:"long"}))} of ${esc(weekLabel(Math.max(0,w)))}${dow>=1&&dow<=5?`, on the Week ${L} menu`:""}.</p><ol class="slots">${slotHtml}</ol></section>
-   <section><h2 class="sec">${esc(wkLabel)}</h2><p class="sec-lead">Saturday and Sunday of ${esc(weekLabel(wkIdx))}.</p>${wkHtml}
+   <section><div class="row" style="justify-content:space-between;align-items:baseline"><h2 class="sec">Today’s plate</h2>${dow>=1&&dow<=5?`<button class="btn ${low?"":"quiet"} sm" type="button" data-act="lowday" data-k="lowday" aria-pressed="${low}">${low?"Low-energy day: on":"Low-energy day"}</button>`:""}</div>
+    <p class="sec-lead">${esc(now.toLocaleDateString("en-GB",{weekday:"long"}))} of ${esc(weekLabel(Math.max(0,w)))}${dow>=1&&dow<=5?`, on the Week ${L} menu`:""}.</p>
+    ${low?`<div class="note" style="--c:var(--ni)">A low-energy day still counts. It lands near 2,100 kcal and 115 g protein, which is fine for a day. Back to the plan tomorrow.</div>`:""}
+    <ol class="slots">${slotHtml}</ol></section>
+   <section>${nudgeHtml}
+    <h2 class="sec" ${nudgeHtml?"":'style="margin-top:46px"'}>${esc(wkLabel)}</h2><p class="sec-lead">${post?"Suggested from your trees: something you haven’t mastered yet.":`Saturday and Sunday of ${esc(weekLabel(wkIdx))}.`}</p>${weekendItems(wd)}
+    ${due.length?`<h2 class="sec">Due for a revisit</h2><p class="sec-lead">Cook one of these this week to keep it in your hands. <a href="#revisit">See all</a></p><div class="upnext">${due.slice(0,4).map(x=>nodeBtn(x.n,{noId:true,sub:`Last cooked ${relDays(x.r.since)}`})).join("")}</div>`:""}
     <h2 class="sec">Up next in your trees</h2><p class="sec-lead">Unlocked dishes from this phase you haven’t tried yet.</p>
     ${next.length?`<div class="upnext">${next.map(n=>nodeBtn(n,{track:true,noId:true})).join("")}</div>`:`<div class="empty">Everything unlocked for this phase is started. Open a tree to push further.</div>`}
    </section>
@@ -1328,11 +1482,57 @@ function weekendItems(wd){
   const n1=NODE[wd.link],n2=NODE[wd.dlink];
   const typ={N:"Nourishing",T:"Treat",E:"Either"}[wd.type];
   return `<div class="dish" style="--c:var(--${wd.track})">${art(wd.art)}<div><h3>${n1?`<button class="linkish" type="button" data-node="${n1.key}" data-k="wl-${wd.w}">${esc(wd.dish)}</button>`:esc(wd.dish)}</h3>
-    <p class="small muted" style="margin:0 0 4px">Saturday, ${esc(TRACK[wd.track].short)}. New skill: ${esc(wd.skill)}</p>
-    <label class="check" style="padding:2px 0"><input type="checkbox" data-wk="${k1}" data-k="wk-${k1}" ${state.wk[k1]?"checked":""}><span class="small">Cooked it</span></label></div></div>
+    <p class="small muted" style="margin:0 0 4px">Saturday, ${esc(TRACK[wd.track].short)}. ${wd.pick?"":"New skill: "}${esc(wd.skill)}</p>
+    <label class="check" style="padding:2px 0"><input type="checkbox" data-wk="${k1}" data-link="${wd.link||""}" data-k="wk-${k1}" ${state.wk[k1]?"checked":""}><span class="small">Cooked it</span></label></div></div>
    <div class="dish" style="--c:var(--de)">${art(wd.dart)}<div><h3>${n2?`<button class="linkish" type="button" data-node="${n2.key}" data-k="wd-${wd.w}">${esc(wd.des)}</button>`:esc(wd.des)}</h3>
-    <p class="small muted" style="margin:0 0 4px">Sunday dessert, ${typ.toLowerCase()}, five portions of ~150 kcal</p>
-    <label class="check" style="padding:2px 0"><input type="checkbox" data-wk="${k2}" data-k="wk-${k2}" ${state.wk[k2]?"checked":""}><span class="small">Made it</span></label></div></div>`;
+    <p class="small muted" style="margin:0 0 4px">Sunday dessert${wd.pick?"":`, ${typ.toLowerCase()}`}, five portions of ~150 kcal</p>
+    <label class="check" style="padding:2px 0"><input type="checkbox" data-wk="${k2}" data-link="${wd.dlink||""}" data-k="wk-${k2}" ${state.wk[k2]?"checked":""}><span class="small">Made it</span></label></div></div>
+   ${wd.pick?`<button class="btn quiet sm" type="button" data-act="pick" data-k="pick" style="margin-top:10px">Suggest something else</button>`:""}`;
+}
+function viewRevisit(){
+  const list=revisitList(),due=list.filter(x=>x.r.due),soon=list.filter(x=>!x.r.due&&x.r.inDays<=14),later=list.filter(x=>!x.r.due&&x.r.inDays>14);
+  const card=x=>{const n=x.n,r=x.r,today=nodeDates(n.key).includes(todayIso());return `<div class="rv">${nodeBtn(n,{noId:true,sub:r.due?`Last cooked ${relDays(r.since)}`:`Back in ${r.inDays} day${r.inDays===1?"":"s"}`})}<button class="cook-btn" type="button" data-act="cookedtoday" data-key="${n.key}" data-k="rv-${n.key}" aria-pressed="${today}">${today?CHECK_INK+"Cooked today":"Cooked it today"}</button></div>`;};
+  return `<h1 class="title">Revisit</h1>
+  <p class="lead">Cooking a dish again after a gap is what makes it stick. Dishes you’ve tried come back after 1, 3 and 6 weeks; dishes you cook from memory come back every 2 months.</p>
+  <h2 class="sec">Due now <span class="pill">${due.length}</span></h2>
+  ${due.length?`<div class="rv-grid">${due.map(card).join("")}</div>`:`<div class="empty">${list.length?"Nothing is due right now.":"Dishes show up here once you’ve tried them."}</div>`}
+  ${soon.length?`<h2 class="sec">Coming back in the next 2 weeks</h2><div class="rv-grid">${soon.map(card).join("")}</div>`:""}
+  ${later.length?`<p class="tiny" style="margin-top:22px">${later.length} more dish${later.length===1?"":"es"} come back later.</p>`:""}`;
+}
+function shopWeek(){const w=planWeek(),dow=today0().getDay();return Math.max(0,(dow===6||dow===0)?w+1:w);}
+function shopItems(wk){
+  const L=weekLetter(Math.max(wk,0)),items={},add=(k,src)=>{if(!ING[k])return;(items[k]=items[k]||[]);if(!items[k].includes(src))items[k].push(src);};
+  const split=s=>String(s||"").split(/\s+/).filter(Boolean);
+  split(STAPLES).forEach(k=>add(k,"every week"));
+  MENU[L].forEach(m=>{split(m.ing).forEach(k=>add(k,m.day));split(QB[m.qb].ing).forEach(k=>add(k,m.day+" breakfast"));if(ui.shopCooked)split(m.bi).forEach(k=>add(k,m.day+" cooked breakfast"));});
+  split(SNACK_ING).forEach(k=>add(k,"snacks"));
+  if(wk>=13)add("chicken","3 weekday dinners");
+  const wd=wk>=1&&wk<=26?WEEKENDS[wk-1]:null;
+  if(wd&&ui.shopWeekend!==false){split(wd.wi).forEach(k=>add(k,"Saturday dish"));split(wd.di).forEach(k=>add(k,"Sunday dessert"));}
+  return {items,L,wd};
+}
+const SHOP_CATS=[["p","Fruit and vegetables"],["d","Dairy and eggs"],["g","Grains, dals and dry goods"],["m","Chicken and fish"],["s","Pantry check"]];
+function viewShopping(){
+  const base=shopWeek(),wk=ui.shopW===undefined?base:ui.shopW,{items,L,wd}=shopItems(wk);
+  const key="w"+wk,ticks=obj(obj(state.shop)[key]);
+  const keys=Object.keys(items),done=keys.filter(k=>ticks[k]).length;
+  const groups=SHOP_CATS.map(([c,label])=>{const ks=keys.filter(k=>ING[k][1]===c).sort((a,b)=>ING[a][0].localeCompare(ING[b][0]));if(!ks.length)return "";
+    return `<section class="shop-group"><h3>${label}${c==="s"?' <span class="tiny">check you have these</span>':""}</h3>${ks.map(k=>`<label class="check ${ticks[k]?"done":""}"><input type="checkbox" data-shop="${k}" data-shopw="${key}" data-k="sh-${k}" ${ticks[k]?"checked":""}><span>${esc(ING[k][0])}${QTY[k]?` <span class="tiny">${esc(QTY[k])}</span>`:""}<br><span class="tiny">${esc(items[k].join(", "))}</span></span></label>`).join("")}</section>`;}).join("");
+  const post=wk>26;
+  return `<h1 class="title">Shopping list</h1>
+  <p class="lead">Built from ${esc(weekLabel(wk))}’s menus (Week ${L}), the quick breakfasts and snacks${wd&&ui.shopWeekend!==false?", plus the weekend dish and dessert":""}. Quantities are only shown where they’re easy to misjudge.</p>
+  <div class="row" style="margin:18px 0 6px;gap:10px">
+   <div class="seg" role="group" aria-label="Which week"><button type="button" data-act="shopweek" data-v="${Math.max(0,base-1)}" data-k="sw-prev" aria-pressed="${wk===base-1}">Last week</button><button type="button" data-act="shopweek" data-v="${base}" data-k="sw-this" aria-pressed="${wk===base}">${(today0().getDay()===6||today0().getDay()===0)?"Coming week":"This week"}</button><button type="button" data-act="shopweek" data-v="${base+1}" data-k="sw-next" aria-pressed="${wk===base+1}">Week after</button></div>
+   ${wd?`<button class="btn quiet sm" type="button" data-act="shopopt" data-o="weekend" data-k="so-we" aria-pressed="${ui.shopWeekend!==false}">${ui.shopWeekend!==false?"Weekend included":"Add the weekend"}</button>`:""}
+   <button class="btn quiet sm" type="button" data-act="shopopt" data-o="cooked" data-k="so-cb" aria-pressed="${!!ui.shopCooked}">${ui.shopCooked?"Cooked breakfasts included":"Add cooked breakfasts"}</button>
+  </div>
+  <div class="row" style="margin:0 0 18px;gap:10px"><span class="pill">${done} of ${keys.length} ticked</span><button class="btn quiet sm" type="button" data-act="shopcopy" data-k="shopcopy">Copy as text</button>${done?`<button class="btn quiet sm" type="button" data-act="shopclear" data-v="${key}" data-k="shopclear">Clear ticks</button>`:""}<span class="tiny" id="shopMsg" role="status"></span></div>
+  ${post?`<div class="note" style="--c:var(--es)">You’re past the 26-week calendar, so add whatever your weekend pick needs.</div>`:""}
+  <div class="shop-cols">${groups}</div>`;
+}
+function shopText(){
+  const base=shopWeek(),wk=ui.shopW===undefined?base:ui.shopW,{items}=shopItems(wk);
+  return `Shopping list, ${weekLabel(wk)}\n`+SHOP_CATS.map(([c,label])=>{const ks=Object.keys(items).filter(k=>ING[k][1]===c).sort((a,b)=>ING[a][0].localeCompare(ING[b][0]));return ks.length?`\n${label}\n`+ks.map(k=>`- ${ING[k][0]}${QTY[k]?` (${QTY[k]})`:""}`).join("\n"):"";}).join("\n");
 }
 function phaseNodes(p){
   const all=TRACKS.flatMap(t=>t.nodes);
@@ -1360,7 +1560,10 @@ function viewRoadmap(){
   <p class="lead">Six phases from first dal to hosting a dinner. Phases 0–3 stay eggetarian; chicken joins in Phase 4 and basic fish in Phase 5. Move on when you tick a phase’s gate, not just when the week changes.</p>
   <div class="panel row" style="margin-top:18px;justify-content:space-between"><span><b>You’re in ${esc(w<0?"Week 0":w>26?"the weeks after the plan":weekLabel(w))}.</b> <span class="small muted">Weeks count from the Monday you started; shift them if you’ve paused or jumped ahead.</span></span>
    <span class="row" style="gap:8px"><button class="btn quiet sm" type="button" data-act="shiftweek" data-d="-1" data-k="sw-m" ${w<=0?"disabled":""}>Back a week</button><button class="btn quiet sm" type="button" data-act="shiftweek" data-d="1" data-k="sw-p" ${w>=27?"disabled":""}>Forward a week</button></span></div>
-  <div style="margin-top:16px">${ph}</div>`;
+  <div style="margin-top:16px">${ph}
+   <details class="phase ${w>26?"current":""}" ${w>26?"open":""}><summary><span class="pnum">6</span><span><h3 style="margin:0">After the plan ${w>26?'<span class="pill">You are here</span>':""}</h3><span class="small muted">Week 27 onwards. You keep cooking on your own, and the tracker keeps going with you.</span></span><span></span></summary>
+    <div class="phase-body"><div><h3>What keeps running</h3><ul class="small" style="padding-left:18px;line-height:1.7;margin:0"><li>Week A and Week B menus keep alternating.</li><li>The revisit list brings dishes back after 1, 3 and 6 weeks, then every 2 months.</li><li>Each weekend, Today suggests a dish and dessert you haven’t mastered.</li><li>The shopping list and night-before reminders follow the menus.</li></ul></div>
+     <div><h3>When you reach your goal</h3><p class="small muted">Add 100 kcal a week until your weight holds steady, then keep the same eating pattern. If you want new projects: mutton, more fish, sourdough or another regional cuisine.</p></div></div></details></div>`;
 }
 function viewTrack(t){
   const p=trackProgress(t),tiers=t.tiers||TIERS;
@@ -1419,11 +1622,14 @@ function nodeDialog(k){
   <div class="dlg-body">
    <h3>What you learn</h3><p>${esc(n.learn)}</p>
    <h3>Tip</h3><p>${esc(n.tip)}</p>
+   <div class="row" style="gap:8px;margin-top:4px"><a class="btn quiet sm" href="https://www.youtube.com/results?search_query=${encodeURIComponent(RECIPE_Q[k]||(n.n+" recipe"))}" target="_blank" rel="noopener">Find a recipe video</a><a class="btn quiet sm" href="https://www.google.com/search?q=${encodeURIComponent(RECIPE_Q[k]||(n.n+" recipe"))}" target="_blank" rel="noopener">Search recipes</a></div>
    ${reqs.length?`<h3>Before this</h3><div class="chips">${reqs.map(link).join("")}</div>`:""}
    ${unl.length?`<h3>Unlocks</h3><div class="chips">${unl.map(link).join("")}</div>`:""}
    <h3>Your progress</h3>
    <div class="row"><div class="seg" role="group" aria-label="Progress">${[0,1,2].map(v=>`<button type="button" data-act="state" data-v="${v}" data-k="st-${v}" aria-pressed="${s===v}">${stateWord(v)}</button>`).join("")}</div>
+    <button class="cook-btn" type="button" data-act="cookedtoday" data-key="${k}" data-k="ctd" aria-pressed="${nodeDates(k).includes(todayIso())}">${nodeDates(k).includes(todayIso())?CHECK_INK+"Cooked today":"I cooked it today"}</button>
     <span class="counter"><span class="small muted">Times cooked</span><button class="btn quiet sm" type="button" data-act="cook" data-d="-1" data-k="ck-m" aria-label="One fewer">−</button><b>${c}</b><button class="btn quiet sm" type="button" data-act="cook" data-d="1" data-k="ck-p" aria-label="One more">+</button></span></div>
+   ${(()=>{const r=revisitInfo(k);return r?`<p class="tiny" style="margin-top:8px">Last cooked ${relDays(r.since)}. ${r.due?"Due for a revisit.":`Next revisit in ${r.inDays} day${r.inDays===1?"":"s"}.`}</p>`:"";})()}
    <h3>Your notes</h3><textarea data-note="${k}" data-k="note" placeholder="Used 1.5 cups water; next time less chilli">${esc(ns(k).note||"")}</textarea>
   </div></div>`;
 }
@@ -1529,6 +1735,7 @@ function viewWeekends(){
     <td style="--c:var(--de)"><input type="checkbox" aria-label="Made ${esc(x.des)}" data-wk="${k2}" data-k="wk-${k2}" ${state.wk[k2]?"checked":""}></td></tr>`;}).join("");
   return `<h1 class="title">Weekend calendar</h1>
   <p class="lead">One showpiece dish every Saturday and one make-ahead dessert every Sunday, rotating through all four cuisines and alternating nourishing and treat desserts.</p>
+  ${w>26?`<div class="note" style="--c:var(--es)">You’ve finished the 26 weeks. Today now suggests a weekend dish and dessert from your trees each week, and you can repeat any of these whenever you like.</div>`:""}
   <div class="row" style="margin:16px 0 18px"><span class="pill">${done} of 52 done</span><div class="bar" style="flex:1;max-width:360px"><i style="width:${Math.round(done/52*100)}%"></i></div></div>
   <div class="tbl"><table><thead><tr><th class="num">Week</th><th class="num">Month</th><th>Saturday dish</th><th>Cooked</th><th>Sunday dessert</th><th>Made</th></tr></thead><tbody>${rows}</tbody></table></div>
   <p class="tiny">Weeks 9, 12, 14, 19 and 22 need an oven, OTG, convection microwave or air fryer for the dessert; swap in a stovetop one if you don’t have one. The pizza, tikka and Korean chicken also work in a heavy pan. If mangoes aren’t in season for weeks 22–23, use any ripe fruit.</p>`;
@@ -1613,11 +1820,23 @@ function hlEdges(key){const svg=document.getElementById("edges");if(!svg)return;
 document.addEventListener("pointerover",e=>{const n=e.target.closest&&e.target.closest(".tree .node");hlEdges(n?n.dataset.node:null);});
 document.addEventListener("focusin",e=>{const n=e.target.closest&&e.target.closest(".tree .node");hlEdges(n?n.dataset.node:null);});
 document.addEventListener("click",e=>{
+  const ln=e.target.closest&&e.target.closest('a[href^="#"]');
+  if(ln){const h=(ln.getAttribute("href")||"").slice(1);if(validView(h)){e.preventDefault();$("#rail").classList.remove("open");$("#navToggle").setAttribute("aria-expanded","false");go(h);return;}}
   const nb=e.target.closest("[data-node]");if(nb){openNode(nb.dataset.node);return;}
   const a=e.target.closest("[data-act]");
   if(a){const act=a.dataset.act;
     if(act==="close"){$("#dlg").close();return;}
-    if(act==="state"&&ui.dlgKey){setNode(ui.dlgKey,{s:Number(a.dataset.v)});commit();return;}
+    if(act==="reload"){location.reload();return;}
+    if(act==="state"&&ui.dlgKey){const v=Number(a.dataset.v),cur=ns(ui.dlgKey);setNode(ui.dlgKey,{s:v,lt:v>=1?(cur.lt||todayIso()):(cur.lt||"")});commit();return;}
+    if(act==="cookedtoday"){const k=a.dataset.key,iso=todayIso();logCook(k,iso,!nodeDates(k).includes(iso));commit();return;}
+    if(act==="cooked"){const iso=todayIso(),slot=a.dataset.slot,keys=(a.dataset.nodes||"").split(" ").filter(Boolean);const day=Object.assign({},obj(state.cooked[iso]));const on=!day[slot];day[slot]=on;day[slot+"n"]=keys;state.cooked[iso]=day;
+      keys.forEach(k=>{if(on)logCook(k,iso,true);else{const other=Object.keys(day).some(x=>!x.endsWith("n")&&x!==slot&&day[x]&&(day[x+"n"]||[]).includes(k));logCook(k,iso,false,other);}});commit();return;}
+    if(act==="lowday"){const iso=todayIso();state.low=Object.assign({},obj(state.low));state.low[iso]=!state.low[iso];commit();return;}
+    if(act==="pick"){const w=planWeek();state.pick=Object.assign({},obj(state.pick));state.pick[w]=(Number(state.pick[w])||0)+1;commit();return;}
+    if(act==="shopweek"){ui.shopW=Number(a.dataset.v);render();return;}
+    if(act==="shopopt"){if(a.dataset.o==="weekend")ui.shopWeekend=ui.shopWeekend===false;else ui.shopCooked=!ui.shopCooked;render();return;}
+    if(act==="shopclear"){state.shop=Object.assign({},obj(state.shop));delete state.shop[a.dataset.v];commit();return;}
+    if(act==="shopcopy"){const m=$("#shopMsg"),txt=shopText();(navigator.clipboard?navigator.clipboard.writeText(txt):Promise.reject()).then(()=>{m.textContent="Copied; paste it into a note or a chat";},()=>{m.textContent="Couldn’t copy here; select the list and copy it";});return;}
     if(act==="cook"&&ui.dlgKey){const c=Math.max(0,(Number(ns(ui.dlgKey).c)||0)+Number(a.dataset.d));const patch={c};if(c>0&&sOf(ui.dlgKey)===0)patch.s=1;setNode(ui.dlgKey,patch);commit();return;}
     if(act==="menuw"){ui.menuWeek=a.dataset.v;render();return;}
     if(act==="psort"){ui.psort=a.dataset.v;render();return;}
@@ -1639,9 +1858,12 @@ document.addEventListener("change",e=>{
   const t=e.target;
   if(t.dataset.gate){state.gates[t.dataset.gate]=t.checked;commit();return;}
   if(t.dataset.wk){state.wk[t.dataset.wk]=t.checked;
-    const wd=WEEKENDS.find(x=>`w${x.w}s`===t.dataset.wk||`w${x.w}d`===t.dataset.wk);
-    if(t.checked&&wd){const k=t.dataset.wk.endsWith("s")?wd.link:wd.dlink;if(k&&NODE[k]&&sOf(k)===0)setNode(k,{s:1,c:Math.max(1,Number(ns(k).c)||0)});}
+    let k=t.dataset.link||"";
+    if(!k){const wd=WEEKENDS.find(x=>`w${x.w}s`===t.dataset.wk||`w${x.w}d`===t.dataset.wk);if(wd)k=t.dataset.wk.endsWith("s")?wd.link:wd.dlink;}
+    if(k&&NODE[k])logCook(k,todayIso(),t.checked);
     commit();return;}
+  if(t.dataset.shop){const key=t.dataset.shopw;state.shop=Object.assign({},obj(state.shop));const o=Object.assign({},obj(state.shop[key]));if(t.checked)o[t.dataset.shop]=true;else delete o[t.dataset.shop];state.shop[key]=o;commit();return;}
+  if(t.dataset.nudge!==undefined){const iso=todayIso();state.nudge=Object.assign({},obj(state.nudge));const o=Object.assign({},obj(state.nudge[iso]));if(t.checked)o[t.dataset.nudge]=true;else delete o[t.dataset.nudge];state.nudge[iso]=o;commit();return;}
   if(t.dataset.prep!==undefined){const sk=sundayKey();const arr=Array.isArray(state.prep[sk])?state.prep[sk].slice():[];arr[Number(t.dataset.prep)]=t.checked;
     const keep={};Object.keys(state.prep).sort().slice(-3).forEach(k=>keep[k]=state.prep[k]);keep[sk]=arr;state.prep=keep;commit();return;}
   if(t.dataset.equip!==undefined){state.equip[t.dataset.equip]=t.checked;commit();return;}
@@ -1663,7 +1885,9 @@ document.addEventListener("submit",e=>{
 });
 $("#dlg").addEventListener("close",()=>{ui.dlgKey=null;render();});
 $("#dlg").addEventListener("click",e=>{if(e.target===$("#dlg"))$("#dlg").close();});
-window.addEventListener("hashchange",()=>{if($("#dlg").open)$("#dlg").close();render();window.scrollTo(0,0);});
+function fromHash(){const h=(location.hash||"").replace(/^#/,"");ui.view=validView(h)?h:"";if($("#dlg").open)$("#dlg").close();render();window.scrollTo(0,0);}
+window.addEventListener("hashchange",fromHash);
+window.addEventListener("popstate",fromHash);
 let rsz;if(window.ResizeObserver){new ResizeObserver(()=>{cancelAnimationFrame(rsz);rsz=requestAnimationFrame(drawEdges);}).observe($("#main"));}
 if(document.fonts&&document.fonts.ready)document.fonts.ready.then(()=>requestAnimationFrame(drawEdges));
 render();
