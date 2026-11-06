@@ -1,0 +1,746 @@
+<!--
+  A hundred side quests — Bengaluru. Google sign-in + Firestore sync.
+
+  SETUP (about ten minutes)
+  1. console.firebase.google.com -> Add project.
+  2. Build -> Authentication -> Get started -> Sign-in method -> Google -> Enable -> Save.
+  3. Build -> Firestore Database -> Create database -> Production mode -> pick a region.
+  4. Firestore -> Rules, paste this and Publish:
+
+       rules_version = '2';
+       service cloud.firestore {
+         match /databases/{database}/documents {
+           match /boards/{uid} {
+             allow read, write: if request.auth != null && request.auth.uid == uid;
+           }
+         }
+       }
+
+  5. Project settings -> Your apps -> Web (</>) -> register -> copy the firebaseConfig
+     object and paste its values into FIREBASE_CONFIG below.
+  6. Authentication -> Settings -> Authorized domains -> add the domain you will host on.
+     localhost is authorized by default.
+  7. Serve it. Either:
+       npx serve .                      (then open http://localhost:3000)
+     or deploy:
+       npm i -g firebase-tools && firebase login
+       firebase init hosting            (public dir: the folder holding this file)
+       firebase deploy
+
+  Opening this file directly from disk (file://) will NOT work for sign-in —
+  the origin is null and Firebase rejects it. It falls back to local storage instead.
+
+  The Firebase SDK is pinned to 11.0.2 below. Bump the version if you want.
+-->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>A hundred side quests — Bengaluru</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Azeret+Mono:wght@300;400;500&family=Bricolage+Grotesque:opsz,wght@12..96,300..800&family=Newsreader:ital,opsz,wght@0,6..72,300..600;1,6..72,300..500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ground:#DCE1E2;
+  --ground-2:#E6EAEA;
+  --ink:#192124;
+  --ink-2:#4E5C60;
+  --ink-3:#808D91;
+  --rule:#BFC7C8;
+  --rule-soft:#CDD4D5;
+  --flame:#BC3F26;
+  --flame-soft:#F0D9D2;
+  --canopy:#2C6350;
+  --canopy-soft:#D3E0DA;
+  --focus:#BC3F26;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --ground:#151B1D;
+    --ground-2:#1D2426;
+    --ink:#E4E9E9;
+    --ink-2:#9BA8AB;
+    --ink-3:#6B787B;
+    --rule:#2F3A3C;
+    --rule-soft:#252E30;
+    --flame:#E8775A;
+    --flame-soft:#3A2019;
+    --canopy:#6FB79C;
+    --canopy-soft:#1C3229;
+    --focus:#E8775A;
+  }
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;scroll-behavior:smooth}
+@media (prefers-reduced-motion: reduce){html{scroll-behavior:auto}*{transition:none!important;animation:none!important}}
+body{
+  margin:0;background:var(--ground);color:var(--ink);
+  font-family:'Newsreader',Georgia,serif;font-size:17px;line-height:1.55;
+  padding:0 clamp(18px,5vw,48px) 100px;
+}
+.wrap{max-width:980px;margin:0 auto}
+:focus-visible{outline:2px solid var(--focus);outline-offset:3px;border-radius:2px}
+
+.masthead{padding:clamp(44px,8vw,84px) 0 0}
+.eyebrow{font-family:'Azeret Mono',ui-monospace,monospace;font-size:11px;letter-spacing:.2em;
+  text-transform:uppercase;color:var(--flame);margin:0 0 20px;font-weight:400}
+h1{font-family:'Bricolage Grotesque',system-ui,sans-serif;font-weight:700;
+  font-size:clamp(40px,10vw,86px);line-height:.92;letter-spacing:-.035em;margin:0;font-variation-settings:'opsz' 90}
+h1 span{display:block;font-weight:300;color:var(--ink-2);letter-spacing:-.03em}
+.standfirst{max-width:50ch;color:var(--ink-2);font-size:18px;margin:24px 0 0}
+
+.calendar{margin:46px 0 0;padding:22px 0 0;border-top:1px solid var(--rule)}
+.cal-head{display:flex;justify-content:space-between;align-items:baseline;gap:14px;flex-wrap:wrap;margin-bottom:16px}
+.cal-title{font-family:'Azeret Mono',monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--ink-3);margin:0}
+.months{display:grid;grid-template-columns:repeat(12,1fr);gap:4px;align-items:end}
+.mo{appearance:none;border:0;background:none;padding:0;cursor:pointer;display:flex;flex-direction:column;
+  justify-content:flex-end;gap:7px;height:92px}
+.mo .bar{width:100%;background:var(--rule);border-radius:1px;transition:background .18s ease}
+.mo .lab{font-family:'Azeret Mono',monospace;font-size:10.5px;letter-spacing:.08em;color:var(--ink-3)}
+.mo:hover .bar{background:var(--ink-3)}
+.mo.now .bar{background:var(--flame)}
+.mo.now .lab{color:var(--flame)}
+.mo[aria-pressed="true"] .bar{background:var(--canopy)}
+.mo[aria-pressed="true"] .lab{color:var(--canopy);font-weight:500}
+
+.tally-row{margin:40px 0 0;display:flex;align-items:center;gap:18px}
+.tally{font-family:'Bricolage Grotesque',sans-serif;font-size:14px;color:var(--ink-2);white-space:nowrap;margin:0}
+.tally b{font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:30px;color:var(--ink);
+  letter-spacing:-.03em;vertical-align:-3px;margin-right:3px}
+.track{flex:1;height:3px;background:var(--rule)}
+.track span{display:block;height:100%;width:0;background:var(--flame);transition:width .3s ease}
+
+.controls{margin:26px 0 0;padding:16px 0;border-top:1px solid var(--rule);border-bottom:1px solid var(--rule);
+  display:flex;flex-wrap:wrap;gap:8px 4px;align-items:center}
+.f{appearance:none;background:transparent;border:1px solid transparent;color:var(--ink-2);
+  font-family:'Bricolage Grotesque',sans-serif;font-size:14px;padding:5px 11px;border-radius:2px;cursor:pointer;transition:.15s}
+.f:hover{color:var(--ink);border-color:var(--rule)}
+.f[aria-pressed="true"]{background:var(--ink);color:var(--ground);border-color:var(--ink)}
+.spacer{flex:1;min-width:10px}
+.link{appearance:none;background:none;border:0;padding:5px 2px;cursor:pointer;color:var(--flame);
+  font-family:'Azeret Mono',monospace;font-size:11.5px;letter-spacing:.1em;text-transform:uppercase}
+.link:hover{text-decoration:underline;text-underline-offset:4px}
+.note{font-family:'Azeret Mono',monospace;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3)}
+
+.notice{margin:18px 0 0;padding:13px 15px;background:var(--canopy-soft);border-left:2px solid var(--canopy);
+  display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center;font-size:15px}
+.notice[hidden],.sharebox[hidden]{display:none}
+.sharebox{margin:14px 0 0;display:flex;gap:8px;align-items:center}
+.sharebox input{flex:1;min-width:0;font-family:'Azeret Mono',monospace;font-size:12px;padding:9px 11px;
+  border:1px solid var(--rule);border-radius:2px;background:var(--ground-2);color:var(--ink)}
+
+.group{margin:44px 0 0}
+.group h2{font-family:'Azeret Mono',monospace;font-size:11px;letter-spacing:.18em;text-transform:uppercase;
+  color:var(--flame);font-weight:400;margin:0 0 4px;padding-bottom:10px;border-bottom:1px solid var(--rule)}
+.roll{list-style:none;margin:0;padding:0}
+.quest{display:grid;grid-template-columns:46px 1fr 28px;gap:0 16px;align-items:start;
+  padding:20px 0;border-bottom:1px solid var(--rule-soft);cursor:pointer;transition:opacity .2s}
+.quest:hover .title{color:var(--flame)}
+.quest.done{opacity:.4}
+.quest.done .title{text-decoration:line-through;text-decoration-thickness:1px}
+.num{font-family:'Azeret Mono',monospace;font-size:12px;color:var(--ink-3);padding-top:6px;font-variant-numeric:tabular-nums}
+.title{font-family:'Bricolage Grotesque',sans-serif;font-weight:600;font-size:19px;line-height:1.25;
+  letter-spacing:-.015em;margin:0 0 5px;transition:color .15s}
+.blurb{margin:0;color:var(--ink-2);font-size:16.5px;max-width:62ch;font-weight:300}
+.meta{margin:10px 0 0;font-family:'Azeret Mono',monospace;font-size:10.5px;letter-spacing:.09em;
+  text-transform:uppercase;color:var(--ink-3);display:flex;flex-wrap:wrap;gap:5px 10px;align-items:center}
+.meta .sep{color:var(--rule)}
+.badge{padding:3px 7px;border-radius:2px}
+.badge.now{background:var(--flame-soft);color:var(--flame)}
+.badge.stretch{background:var(--canopy-soft);color:var(--canopy)}
+.mark{width:24px;height:24px;margin-top:5px;border:1px solid var(--rule);border-radius:2px;
+  display:flex;align-items:center;justify-content:center;transition:.18s}
+.quest:hover .mark{border-color:var(--ink-3)}
+.mark svg{width:14px;height:14px;stroke:var(--ground);stroke-width:2.5;fill:none;stroke-linecap:round;stroke-linejoin:round;opacity:0}
+.quest.done .mark{background:var(--flame);border-color:var(--flame)}
+.quest.done .mark svg{opacity:1}
+
+.empty{padding:60px 0;text-align:center;color:var(--ink-3)}
+.colophon{margin:60px 0 0;padding-top:22px;border-top:1px solid var(--rule);color:var(--ink-3);
+  font-size:15px;max-width:60ch;font-weight:300}
+
+.topbar{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap}
+.auth{display:flex;align-items:center;gap:10px;min-height:38px}
+.gbtn{display:inline-flex;align-items:center;gap:9px;appearance:none;cursor:pointer;
+  font-family:'Bricolage Grotesque',sans-serif;font-size:14px;font-weight:500;
+  padding:9px 15px 9px 12px;border-radius:3px;border:1px solid var(--rule);background:var(--ground-2);color:var(--ink);transition:.15s}
+.gbtn:hover{border-color:var(--ink-3)}
+.gbtn svg{width:16px;height:16px;flex:none}
+.who{display:flex;align-items:center;gap:9px;font-family:'Bricolage Grotesque',sans-serif;font-size:13.5px;color:var(--ink-2)}
+.avatar{width:28px;height:28px;border-radius:50%;background:var(--rule);object-fit:cover;flex:none}
+.chip{font-family:'Azeret Mono',monospace;font-size:10px;letter-spacing:.12em;text-transform:uppercase;
+  padding:5px 9px;border-radius:2px;background:var(--canopy-soft);color:var(--canopy);white-space:nowrap}
+.chip.off{background:var(--rule-soft);color:var(--ink-3)}
+.chip.warn{background:var(--flame-soft);color:var(--flame)}
+
+.setup{margin:30px 0 0;padding:22px 24px;background:var(--ground-2);border:1px solid var(--rule);border-radius:3px}
+.setup[hidden]{display:none}
+.setup h2{font-family:'Bricolage Grotesque',sans-serif;font-size:19px;font-weight:600;letter-spacing:-.015em;margin:0 0 8px}
+.setup p{margin:0 0 14px;color:var(--ink-2);font-size:16px;font-weight:300;max-width:62ch}
+.setup ol{margin:0;padding-left:20px;color:var(--ink-2);font-size:15.5px;font-weight:300;max-width:62ch}
+.setup li{margin-bottom:7px}
+.setup code{font-family:'Azeret Mono',monospace;font-size:12.5px;background:var(--ground);padding:2px 5px;border-radius:2px;color:var(--ink)}
+.setup pre{font-family:'Azeret Mono',monospace;font-size:11.5px;line-height:1.6;background:var(--ground);
+  padding:14px;border-radius:2px;overflow-x:auto;margin:12px 0 0;color:var(--ink-2)}
+
+@media (max-width:640px){
+  .quest{grid-template-columns:30px 1fr 24px;gap:0 12px}
+  .title{font-size:17.5px}
+  .blurb{font-size:15.5px}
+  .mo{height:70px}
+  .mo .lab{font-size:9px;letter-spacing:0}
+  .months{gap:3px}
+}
+</style>
+
+<div class="wrap">
+<header class="masthead">
+  <div class="topbar">
+    <p class="eyebrow">Base camp: Bengaluru</p>
+    <div class="auth" id="auth"></div>
+  </div>
+  <h1>A hundred<span>side quests</span></h1>
+  <p class="standfirst">Small expeditions out of the flat and slightly out of your depth. Tap a line to strike it off. Sign in and the board follows you to every device.</p>
+</header>
+
+<section class="setup" id="setup" hidden>
+  <h2>Turn on sync</h2>
+  <p>The board is saving to this browser right now. To sign in with Google and sync across devices, connect a Firebase project. It takes about ten minutes and costs nothing at this scale.</p>
+  <ol>
+    <li>Create a project at <code>console.firebase.google.com</code>.</li>
+    <li>Authentication, then sign-in method, then enable Google.</li>
+    <li>Firestore Database, create in production mode, then paste the rules below.</li>
+    <li>Project settings, add a web app, copy the config into <code>FIREBASE_CONFIG</code> at the top of this file's script.</li>
+    <li>Authentication, settings, authorized domains: add wherever you host it. <code>localhost</code> is already allowed.</li>
+    <li>Serve it over http. Run <code>npx serve .</code> or deploy with <code>firebase deploy</code>. Opening the file straight off disk will not work for sign-in.</li>
+  </ol>
+  <pre>rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /boards/{uid} {
+      allow read, write: if request.auth != null
+                         &amp;&amp; request.auth.uid == uid;
+    }
+  }
+}</pre>
+</section>
+
+<section class="calendar" aria-label="Seasonal quests by month">
+  <div class="cal-head">
+    <p class="cal-title">Quests with a window, by month</p>
+    <p class="cal-title" id="cal-hint">Tap a month to filter</p>
+  </div>
+  <div class="months" id="months"></div>
+</section>
+
+<div class="tally-row">
+  <p class="tally"><b id="tally-n">0</b> of one hundred</p>
+  <div class="track"><span id="track"></span></div>
+</div>
+
+<nav class="controls" id="controls" aria-label="Filters">
+  <button class="f" data-cat="All" aria-pressed="true">Everything</button>
+  <button class="f" data-cat="Outdoors" aria-pressed="false">Outdoors</button>
+  <button class="f" data-cat="Heritage" aria-pressed="false">Heritage</button>
+  <button class="f" data-cat="Food" aria-pressed="false">Food</button>
+  <button class="f" data-cat="Making" aria-pressed="false">Making</button>
+  <button class="f" data-cat="Stage" aria-pressed="false">Stage</button>
+  <button class="f" data-cat="Body" aria-pressed="false">Body</button>
+  <button class="f" data-cat="People" aria-pressed="false">People</button>
+  <button class="f" data-cat="Day trip" aria-pressed="false">Day trips</button>
+  <button class="f" data-cat="Home" aria-pressed="false">At home</button>
+  <span class="spacer"></span>
+  <button class="f" id="f-stretch" aria-pressed="false">Stretch only</button>
+  <button class="f" id="f-hide" aria-pressed="false">Hide done</button>
+</nav>
+
+<div class="notice" id="notice" hidden>
+  <span id="notice-text"></span>
+  <button class="link" id="keep-mine" style="padding:0">Keep my board instead</button>
+</div>
+
+<div style="display:flex;flex-wrap:wrap;gap:8px 20px;align-items:center;padding:16px 0 0">
+  <button class="link" id="roll-dice">Pick one for me</button>
+  <button class="link" id="share">Share board</button>
+  <button class="link" id="reset" style="color:var(--ink-3)">Reset board</button>
+  <span id="dice-out" style="font-size:15px;color:var(--ink-2)"></span>
+</div>
+
+<div class="sharebox" id="sharebox" hidden>
+  <input id="shareurl" readonly aria-label="Shareable link to this board">
+  <button class="f" id="copyurl" style="border-color:var(--rule)">Copy</button>
+</div>
+
+<p class="note" id="storage-note" style="margin:12px 0 0"></p>
+
+<div id="roll"></div>
+<p class="empty" id="empty" hidden>Nothing matches that combination. Loosen a filter.</p>
+
+<p class="colophon">Most of these run all year. The ones with a window are the point of the calendar above: the cloud inversion at Nandi Hills only happens in the cold months, the falls on the Kaveri only roar between June and September, mangoes arrive and vanish inside eight weeks, and the groundnut fair at the Bull Temple happens exactly once. Venue calendars for theatre, open mics and workshops change weekly, so check before you set out.</p>
+</div>
+
+<script>
+const NOW = new Date().getMonth() + 1;
+const S = {
+  year:    ["all year",  [1,2,3,4,5,6,7,8,9,10,11,12]],
+  cool:    ["oct-feb",   [10,11,12,1,2]],
+  clear:   ["nov-feb",   [11,12,1,2]],
+  monsoon: ["jun-sep",   [6,7,8,9]],
+  wetcool: ["jul-feb",   [7,8,9,10,11,12,1,2]],
+  mango:   ["apr-jun",   [4,5,6]],
+  summer:  ["mar-may",   [3,4,5]],
+  jan:     ["january",   [1]],
+  nov:     ["november",  [11]],
+  dec:     ["december",  [12]],
+  apr:     ["mar-apr",   [3,4]],
+  oct:     ["october",   [10]],
+  may:     ["may",       [5]]
+};
+const MONTHS = ["J","F","M","A","M","J","J","A","S","O","N","D"];
+const MONTH_NAMES = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+
+// [id, title, blurb, category, effort, stretch, season]
+const D = [
+ [1,"Watch sunrise from the Lalbagh rock","Three thousand million year old Peninsular Gneiss, a national geological monument, sitting in the middle of a botanical garden. Be up it before six.","Outdoors","2 hours",0,"year"],
+ [2,"Take Cubbon Park on a car-free Sunday","No traffic, just runners, dogs, skaters and the bandstand. The city at its least defensive.","Outdoors","2 hours",0,"year"],
+ [3,"Walk Kaikondrahalli lake at dawn","A dead lake brought back by residents. Pelicans, spot-billed ducks and a lesson in what citizens can actually fix.","Outdoors","2 hours",0,"year"],
+ [4,"Cycle the Hesaraghatta lake loop","Thirty kilometres north, mostly flat, almost no traffic. The reason the city's cyclists keep going back.","Outdoors","half day",0,"cool"],
+ [5,"Bird the Hesaraghatta grasslands","One of the last grassland patches near the city. Harriers roost here through winter, and so do larks, pipits and the occasional wolf.","Outdoors","half day",0,"clear"],
+ [6,"Ride Turahalli on a mountain bike","The city's last scrub forest, rocky and thorn-scratched. Rent a hardtail and accept that you will walk some of it.","Outdoors","half day",1,"cool"],
+ [7,"Kayak on Manchanabele reservoir","Forty kilometres out, hills on three sides, almost nobody there on a weekday. Outfits run beginner paddles.","Outdoors","half day",1,"year"],
+ [8,"Camp and take a coracle at Bheemeshwari","On the Kaveri, a hundred kilometres south. Round basket boats, mahseer in the water, no phone signal worth having.","Outdoors","weekend",1,"wetcool"],
+ [9,"Stand above the clouds at Nandi Hills","Sixty kilometres north and a thousand metres up. In the cold months the valley fills with cloud and you watch the sun come up over the top of it.","Outdoors","half day",0,"clear"],
+ [10,"Cycle the climb up Nandi Hills","Forty hairpins from the base. Riders leave the city at four in the morning to do this. Not a casual ride.","Outdoors","day",1,"cool"],
+ [11,"Night trek up Skandagiri","Start at midnight, reach the ruined fort for sunrise. Go with a licensed operator and check the current permit situation first.","Outdoors","day",1,"clear"],
+ [12,"Summit Savandurga","One of the largest monoliths in Asia, fifty kilometres west. Exposed rock most of the way up, so early start and real shoes.","Outdoors","day",1,"cool"],
+ [13,"Climb Makalidurga along the railway line","The trail starts at a tiny station and follows the track before turning up to a hilltop fort. Trains pass close enough to wave at.","Outdoors","day",1,"cool"],
+ [14,"Ramadevara Betta, the vulture sanctuary","India's only vulture sanctuary, on the rocks where Sholay was shot. Long-billed vultures still nest on the cliffs.","Outdoors","day",0,"cool"],
+ [15,"Crawl the Antaragange caves","Volcanic boulder caves near Kolar, seventy kilometres out. Tight squeezes, head torch, and a guide who knows the way through.","Outdoors","day",1,"cool"],
+ [16,"Ride at night with a city bunch","Cycling groups run midnight loops through an empty city. Blinkers on, ride in formation, idli at four in the morning.","Outdoors","half day",1,"year"],
+
+ [17,"Find Tipu's Summer Palace and the fort","Teak columns and frescoes in the middle of Chickpet chaos, plus the surviving fragment of the old mud fort down the road.","Heritage","2 hours",0,"year"],
+ [18,"Walk through Bangalore Palace","Tudor revival, built by a principal of Central High School and sold to the Wodeyars. Loud, strange and worth the ticket.","Heritage","2 hours",0,"year"],
+ [19,"Walk Avenue Road and Chickpet end to end","The oldest trading lanes in the city, laid out by Kempegowda. Wholesale silk, paper, hardware, and no room for a car.","Heritage","half day",0,"year"],
+ [20,"Stand in the KR Market flower trade at five","The biggest flower market in the region, loudest and most beautiful before dawn. Wear shoes you do not mind ruining.","Heritage","2 hours",1,"year"],
+ [21,"Eat your way through Russell Market","Shivajinagar's 1927 market hall. Butchers, flower sellers, dry fruit, and the lanes around it for breakfast after.","Heritage","2 hours",0,"year"],
+ [22,"See Vidhana Soudha lit on a Sunday evening","The granite is impressive by day and theatrical by night, when the floodlights come on. Walk the boulevard with everyone else.","Heritage","2 hours",0,"year"],
+ [23,"Look properly at Attara Kacheri","The red Gothic High Court building, built in 1868 and saved from demolition by a public campaign. Best in late light.","Heritage","2 hours",0,"year"],
+ [24,"Visit the Someshwara Temple, Halasuru","Chola in origin, expanded under the Vijayanagara kings. The oldest building most people walk past without noticing.","Heritage","2 hours",0,"year"],
+ [25,"Gavi Gangadhareshwara at Makara Sankranti","A cave temple cut into rock where, around the fourteenth of January, the setting sun threads between the Nandi's horns onto the lingam.","Heritage","2 hours",0,"jan"],
+ [26,"Go to the Kadalekai Parishe","The groundnut fair at the Bull Temple, Basavanagudi. Farmers bring the first harvest, the whole of Bull Temple Road closes, once a year.","Heritage","half day",0,"nov"],
+ [27,"Track down all four Kempegowda towers","Four watchtowers marking the limits of the city as planned in the sixteenth century: Lalbagh, Kempambudhi, Halasuru, Palace Guttahalli. The city has rather overshot them.","Heritage","day",1,"year"],
+ [28,"Walk into Devanahalli Fort","Oval walls and bastions next to the airport road, and the spot where Tipu Sultan was born. Almost nobody stops.","Heritage","half day",0,"year"],
+ [29,"Walk the IISc campus","A hundred years of Indian science under rain trees, with the Tata statue and the old main building. Go on a weekday afternoon.","Heritage","2 hours",0,"year"],
+ [30,"Sit under the Dodda Alada Mara","A banyan near Kethohalli spread across several acres on hundreds of prop roots. There is no single trunk left to find.","Heritage","half day",0,"year"],
+
+ [31,"Run a darshini breakfast crawl","Three standing-room counters in one morning. Idli at the first, khara bath at the second, by-two coffee at the third.","Food","2 hours",0,"year"],
+ [32,"Queue for a benne masala dosa","Central Tiffin Room in Malleshwaram or Vidyarthi Bhavan in Gandhi Bazaar. The butter is not a garnish, it is the method.","Food","2 hours",0,"year"],
+ [33,"Eat donne biryani at a military hotel","Served in a stitched leaf bowl, short-grain rice, no frills and no fork. A completely different lineage from the Hyderabadi kind.","Food","2 hours",1,"year"],
+ [34,"Walk VV Puram food street after dark","Thindi Beedi. Holige, akki roti, congress bun, gobi, and a rasmalai at the end. Go hungry and go on foot.","Food","2 hours",0,"year"],
+ [35,"Do Malleshwaram 8th Cross on a festival morning","Flowers, mango leaves, banana stems, filter coffee and a queue outside every sweet shop. The city's most intact neighbourhood ritual.","Food","2 hours",0,"year"],
+ [36,"Eat a proper Mangalorean meal","Neer dosa, kori rotti, ghee roast, and fish if you eat it. Coastal Karnataka cooks nothing like the plateau.","Food","2 hours",0,"year"],
+ [37,"Find nati koli saaru on a highway","Country chicken, thin fiery rasam, ragi mudde to eat it with. The roadside joints on the Mysuru and Kanakapura roads do it best.","Food","half day",1,"year"],
+ [38,"Make bisi bele bath from scratch","Your own masala, roasted and ground. It is a harder dish than it looks and the shop-bought powder is why you think you dislike it.","Food","half day",0,"year"],
+ [39,"Ferment your own dosa batter","Rice, urad dal, the right ratio, and the patience to let Bengaluru's climate do the rest. Takes two days and one failed attempt.","Food","day",0,"year"],
+ [40,"Attempt Mysore pak","Besan, ghee, sugar, and a thirty-second window where it either sets or seizes. Invented in a palace kitchen, hard to do at home.","Food","half day",1,"year"],
+ [41,"Eat five mango varieties in one season","Badami, Raspuri, Sindhura, Totapuri, Mallika. The Lalbagh mango mela puts them side by side. The window is about eight weeks.","Food","ongoing",0,"mango"],
+ [42,"Sit through a coffee cupping","Karnataka grows most of India's coffee and the city roasts a great deal of it. A cupping teaches you to taste the difference out loud.","Food","2 hours",0,"year"],
+ [43,"Learn to pull a proper decoction","Stainless filter, coarse grind, boiling water, twenty minutes of waiting. Then the pour between two tumblers until it foams.","Food","2 hours",0,"year"],
+ [44,"Take a brewery tour","This is the craft beer capital of the country and most taprooms will walk you through the mash tun if you ask on a quiet afternoon.","Food","2 hours",0,"year"],
+ [45,"Eat an Andhra meals on a banana leaf","Unlimited, served by hand, no cutlery, eaten in the right order from the outside in. Ask someone to show you the order.","Food","2 hours",1,"year"],
+ [46,"Shop a Sunday farmers market and cook only that","Organic markets run weekly across the city. Buy without a list and build the week's cooking backwards from what was there.","Food","half day",0,"year"],
+
+ [47,"Throw a pot on a wheel","The first collapses, the second is lopsided, the third is yours. Studios across the city run weekend beginner sessions.","Making","half day",1,"year"],
+ [48,"Turn a Channapatna toy with a craftsman","Sixty kilometres toward Mysuru, ivory-wood turned on a lathe and coloured with vegetable lacquer. A GI-tagged craft that is quietly struggling.","Making","day",1,"year"],
+ [49,"Take a natural dye or block printing workshop","Indigo, madder, pomegranate rind. You will ruin one piece of cloth learning why the mordant matters.","Making","half day",1,"year"],
+ [50,"Make something at a makerspace","Laser cutter, 3D printer, soldering iron. Walk in with a sketch and leave with an object, badly finished and entirely yours.","Making","half day",1,"year"],
+ [51,"Photowalk Chickpet at six in the morning","Shutters going up, handcarts moving, light down narrow lanes. One lens, fifty frames, no burst mode.","Making","half day",0,"year"],
+ [52,"Draw on site with the urban sketchers","They meet monthly somewhere in the city, draw for two hours and hold up the results. No eraser and no apologising.","Making","2 hours",1,"year"],
+ [53,"Buy a used book blind","Three floors of secondhand stock on Church Street. Pick on the spine alone, no reviews, no back cover.","Making","2 hours",0,"year"],
+ [54,"Spend an hour at the Rangoli Metro Art Centre","Built into the MG Road boulevard where the old trees came down. Galleries, a graffiti wall and free performances most weekends.","Making","2 hours",0,"year"],
+ [55,"Go to the NGMA at Manikyavelu Mansion","A colonial bungalow turned national gallery, with Raja Ravi Varma and Amrita Sher-Gil upstairs and a lawn worth sitting on.","Making","2 hours",0,"year"],
+ [56,"Press every button at the Visvesvaraya museum","An industrial and technological museum designed to be touched. Unapologetically for children and much better for it.","Making","2 hours",0,"year"],
+ [57,"Sit in a cockpit at the HAL Aerospace Museum","India's first aerospace museum, next to the old airport. Real airframes, a simulator, and the history of how they got built here.","Making","half day",0,"year"],
+ [58,"Try screen printing or letterpress","Print studios run short courses. Pulling your own ink across a screen explains more about design in two hours than a year of reading.","Making","half day",1,"year"],
+
+ [59,"See a play at Ranga Shankara","A theatre built as a memorial to Shankar Nag that stages something almost every evening, in several languages, cheaply.","Stage","2 hours",0,"year"],
+ [60,"Cross town for a Jagriti show","Out in Whitefield, a purpose-built thrust stage. Going is a commitment, which is part of why the room is always warm.","Stage","2 hours",0,"year"],
+ [61,"Take a seat at Chowdiah Memorial Hall","A concert hall shaped like a seven-stringed violin, built for T Chowdiah. Carnatic, Hindustani, orchestras, everything.","Stage","2 hours",0,"year"],
+ [62,"Go to the Ramanavami music festival","Weeks of free Carnatic concerts under a pandal at the Fort High School grounds in Chamarajpet, running since the 1930s.","Stage","2 hours",0,"apr"],
+ [63,"Perform once at an open mic","Poetry, five minutes of standup, one song. The rooms are everywhere and the bar is deliberately on the floor.","Stage","2 hours",1,"year"],
+ [64,"Do an improv workshop","Two hours of saying yes to strangers. The most efficient comfort-zone demolition on this board.","Stage","half day",1,"year"],
+ [65,"Give one instrument four weeks","Not mastery. Just enough to play one thing badly in front of another human being.","Stage","ongoing",1,"year"],
+ [66,"Sit through a film society screening","Restorations, world cinema, and a discussion afterwards where people argue. Unlike a multiplex, somebody will ask what you thought.","Stage","2 hours",0,"year"],
+
+ [67,"Turn up to a Sunday group run","Running groups meet across the city every weekend, free, every pace, no membership. Just be there at five thirty.","Body","2 hours",0,"year"],
+ [68,"Run the Bengaluru Marathon","Held in October. Pick the distance that scares you slightly rather than the one you know you can finish.","Body","day",1,"oct"],
+ [69,"Run the World 10K","May, through the middle of the city, with the elite field going past. The largest road race in the country by some measures.","Body","day",0,"may"],
+ [70,"Play a pickup game of ultimate","Self-refereed, mixed, and unusually good at absorbing people who have never thrown a disc properly.","Body","2 hours",1,"year"],
+ [71,"Learn to skate badly at a skatepark","Bowls and ramps exist here and the scene is young and friendly. Pads are not optional and nor is falling.","Body","2 hours",1,"year"],
+ [72,"Spend an evening at a bouldering gym","No ropes, no partner needed, problems graded from easy to humiliating. Your forearms will file a complaint.","Body","2 hours",1,"year"],
+ [73,"Try aerial silks or pole","Trial classes run across Indiranagar and Koramangala. Two hours in and you will understand exactly which muscles you have ignored.","Body","2 hours",1,"year"],
+ [74,"Learn to swim properly","Not splashing. Breathing on both sides, a kick that goes somewhere, and the ability to do a kilometre without stopping.","Body","ongoing",1,"year"],
+
+ [75,"Join Cubbon Reads on a Sunday morning","Strangers sit on the grass and read silently for an hour, then talk. Free, no sign-up, bring a physical book.","People","2 hours",1,"year"],
+ [76,"Take a board game cafe table alone","Turn up solo on an open-table night and let somebody teach you a game with forty pages of rules.","People","2 hours",1,"year"],
+ [77,"Visit a Toastmasters meeting","Go as a guest first, for free. Then take a Table Topic, which is two minutes of speaking with no preparation at all.","People","2 hours",1,"year"],
+ [78,"Give a morning to an animal shelter","Walk dogs, clean kennels, help with adoption paperwork. The city's shelters are permanently short of weekend hands.","People","half day",0,"year"],
+ [79,"Join a lake restoration drive","Citizen groups have dragged several lakes back from the dead here. Turn up with gloves at seven and do the unglamorous part.","People","half day",0,"year"],
+ [80,"Go plogging","Run and pick up litter at the same time. Ridiculous, mildly embarrassing, and the groups that do it are extremely cheerful about it.","People","2 hours",1,"year"],
+ [81,"Crash a meetup where you are least qualified","Hardware, security, design, biotech. The city runs several every week and nobody checks whether you belong.","People","2 hours",1,"year"],
+ [82,"Go to a Bangalore International Centre talk","Policy, science, cities, books, mostly free and mostly excellent. Sit in on one whose title you only half understand.","People","2 hours",0,"year"],
+ [83,"Spend a day at the Bangalore Literature Festival","Usually December, usually free, several stages at once. Go to a session on a subject you know nothing about.","People","day",0,"dec"],
+ [84,"Visit Nrityagram at Hesaraghatta","A dance village built of mud and stone where Odissi is taught as a way of living. Open to visitors on set days, so check first.","People","half day",0,"year"],
+
+ [85,"Walk Srirangapatna","Tipu's Gumbaz, the Daria Daulat Bagh, the fort walls and the spot where he fell. An island in the Kaveri, two hours out.","Day trip","day",0,"cool"],
+ [86,"See Mysuru Palace lit on a Sunday evening","Around a hundred thousand bulbs come on for an hour. Cliched, enormously good, go once.","Day trip","day",0,"year"],
+ [87,"Find the buried temples at Talakadu","A town swallowed by sand on the Kaveri, with temples excavated out of the dunes. Strange and quiet and bound up in a curse story.","Day trip","day",0,"cool"],
+ [88,"See Gaganachukki and Barachukki in flood","The Shivanasamudra falls, where the Kaveri splits around an island. In a good monsoon you hear them before you see them.","Day trip","day",0,"monsoon"],
+ [89,"Take a coracle at Hogenakkal","Across the Tamil Nadu border, where the Kaveri drops through a carbonatite gorge. Round boats, spun deliberately, by men who find your fear funny.","Day trip","day",1,"wetcool"],
+ [90,"Walk out to Mekedatu and the Sangama","Where the Kaveri narrows into a gorge said to be jumpable by a goat. Go after the monsoon, not during it, and respect the water.","Day trip","day",0,"cool"],
+ [91,"Do Channapatna and Kunti Betta in one day","Toy town in the morning, a short twin-hill scramble near Pandavapura in the afternoon, and a thali somewhere in between.","Day trip","day",1,"cool"],
+ [92,"Take the Bannerghatta safari and butterfly park","A bus through lion and tiger enclosures, then India's first butterfly conservatory. Go on a weekday or do not go.","Day trip","day",0,"year"],
+ [93,"Climb Mullayanagiri and stay on a coffee estate","Chikmagalur, two hundred and fifty kilometres west. The highest peak in Karnataka and the place coffee entered India.","Day trip","weekend",1,"wetcool"],
+ [94,"Give Hampi a weekend","An overnight bus to a Vijayanagara capital spread across boulders and banana fields. Hire a cycle and get lost on purpose.","Day trip","weekend",1,"cool"],
+
+ [95,"Start a balcony kitchen garden","Curry leaf, mint, chilli, tomato. The climate here is unreasonably generous. Kill a few, learn why, sow again.","Home","ongoing",0,"year"],
+ [96,"Compost your kitchen waste","This city has a genuine composting culture and a dozen groups that will help you start. Six weeks to your first handful of soil.","Home","ongoing",1,"year"],
+ [97,"Learn twenty Kannada phrases and use them","Not an app streak. Actual sentences, said out loud to your auto driver, your vegetable vendor and your neighbour, badly.","Home","ongoing",1,"year"],
+ [98,"Fix something instead of replacing it","Open the thing up. Watch a teardown video. Worst case it was already broken.","Home","half day",1,"year"],
+ [99,"Fill a sketchbook in thirty days","One page a day, ten minutes, no skipped days and no tearing pages out. Ugly is permitted and expected.","Home","ongoing",1,"year"],
+ [100,"Put out water through the hot months","A shallow bowl on the balcony or windowsill, refilled daily from March. Bulbuls, sunbirds and squirrels will find it within a week.","Home","ongoing",0,"summer"]
+];
+
+const ORDER = ["Outdoors","Heritage","Food","Making","Stage","Body","People","Day trip","Home"];
+const LABELS = {Outdoors:"Outdoors and hills",Heritage:"Heritage and the old city",Food:"Food",Making:"Making things",
+  Stage:"Stage and screen",Body:"Body",People:"People",'Day trip':"Day trips and weekends",Home:"At home"};
+
+const done = new Set();
+let cat = "All", month = 0, onlyStretch = false, hideDone = false;
+const rollEl = document.getElementById("roll"), emptyEl = document.getElementById("empty");
+const diceOut = document.getElementById("dice-out"), monthsEl = document.getElementById("months");
+const inMonth = (q, m) => S[q[6]][1].includes(m);
+
+// ---- seasonal calendar ----
+const counts = MONTHS.map((_, i) => D.filter(q => q[6] !== "year" && inMonth(q, i + 1)).length);
+const peak = Math.max(...counts);
+MONTHS.forEach((m, i) => {
+  const b = document.createElement("button");
+  b.className = "mo" + (i + 1 === NOW ? " now" : "");
+  b.type = "button";
+  b.setAttribute("aria-pressed", "false");
+  b.setAttribute("aria-label", MONTH_NAMES[i] + ": " + counts[i] + " seasonal quests");
+  b.innerHTML = '<span class="bar" style="height:' + Math.max(4, Math.round(counts[i] / peak * 68)) + 'px"></span>' +
+                '<span class="lab">' + m + '</span>';
+  b.onclick = () => {
+    month = (month === i + 1) ? 0 : i + 1;
+    [...monthsEl.children].forEach((c, j) => c.setAttribute("aria-pressed", month === j + 1));
+    document.getElementById("cal-hint").textContent = month ? "Showing " + MONTH_NAMES[month - 1] : "Tap a month to filter";
+    render();
+  };
+  monthsEl.appendChild(b);
+});
+
+// ============================================================
+//  PASTE YOUR FIREBASE WEB CONFIG HERE. Leave blank for local-only mode.
+// ============================================================
+const FIREBASE_CONFIG = {
+    apiKey: "AIzaSyAWNOMF6WAFj0WG-WqC59lOfJqYiLoovzo",
+    authDomain: "blr-sidequests.firebaseapp.com",
+    projectId: "blr-sidequests",
+    storageBucket: "blr-sidequests.firebasestorage.app",
+    messagingSenderId: "387125405696",
+    appId: "1:387125405696:web:220be948725a5013bbd0e5"
+};
+const SDK = "https://www.gstatic.com/firebasejs/11.0.2/";
+
+// ---- local storage layer (always on, acts as the offline cache) ----
+const KEY = "blr-quests-done";
+let where = "none";
+async function readStore(){
+  try { const v = localStorage.getItem(KEY); if (v !== null){ where = "browser"; return v; } } catch(e){}
+  try { const r = await window.storage.get(KEY); if (r && r.value){ where = "artifact"; return r.value; } } catch(e){}
+  return null;
+}
+async function writeStore(v){
+  let hit = "none";
+  try { localStorage.setItem(KEY, v); hit = "browser"; } catch(e){}
+  try { await window.storage.set(KEY, v); if (hit === "none") hit = "artifact"; } catch(e){}
+  where = hit; noteStorage();
+}
+function noteStorage(){
+  const n = document.getElementById("storage-note");
+  if (user) n.textContent = "Synced to your Google account" + (pending ? " — saving" : "");
+  else n.textContent =
+    where === "browser" ? "Saved in this browser only"
+    : where === "artifact" ? "Saved to this artifact. Download and host the file to turn on sync."
+    : "Storage unavailable here. Use the share link to carry your progress.";
+}
+function save(){ writeStore(JSON.stringify([...done])); pushCloud(); }
+
+// ---- cloud ----
+let cloud = null, user = null, unsub = null, firstSync = true, pending = false;
+const authEl = document.getElementById("auth");
+const GOOGLE_MARK = '<svg viewBox="0 0 48 48" aria-hidden="true">' +
+  '<path fill="#4285F4" d="M45 24c0-1.6-.1-2.7-.4-3.9H24v7.1h12c-.2 1.9-1.5 4.7-4.4 6.6l6.8 5.2C42.4 35.3 45 30.1 45 24z"/>' +
+  '<path fill="#34A853" d="M24 46c5.9 0 10.9-1.9 14.5-5.3l-6.8-5.2c-1.9 1.3-4.4 2.2-7.7 2.2-5.9 0-10.9-3.9-12.7-9.2l-7 5.4C7.9 41 15.4 46 24 46z"/>' +
+  '<path fill="#FBBC05" d="M11.3 28.5c-.5-1.4-.7-2.9-.7-4.5s.3-3.1.7-4.5l-7-5.4C2.8 17 2 20.4 2 24s.8 7 2.3 9.9l7-5.4z"/>' +
+  '<path fill="#EA4335" d="M24 10.5c4.2 0 7 1.8 8.6 3.3l6.1-6C34.9 4.4 29.9 2 24 2 15.4 2 7.9 7 4.3 14.1l7 5.4c1.8-5.3 6.8-9 12.7-9z"/></svg>';
+
+function renderAuth(){
+  if (!FIREBASE_CONFIG.apiKey){
+    authEl.innerHTML = '<span class="chip off">Local mode</span>' +
+      '<button class="link" id="show-setup" style="padding:0">Turn on sync</button>';
+    document.getElementById("show-setup").onclick = () => {
+      const s = document.getElementById("setup");
+      s.hidden = !s.hidden;
+      if (!s.hidden) s.scrollIntoView({behavior:"smooth", block:"nearest"});
+    };
+  } else if (!cloud){
+    authEl.innerHTML = '<span class="chip warn" id="cloud-state">Connecting</span>';
+  } else if (!user){
+    authEl.innerHTML = '<button class="gbtn" id="signin">' + GOOGLE_MARK + 'Sign in with Google</button>';
+    document.getElementById("signin").onclick = signIn;
+  } else {
+    authEl.innerHTML =
+      '<span class="who">' +
+      (user.photoURL ? '<img class="avatar" src="' + user.photoURL + '" alt="">' : '<span class="avatar"></span>') +
+      (user.displayName || user.email || "Signed in") + '</span>' +
+      '<button class="link" id="signout" style="color:var(--ink-3);padding:0">Sign out</button>';
+    document.getElementById("signout").onclick = () => cloud.signOut();
+  }
+  noteStorage();
+}
+
+function cloudFailed(msg){
+  authEl.innerHTML = '<span class="chip warn">Sync off</span>';
+  document.getElementById("storage-note").textContent = msg;
+}
+
+async function initCloud(){
+  renderAuth();
+  if (!FIREBASE_CONFIG.apiKey) return;
+  try {
+    const [appMod, authMod, fsMod] = await Promise.all([
+      import(SDK + "firebase-app.js"),
+      import(SDK + "firebase-auth.js"),
+      import(SDK + "firebase-firestore.js")
+    ]);
+    const app = appMod.initializeApp(FIREBASE_CONFIG);
+    const auth = authMod.getAuth(app);
+    const db = fsMod.getFirestore(app);
+    cloud = {
+      auth,
+      provider: new authMod.GoogleAuthProvider(),
+      popup: authMod.signInWithPopup,
+      redirect: authMod.signInWithRedirect,
+      signOut: () => authMod.signOut(auth),
+      ref: uid => fsMod.doc(db, "boards", uid),
+      setDoc: fsMod.setDoc,
+      onSnapshot: fsMod.onSnapshot,
+      stamp: fsMod.serverTimestamp
+    };
+    authMod.onAuthStateChanged(auth, onUser);
+  } catch(e){
+    cloudFailed("Could not load the Firebase SDK. Check the network and the config block.");
+  }
+}
+
+async function signIn(){
+  try { await cloud.popup(cloud.auth, cloud.provider); }
+  catch(e){
+    if (e.code === "auth/popup-blocked" || e.code === "auth/operation-not-supported-in-this-environment"){
+      try { await cloud.redirect(cloud.auth, cloud.provider); return; } catch(e2){}
+    }
+    if (e.code === "auth/unauthorized-domain"){
+      cloudFailed("This domain is not authorized. Add it under Authentication, Settings, Authorized domains.");
+      return;
+    }
+    if (e.code !== "auth/cancelled-popup-request" && e.code !== "auth/popup-closed-by-user"){
+      cloudFailed("Sign-in failed: " + (e.code || e.message));
+    }
+  }
+}
+
+function onUser(u){
+  user = u;
+  if (unsub){ unsub(); unsub = null; }
+  firstSync = true;
+  renderAuth();
+  if (!u) return;
+  unsub = cloud.onSnapshot(cloud.ref(u.uid), snap => {
+    if (snap.metadata.hasPendingWrites) return;
+    pending = false;
+    if (!snap.exists()){ pushCloud(true); return; }
+    const remote = new Set(snap.data().done || []);
+    const extra = firstSync ? [...done].filter(n => !remote.has(n)) : [];
+    firstSync = false;
+    done.clear(); remote.forEach(n => done.add(n));
+    writeStore(JSON.stringify([...done]));
+    if (extra.length) offerMerge(extra);
+    render();
+  }, err => cloudFailed("Sync error: " + err.code + ". Check your Firestore rules."));
+}
+
+function offerMerge(extra){
+  window._extra = extra;
+  document.getElementById("notice-text").textContent =
+    extra.length + " tick" + (extra.length > 1 ? "s" : "") + " on this device " +
+    (extra.length > 1 ? "are" : "is") + " not in your account yet.";
+  const btn = document.getElementById("keep-mine");
+  btn.textContent = "Merge them in";
+  document.getElementById("notice").hidden = false;
+}
+
+function pushCloud(force){
+  if (!user || !cloud) return;
+  pending = true; noteStorage();
+  cloud.setDoc(cloud.ref(user.uid), {
+    done: [...done],
+    name: user.displayName || null,
+    updatedAt: cloud.stamp()
+  }, {merge: true}).catch(e => cloudFailed("Could not save: " + (e.code || e.message)));
+}
+
+// ---- share encoding: 100 bits as 10 base-36 pairs ----
+function encode(){
+  let s = "";
+  for (let g = 0; g < 10; g++){
+    let v = 0;
+    for (let i = 0; i < 10; i++) if (done.has(g * 10 + i + 1)) v |= 1 << i;
+    s += v.toString(36).padStart(2, "0");
+  }
+  return s;
+}
+function decode(s){
+  if (!/^[0-9a-z]{20}$/.test(s)) return null;
+  const out = new Set();
+  for (let g = 0; g < 10; g++){
+    const v = parseInt(s.substr(g * 2, 2), 36);
+    if (isNaN(v)) return null;
+    for (let i = 0; i < 10; i++) if (v & (1 << i)) out.add(g * 10 + i + 1);
+  }
+  return out;
+}
+
+async function load(){
+  const stored = await readStore();
+  const mine = stored ? new Set(JSON.parse(stored)) : new Set();
+  const shared = decode(location.hash.replace(/^#/, ""));
+  if (shared){
+    shared.forEach(n => done.add(n));
+    if (mine.size){
+      window._mine = mine;
+      document.getElementById("notice-text").textContent =
+        "Showing a shared board with " + shared.size + " struck off. Your own board had " + mine.size + ".";
+      document.getElementById("keep-mine").textContent = "Keep my board instead";
+      document.getElementById("notice").hidden = false;
+    }
+  } else mine.forEach(n => done.add(n));
+  noteStorage();
+  render();
+}
+
+function toggle(id){ done.has(id) ? done.delete(id) : done.add(id); save(); render(); }
+
+function render(){
+  const list = D.filter(q =>
+    (cat === "All" || q[3] === cat) &&
+    (!onlyStretch || q[5]) &&
+    (!month || inMonth(q, month)) &&
+    (!hideDone || !done.has(q[0]))
+  );
+  rollEl.innerHTML = "";
+  ORDER.forEach(c => {
+    const items = list.filter(q => q[3] === c);
+    if (!items.length) return;
+    const sec = document.createElement("section");
+    sec.className = "group";
+    sec.innerHTML = '<h2>' + LABELS[c] + ' &middot; ' + items.length + '</h2>';
+    const ul = document.createElement("ul");
+    ul.className = "roll";
+    items.forEach(q => {
+      const isDone = done.has(q[0]);
+      const li = document.createElement("li");
+      li.className = "quest" + (isDone ? " done" : "");
+      li.id = "q" + q[0];
+      li.tabIndex = 0;
+      li.setAttribute("role", "button");
+      li.setAttribute("aria-pressed", isDone);
+      li.innerHTML =
+        '<span class="num">' + String(q[0]).padStart(3, "0") + '</span>' +
+        '<div><h3 class="title">' + q[1] + '</h3><p class="blurb">' + q[2] + '</p>' +
+        '<p class="meta"><span>' + q[4] + '</span><span class="sep">/</span><span>' + S[q[6]][0] + '</span>' +
+        (q[6] !== "year" && inMonth(q, NOW) ? '<span class="badge now">in season</span>' : '') +
+        (q[5] ? '<span class="badge stretch">stretch</span>' : '') +
+        '</p></div>' +
+        '<span class="mark"><svg viewBox="0 0 24 24"><path d="M4 12.5l5.5 5.5L20 7"/></svg></span>';
+      li.onclick = () => toggle(q[0]);
+      li.onkeydown = e => { if (e.key === "Enter" || e.key === " "){ e.preventDefault(); toggle(q[0]); } };
+      ul.appendChild(li);
+    });
+    sec.appendChild(ul);
+    rollEl.appendChild(sec);
+  });
+  emptyEl.hidden = list.length > 0;
+  document.getElementById("tally-n").textContent = done.size;
+  document.getElementById("track").style.width = done.size + "%";
+}
+
+document.getElementById("controls").addEventListener("click", e => {
+  const b = e.target.closest(".f"); if (!b) return;
+  if (b.dataset.cat){
+    cat = b.dataset.cat;
+    document.querySelectorAll(".f[data-cat]").forEach(x => x.setAttribute("aria-pressed", x === b));
+  } else if (b.id === "f-stretch"){
+    onlyStretch = !onlyStretch; b.setAttribute("aria-pressed", onlyStretch);
+  } else if (b.id === "f-hide"){
+    hideDone = !hideDone; b.setAttribute("aria-pressed", hideDone);
+  }
+  render();
+});
+
+function clearHash(){ try { history.replaceState(null, "", location.pathname + location.search); } catch(e){} }
+const shareBox = document.getElementById("sharebox"), shareUrl = document.getElementById("shareurl");
+
+document.getElementById("share").onclick = async () => {
+  const url = location.href.split("#")[0] + "#" + encode();
+  const text = "Bengaluru side quests: " + done.size + " of 100 struck off.";
+  try { if (navigator.share){ await navigator.share({title:"A hundred side quests", text, url}); return; } }
+  catch(e){ if (e && e.name === "AbortError") return; }
+  try { await navigator.clipboard.writeText(text + " " + url); diceOut.textContent = "Link copied."; return; } catch(e){}
+  shareUrl.value = url; shareBox.hidden = false; shareUrl.select();
+};
+document.getElementById("copyurl").onclick = () => {
+  shareUrl.select();
+  let ok = false;
+  try { ok = document.execCommand("copy"); } catch(e){}
+  diceOut.textContent = ok ? "Link copied." : "Select the link above and copy it.";
+};
+document.getElementById("roll-dice").onclick = () => {
+  const seasonal = D.filter(q => !done.has(q[0]) && inMonth(q, NOW));
+  const p = seasonal.length ? seasonal : D.filter(q => !done.has(q[0]));
+  if (!p.length){ diceOut.textContent = "All hundred struck off. Write your own list."; return; }
+  const q = p[Math.floor(Math.random() * p.length)];
+  diceOut.textContent = "Go and " + q[1][0].toLowerCase() + q[1].slice(1) + ".";
+  const row = document.getElementById("q" + q[0]);
+  if (row) row.scrollIntoView({behavior:"smooth", block:"center"});
+};
+document.getElementById("keep-mine").onclick = () => {
+  if (window._extra){                       // signed in, local ticks not yet in the account
+    window._extra.forEach(n => done.add(n));
+    window._extra = null;
+  } else {                                  // opened someone else's share link
+    done.clear();
+    (window._mine || new Set()).forEach(n => done.add(n));
+  }
+  document.getElementById("notice").hidden = true;
+  clearHash(); save(); render();
+};
+document.getElementById("reset").onclick = () => {
+  done.clear(); document.getElementById("notice").hidden = true; shareBox.hidden = true;
+  clearHash(); save(); diceOut.textContent = ""; render();
+};
+
+load().then(initCloud);
+</script>
