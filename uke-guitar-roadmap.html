@@ -1,0 +1,1306 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Four strings to six</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;600;700&family=Figtree:ital,wght@0,400;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#F5F2FA;--surface:#FFFFFF;--surface2:#EEE9F6;--surface3:#E3DCEF;--ink:#1F1433;--muted:#5E5472;--line:rgba(31,20,51,.10);--line2:rgba(31,20,51,.24);
+  --stage:#1F1433;--pink:#C8265F;--pink-ink:#9C1949;--pink-wash:#FBE4EC;--on-pink:#FFFFFF;
+  --mari:#F2A93B;--mari-ink:#7A4B00;--mari-wash:#FDEED3;
+  --leaf:#13876F;--leaf-wash:#D7F1E8;--indi:#4A3AAE;--indi-wash:#E8E4FB;--danger:#B3261E;
+  --display:"Unbounded","Avenir Next","Segoe UI Variable Display","Segoe UI",system-ui,sans-serif;
+  --body:"Figtree","Segoe UI",system-ui,-apple-system,"Helvetica Neue",Arial,sans-serif;
+  --sidew:236px;
+  color-scheme:light;
+  box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --paper:#130D1D;--surface:#1D1529;--surface2:#281E37;--surface3:#342846;--ink:#F3EEFA;--muted:#B6ABC9;--line:rgba(243,238,250,.10);--line2:rgba(243,238,250,.28);
+  --stage:#261A3A;--pink:#FF5C8D;--pink-ink:#FF93B4;--pink-wash:rgba(255,92,141,.16);--on-pink:#2A0716;
+  --mari:#FFC35E;--mari-ink:#FFD58C;--mari-wash:rgba(255,195,94,.15);
+  --leaf:#43D3B0;--leaf-wash:rgba(67,211,176,.14);--indi:#BAAFFF;--indi-wash:rgba(186,175,255,.14);--danger:#FF8A80;color-scheme:dark}}
+:root[data-theme="dark"]{
+  --paper:#130D1D;--surface:#1D1529;--surface2:#281E37;--surface3:#342846;--ink:#F3EEFA;--muted:#B6ABC9;--line:rgba(243,238,250,.10);--line2:rgba(243,238,250,.28);
+  --stage:#261A3A;--pink:#FF5C8D;--pink-ink:#FF93B4;--pink-wash:rgba(255,92,141,.16);--on-pink:#2A0716;
+  --mari:#FFC35E;--mari-ink:#FFD58C;--mari-wash:rgba(255,195,94,.15);
+  --leaf:#43D3B0;--leaf-wash:rgba(67,211,176,.14);--indi:#BAAFFF;--indi-wash:rgba(186,175,255,.14);--danger:#FF8A80;color-scheme:dark}
+*,*::before,*::after{box-sizing:border-box}
+html,body{height:100%}
+html{scroll-padding-top:calc(env(safe-area-inset-top,0px) + 4.5rem)}
+body{margin:0;background:var(--paper);color:var(--ink);font:400 1.0625rem/1.62 var(--body);-webkit-font-smoothing:antialiased}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--paper)}
+a{color:inherit}
+::selection{background:var(--mari-wash)}
+.ic{width:18px;height:18px;flex:none}
+
+/* ---------- app shell: sidebar on desktop, top bar and bottom tabs on phones ---------- */
+.shell{display:grid;grid-template-columns:var(--sidew) minmax(0,1fr);min-height:100%}
+.side{position:sticky;top:env(safe-area-inset-top,0px);align-self:start;height:calc(100vh - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px));height:calc(100dvh - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;gap:1.75rem;padding:1.5rem .9rem 1.1rem;border-right:1px solid var(--line)}
+.brand{font:700 .95rem/1.15 var(--display);letter-spacing:-.01em;display:flex;align-items:center;gap:.65rem;text-decoration:none;padding:0 .55rem}
+.brand svg{flex:none}
+.brand svg line{stroke:var(--ink);stroke-width:1.7;stroke-linecap:round;transform-box:fill-box}
+.brand svg line:nth-child(-n+4){stroke:var(--pink)}
+@keyframes twang{from{transform:translateY(-.7px)}to{transform:translateY(.7px)}}
+body.audio-on .brand svg line{animation:twang .08s linear infinite alternate}
+body.audio-on .brand svg line:nth-child(even){animation-delay:.04s}
+nav.tabs{display:flex;flex-direction:column;gap:.2rem}
+nav.tabs a{display:flex;align-items:center;gap:.8rem;padding:.65rem .8rem;border-radius:14px;color:var(--muted);text-decoration:none;font-weight:700;font-size:.98rem;transition:background .12s,color .12s}
+nav.tabs a svg{width:21px;height:21px;flex:none}
+nav.tabs a:hover{background:var(--surface2);color:var(--ink)}
+nav.tabs a[aria-current="page"]{background:var(--ink);color:var(--paper)}
+.side-foot{margin-top:auto;display:grid;gap:.8rem}
+.sync{display:flex;gap:.5rem;align-items:flex-start;font-size:.82rem;color:var(--muted);padding:0 .55rem;line-height:1.35}
+.dotst{width:8px;height:8px;border-radius:50%;background:var(--muted);flex:none;margin-top:.35rem}
+.dotst.ok{background:var(--leaf)}
+.acct{display:flex;align-items:center;gap:.55rem;padding:.5rem .55rem;border-radius:16px;background:var(--surface2)}
+.acct:empty{display:none}
+.acct img,.acct .avatar{width:32px;height:32px;border-radius:50%;flex:none;object-fit:cover}
+.acct .avatar{display:grid;place-items:center;background:var(--indi-wash);color:var(--indi);font-weight:800;font-size:.85rem}
+.acct-name{font-weight:700;font-size:.95rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1;min-width:0}
+.acct button{min-height:32px;padding:.25rem .7rem;font-size:.85rem}
+main{min-width:0;width:100%;max-width:1120px;margin:0 auto;padding:2.25rem 2.25rem 4rem}
+body.has-dock main{padding-bottom:8rem}
+.view{display:none}.view.on{display:block}
+body.locked .shell{display:block}
+body.locked .side{display:none}
+body.locked main{max-width:820px;padding-top:2.5rem}
+@media (max-width:900px){
+  .shell{display:block}
+  .side{height:auto;flex-direction:row;align-items:center;justify-content:space-between;gap:1rem;padding:.55rem 1rem;border-right:0;border-bottom:1px solid var(--line);z-index:9;background:var(--paper)}
+  .brand{padding:0}
+  .side-foot{margin:0}
+  .sync{display:none}
+  .acct{padding:.2rem .3rem .2rem .2rem;background:transparent}
+  .acct-name{display:none}
+  nav.tabs{position:fixed;left:0;right:0;bottom:0;z-index:9;flex-direction:row;gap:0;padding:.3rem .35rem calc(.3rem + env(safe-area-inset-bottom,0px));background:var(--paper);border-top:1px solid var(--line)}
+  nav.tabs a{flex:1 1 0;min-width:0;flex-direction:column;gap:.12rem;padding:.4rem .1rem .3rem;font-size:.68rem;border-radius:12px;text-align:center}
+  nav.tabs a:hover{background:transparent}
+  nav.tabs a[aria-current="page"]{background:transparent;color:var(--pink)}
+  main{padding:1.25rem 1rem 6.5rem}
+  body.has-dock main{padding-bottom:11rem}
+  body.locked main{padding-top:1.25rem}
+}
+
+/* ---------- type ---------- */
+h1,h2,h3{font-family:var(--display);line-height:1.12;margin:0;letter-spacing:-.025em;font-weight:700}
+h1{font-size:clamp(1.7rem,4.2vw,2.7rem);max-width:22ch;line-height:1.08}
+h2{font-size:clamp(1.15rem,2.2vw,1.4rem)}
+h3{font-size:1.02rem;font-weight:600;letter-spacing:-.015em}
+h4{font:800 .95rem/1.3 var(--body);margin:1.35rem 0 .4rem;color:var(--ink)}
+p{margin:.45rem 0 0;max-width:68ch}
+.lede{color:var(--muted);font-size:1.1rem;margin-top:.7rem}
+.sub{color:var(--muted);font-size:.93rem;margin:.15rem 0 0}
+.note{color:var(--muted);font-size:.92rem}
+.warn{color:var(--danger);font-size:.92rem;margin-top:.4rem}
+.pagehead{margin-bottom:1.5rem}
+.sec{margin-top:3rem}
+.sec-h{display:flex;flex-wrap:wrap;align-items:end;justify-content:space-between;gap:.75rem 1.5rem;margin-bottom:1rem}
+.sec-h p{color:var(--muted);margin-top:.35rem}
+code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.88em;background:var(--surface2);padding:.05rem .35rem;border-radius:5px}
+
+/* ---------- surfaces and grids ---------- */
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:24px;padding:1.3rem 1.4rem}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,320px),1fr));gap:1rem;align-items:start}
+.cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,290px),1fr));gap:.5rem 2.25rem}
+.bento{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:1rem;align-items:start}
+.b3{grid-column:span 3}.b4{grid-column:span 4}.b5{grid-column:span 5}.b6{grid-column:span 6}.b7{grid-column:span 7}.b8{grid-column:span 8}.b12{grid-column:span 12}
+.stack{display:grid;gap:1rem}
+@media (max-width:980px){.bento>*{grid-column:1/-1}}
+.row{display:flex;flex-wrap:wrap;gap:.5rem;align-items:center}
+
+/* ---------- controls ---------- */
+button,.btn{font:700 .95rem/1.2 var(--body);color:var(--ink);background:var(--surface);border:1px solid var(--line2);border-radius:999px;padding:.5rem 1.05rem;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:.5rem;text-decoration:none;min-height:40px;transition:background .12s,border-color .12s,transform .08s}
+button:hover,.btn:hover{background:var(--surface2);border-color:var(--ink)}
+button:active,.btn:active{transform:scale(.98)}
+.btn-main{background:var(--pink);color:var(--on-pink);border-color:var(--pink)}
+.btn-main:hover{background:var(--pink-ink);border-color:var(--pink-ink);color:var(--on-pink)}
+.btn-quiet{background:transparent;border-color:transparent;color:var(--muted)}
+.btn-quiet:hover{background:var(--surface2);border-color:transparent;color:var(--ink)}
+.btn-ghost{background:transparent;border-color:rgba(255,255,255,.38);color:#FFFFFF}
+.btn-ghost:hover{background:rgba(255,255,255,.12);border-color:#FFFFFF}
+.btn-danger{color:var(--danger);border-color:var(--danger);background:transparent}
+.big{min-height:50px;padding:.65rem 1.4rem;font-size:1.02rem}
+:focus-visible{outline:2.5px solid var(--pink);outline-offset:2px}
+.seg{display:inline-flex;background:var(--surface2);border-radius:999px;padding:3px;gap:2px;flex-wrap:nowrap;max-width:100%;overflow-x:auto;scrollbar-width:none}
+.seg::-webkit-scrollbar{display:none}
+.seg button{flex:none;border:0;background:transparent;min-height:34px;padding:.3rem .9rem}
+.seg button:hover{background:var(--surface3)}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
+.subtabs{display:flex;gap:.45rem;overflow-x:auto;scrollbar-width:none;margin:0 0 1.25rem;padding:2px}
+.subtabs::-webkit-scrollbar{display:none}
+.subtabs button{flex:none;min-height:42px;padding:.5rem 1.1rem;border-color:var(--line)}
+.subtabs button[aria-pressed="true"]{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.tag{display:inline-block;font-size:.78rem;font-weight:800;padding:.14rem .62rem;border-radius:999px;background:var(--surface2);color:var(--muted);white-space:nowrap}
+.tag.ta{background:var(--mari-wash);color:var(--mari-ink)}
+.tag.en{background:var(--indi-wash);color:var(--indi)}
+.tag.ok{background:var(--leaf-wash);color:var(--leaf)}
+.tag.hard{background:var(--pink-wash);color:var(--pink-ink)}
+.chk{display:flex;gap:.7rem;align-items:flex-start;padding:.45rem 0;cursor:pointer;line-height:1.45}
+.chk input{width:1.2rem;height:1.2rem;margin:.15rem 0 0;accent-color:var(--leaf);flex:none;cursor:pointer}
+.chk.done>span{color:var(--muted);text-decoration:line-through;text-decoration-color:var(--line2)}
+.chk b{font-weight:800}
+input[type=text],input[type=number],input[type=date],select{font:400 1rem var(--body);color:var(--ink);background:var(--surface);border:1px solid var(--line2);border-radius:14px;padding:.5rem .8rem;min-height:46px;width:100%}
+input[type=text]:focus,input[type=number]:focus,input[type=date]:focus,select:focus{border-color:var(--pink);outline:none;box-shadow:0 0 0 3px var(--pink-wash)}
+input[type=range]{width:100%;accent-color:var(--pink)}
+.f{display:block;font-size:.86rem;color:var(--muted);font-weight:800;margin-bottom:.3rem}
+.fields{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,180px),1fr));gap:.75rem;margin-top:.9rem}
+.bar{display:block;height:8px;border-radius:4px;background:var(--surface2);overflow:hidden}
+.bar i{display:block;height:100%;background:var(--leaf);border-radius:4px}
+.ring .rt{stroke:var(--surface2)}
+.ring .rp{stroke:var(--leaf)}
+.ring.on-dark .rt{stroke:rgba(255,255,255,.14)}
+.ring.on-dark .rp{stroke:#FFC35E}
+.ringwrap{position:relative;display:inline-grid;place-items:center}
+.ringtxt{position:absolute;inset:0;display:grid;place-content:center;text-align:center;line-height:1.1}
+.ringtxt b{font:700 1.5rem/1 var(--display);letter-spacing:-.03em}
+.ringtxt span{font-size:.78rem;color:var(--muted)}
+
+/* ---------- today: stage card ---------- */
+.stagecard{background:var(--stage);color:#F6F1FC;border-radius:30px;padding:1.9rem 1.9rem 1.5rem}
+.stagecard h1{color:#FFFFFF}
+.stagecard .kicker{color:#FFC35E;font-weight:800;font-size:.9rem;margin:0 0 .55rem}
+.stagecard .lede,.stagecard .note,.stagecard .sub{color:#CFC4E2}
+.stagecard .warn{color:#FFB4AB}
+.stagecard .btn-quiet{color:#D9CFEA}
+.stagecard .btn-quiet:hover{background:rgba(255,255,255,.12);color:#FFFFFF}
+.stagecard .panel{color:var(--ink)}
+.stagecard .panel p{color:var(--ink)}
+.stagecard-top{display:flex;justify-content:space-between;gap:1.5rem;align-items:flex-start}
+.stagecard-stats{text-align:center;flex:none}
+.stagecard-stats .ringtxt span,.stagecard-stats p{color:#CFC4E2;font-size:.82rem;margin:.3rem 0 0}
+@media (max-width:620px){.stagecard{padding:1.3rem 1.1rem 1.1rem;border-radius:24px}.stagecard-stats{display:none}}
+.neck{margin-top:1.6rem}
+.neck svg{display:block;width:100%;height:auto;overflow:visible}
+.neck .mk{cursor:pointer}
+.neck .mk:focus{outline:none}
+.neck .mk:focus-visible .ring,.neck .mk:hover .ring{stroke:#FFFFFF;stroke-width:3}
+.neck .mk text{font:700 17px var(--display);text-anchor:middle}
+.neck-top{display:grid;grid-template-columns:3fr 4fr;text-align:center;font-weight:800;font-size:.84rem;color:#CFC4E2;margin-bottom:.5rem}
+.neck-l{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));margin-top:.65rem;text-align:center;font-size:.82rem;color:#B9ADCF;line-height:1.3}
+.neck-l b{display:block;color:#FFFFFF;font-weight:700;font-size:.88rem}
+.neck-l .cur b{color:#FFC35E}
+@media (max-width:620px){.neck-l span{display:none}.neck-l b{font-size:.72rem}}
+.chips{display:flex;gap:.6rem;margin:1rem 0;overflow-x:auto;scrollbar-width:none;padding:2px}
+.chips::-webkit-scrollbar{display:none}
+@media (min-width:901px){.chips{flex-wrap:wrap;overflow:visible}}
+.chip{flex:none;display:flex;align-items:baseline;gap:.45rem;background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:.6rem 1rem;font-size:.92rem;color:var(--muted);min-height:0;font-weight:400}
+.chip b{font:700 1.15rem var(--display);color:var(--ink);letter-spacing:-.02em}
+.chip-btn{align-items:center;color:var(--ink);font-weight:700;cursor:pointer}
+.chip-btn .ic{color:var(--pink)}
+.songnow{display:grid;grid-template-columns:88px minmax(0,1fr);gap:1rem;align-items:center}
+.cover{display:block;width:100%;height:auto;border-radius:18px}
+
+/* ---------- equaliser meter, chord diagrams, pads ---------- */
+.meter{display:flex;align-items:flex-end;gap:4px;height:30px;margin-top:.9rem}
+.meter i{flex:1;border-radius:4px 4px 2px 2px;background:var(--surface2)}
+.meter i:nth-child(1){height:28%}.meter i:nth-child(2){height:36%}.meter i:nth-child(3){height:44%}.meter i:nth-child(4){height:52%}.meter i:nth-child(5){height:60%}
+.meter i:nth-child(6){height:68%}.meter i:nth-child(7){height:76%}.meter i:nth-child(8){height:84%}.meter i:nth-child(9){height:92%}.meter i:nth-child(10){height:100%}
+.meter i.on{background:var(--leaf)}
+.meter i.on:nth-child(n+8){background:var(--mari)}
+.chords{display:flex;flex-wrap:wrap;gap:.4rem .55rem;margin-top:.3rem}
+.cd{display:flex;flex-direction:column;align-items:center;gap:.15rem;padding:.4rem .45rem .5rem;border-radius:14px;border:1px solid transparent;background:transparent;min-height:0}
+.cd:hover{background:var(--surface2);border-color:var(--line)}
+.cd b{font:600 .9rem/1.1 var(--display)}
+svg.dg line{stroke:var(--muted)}
+svg.dg .nut{stroke:var(--ink)}
+svg.dg .dot{fill:var(--ink)}
+svg.dg .hi{fill:var(--pink)}
+svg.dg .open{fill:none;stroke:var(--ink)}
+svg.dg text{fill:var(--muted);font:700 11px var(--body)}
+.slots{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:6px}
+.slot small{display:block;text-align:center;color:var(--muted);font-size:.78rem;font-weight:800;margin-bottom:4px}
+.slot div{border-radius:14px;height:60px;display:flex;align-items:center;justify-content:center;font:600 1.05rem var(--display);background:var(--surface2);color:var(--ink);box-shadow:inset 0 -3px 0 var(--line);transition:background .05s,box-shadow .05s,transform .05s}
+.slot:nth-child(odd) div{background:var(--surface3)}
+.slot div.on{background:var(--mari);color:#241400;box-shadow:0 0 0 4px var(--mari-wash),inset 0 -3px 0 rgba(0,0,0,.12);transform:translateY(1px)}
+.legend{display:flex;flex-wrap:wrap;gap:.3rem 1.1rem;font-size:.86rem;color:var(--muted);margin-top:.7rem}
+.legend b{color:var(--ink);font-weight:800}
+
+/* ---------- session runner ---------- */
+.runner .now{display:grid;gap:.35rem}
+.runner .clock{font:700 clamp(2.6rem,8vw,3.6rem)/1 var(--display);font-variant-numeric:tabular-nums;letter-spacing:-.03em}
+.runner .now .bar i{background:var(--mari)}
+.blocks{list-style:none;margin:.9rem 0 0;padding:0;display:grid;gap:3px}
+.blocks li{display:grid;grid-template-columns:1fr auto;gap:1rem;padding:.6rem .8rem;border-radius:14px}
+.blocks li .t{font-weight:800}
+.blocks li .d{color:var(--muted);font-size:.93rem;grid-column:1/-1}
+.blocks li.cur{background:var(--mari-wash)}
+.blocks li.past{color:var(--muted)}
+.blocks li.past .t{text-decoration:line-through}
+.blocks .m{color:var(--muted);font-variant-numeric:tabular-nums;font-weight:700}
+
+/* ---------- roadmap timeline ---------- */
+.tl-item{display:grid;grid-template-columns:3rem minmax(0,1fr);gap:1rem;position:relative;padding-bottom:1rem}
+.tl-item::before{content:"";position:absolute;left:calc(1.5rem - 1px);top:3rem;bottom:0;width:2px;background:var(--line2)}
+.tl-item:last-child::before{display:none}
+.tl-item.done::before{background:var(--leaf)}
+.tl-node{width:3rem;height:3rem;border-radius:50%;display:grid;place-items:center;font:700 1rem var(--display);background:var(--surface2);color:var(--muted);position:relative;z-index:1}
+.tl-item.cur .tl-node{background:var(--mari);color:#241400;box-shadow:0 0 0 5px var(--mari-wash)}
+.tl-item.done .tl-node{background:var(--leaf);color:var(--paper)}
+.tl-card{padding:0;overflow:hidden}
+.tl-item.cur .tl-card{border-color:var(--mari)}
+.stage-h{width:100%;display:flex;justify-content:space-between;gap:1rem;align-items:center;padding:1.1rem 1.3rem;border:0;border-radius:0;background:none;text-align:left;min-height:0;font-weight:400}
+.stage-h:hover{background:var(--surface2);border:0}
+.stage-h:active{transform:none}
+.stage-h-main{display:grid;gap:.3rem;min-width:0}
+.st-title{font:600 1.08rem/1.2 var(--display);letter-spacing:-.015em}
+.stage-h-side{display:flex;align-items:center;gap:.5rem;flex:none}
+.stage-h .chev{font-size:1.4rem;color:var(--muted);transition:transform .15s}
+.stage-h[aria-expanded="true"] .chev{transform:rotate(90deg)}
+.stage-b{padding:.4rem 1.3rem 1.5rem;border-top:1px solid var(--line)}
+@media (max-width:620px){.tl-item{grid-template-columns:2.2rem minmax(0,1fr);gap:.6rem}.tl-node{width:2.2rem;height:2.2rem;font-size:.82rem}.tl-item::before{left:calc(1.1rem - 1px);top:2.2rem}.stage-h{padding:.9rem 1rem}.stage-b{padding:.3rem 1rem 1.2rem}}
+.weeks{display:grid;gap:.1rem}
+.pairs{display:flex;flex-wrap:wrap;gap:1rem 1.75rem;margin-top:.4rem}
+.pair{display:flex;align-items:center;gap:.4rem}
+.pair .arrow{color:var(--muted);font-size:1.2rem}
+.singnote{background:var(--pink-wash);border-radius:16px;padding:.75rem 1rem;margin-top:1.1rem;color:var(--ink)}
+
+/* ---------- songs: record tiles, detail, library rows ---------- */
+.tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(148px,1fr));gap:.6rem}
+.tile{display:flex;flex-direction:column;align-items:stretch;justify-content:flex-start;gap:.1rem;text-align:left;padding:.65rem;border-radius:24px;border:1px solid transparent;background:transparent;min-height:0;font-weight:400}
+.tile:hover{background:var(--surface);border-color:var(--line)}
+.tile.sel{background:var(--surface);border-color:var(--pink);box-shadow:0 0 0 3px var(--pink-wash)}
+.tile-cover{position:relative;display:block;margin-bottom:.5rem}
+.tile-cover.add{aspect-ratio:1;border-radius:18px;border:2px dashed var(--line2);display:grid;place-items:center;color:var(--muted)}
+.tile-cover.add .ic{width:30px;height:30px}
+.tile-badge{position:absolute;left:.5rem;top:.5rem;background:#FFC35E;color:#241400;font-size:.72rem;font-weight:800;padding:.12rem .55rem;border-radius:999px}
+.tile-t{font-weight:800;line-height:1.25}
+.tile-a{color:var(--muted);font-size:.88rem}
+.tile-p{display:flex;align-items:center;gap:.5rem;font-size:.8rem;color:var(--muted);margin-top:.4rem;font-weight:700}
+.tile-p .bar{flex:1;height:6px}
+.detail{display:grid;grid-template-columns:minmax(0,280px) minmax(0,1fr);gap:2rem;margin-top:1rem}
+@media (max-width:980px){.detail{grid-template-columns:1fr;gap:1.25rem}}
+.detail-cover{max-width:200px}
+.next{padding:.85rem 1rem;border-radius:18px;background:var(--surface2);display:flex;gap:.75rem;align-items:center;justify-content:space-between;flex-wrap:wrap}
+.next p,.next .sub{margin:0}
+.acts{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:1rem}
+.acts .btn,.acts button{min-height:38px;padding:.35rem .9rem;font-size:.9rem}
+.srow{display:grid;grid-template-columns:44px minmax(0,1fr) auto;gap:.2rem .8rem;align-items:center;padding:.55rem 0;border-bottom:1px solid var(--line)}
+.srow:last-child{border-bottom:0}
+.srow .cover{border-radius:11px}
+.srow-t{font-weight:800;line-height:1.3}
+.srow .sub{margin:0}
+.srow-x{display:flex;flex-wrap:wrap;gap:.35rem;align-items:center;justify-content:flex-end}
+.srow-x button{min-height:32px;padding:.25rem .85rem;font-size:.88rem}
+@media (max-width:620px){.srow{grid-template-columns:44px minmax(0,1fr)}.srow-x{grid-column:2;justify-content:flex-start}}
+
+/* ---------- singing ---------- */
+.sargam{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:5px;margin-top:.8rem}
+.sargam div{text-align:center;border-radius:12px;padding:.45rem 0;background:var(--surface2)}
+.sargam div b{display:block;font:600 .92rem var(--display)}
+.sargam div small{color:var(--muted);font-size:.76rem;font-weight:700}
+.sargam div.on{background:var(--mari);color:#241400;box-shadow:0 0 0 4px var(--mari-wash)}
+.sargam div.on small{color:#241400}
+.piano-wrap{overflow-x:auto;margin-top:1rem;padding-bottom:.5rem}
+.piano{--wk:36px;--bk:22px;position:relative;display:flex;height:160px;padding-left:1px}
+.piano button{min-height:0;padding:0;transition:background .08s}
+.piano button:active{transform:translateY(2px)}
+.piano .wk{flex:none;width:var(--wk);height:100%;margin-left:-1px;border:1px solid #CFC6DA;border-radius:0 0 9px 9px;background:#FCFBFE;color:#4A4058;display:flex;align-items:flex-end;justify-content:center;padding-bottom:9px;font:800 .66rem var(--body);box-shadow:inset 0 -6px 0 #EFEBF5}
+.piano .wk:hover{background:#F1EDF7;border-color:#CFC6DA}
+.piano .bk{position:absolute;top:0;width:var(--bk);height:60%;background:#241A31;border:0;border-radius:0 0 6px 6px;z-index:2;box-shadow:inset 0 -5px 0 #3A2E4B}
+.piano .bk:hover{background:#3A2E4B}
+.piano .wk.in{background:#D3F2E8;box-shadow:inset 0 -6px 0 #B5E6D6}
+.piano .wk.end{background:#13876F;color:#FFFFFF;border-color:#13876F;box-shadow:inset 0 -6px 0 #0E6E5A}
+.piano .bk.in{background:#1C6B5B}
+.piano .bk.end{background:#2BB596}
+
+/* ---------- strum trainer as a player ---------- */
+.player-top{display:grid;grid-template-columns:minmax(0,300px) minmax(0,1fr);gap:1.25rem;align-items:stretch}
+@media (max-width:760px){.player-top{grid-template-columns:1fr}}
+.nowchord{display:flex;align-items:center;gap:1.25rem;min-height:140px;padding:.75rem 1.25rem;border-radius:22px;background:var(--stage);color:#F6F1FC}
+.nowchord .name{font:700 2.6rem/1 var(--display);letter-spacing:-.03em;color:#FFFFFF}
+.nowchord .sub,.nowchord .note{color:#CFC4E2}
+.nowchord svg.dg line{stroke:#B9ADCF}
+.nowchord svg.dg .nut{stroke:#FFFFFF}
+.nowchord svg.dg .dot{fill:#FFC35E}
+.nowchord svg.dg .open{stroke:#FFFFFF}
+.nowchord svg.dg text{fill:#B9ADCF}
+.player-ctl{display:grid;grid-template-columns:auto minmax(0,1fr);gap:1.25rem;align-items:center;margin-top:1.25rem;padding:1rem 1.1rem;border-radius:22px;background:var(--surface2)}
+.playbtn{width:76px;height:76px;border-radius:50%;background:var(--pink);color:var(--on-pink);border:0;font-weight:800;font-size:1rem;min-height:0;padding:0}
+.playbtn:hover{background:var(--pink-ink);color:var(--on-pink);border:0}
+.capo-opts{display:grid;gap:.5rem;margin-top:.75rem}
+.capo-opt{display:flex;justify-content:space-between;gap:1rem;align-items:center;padding:.7rem .9rem;border-radius:16px;background:var(--surface2);flex-wrap:wrap}
+.capo-opt b{font-family:var(--display);font-weight:600}
+.strings{display:flex;flex-wrap:wrap;gap:.5rem}
+.strings button{width:64px;height:64px;border-radius:50%;padding:0;font:600 1rem var(--display);flex-direction:column;gap:0;min-height:0}
+.strings button small{font:700 .62rem var(--body);color:var(--muted)}
+
+/* ---------- progress ---------- */
+.stat{background:var(--surface);border:1px solid var(--line);border-radius:22px;padding:1rem 1.1rem}
+.stat b{display:block;font:700 1.8rem/1.1 var(--display);font-variant-numeric:tabular-nums;letter-spacing:-.03em}
+.stat span{color:var(--muted);font-size:.92rem}
+.stat-ring{display:flex;align-items:center;gap:1rem}
+.statgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1rem}
+.heatwrap{overflow-x:auto;padding-bottom:.25rem}
+.heat{display:grid;grid-auto-flow:column;grid-template-rows:repeat(7,15px);grid-auto-columns:15px;gap:4px}
+.heat i{border-radius:4px;background:var(--surface2)}
+.heat i.l1{background:var(--leaf-wash);box-shadow:inset 0 0 0 1px var(--leaf)}
+.heat i.l2{background:color-mix(in srgb,var(--leaf) 60%,transparent)}
+.heat i.l3{background:var(--leaf)}
+.heat i.fut{background:transparent;box-shadow:inset 0 0 0 1px var(--line)}
+.prow{display:grid;grid-template-columns:minmax(0,1fr) minmax(60px,120px) auto;gap:1rem;align-items:center;padding:.55rem 0;border-bottom:1px solid var(--line)}
+.prow:last-child{border-bottom:0}
+
+/* ---------- now-playing dock ---------- */
+.dock{position:fixed;left:var(--sidew);right:0;bottom:0;z-index:8;padding:0 1rem calc(1rem + env(safe-area-inset-bottom,0px));pointer-events:none}
+.dock[hidden]{display:none}
+body.locked .dock{display:none}
+.dock-in{pointer-events:auto;max-width:640px;margin:0 auto;background:var(--stage);color:#F6F1FC;border:1px solid rgba(255,255,255,.12);border-radius:22px;padding:.55rem .6rem .55rem 1rem;display:flex;align-items:center;gap:.75rem;box-shadow:0 14px 34px rgba(18,8,32,.35)}
+.dock-t{flex:1;min-width:0;display:grid;justify-items:start;justify-content:stretch;text-align:left;background:none;border:0;color:inherit;padding:.1rem .2rem;min-height:0;border-radius:10px;font-weight:400;gap:0}
+.dock-t:hover{background:none;border:0}
+.dock-t b{font-weight:800;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dock-t span{font-size:.82rem;color:#CFC4E2;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dock-clock{font:700 1.1rem var(--display);font-variant-numeric:tabular-nums}
+.dock-b{width:42px;height:42px;min-height:0;padding:0;border-radius:50%;background:rgba(255,255,255,.13);border:0;color:#FFFFFF;flex:none}
+.dock-b:hover{background:rgba(255,255,255,.24);border:0}
+.eqi{display:flex;align-items:flex-end;gap:3px;height:18px;flex:none}
+.eqi i{width:4px;height:6px;border-radius:2px;background:#FFC35E}
+.eqi.go i{animation:eq .5s ease-in-out infinite alternate}
+.eqi.go i:nth-child(2){animation-delay:.15s}
+.eqi.go i:nth-child(3){animation-delay:.3s}
+@keyframes eq{from{height:4px}to{height:18px}}
+@media (max-width:900px){.dock{left:0;bottom:calc(3.7rem + env(safe-area-inset-bottom,0px));padding:0 .6rem .5rem}}
+
+.gbtn{gap:.6rem}
+.gbtn svg{flex:none}
+.toast{position:fixed;left:50%;top:calc(env(safe-area-inset-top,0px) + 1rem);transform:translateX(-50%);background:var(--ink);color:var(--paper);padding:.65rem 1.1rem;border-radius:999px;font-weight:800;font-size:.95rem;z-index:20;opacity:0;pointer-events:none;transition:opacity .2s;max-width:calc(100% - 2rem);text-align:center}
+.toast.on{opacity:1}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<!--
+  FOUR STRINGS TO SIX: single-file tracker with Google sign-in and Firestore.
+
+  SETUP (about 15 minutes)
+  1. Create a project at https://console.firebase.google.com
+  2. Project settings > General > Your apps > add a Web app (</>).
+     Copy its config values into FIREBASE_CONFIG just below.
+  3. Build > Authentication > Get started > Sign-in method > Google > Enable > Save.
+  4. Build > Firestore Database > Create database (production mode; asia-south1 is closest to Hyderabad).
+     Then open the Rules tab, replace everything with these rules and click Publish:
+
+       rules_version = '2';
+       service cloud.firestore {
+         match /databases/{database}/documents {
+           match /users/{uid} {
+             allow read, write: if request.auth != null && request.auth.uid == uid;
+           }
+           match /{document=**} {
+             allow read, write: if false;
+           }
+         }
+       }
+
+  5. Host this file on any static host (Firebase Hosting, GitHub Pages, Netlify and so on).
+     Then add your site's domain under Authentication > Settings > Authorized domains.
+     localhost is allowed by default for testing. Google sign-in won't work from a file
+     opened directly (file://), so serve it over http or https.
+
+  The config values below are not secret. The rules above keep each person's progress private.
+-->
+<script>
+window.FIREBASE_CONFIG = {
+    apiKey: "AIzaSyB72oWL1N5mEbMpRgNT3nlzBGeIvqUii1g",
+    authDomain: "strings-383e8.firebaseapp.com",
+    projectId: "strings-383e8",
+    storageBucket: "strings-383e8.firebasestorage.app",
+    messagingSenderId: "412828362305",
+    appId: "1:412828362305:web:0bc6f71c41f9351b6008c0"
+};
+</script>
+<div class="shell">
+  <aside class="side">
+    <a class="brand" href="#today" aria-label="Four strings to six, home"><svg width="26" height="22" viewBox="0 0 26 22" aria-hidden="true"><line x1="2" y1="4" x2="11" y2="4"/><line x1="2" y1="9" x2="11" y2="9"/><line x1="2" y1="14" x2="11" y2="14"/><line x1="2" y1="19" x2="11" y2="19"/><line x1="15" y1="2" x2="24" y2="2"/><line x1="15" y1="5.6" x2="24" y2="5.6"/><line x1="15" y1="9.2" x2="24" y2="9.2"/><line x1="15" y1="12.8" x2="24" y2="12.8"/><line x1="15" y1="16.4" x2="24" y2="16.4"/><line x1="15" y1="20" x2="24" y2="20"/></svg><span>Four strings to six</span></a>
+    <nav class="tabs" aria-label="Sections">
+      <a href="#today" data-view="today"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M10 8.5v7l6-3.5z"/></svg><span>Today</span></a>
+      <a href="#roadmap" data-view="roadmap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="6" cy="18" r="2.2"/><circle cx="18" cy="6" r="2.2"/><path d="M8.2 18H15a3 3 0 0 0 0-6H9a3 3 0 0 1 0-6h6.8"/></svg><span>Roadmap</span></a>
+      <a href="#songs" data-view="songs"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18V5l11-2v13"/><circle cx="6.5" cy="18" r="2.5"/><circle cx="17.5" cy="16" r="2.5"/></svg><span>Songs</span></a>
+      <a href="#singing" data-view="singing"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21M8.5 21h7"/></svg><span>Singing</span></a>
+      <a href="#tools" data-view="tools"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/></svg><span>Tools</span></a>
+      <a href="#progress" data-view="progress"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 20v-9M12 20V4M19 20v-6"/></svg><span>Progress</span></a>
+    </nav>
+    <div class="side-foot"><div class="acct" id="acct"></div><div class="sync"><span class="dotst" id="syncdot"></span><span id="syncmsg">Saved on this device only</span></div></div>
+  </aside>
+  <main>
+    <section class="view" id="v-signin" aria-label="Sign in"></section>
+    <section class="view" id="v-today" aria-label="Today"></section>
+    <section class="view" id="v-roadmap" aria-label="Roadmap"></section>
+    <section class="view" id="v-songs" aria-label="My songs"></section>
+    <section class="view" id="v-singing" aria-label="Singing"></section>
+    <section class="view" id="v-tools" aria-label="Practice tools"></section>
+    <section class="view" id="v-progress" aria-label="Progress"></section>
+  </main>
+</div>
+<div class="dock" id="dock" hidden></div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<script>
+'use strict';
+/* ---------------- data ---------------- */
+const UKE={C:[0,0,0,3],Cmaj7:[0,0,0,2],C7:[0,0,0,1],Am:[2,0,0,0],Am7:[0,0,0,0],A:[2,1,0,0],A7:[0,1,0,0],F:[2,0,1,0],G:[0,2,3,2],G7:[0,2,1,2],Gm:[0,2,3,1],Em:[0,4,3,2],E7:[1,2,0,2],Dm:[2,2,1,0],D:[2,2,2,0],D7:[2,2,2,3],Bm:[4,2,2,2],B7:[2,3,2,2],Bb:[3,2,1,1],'F#m':[2,1,2,0]};
+const GTR={E:[0,2,2,1,0,0],Em:[0,2,2,0,0,0],Em7:[0,2,2,0,3,3],E7:[0,2,0,1,0,0],A:[-1,0,2,2,2,0],Am:[-1,0,2,2,1,0],A7:[-1,0,2,0,2,0],A7sus4:[-1,0,2,0,3,0],D:[-1,-1,0,2,3,2],Dm:[-1,-1,0,2,3,1],D7:[-1,-1,0,2,1,2],Dsus4:[-1,-1,0,2,3,3],G:[3,2,0,0,0,3],G7:[3,2,0,0,0,1],C:[-1,3,2,0,1,0],Cadd9:[-1,3,2,0,3,3],F:[1,3,3,2,1,1],Bm:[-1,2,4,4,3,2],B7:[-1,2,1,2,0,2],'F#m':[2,4,4,2,2,2],E5:[0,2,2,-1,-1,-1],A5:[-1,0,2,2,-1,-1]};
+const LIBS={uke:UKE,gtr:GTR};
+const OPEN={uke:[67,60,64,69],gtr:[40,45,50,55,59,64]};
+const INST_NAME={uke:'Ukulele',gtr:'Guitar'};
+const PENTA=[[5,8],[5,7],[5,7],[5,7],[5,8],[5,8]];
+
+const PATTERNS={
+  downs:{name:'Down strums',slots:['D','','D','','D','','D','']},
+  eighths:{name:'Steady eighths',slots:['D','U','D','U','D','U','D','U']},
+  island:{name:'Island or pop strum',slots:['D','','D','U','','U','D','U']},
+  chuck:{name:'Chuck strum',slots:['D','','X','U','','U','X','U']},
+  pick:{name:'Arpeggio picking',slots:['4','3','2','1','4','3','2','1']},
+  travis:{name:'Travis picking',slots:['B','3','b','2','B','3','b','2']},
+  muted:{name:'Palm-muted eighths',slots:['M','M','M','M','M','M','M','M']}
+};
+
+const STAGES=[
+{inst:'uke',short:'First chords',time:'Weeks 1–4',title:'First four chords',
+ goal:'Get comfortable holding the ukulele and play real songs with just C, Am, F and G.',
+ chords:['C','Am','F','G'],prog:'C G Am F',pat:'downs',bpm:60,
+ weeks:[['Week 1','Tune to G C E A, learn C and Am, and strum four slow downstrokes per bar at 60 bpm. Do a one-minute C to Am change drill every day.'],
+  ['Week 2','Add F. Drill Am to F and C to F, then try the chord changes of your first song slowly, without worrying about rhythm.'],
+  ['Week 3','Add G, the trickiest of the four. Learn the island strum on one chord before adding changes.'],
+  ['Week 4','Put it together: play one complete song with the island strum, and hum along on the last few days.']],
+ skills:['Thumb behind the neck, fingertips pressing just behind the fret','Keep your strumming hand moving, even through the gaps','Think about the next chord a beat before you change'],
+ sing:'Count “1, 2, 3, 4” out loud while you strum. It’s the first step towards singing while you play.',
+ milestones:['Switch between any two of C, Am, F and G without stopping the strum','Hold the island strum steady at 70 bpm for a full minute','Play one full song from start to finish'],
+ songs:['im-yours','riptide','let-it-be','kannazhaga','kanave','kolaveri']},
+{inst:'uke',short:'Singing',time:'Weeks 5–8',title:'More chords, sing along',
+ goal:'Grow your chord vocabulary and learn to sing while you strum.',
+ chords:['Em','Dm','G7','A','D','E7'],prog:'C Em Am G7',pat:'chuck',bpm:70,
+ weeks:[['Week 5','Learn Em and Dm. Hum the melody of a song you know while strumming its chords.'],
+  ['Week 6','Learn G7, A and D. Practise the chuck strum on a single chord until it feels automatic.'],
+  ['Week 7','Learn E7 and play the chords of “Somewhere Over the Rainbow”. Speak the lyrics in rhythm while strumming.'],
+  ['Week 8','Sing the chorus of one English and one Tamil song while strumming. Record it on your phone.']],
+ skills:['The chuck: land your palm flat on the strings for a snare-like hit','Read chord sheets and spot the capo line','Keep strumming through mistakes instead of stopping'],
+ sing:'Work through singing layers 3 to 5 on the Singing page: hum, then speak the lyrics, then sing over simple strums.',
+ milestones:['Sing and play a full song together','Em and G7 ring clean with no buzzing strings','Use the chuck strum at 80 bpm'],
+ songs:['rainbow','count-on-me','stand-by-me','po-nee-po','kaathalae','enjoy']},
+{inst:'uke',short:'Picking',time:'Weeks 9–12',title:'Fingerpicking and melodies',
+ goal:'Move from strumming to picking, and start playing the actual tunes of songs.',
+ chords:['Bm','A7','C7','F#m','B7'],prog:'C Am F G',pat:'pick',bpm:60,
+ weeks:[['Week 9','Learn the picking pattern on C and Am. Your thumb takes strings 4 and 3; index and middle fingers take 2 and 1.'],
+  ['Week 10','Learn to read tab, and play the first line of a melody from a tab.'],
+  ['Week 11','Pick out the opening line of a Tamil song by ear. Start on one string and find each note by sliding up or down.'],
+  ['Week 12','Fingerpick a full song, then sing over the picking.']],
+ skills:['Let picked notes ring into each other','Tab: the lines are strings, the numbers are frets','Hear a melody as “up, down or same” before hunting for notes'],
+ sing:'Soft fingerpicking makes it easier to hear your own pitch than loud strumming. Use it for ballads.',
+ milestones:['Fingerpick a full song at a steady tempo','Play the opening line of a Tamil song by ear','Read and play a short tab'],
+ songs:['cant-help','hallelujah','kadhal-rojave','yaanji','nee-kavithaigala']},
+{inst:'gtr',short:'Bridge',time:'Month 4',title:'Ukulele to guitar',bridge:true,
+ goal:'Your ukulele shapes already work on guitar. They just get new names.',
+ chords:['G','D','Em','C','Am'],prog:'G D Em C',pat:'island',bpm:70,
+ weeks:[['Week 13','Tune to E A D G B E. Play your ukulele shapes on the guitar’s four thinnest strings and learn their new names.'],
+  ['Week 14','Add the bass strings to make full six-string chords. Practise in short sessions, twice a day, while your fingertips toughen up.'],
+  ['Week 15','Move one ukulele song to guitar. Use a capo if the key no longer suits your voice.'],
+  ['Week 16','Move a second song across and sing along with it, just as you did on ukulele.']],
+ skills:['Steel strings make fingertips sore for the first few weeks; short daily sessions beat long ones','Use a pick or your thumb for strumming','Arch your fingers so they don’t mute the next string'],
+ sing:'Your voice already knows these songs. Check the key still suits you now that the instrument sounds lower.',
+ milestones:['Play G, C, D, Em and Am cleanly on guitar','Move two of your ukulele songs over to guitar','Practise for 20 minutes without stopping for sore fingers'],
+ songs:['knockin','let-it-be','kannazhaga','kanave']},
+{inst:'gtr',short:'Open chords',time:'Months 5–6',title:'Open chords and strumming',
+ goal:'Lock in the open chords that power most pop and Tamil film songs.',
+ chords:['E','A','Dm','Em7','Cadd9','Dsus4'],prog:'G Em C D',pat:'island',bpm:80,
+ weeks:[['Weeks 17–18','Learn E, A and Dm. Do one-minute change drills between every pair you find hard.'],
+  ['Weeks 19–20','The pop strum (down, down-up, up-down-up) at 70, then 80, then 90 bpm.'],
+  ['Weeks 21–22','Capo basics: play “Perfect” with a capo, then move the capo to find your singing key.'],
+  ['Weeks 23–26','Learn two full songs, one in each language, singing and playing.']],
+ skills:['Change chords on the beat, not after it','Strum from the wrist, not the elbow','Use the capo to fit songs to your voice'],
+ sing:'Aim to sing at full voice now. Mark breath points on your lyric sheet.',
+ milestones:['Play every open chord with all strings ringing','Change chords on the beat at 90 bpm','Use a capo to play a song in your singing key'],
+ songs:['perfect','wonderwall','ho-hey','hosanna','megham','aalaporan']},
+{inst:'gtr',short:'Barre',time:'Months 7–9',title:'Barre chords and fingerstyle',
+ goal:'Unlock any key with barre chords, and add fingerstyle for melodic Tamil songs.',
+ chords:['F','Bm','F#m','B7'],prog:'C Am F G',pat:'travis',bpm:70,
+ weeks:[['Month 7','F and Bm barres in five-minute bursts. Roll your index finger slightly onto its side.'],
+  ['Month 8','Travis picking on C, G and Am, then learn the intro or a fingerstyle section of a Tamil song.'],
+  ['Month 9','Play a full fingerstyle song and sing over it.']],
+ skills:['Barre pressure comes from arm weight, not only thumb squeeze','Thumb keeps the bass steady while fingers vary','Learn intros and hooks, not only the chords'],
+ sing:'Practise songs with a wider range. Use the drone to check your pitch on long notes.',
+ milestones:['F and Bm ring clean','Hold a Travis pattern steady for a full verse','Play one full Tamil song fingerstyle'],
+ songs:['someone','photograph','love-yourself','nenjukkul','munbe-vaa','mannipaaya']},
+{inst:'gtr',short:'Lead',time:'Months 10–12',title:'Lead, riffs and interludes',scale:true,
+ goal:'Play the riffs and interludes that make songs instantly recognisable, then put together a short set.',
+ chords:['E5','A5'],prog:'E5 A5',pat:'muted',bpm:90,
+ weeks:[['Month 10','Learn the A minor pentatonic shape at the 5th fret. Add hammer-ons, pull-offs and slides.'],
+  ['Month 11','Learn one Tamil song interlude by ear or from tab. Slides and bends help you copy singer-like ornaments.'],
+  ['Month 12','Build a set of 4 to 6 songs in both languages, with singing, and record it start to finish.']],
+ skills:['The pentatonic shape is where most riffs and solos live','Bends and slides imitate vocal ornaments','Improvise over a backing track for a few minutes each day'],
+ sing:'Plan your set like a small concert: open with your most confident song, close with your favourite.',
+ milestones:['Play the pentatonic shape up and down at 80 bpm','Learn one full Tamil song interlude','Perform a 4-song set in both languages, live or recorded'],
+ songs:['shape','blinding','ilaya-nila','thalli','ennai-konjam']}
+];
+const BRIDGE_PAIRS=[['C','G'],['G','D'],['Am','Em'],['F','C'],['Dm','Am']];
+
+const LIB=[
+ {id:'im-yours',t:'I’m Yours',a:'Jason Mraz',lang:'en',st:0,ch:'C G Am F'},
+ {id:'riptide',t:'Riptide',a:'Vance Joy',lang:'en',st:0,ch:'Am G C F'},
+ {id:'let-it-be',t:'Let It Be',a:'The Beatles',lang:'en',st:0,ch:'C G Am F'},
+ {id:'kannazhaga',t:'Kannazhaga',a:'3',lang:'ta',st:0,ch:''},
+ {id:'kanave',t:'Kanave Kanave',a:'David',lang:'ta',st:0,ch:''},
+ {id:'kolaveri',t:'Why This Kolaveri Di',a:'3',lang:'ta',st:0,ch:''},
+ {id:'rainbow',t:'Somewhere Over the Rainbow',a:'Israel Kamakawiwo’ole',lang:'en',st:1,ch:'C Em Am F G E7'},
+ {id:'count-on-me',t:'Count on Me',a:'Bruno Mars',lang:'en',st:1,ch:'C Em Am G F'},
+ {id:'stand-by-me',t:'Stand by Me',a:'Ben E. King',lang:'en',st:1,ch:'C Am F G'},
+ {id:'po-nee-po',t:'Po Nee Po',a:'3',lang:'ta',st:1,ch:''},
+ {id:'kaathalae',t:'Kaathalae Kaathalae',a:'96',lang:'ta',st:1,ch:''},
+ {id:'enjoy',t:'Enjoy Enjaami',a:'Dhee ft. Arivu',lang:'ta',st:1,ch:''},
+ {id:'cant-help',t:'Can’t Help Falling in Love',a:'Elvis Presley',lang:'en',st:2,ch:''},
+ {id:'hallelujah',t:'Hallelujah',a:'Leonard Cohen',lang:'en',st:2,ch:'C Am F G E7'},
+ {id:'kadhal-rojave',t:'Kadhal Rojave (tune)',a:'Roja',lang:'ta',st:2,ch:''},
+ {id:'yaanji',t:'Yaanji',a:'Vikram Vedha',lang:'ta',st:2,ch:''},
+ {id:'nee-kavithaigala',t:'Nee Kavithaigala',a:'Maragatha Naanayam',lang:'ta',st:2,ch:''},
+ {id:'knockin',t:'Knockin’ on Heaven’s Door',a:'Bob Dylan',lang:'en',st:3,ch:'G D Am C'},
+ {id:'perfect',t:'Perfect',a:'Ed Sheeran',lang:'en',st:4,ch:'G Em C D (capo 1)'},
+ {id:'wonderwall',t:'Wonderwall',a:'Oasis',lang:'en',st:4,ch:'Em7 G Dsus4 A7sus4 (capo 2)'},
+ {id:'ho-hey',t:'Ho Hey',a:'The Lumineers',lang:'en',st:4,ch:''},
+ {id:'hosanna',t:'Hosanna',a:'Vinnaithaandi Varuvaayaa',lang:'ta',st:4,ch:''},
+ {id:'megham',t:'Megham Karukatha',a:'Thiruchitrambalam',lang:'ta',st:4,ch:''},
+ {id:'aalaporan',t:'Aalaporan Thamizhan',a:'Mersal',lang:'ta',st:4,ch:''},
+ {id:'someone',t:'Someone Like You',a:'Adele',lang:'en',st:5,ch:'A E F#m D'},
+ {id:'photograph',t:'Photograph',a:'Ed Sheeran',lang:'en',st:5,ch:''},
+ {id:'love-yourself',t:'Love Yourself',a:'Justin Bieber',lang:'en',st:5,ch:''},
+ {id:'nenjukkul',t:'Nenjukkul Peidhidum',a:'Vaaranam Aayiram',lang:'ta',st:5,ch:''},
+ {id:'munbe-vaa',t:'Munbe Vaa',a:'Sillunu Oru Kaadhal',lang:'ta',st:5,ch:''},
+ {id:'mannipaaya',t:'Mannipaaya',a:'Vinnaithaandi Varuvaayaa',lang:'ta',st:5,ch:''},
+ {id:'shape',t:'Shape of You (riff)',a:'Ed Sheeran',lang:'en',st:6,ch:''},
+ {id:'blinding',t:'Blinding Lights (riff)',a:'The Weeknd',lang:'en',st:6,ch:''},
+ {id:'ilaya-nila',t:'Ilaya Nila (guitar interlude)',a:'Payanangal Mudivathillai',lang:'ta',st:6,ch:''},
+ {id:'thalli',t:'Thalli Pogathey',a:'Achcham Yenbadhu Madamaiyada',lang:'ta',st:6,ch:''},
+ {id:'ennai-konjam',t:'Ennai Konjam Maatri',a:'Kaakha Kaakha',lang:'ta',st:6,ch:''}
+];
+const MALE_NEW=[
+ {id:'urvasi',t:'Urvasi Urvasi',a:'Kadhalan',st:1},
+ {id:'ennavale',t:'Ennavale Adi Ennavale',a:'Kadhalan',st:5},
+ {id:'oruvan',t:'Oruvan Oruvan Mudhalali',a:'Muthu',st:4},
+ {id:'mustafa',t:'Mustafa Mustafa',a:'Kadhal Desam',st:1},
+ {id:'ennai-thalatta',t:'Ennai Thalatta Varuvala',a:'Kadhalukku Mariyadhai',st:2},
+ {id:'thanga-thamarai',t:'Thanga Thamarai',a:'Minsara Kanavu',st:5},
+ {id:'kadhal-sadugudu',t:'Kadhal Sadugudu',a:'Alaipayuthey',st:4},
+ {id:'venmathiye',t:'Venmathiye',a:'Minnale',st:4},
+ {id:'sollamal',t:'Sollamal Thottu Chellum Thendral',a:'Dheena',st:4},
+ {id:'ninaithu',t:'Ninaithu Ninaithu',a:'7G Rainbow Colony',st:4},
+ {id:'oru-maalai',t:'Oru Maalai',a:'Ghajini',st:4},
+ {id:'oru-naalil',t:'Oru Naalil',a:'Pudhupettai',st:3},
+ {id:'new-york',t:'New York Nagaram',a:'Sillunu Oru Kaadhal',st:4},
+ {id:'en-kadhal-solla',t:'En Kadhal Solla',a:'Paiyaa',st:3},
+ {id:'ore-oru-ooril',t:'Ore Oru Ooril',a:'Saivam',st:2},
+ {id:'thangamey',t:'Thangamey',a:'Naanum Rowdy Dhaan',st:1},
+ {id:'life-of-ram',t:'The Life of Ram',a:'96',st:2},
+ {id:'maruvaarthai',t:'Maruvaarthai',a:'Enai Noki Paayum Thota',st:4},
+ {id:'kannaana-kanney',t:'Kannaana Kanney',a:'Viswasam',st:1},
+ {id:'kutti-story',t:'Kutti Story',a:'Master',st:0},
+ {id:'kadhaippoma',t:'Kadhaippoma',a:'Oh My Kadavule',st:1},
+ {id:'unna-nenachu',t:'Unna Nenachu',a:'Psycho',st:2},
+ {id:'ennai-vittu',t:'Ennai Vittu Uyir Ponalum',a:'Love Today',st:1}
+];
+MALE_NEW.forEach(s=>LIB.push(Object.assign({lang:'ta',ch:'',extra:true},s)));
+const MALE_META={
+ 'kadhal-rojave':[1992,'S. P. Balasubrahmanyam','A. R. Rahman','medium'],
+ 'urvasi':[1994,'A. R. Rahman, Suresh Peters and Shahul Hameed','A. R. Rahman','easy'],
+ 'ennavale':[1994,'P. Unnikrishnan','A. R. Rahman','stretch'],
+ 'oruvan':[1995,'S. P. Balasubrahmanyam','A. R. Rahman','medium'],
+ 'mustafa':[1996,'A. R. Rahman','A. R. Rahman','easy'],
+ 'ennai-thalatta':[1997,'Hariharan','Ilaiyaraaja','medium'],
+ 'thanga-thamarai':[1997,'S. P. Balasubrahmanyam','A. R. Rahman','stretch'],
+ 'kadhal-sadugudu':[2000,'S. P. B. Charan and Naveen','A. R. Rahman','medium'],
+ 'venmathiye':[2001,'Roop Kumar Rathod and Tippu','Harris Jayaraj','medium'],
+ 'sollamal':[2001,'Hariharan','Yuvan Shankar Raja','medium'],
+ 'ninaithu':[2004,'KK','Yuvan Shankar Raja','medium'],
+ 'oru-maalai':[2005,'Karthik','Harris Jayaraj','medium'],
+ 'oru-naalil':[2006,'Yuvan Shankar Raja','Yuvan Shankar Raja','easy'],
+ 'new-york':[2006,'A. R. Rahman','A. R. Rahman','medium'],
+ 'nenjukkul':[2008,'Hariharan, Devan Ekambaram and V. V. Prasanna','Harris Jayaraj','stretch'],
+ 'hosanna':[2010,'Vijay Prakash, with Blaaze and Suzanne D’Mello','A. R. Rahman','medium'],
+ 'en-kadhal-solla':[2010,'Yuvan Shankar Raja','Yuvan Shankar Raja','easy'],
+ 'kolaveri':[2012,'Dhanush','Anirudh Ravichander','easy'],
+ 'kanave':[2013,'Anirudh Ravichander','Anirudh Ravichander','medium'],
+ 'ore-oru-ooril':[2014,'Haricharan','G. V. Prakash Kumar','medium'],
+ 'thangamey':[2015,'Anirudh Ravichander','Anirudh Ravichander','easy'],
+ 'thalli':[2016,'Sid Sriram','A. R. Rahman','stretch'],
+ 'life-of-ram':[2018,'Pradeep Kumar','Govind Vasantha','medium'],
+ 'maruvaarthai':[2019,'Sid Sriram','Darbuka Siva','medium'],
+ 'kannaana-kanney':[2019,'Sid Sriram','D. Imman','medium'],
+ 'kadhaippoma':[2020,'Sid Sriram','Leon James','medium'],
+ 'unna-nenachu':[2020,'Sid Sriram','Ilaiyaraaja','medium'],
+ 'kutti-story':[2021,'Vijay, with Anirudh Ravichander','Anirudh Ravichander','easy'],
+ 'megham':[2022,'Dhanush','Anirudh Ravichander','easy'],
+ 'ennai-vittu':[2022,'Sid Sriram','Yuvan Shankar Raja','medium']
+};
+Object.keys(MALE_META).forEach(id=>{const s=LIB.find(x=>x.id===id);if(s){const m=MALE_META[id];s.yr=m[0];s.sg=m[1];s.md=m[2];s.lvl=m[3];}});
+const MALE_TA=Object.keys(MALE_META);
+const LVL={easy:'Easy to sing',medium:'Medium',stretch:'Stretch'};
+const DEFAULT_SET=['im-yours','riptide','count-on-me','kolaveri','kanave','megham'];
+
+const LADDER=['Listen three times and note the sections: intro, verse, chorus',
+ 'Find a chord sheet and write the chords and capo in this card',
+ 'Practise each chord change slowly, without strumming',
+ 'Strum the chorus with the strum trainer at a slow tempo',
+ 'Play the whole song without singing',
+ 'Play along with the original recording',
+ 'Hum the melody while you play',
+ 'Sing the chorus while you play',
+ 'Sing and play the full song',
+ 'Record it, then play it for one person'];
+const LAYERS=['Strum a steady pattern while looking away from your hands',
+ 'Strum and count “1, 2, 3, 4” out loud',
+ 'Strum and hum the melody',
+ 'Strum and speak the lyrics in rhythm',
+ 'Sing, strumming just once on each chord change',
+ 'Sing with your full strum pattern'];
+const CONF=['Sing alone at full voice, without holding back',
+ 'Record yourself once a week and keep the recordings',
+ 'Sing one song for one person you trust',
+ 'Play two or three songs for family or friends',
+ 'Share a recording, or play at a gathering or open mic'];
+const WARMUP=[
+ {name:'Posture and breath',secs:60,text:'Sit or stand tall with relaxed shoulders. Breathe in through your nose for 4 counts, hold for 4, then hiss out slowly for 8. Feel your belly and ribs move, not your shoulders.'},
+ {name:'Lip trills',secs:45,text:'Blow through loose lips so they buzz like a motorboat, gliding gently up and down. If your lips won’t buzz, lift your cheeks lightly with your fingertips.'},
+ {name:'Humming',secs:45,text:'Start the drone and hum on “mm” with it. Feel the buzz around your lips and nose. Keep it easy and quiet.'},
+ {name:'Sirens',secs:45,text:'Slide on “ng” or “oo” from low to high and back down, like a siren. Never push at the top; stop where it starts to strain.'},
+ {name:'Five-note scale',secs:60,text:'Press “Play the scale” and sing along: Sa Ri Ga Ma Pa and back (do re mi fa so). First on “aa”, then on “ee”.'},
+ {name:'One line of your song',secs:45,text:'Sing one line of your focus song softly, then again at normal volume. Notice which version sounds more like you.'}
+];
+const TIPS_TA=['Listen many times before singing. Tamil film melodies are full of small ornaments; sing the plain tune first and add the slides later.',
+ 'Tamil has short and long vowels (a/aa, i/ee, u/oo) that change meaning and rhythm. Copy the vowel lengths you hear in the original.',
+ 'Sounds like ழ, ள, ண and ட are worth copying closely from the singer, but get the melody right first; pronunciation can be polished later.',
+ 'Playback singers often sing high. Pick a key that suits your voice with the capo helper, and in duets sing whichever line sits in your range.',
+ 'Practise holding long notes against the Sa drone. It’s how many Tamil music teachers train pitch.'];
+const TIPS_EN=['Speak the lyrics in rhythm first. Pop phrasing often starts just before or after the beat.',
+ 'You don’t need to belt. A relaxed, conversational voice suits acoustic covers.',
+ 'Mark where you breathe on the lyric sheet, usually at the end of a phrase.',
+ 'Keep word endings light and vowels long on held notes.',
+ 'If the chorus feels strained, lower the key by one or two semitones with the capo helper.'];
+
+/* ---------------- state ---------------- */
+const LS_BASE='four-strings-to-six-v1';let LS_KEY=LS_BASE+':guest';
+function libSong(id){const s=LIB.find(x=>x.id===id);return s?{id:s.id,t:s.t,a:s.a,lang:s.lang,st:s.st,ch:s.ch,key:'',steps:new Array(10).fill(false),custom:false}:null;}
+function blankState(){return{v:1,updatedAt:0,ms:{},wk:{},songs:DEFAULT_SET.map(libSong),focus:null,
+ sing:{lv:new Array(6).fill(false),cf:new Array(5).fill(false),lo:null,hi:null},log:{},
+ prefs:{len:30,libInst:'uke',key:0,reg:'low',filter:'all',dec:'all',kinst:'gtr',
+  p:{inst:'uke',text:'C G Am F',pat:'island',bpm:70,bars:1,click:true,countIn:true}}};}
+function migrate(o){const b=blankState();if(!o||typeof o!=='object')return b;
+ const s=Object.assign(b,o);s.sing=Object.assign(blankState().sing,o.sing||{});
+ s.prefs=Object.assign(blankState().prefs,o.prefs||{});s.prefs.p=Object.assign(blankState().prefs.p,(o.prefs&&o.prefs.p)||{});
+ if(!Array.isArray(s.songs))s.songs=b.songs;
+ s.songs=s.songs.filter(Boolean).map(x=>Object.assign({key:'',ch:'',steps:new Array(10).fill(false)},x));
+ return s;}
+function loadLocal(){try{const raw=localStorage.getItem(LS_KEY);if(raw)return migrate(JSON.parse(raw));}catch(e){}return blankState();}
+let S=loadLocal();
+let saveT=null;
+function save(){S.updatedAt=Date.now();try{localStorage.setItem(LS_KEY,JSON.stringify(S));}catch(e){}queueRemote(false);}
+function saveSoon(){clearTimeout(saveT);saveT=setTimeout(save,500);}
+
+/* ---------------- utils ---------------- */
+const $=(s,r)=>(r||document).querySelector(s);
+const $$=(s,r)=>Array.from((r||document).querySelectorAll(s));
+function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function dayKey(d){d=d||new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
+function fmtTime(s){s=Math.max(0,Math.ceil(s));return Math.floor(s/60)+':'+String(s%60).padStart(2,'0');}
+let toastT=null;
+function toast(msg){const t=$('#toast');t.textContent=msg;t.classList.add('on');clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('on'),2200);}
+function stageDone(i){return STAGES[i].milestones.every((_,k)=>S.ms[i+'-'+k]);}
+function curStage(){for(let i=0;i<STAGES.length;i++)if(!stageDone(i))return i;return STAGES.length-1;}
+function stepsDone(song){return song.steps.filter(Boolean).length;}
+function nextStep(song){const i=song.steps.indexOf(false);return i<0?null:i;}
+function focusSong(){return S.songs.find(s=>s.id===S.focus)||S.songs.find(s=>nextStep(s)!==null)||S.songs[0]||null;}
+function nextWeek(i){const st=STAGES[i];const k=st.weeks.findIndex((_,j)=>!S.wk[i+'-'+j]);return k<0?null:k;}
+
+/* ---------------- chord theory ---------------- */
+const NAMES=['C','C#','D','Eb','E','F','F#','G','Ab','A','Bb','B'];
+const PC={C:0,D:2,E:4,F:5,G:7,A:9,B:11};
+const CH_RE=/^([A-G])([#b]?)(maj7|maj9|m7b5|m7|m6|m9|madd9|min|maj|m|7sus4|sus2|sus4|add9|dim7|dim|aug|5|6|7|9)?(?:\/([A-G])([#b]?))?$/;
+function acc(a){return a==='#'?1:a==='b'?-1:0;}
+function parseChord(t){const m=CH_RE.exec(t);if(!m)return null;let suf=m[3]||'';if(suf==='min')suf='m';if(suf==='maj')suf='';
+ return{root:(PC[m[1]]+acc(m[2])+12)%12,suf:suf,bass:m[4]?(PC[m[4]]+acc(m[5])+12)%12:null};}
+function cname(c,noBass){return NAMES[c.root]+c.suf+(!noBass&&c.bass!=null?'/'+NAMES[c.bass]:'');}
+function chordTokens(str){return String(str||'').split(/[\s,|;\u2013\u2014-]+/).map(s=>s.replace(/[()]/g,'').trim()).filter(s=>s&&CH_RE.test(s));}
+function transpose(c,n){return{root:((c.root+n)%12+12)%12,suf:c.suf,bass:c.bass==null?null:((c.bass+n)%12+12)%12};}
+const SIMPLE={maj7:'',maj9:'',add9:'',sus2:'',sus4:'','7sus4':'7',6:'',9:'7',m7:'m',m6:'m',m9:'m',madd9:'m'};
+function lookup(inst,c,strict){const lib=LIBS[inst];const k=cname(c,true);if(lib[k])return{name:k,fr:lib[k],simple:false};
+ if(strict)return null;if(c.suf in SIMPLE){const k2=NAMES[c.root]+SIMPLE[c.suf];if(lib[k2])return{name:k2,fr:lib[k2],simple:true};
+  const k3=NAMES[c.root]+(SIMPLE[c.suf].startsWith('m')?'m':'');if(lib[k3])return{name:k3,fr:lib[k3],simple:true};}
+ return null;}
+const TONES={'':[0,4,7],m:[0,3,7],7:[0,4,7,10],maj7:[0,4,7,11],m7:[0,3,7,10],sus2:[0,2,7],sus4:[0,5,7],'7sus4':[0,5,7,10],add9:[0,2,4,7],madd9:[0,2,3,7],5:[0,7],6:[0,4,7,9],m6:[0,3,7,9],9:[0,2,4,7,10],maj9:[0,2,4,7,11],m9:[0,2,3,7,10],dim:[0,3,6],dim7:[0,3,6,9],aug:[0,4,8],m7b5:[0,3,6,10]};
+const VCACHE={};
+function voicing(inst,c){const key=inst+cname(c);if(VCACHE[key])return VCACHE[key];
+ const open=OPEN[inst];const L=lookup(inst,c,true);let v;
+ if(L){v=L.fr.map((f,i)=>f<0?null:open[i]+f);}
+ else{const iv=TONES[c.suf]||TONES[''];const pcs=iv.map(x=>(c.root+x)%12);
+  v=open.map(o=>{for(let f=0;f<=5;f++){if(pcs.includes((o+f)%12))return o+f;}return null;});
+  if(inst==='gtr'){const r=c.bass!=null?c.bass:c.root;let bi=-1;
+   for(let i=0;i<3&&bi<0;i++){for(let f=0;f<=5;f++){if((open[i]+f)%12===r){v[i]=open[i]+f;bi=i;break;}}}
+   if(bi>0)for(let i=0;i<bi;i++)v[i]=null;}}
+ VCACHE[key]=v;return v;}
+
+/* ---------------- audio ---------------- */
+let AC=null,MASTER=null;const KS=new Map();const VOICE={};let NOISE=null;
+function ac(){if(!AC){const C=window.AudioContext||window.webkitAudioContext;if(!C)return null;
+ try{AC=new C();}catch(e){return null;}MASTER=AC.createGain();MASTER.gain.value=.85;const comp=AC.createDynamicsCompressor();MASTER.connect(comp);comp.connect(AC.destination);}
+ if(AC.state==='suspended')AC.resume();return AC;}
+const mtof=m=>440*Math.pow(2,(m-69)/12);
+function ksBuf(f){const k=Math.round(f*4);if(KS.has(k))return KS.get(k);
+ const sr=AC.sampleRate,len=Math.floor(sr*2.2),N=Math.max(2,Math.round(sr/f));
+ const b=AC.createBuffer(1,len,sr),d=b.getChannelData(0),ring=new Float32Array(N);let p=0;
+ for(let i=0;i<N;i++){p=p*.45+(Math.random()*2-1)*.55;ring[i]=p;}
+ let idx=0;const damp=f>500?.992:f>250?.995:.997;
+ for(let i=0;i<len;i++){const a=ring[idx],nx=ring[(idx+1)%N];d[i]=a;ring[idx]=damp*.5*(a+nx);idx=(idx+1)%N;}
+ KS.set(k,b);return b;}
+function pluck(slot,midi,t,vel,dur){const s=AC.createBufferSource();s.buffer=ksBuf(mtof(midi));const g=AC.createGain();g.gain.setValueAtTime(vel,t);
+ s.connect(g);g.connect(MASTER);const prev=VOICE[slot];
+ if(prev){try{prev.g.gain.setTargetAtTime(0,t,.012);prev.s.stop(t+.1);}catch(e){}}
+ s.start(t);if(dur){g.gain.setTargetAtTime(0,t+dur,.02);try{s.stop(t+dur+.25);}catch(e){}}
+ VOICE[slot]={s:s,g:g};}
+function strum(inst,v,t,dir,vel,dur){let idx=v.map((m,i)=>m==null?-1:i).filter(i=>i>=0);
+ if(dir==='up'){idx=idx.reverse();if(inst==='gtr')idx=idx.filter(i=>i>=2);}
+ const gap=dir==='up'?.011:.017;idx.forEach((i,k)=>pluck(inst+i,v[i],t+k*gap,vel*(1-k*.035),dur));}
+function muteAll(inst,t){Object.keys(VOICE).forEach(k=>{if(k.indexOf(inst)===0){const p=VOICE[k];try{p.g.gain.setTargetAtTime(0,t,.008);p.s.stop(t+.08);}catch(e){}delete VOICE[k];}});}
+function chuck(inst,t){if(!NOISE){NOISE=AC.createBuffer(1,Math.floor(AC.sampleRate*.08),AC.sampleRate);const d=NOISE.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=(Math.random()*2-1)*Math.pow(1-i/d.length,3);}
+ const s=AC.createBufferSource();s.buffer=NOISE;const bp=AC.createBiquadFilter();bp.type='bandpass';bp.frequency.value=1700;bp.Q.value=.7;const g=AC.createGain();g.gain.value=1.1;
+ s.connect(bp);bp.connect(g);g.connect(MASTER);s.start(t);muteAll(inst,t);}
+function click(t,accent,vol){const o=AC.createOscillator(),g=AC.createGain();o.type='square';o.frequency.value=accent?1650:1150;
+ g.gain.setValueAtTime(vol||.12,t);g.gain.exponentialRampToValueAtTime(.0001,t+.035);o.connect(g);g.connect(MASTER);o.start(t);o.stop(t+.05);}
+function tone(midi,t,dur,vol){const o=AC.createOscillator(),o2=AC.createOscillator(),g=AC.createGain();o.type='triangle';o2.type='sine';
+ o.frequency.value=mtof(midi);o2.frequency.value=mtof(midi)*2;const g2=AC.createGain();g2.gain.value=.25;
+ g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(vol||.3,t+.03);g.gain.setValueAtTime(vol||.3,t+dur-.08);g.gain.linearRampToValueAtTime(0,t+dur);
+ o.connect(g);o2.connect(g2);g2.connect(g);g.connect(MASTER);o.start(t);o2.start(t);o.stop(t+dur+.02);o2.stop(t+dur+.02);}
+function chime(){if(!ac())return;const t=AC.currentTime+.02;[76,83].forEach((m,i)=>pluck('chime'+i,m,t+i*.12,.5));}
+function hearChord(inst,name){if(!ac()){toast('Sound isn’t available in this browser');return;}const c=parseChord(name);if(!c)return;
+ strum(inst,voicing(inst,c),AC.currentTime+.03,'down',.75);}
+function hearShape(inst,fr){if(!ac())return;const v=fr.map((f,i)=>f<0?null:OPEN[inst][i]+f);strum(inst,v,AC.currentTime+.03,'down',.75);}
+function hearScale(fr){if(!ac())return;const open=OPEN.gtr;const notes=[];fr.forEach((fs,i)=>fs.forEach(f=>notes.push(open[i]+f)));
+ notes.sort((a,b)=>a-b);const t0=AC.currentTime+.05;notes.forEach((m,i)=>pluck('sc',m,t0+i*.28,.6,.4));}
+function playString(inst,i){if(!ac())return;pluck(inst+i,OPEN[inst][i],AC.currentTime+.03,.8);}
+
+/* drone and scale */
+let DRONE=null;
+function droneStart(){if(!ac()){toast('Sound isn’t available in this browser');return;}droneStop(true);const a=AC,t=a.currentTime;const sa=saMidi();
+ const out=a.createGain();out.gain.setValueAtTime(0,t);out.gain.linearRampToValueAtTime(.2,t+1);const lp=a.createBiquadFilter();lp.type='lowpass';lp.frequency.value=1300;lp.connect(out);out.connect(MASTER);
+ const oscs=[[sa,0,.5],[sa+7,4,.32],[sa+12,-4,.28],[sa-12,3,.3]].map(([m,det,v])=>{const o=a.createOscillator();o.type='sawtooth';o.frequency.value=mtof(m);o.detune.value=det;const g=a.createGain();g.gain.value=v*.22;o.connect(g);g.connect(lp);o.start(t);return o;});
+ DRONE={out:out,oscs:oscs};audioOn();}
+function droneStop(quick){if(!DRONE)return;const t=AC.currentTime;DRONE.out.gain.cancelScheduledValues(t);DRONE.out.gain.setTargetAtTime(0,t,quick?.03:.2);const os=DRONE.oscs;os.forEach(o=>{try{o.stop(t+(quick?.2:1.2));}catch(e){}});DRONE=null;audioOn();}
+function saMidi(){return(S.prefs.reg==='high'?60:48)+S.prefs.key;}
+const SARGAM=[['Sa','do',0],['Ri','re',2],['Ga','mi',4],['Ma','fa',5],['Pa','so',7],['Da','la',9],['Ni','ti',11],['Ṡa','do',12]];
+let scaleTimers=[];
+function playScale(){if(!ac()){toast('Sound isn’t available in this browser');return;}scaleTimers.forEach(clearTimeout);scaleTimers=[];
+ const sa=saMidi();const seq=[0,1,2,3,4,5,6,7,6,5,4,3,2,1,0];const d=.62;const t0=AC.currentTime+.08;
+ seq.forEach((k,i)=>{tone(sa+SARGAM[k][2],t0+i*d,d*.92,.28);scaleTimers.push(setTimeout(()=>{$$('.sargam div').forEach((el,j)=>el.classList.toggle('on',j===k));},(i*d+.08)*1000));});
+ scaleTimers.push(setTimeout(()=>$$('.sargam div').forEach(el=>el.classList.remove('on')),(seq.length*d+.1)*1000));}
+function pianoHTML(){const lo=S.sing.lo,hi=S.sing.hi;const W=[],B=[];let wi=0;
+ for(let m=40;m<=81;m++){const nm=noteName(m),sharp=NAMES[m%12].length>1;
+  const st=(lo!=null&&hi!=null&&m>lo&&m<hi)?' in':(m===lo||m===hi)?' end':'';
+  const lab=nm+(m===lo?', your lowest':m===hi?', your highest':'');
+  if(!sharp){W.push('<button class="wk'+st+'" data-act="range-note" data-m="'+m+'" aria-label="'+lab+'"><span>'+(NAMES[m%12]==='C'||m===lo||m===hi?nm:'')+'</span></button>');wi++;}
+  else B.push('<button class="bk'+st+'" style="left:calc('+wi+' * var(--wk) - var(--bk) / 2)" data-act="range-note" data-m="'+m+'" aria-label="'+lab+'"></button>');}
+ return'<div class="piano-wrap"><div class="piano" style="width:calc('+wi+' * var(--wk) + 1px)">'+W.join('')+B.join('')+'</div></div>';}
+function audioOn(){document.body.classList.toggle('audio-on',!!(P.playing||DRONE));paintDock();}
+function noteName(m){return NAMES[m%12]+(Math.floor(m/12)-1);}
+
+/* ---------------- strum trainer ---------------- */
+const P={playing:false,timer:null,next:0,slot:0,chords:[],lastCi:-1,uiT:[]};
+function pp(){return S.prefs.p;}
+function playerStart(){if(!ac()){toast('Sound isn’t available in this browser');return;}
+ P.chords=chordTokens(pp().text).map(parseChord).filter(Boolean);
+ if(!P.chords.length){toast('Type at least one chord, like C G Am F');return;}
+ P.playing=true;P.slot=pp().countIn?-8:0;P.next=AC.currentTime+.12;P.lastCi=-1;clearInterval(P.timer);P.timer=setInterval(schedTick,25);paintPlayBtn();}
+function playerStop(){P.playing=false;clearInterval(P.timer);P.timer=null;P.uiT.forEach(clearTimeout);P.uiT=[];
+ if(AC)muteAll(pp().inst,AC.currentTime);$$('.slot div').forEach(e=>e.classList.remove('on'));const c=$('#p-count');if(c)c.textContent='';paintPlayBtn();}
+function paintPlayBtn(){const b=$('#p-play');if(b)b.textContent=P.playing?'Stop':'Play';audioOn();}
+function schedTick(){if(!P.playing)return;const spb=60/pp().bpm/2;while(P.next<AC.currentTime+.12){schedSlot(P.slot,P.next);P.next+=spb;P.slot++;}}
+function schedSlot(s,t){const p=pp();const pat=PATTERNS[p.pat].slots;const delay=Math.max(0,(t-AC.currentTime)*1000);
+ if(s<0){const i=s+8;if(i%2===0)click(t,i===0,.2);P.uiT.push(setTimeout(()=>showSlot(i,-1),delay));return;}
+ const i=s%8,bar=Math.floor(s/8),ci=Math.floor(bar/p.bars)%P.chords.length;const c=P.chords[ci];const v=voicing(p.inst,c);
+ if(p.click&&i%2===0)click(t,i===0,.07);playSym(p.inst,pat[i],v,t,i);
+ P.uiT.push(setTimeout(()=>showSlot(i,ci),delay));if(P.uiT.length>64)P.uiT.splice(0,32);}
+function playSym(inst,sym,v,t,i){if(!sym)return;const n=v.length;
+ if(sym==='D')strum(inst,v,t,'down',i===0?.85:.68);
+ else if(sym==='U')strum(inst,v,t,'up',.42);
+ else if(sym==='X')chuck(inst,t);
+ else if(sym==='M')strum(inst,v,t,'down',.6,.11);
+ else{let idx;const sounding=v.map((m,j)=>m==null?-1:j).filter(j=>j>=0);
+  if(sym==='B'||sym==='b'){if(inst==='uke')idx=sym==='B'?1:0;else{const bi=sounding.length?sounding[0]:0;idx=sym==='B'?bi:(bi===0?2:Math.min(bi+1,3));}}
+  else idx=n-parseInt(sym,10);
+  if(idx>=0&&idx<n&&v[idx]!=null)pluck(inst+idx,v[idx],t,sym==='B'||sym==='b'?.8:.62);}}
+function showSlot(i,ci){$$('.slot div').forEach((e,j)=>e.classList.toggle('on',j===i));const c=$('#p-count');
+ if(ci<0){if(c)c.textContent='Count-in';return;}if(c)c.textContent='';
+ if(ci!==P.lastCi){P.lastCi=ci;paintNowChord(ci);}}
+function paintNowChord(ci){const box=$('#p-now');if(!box)return;const p=pp();const list=P.playing&&P.chords.length?P.chords:chordTokens(p.text).map(parseChord).filter(Boolean);
+ if(!list.length){box.innerHTML='<p class="note">Type some chords to see them here.</p>';return;}
+ const c=list[ci%list.length],nx=list[(ci+1)%list.length];const L=lookup(p.inst,c,false);
+ box.innerHTML='<div>'+(L?diagram(L.fr,{inst:p.inst}):'<p class="note" style="max-width:12ch">No diagram for this chord yet</p>')+'</div><div><div class="name">'+esc(cname(c))+'</div>'+
+  (L&&L.simple?'<p class="sub">Shown as '+esc(L.name)+'</p>':'')+(list.length>1?'<p class="sub">Next: '+esc(cname(nx))+'</p>':'')+'</div>';}
+
+/* ---------------- shared ui ---------------- */
+function diagram(fr,o){o=o||{};const n=fr.length,sp=n===4?19:15,L=13,T=19,fh=17,R=4,start=o.start||1;
+ const W=L*2+sp*(n-1)+(start>1?22:0),H=T+fh*R+5;
+ let s='<svg class="dg" width="'+W+'" height="'+H+'" viewBox="0 0 '+W+' '+H+'" role="img" aria-label="'+esc(o.label||'Chord diagram')+'">';
+ for(let j=0;j<=R;j++){const y=T+j*fh;s+='<line '+(j===0&&start===1?'class="nut" stroke-width="3"':'stroke-width="1"')+' x1="'+L+'" y1="'+y+'" x2="'+(L+sp*(n-1))+'" y2="'+y+'"/>';}
+ for(let i=0;i<n;i++){const x=L+i*sp;s+='<line stroke-width="1" x1="'+x+'" y1="'+T+'" x2="'+x+'" y2="'+(T+fh*R)+'"/>';
+  [].concat(fr[i]).forEach(f=>{if(f===-1)s+='<text x="'+x+'" y="'+(T-6)+'" text-anchor="middle">×</text>';
+   else if(f===0)s+='<circle class="open" cx="'+x+'" cy="'+(T-8)+'" r="3.6" stroke-width="1.4"/>';
+   else s+='<circle class="'+(o.hi&&i>=n-4?'hi':'dot')+'" cx="'+x+'" cy="'+(T+(f-start+.5)*fh)+'" r="6"/>';});}
+ if(start>1)s+='<text x="'+(L+sp*(n-1)+7)+'" y="'+(T+fh*.5+4)+'">'+start+'fr</text>';
+ return s+'</svg>';}
+function chordBtn(inst,name,label,hi){const fr=LIBS[inst][name];if(!fr)return'';
+ return'<button class="cd" data-act="hear" data-inst="'+inst+'" data-ch="'+esc(name)+'" aria-label="Play '+esc(label||name)+' on '+INST_NAME[inst].toLowerCase()+'">'+diagram(fr,{hi:hi,label:(label||name)+' chord diagram'})+'<b>'+esc(label||name)+'</b></button>';}
+function chk(key,on,html){return'<label class="chk'+(on?' done':'')+'"><input type="checkbox" data-chk="'+esc(key)+'"'+(on?' checked':'')+'><span>'+html+'</span></label>';}
+function instSeg(act,val){return'<div class="seg" role="group" aria-label="Instrument">'+['uke','gtr'].map(v=>'<button data-act="'+act+'" data-v="'+v+'" aria-pressed="'+(val===v)+'">'+INST_NAME[v]+'</button>').join('')+'</div>';}
+function langTag(l){return'<span class="tag '+l+'">'+(l==='ta'?'Tamil':'English')+'</span>';}
+function libRow(id){const s=LIB.find(x=>x.id===id);if(!s)return'';const inSet=S.songs.some(x=>x.id===id);
+ return'<div class="songrow"><div><div>'+esc(s.t)+'</div><p class="sub">'+esc(s.a)+' '+langTag(s.lang)+'</p></div>'+(inSet?'<span class="tag ok">In your set</span>':'<button data-act="song-add" data-id="'+s.id+'" aria-label="Add '+esc(s.t)+' to my songs">Add</button>')+'</div>';}
+function maleRow(id){const s=LIB.find(x=>x.id===id);if(!s)return'';const inSet=S.songs.some(x=>x.id===id);
+ return'<div class="songrow"><div><div>'+esc(s.t)+'</div><p class="sub">'+esc(s.a)+' ('+s.yr+'). Sung by '+esc(s.sg)+'. Music by '+esc(s.md)+'.</p></div><div class="row" style="flex:none;justify-content:flex-end;gap:.4rem"><span class="tag'+(s.lvl==='easy'?' ok':s.lvl==='stretch'?' hard':'')+'">'+LVL[s.lvl]+'</span>'+(inSet?'<span class="tag ok">In your set</span>':'<button data-act="song-add" data-id="'+s.id+'" aria-label="Add '+esc(s.t)+' to my songs">Add</button>')+'</div></div>';}
+function maleSection(){const dec=S.prefs.dec||'all';const DEC=[['all','All'],['1990','1990s'],['2000','2000s'],['2010','2010s'],['2020','2020s']];
+ const yr=id=>{const s=LIB.find(x=>x.id===id);return s?s.yr:0;};
+ const groups=DEC.slice(1).filter(d=>dec==='all'||dec===d[0]).map(d=>{const ids=MALE_TA.filter(id=>Math.floor(yr(id)/10)*10===+d[0]).sort((a,b)=>yr(a)-yr(b));return'<div class="panel"><h3>'+d[1]+'</h3><p class="sub">'+ids.length+' songs</p><div class="songlist" style="margin-top:.5rem">'+ids.map(maleRow).join('')+'</div></div>';}).join('');
+ return'<div class="sec"><div class="sec-h"><div><h2>Tamil songs for a male voice</h2><p>Male-led film songs from the 1990s to the 2020s, from Ilaiyaraaja and A. R. Rahman to Yuvan, Harris, Anirudh and newer composers. Years are film release years. Start with the “Easy to sing” picks, and set the drone to “Lower” on the Singing page to find your Sa.</p></div><div class="seg" role="group" aria-label="Filter by decade">'+DEC.map(d=>'<button data-act="dec" data-v="'+d[0]+'" aria-pressed="'+(dec===d[0])+'">'+d[1]+'</button>').join('')+'</div></div>'+
+  '<div class="legend" style="margin:0 0 1rem"><span><b>Easy to sing</b> narrow range, close to speaking</span><span><b>Medium</b> a wider melody with some long notes</span><span><b>Stretch</b> high notes and classical ornaments, best kept for later</span></div><div class="grid2">'+groups+'</div></div>';}
+function durLabel(s){return s>=60&&s%60===0?(s/60)+' min':s+' sec';}
+function slotsHTML(pat){const C=['1','&','2','&','3','&','4','&'];return PATTERNS[pat].slots.map((x,i)=>'<div class="slot"><small>'+C[i]+'</small><div>'+(x||'·')+'</div></div>').join('');}
+
+/* ---------------- runner ---------------- */
+class Runner{
+ constructor(id,blocksFn,onDone){this.id=id;this.blocksFn=blocksFn;this.onDone=onDone;this.blocks=null;this.i=0;this.left=0;this.run=false;this.elapsed=0;this.t=null;this.msg='';}
+ el(){return document.getElementById('r-'+this.id);}
+ start(){ac();this.blocks=this.blocksFn();if(!this.blocks.length)return;this.i=0;this.left=this.blocks[0].secs;this.elapsed=0;this.run=true;this.last=Date.now();this.msg='';clearInterval(this.t);this.t=setInterval(()=>this.tick(),250);this.mount();}
+ tick(){if(!this.run||!this.blocks)return;const now=Date.now(),dt=(now-this.last)/1000;this.last=now;this.left-=dt;this.elapsed+=dt;if(this.left<=0)this.next();else this.paint();}
+ toggle(){if(!this.blocks)return;this.run=!this.run;this.last=Date.now();this.mount();}
+ next(){if(!this.blocks)return;chime();this.i++;if(this.i>=this.blocks.length){this.finish();return;}this.left=this.blocks[this.i].secs;this.last=Date.now();this.mount();}
+ finish(){if(!this.blocks)return;clearInterval(this.t);this.t=null;const mins=Math.max(1,Math.round(this.elapsed/60));this.blocks=null;this.run=false;this.msg=this.onDone?this.onDone(mins):'';this.mount();}
+ paint(){paintDock();const el=this.el();if(!el||!this.blocks)return;const c=el.querySelector('.clock');if(c)c.textContent=fmtTime(this.left);const b=el.querySelector('.now .bar i');if(b)b.style.width=Math.round(100*(1-this.left/this.blocks[this.i].secs))+'%';}
+ mount(){paintDock();const el=this.el();if(!el)return;const id=this.id;
+  if(!this.blocks){const pv=this.blocksFn();
+   el.innerHTML=(this.msg?'<p style="margin:0 0 .5rem"><span class="tag ok">'+esc(this.msg)+'</span></p>':'')+'<ul class="blocks">'+pv.map(b=>'<li><span class="t">'+esc(b.name)+'</span><span class="m">'+durLabel(b.secs)+'</span><span class="d">'+esc(b.text)+'</span></li>').join('')+'</ul><div class="row" style="margin-top:1rem"><button class="btn-main" data-act="run" data-r="'+id+'" data-op="start">Start</button></div>';return;}
+  const b=this.blocks[this.i];
+  el.innerHTML='<div class="now"><p class="sub">Part '+(this.i+1)+' of '+this.blocks.length+(this.run?'':', paused')+'</p><h3>'+esc(b.name)+'</h3><div class="clock">'+fmtTime(this.left)+'</div><div class="bar"><i style="width:'+Math.round(100*(1-this.left/b.secs))+'%"></i></div><p>'+esc(b.text)+'</p>'+
+   (b.act?'<p><button data-act="'+b.act+'" data-i="'+b.i+'">'+esc(b.actText)+'</button></p>':'')+(b.href?'<p><a class="btn" href="'+b.href+'">'+esc(b.hrefText)+'</a></p>':'')+'</div>'+
+   '<div class="row" style="margin-top:1rem"><button class="btn-main" data-act="run" data-r="'+id+'" data-op="toggle">'+(this.run?'Pause':'Resume')+'</button><button data-act="run" data-r="'+id+'" data-op="next">'+(this.i===this.blocks.length-1?'Finish':'Next part')+'</button><button class="btn-quiet" data-act="run" data-r="'+id+'" data-op="end">End now</button></div>'+
+   '<ul class="blocks">'+this.blocks.map((x,j)=>'<li class="'+(j<this.i?'past':j===this.i?'cur':'')+'"><span class="t">'+esc(x.name)+'</span><span class="m">'+durLabel(x.secs)+'</span></li>').join('')+'</ul>';}
+}
+function sessionPlan(len){const ci=curStage(),st=STAGES[ci],song=focusSong(),ns=song?nextStep(song):null,lv=S.sing.lv.indexOf(false),wk=nextWeek(ci);
+ const ch=st.chords;const pairs=[];for(let i=0;i<ch.length-1&&pairs.length<3;i++)pairs.push(ch[i]+' to '+ch[i+1]);
+ const B={
+  voice:{name:'Voice warm-up',text:'Breathing, lip trills, humming and sirens. The guided warm-up on the Singing page walks you through it.',href:'#singing',hrefText:'Open the warm-up'},
+  chords:{name:'Chord changes',text:'One-minute drills: '+pairs.join(', ')+'. Count your clean switches and try to beat yesterday’s number.'},
+  rhythm:{name:'Rhythm',text:PATTERNS[st.pat].name+' on '+st.prog+' at '+st.bpm+' bpm. Speed up by 5 bpm once it feels easy.',act:'stage-practise',i:ci,actText:'Open the strum trainer'},
+  skill:{name:'This week’s skill',text:wk!=null?st.weeks[wk][1]:st.skills[0]},
+  song:{name:'Song work',text:song?(song.t+': '+(ns!=null?LADDER[ns]:'play it through twice, once just for fun')+'.'):'Add a song to your set first.',href:'#songs',hrefText:'Open my songs'},
+  layer:{name:'Singing while playing',text:lv>=0?('Layer '+(lv+1)+': '+LAYERS[lv]+(song?', using '+song.t:'')+'.'):'Sing and play your focus song at full voice, then try it standing up.'},
+  rec:{name:'Record and reflect',text:'Record 30 seconds on your phone. Listen back and note one thing that went well.'}};
+ const plans={15:[['voice',2],['chords',3],['rhythm',3],['song',5],['layer',2]],30:[['voice',4],['chords',5],['rhythm',5],['song',10],['layer',5],['rec',1]],45:[['voice',5],['chords',7],['rhythm',6],['skill',8],['song',12],['layer',6],['rec',1]]};
+ return(plans[len]||plans[30]).map(([k,m])=>Object.assign({secs:m*60},B[k]));}
+const RUN={
+ session:new Runner('session',()=>sessionPlan(S.prefs.len),mins=>{const k=dayKey();S.log[k]=(S.log[k]||0)+mins;save();return'Logged '+mins+' min for today. Nice work.';}),
+ warm:new Runner('warm',()=>WARMUP.map(w=>Object.assign({},w)),()=>'Warm-up done. Your voice is ready.')};
+
+/* ---------------- views ---------------- */
+const SUB={singing:'warm',tools:'trainer',songs:'male'};
+let SEL_SONG=null;
+const svgI=p=>'<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+p+'</svg>';
+const ICON={play:svgI('<path d="M8 5.5v13l10.5-6.5z" fill="currentColor" stroke="none"/>'),pause:svgI('<path d="M8 5v14M16 5v14"/>'),
+ next:svgI('<path d="M6 5.5v13l9-6.5z" fill="currentColor" stroke="none"/><path d="M18 5v14"/>'),stop:svgI('<rect x="6.5" y="6.5" width="11" height="11" rx="2" fill="currentColor" stroke="none"/>'),
+ tools:svgI('<path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/>'),
+ mic:svgI('<rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21M8.5 21h7"/>'),
+ tuner:svgI('<path d="M5 10a9 9 0 0 1 14 0"/><path d="M12 4v9"/><circle cx="12" cy="17" r="3"/>'),plus:svgI('<path d="M12 5v14M5 12h14"/>')};
+function stats(){const log=S.log;let total=0;Object.keys(log).forEach(k=>total+=log[k]||0);
+ const now=new Date();const dow=(now.getDay()+6)%7;let week=0;for(let i=0;i<=dow;i++){const d=new Date(now);d.setDate(now.getDate()-i);week+=log[dayKey(d)]||0;}
+ let streak=0;const d=new Date(now);if(!(log[dayKey(d)]>0))d.setDate(d.getDate()-1);while(log[dayKey(d)]>0&&streak<3650){streak++;d.setDate(d.getDate()-1);}
+ let ms=0;STAGES.forEach((s,i)=>s.milestones.forEach((_,k)=>{if(S.ms[i+'-'+k])ms++;}));
+ return{total:total,week:week,streak:streak,ms:ms,songsDone:S.songs.filter(s=>s.steps[8]).length};}
+function ring(frac,size,stroke,cls){const r=(size-stroke)/2,c=2*Math.PI*r,f=Math.max(0,Math.min(1,frac)),m=size/2;
+ return'<svg class="ring '+(cls||'')+'" width="'+size+'" height="'+size+'" viewBox="0 0 '+size+' '+size+'" aria-hidden="true"><circle class="rt" cx="'+m+'" cy="'+m+'" r="'+r+'" fill="none" stroke-width="'+stroke+'"/>'+(f>0?'<circle class="rp" cx="'+m+'" cy="'+m+'" r="'+r+'" fill="none" stroke-width="'+stroke+'" stroke-linecap="round" stroke-dasharray="'+(c*f).toFixed(1)+' '+c.toFixed(1)+'" transform="rotate(-90 '+m+' '+m+')"/>':'')+'</svg>';}
+const COVERS=[['#C8265F','#FFE1EB'],['#F2A93B','#3A2216'],['#13876F','#DDF5EE'],['#4A3AAE','#ECE8FF'],['#E4572E','#FFE9E0'],['#2D6CDF','#E1ECFF']];
+function hashStr(s){let h=0;for(let i=0;i<s.length;i++)h=(h*31+s.charCodeAt(i))>>>0;return h;}
+function cover(s){const c=COVERS[hashStr(s.t+'|'+s.a)%COVERS.length];
+ const ini=s.t.replace(/\(.*?\)/g,'').replace(/[^A-Za-z0-9 ]/g,'').split(' ').filter(Boolean).slice(0,2).map(w=>w[0].toUpperCase()).join('');
+ return'<svg class="cover" viewBox="0 0 100 100" aria-hidden="true"><rect width="100" height="100" fill="'+c[0]+'"/><circle cx="50" cy="50" r="39" fill="#1B1229"/><circle cx="50" cy="50" r="32" fill="none" stroke="#3A2D4F"/><circle cx="50" cy="50" r="26" fill="none" stroke="#3A2D4F"/><circle cx="50" cy="50" r="20" fill="none" stroke="#3A2D4F"/><circle cx="50" cy="50" r="15" fill="'+c[0]+'"/><text x="50" y="54" text-anchor="middle" font-size="10.5" font-weight="700" fill="'+c[1]+'" style="font-family:var(--display)">'+esc(ini)+'</text></svg>';}
+function subTabs(k,items){return'<div class="subtabs" role="group" aria-label="Sections on this page">'+items.map(it=>'<button data-act="sub" data-k="'+k+'" data-v="'+it[0]+'" aria-pressed="'+(SUB[k]===it[0])+'">'+it[1]+'</button>').join('')+'</div>';}
+function pageHead(t,l){return'<div class="pagehead"><h1>'+t+'</h1>'+(l?'<p class="lede">'+l+'</p>':'')+'</div>';}
+function meterHTML(s){return'<div class="meter" aria-hidden="true">'+s.steps.map(x=>'<i class="'+(x?'on':'')+'"></i>').join('')+'</div>';}
+function lvlTag(l){return l?'<span class="tag'+(l==='easy'?' ok':l==='stretch'?' hard':'')+'">'+LVL[l]+'</span>':'';}
+function songRow(id,rich){const s=LIB.find(x=>x.id===id);if(!s)return'';const inSet=S.songs.some(x=>x.id===id);
+ const meta=esc(s.a)+(s.yr?' ('+s.yr+')':'')+(rich&&s.sg?'. Sung by '+esc(s.sg)+'. Music by '+esc(s.md)+'.':'');
+ return'<div class="srow"><span>'+cover(s)+'</span><div><div class="srow-t">'+esc(s.t)+'</div><p class="sub">'+meta+'</p></div><div class="srow-x">'+(rich?lvlTag(s.lvl):langTag(s.lang))+(inSet?'<span class="tag ok">In your set</span>':'<button data-act="song-add" data-id="'+s.id+'" aria-label="Add '+esc(s.t)+' to my songs">Add</button>')+'</div></div>';}
+function neckSVG(ci,still){const W=600,y0=12,y1=100,seg=W/7,cy=(y0+y1)/2,h=y1-y0;
+ let s='<svg viewBox="0 8 600 96" role="group" aria-label="Your seven stages, from ukulele to guitar">';
+ s+='<rect x="0" y="'+y0+'" width="'+W+'" height="'+h+'" rx="12" fill="#3A2216"/>';
+ s+='<rect x="6" y="'+y0+'" width="'+(W-12)+'" height="2.5" fill="#E9DDC4" opacity=".5"/><rect x="6" y="'+(y1-2.5)+'" width="'+(W-12)+'" height="2.5" fill="#E9DDC4" opacity=".5"/>';
+ for(let i=1;i<7;i++){const x=i*seg;s+=i===3?'<rect x="'+(x-3)+'" y="'+y0+'" width="6" height="'+h+'" fill="#E2B661"/>':'<rect x="'+(x-1.5)+'" y="'+y0+'" width="3" height="'+h+'" fill="#CDC5B8"/>';}
+ for(let k=0;k<4;k++){const y=y0+h*(k+.5)/4;s+='<line x1="8" y1="'+y+'" x2="'+(3*seg)+'" y2="'+y+'" stroke="#F4EEDF" stroke-width="1.6" opacity=".85"/>';}
+ for(let k=0;k<6;k++){const y=y0+h*(k+.5)/6;s+='<line x1="'+(3*seg)+'" y1="'+y+'" x2="'+W+'" y2="'+y+'" stroke="#EFE6D2" stroke-width="'+(0.9+k*.32).toFixed(2)+'" opacity=".85"/>';}
+ s+='<rect x="0" y="'+(y0-1)+'" width="9" height="'+(h+2)+'" rx="3" fill="#F1E8D6"/>';
+ STAGES.forEach((st,i)=>{const cx=seg*(i+.5),done=stageDone(i),cur=!done&&i===ci;
+  const fill=done?'#2BB596':cur?'#FFC35E':'#F3EAD7',tc=done?'#FFFFFF':cur?'#2A1700':'#3A2216';
+  s+='<g class="mk"'+(still?' aria-hidden="true"':' tabindex="0" role="button" aria-label="Stage '+(i+1)+', '+esc(st.title)+(done?', complete':cur?', current':'')+'" data-act="nav-stage" data-i="'+i+'"')+'>'+(cur?'<circle cx="'+cx+'" cy="'+cy+'" r="29" fill="#FFC35E" opacity=".28"/>':'')+'<circle class="ring" cx="'+cx+'" cy="'+cy+'" r="21" fill="'+fill+'"/><text x="'+cx+'" y="'+(cy+6)+'" fill="'+tc+'">'+(done?'✓':i+1)+'</text></g>';});
+ return s+'</svg>';}
+function neckBlock(ci,still){return'<div class="neck"><div class="neck-top"><span>Ukulele, four strings</span><span>Guitar, six strings</span></div>'+neckSVG(ci,still)+'<div class="neck-l">'+STAGES.map((s,i)=>'<div class="'+(i===ci?'cur':'')+'"><b>'+esc(s.short)+'</b><span>'+esc(s.time)+'</span></div>').join('')+'</div></div>';}
+
+/* today */
+function renderToday(){const ci=curStage(),st=STAGES[ci],song=focusSong(),ns=song?nextStep(song):null,wk=nextWeek(ci),stt=stats(),running=!!RUN.session.blocks;
+ let h='<section class="stagecard" aria-label="Where you are"><div class="stagecard-top"><div><p class="kicker">Stage '+(ci+1)+' of 7, '+INST_NAME[st.inst].toLowerCase()+', '+esc(st.time.toLowerCase())+'</p><h1>'+esc(st.title)+'</h1><p class="lede">'+esc(st.goal)+'</p>'+
+  '<div class="row" style="margin-top:1.3rem"><button class="btn-main big" data-act="session-go">'+ICON.play+(running?'Back to your session':'Start today’s session')+'</button><button class="btn-ghost" data-act="nav-stage" data-i="'+ci+'">See the whole stage</button></div></div>'+
+  '<div class="stagecard-stats"><div class="ringwrap">'+ring(stt.ms/21,116,10,'on-dark')+'<div class="ringtxt"><b>'+stt.ms+'</b><span>of 21</span></div></div><p>milestones ticked</p></div></div>'+neckBlock(ci)+'</section>';
+ h+='<div class="chips"><div class="chip"><b>'+stt.streak+'</b><span>day streak</span></div><div class="chip"><b>'+stt.week+'</b><span>min this week</span></div><div class="chip"><b>'+stt.songsDone+'</b><span>'+(stt.songsDone===1?'song':'songs')+' you can sing</span></div>'+
+  '<button class="chip chip-btn" data-act="quick" data-v="trainer">'+ICON.tools+'<span>Strum trainer</span></button><button class="chip chip-btn" data-act="quick" data-v="warm">'+ICON.mic+'<span>Voice warm-up</span></button><button class="chip chip-btn" data-act="quick" data-v="tuner">'+ICON.tuner+'<span>Tuning notes</span></button></div>';
+ h+='<div class="bento"><section class="panel b7" id="session-card"><div class="sec-h" style="margin-bottom:.25rem"><h2>Today’s session</h2><div class="seg" role="group" aria-label="Session length">'+[15,30,45].map(v=>'<button data-act="len" data-v="'+v+'" aria-pressed="'+(S.prefs.len===v)+'">'+v+' min</button>').join('')+'</div></div><div id="r-session" class="runner"></div></section><div class="b5 stack">';
+ if(song){h+='<section class="panel"><div class="songnow"><div>'+cover(song)+'</div><div><p class="sub" style="margin:0">Focus song</p><h3 style="font-size:1.15rem;margin-top:.15rem">'+esc(song.t)+'</h3><p class="sub">'+esc(song.a)+'</p></div></div>'+meterHTML(song)+
+  (ns!=null?'<p style="margin-top:.8rem">Next: <b>'+esc(LADDER[ns])+'</b></p><div class="row" style="margin-top:.7rem"><button class="btn-main" data-act="step-done" data-id="'+esc(song.id)+'">Mark done</button><a class="btn btn-quiet" href="#songs">All my songs</a></div>'
+  :'<p style="margin-top:.8rem"><b>You can play and sing this one.</b> Pick a new focus song.</p><div class="row" style="margin-top:.7rem"><a class="btn" href="#songs">All my songs</a></div>')+'</section>';}
+ else h+='<section class="panel"><h2>Pick your songs</h2><p>Choose a few songs in each language to work towards.</p><div class="row" style="margin-top:.75rem"><a class="btn btn-main" href="#songs">Choose songs</a></div></section>';
+ h+='<section class="panel"><h2>This week</h2>'+(wk!=null?chk('wk|'+ci+'-'+wk,false,'<b>'+esc(st.weeks[wk][0])+'.</b> '+esc(st.weeks[wk][1])):'<p>You’ve worked through every week of this stage. Tick the milestones below to move on.</p>')+
+  '<h4>Milestones for this stage</h4>'+st.milestones.map((m,k)=>chk('ms|'+ci+'-'+k,!!S.ms[ci+'-'+k],esc(m))).join('')+'</section></div></div>';
+ $('#v-today').innerHTML=h;RUN.session.mount();}
+
+/* roadmap */
+const OPEN_ST=new Set();let openInit=false;
+function stageHTML(st,i,ci){const open=OPEN_ST.has(i),done=stageDone(i),nms=st.milestones.filter((_,k)=>S.ms[i+'-'+k]).length;
+ let h='<div class="tl-item'+(done?' done':i===ci?' cur':'')+'" id="stage-'+i+'"><div class="tl-node" aria-hidden="true">'+(done?'✓':i+1)+'</div><div class="panel tl-card"><button class="stage-h" data-act="stage-toggle" data-i="'+i+'" aria-expanded="'+open+'" aria-controls="stage-b-'+i+'"><span class="stage-h-main"><span class="row" style="gap:.45rem"><span class="tag">'+INST_NAME[st.inst]+'</span><span class="sub" style="margin:0">'+esc(st.time)+'</span></span><span class="st-title">'+esc(st.title)+'</span><span class="sub" style="margin:0">'+esc(st.goal)+'</span></span><span class="stage-h-side">'+ring(nms/3,40,5)+'<span class="sub" style="margin:0">'+nms+' of 3</span><span class="chev" aria-hidden="true">›</span></span></button>';
+ if(open){h+='<div class="stage-b" id="stage-b-'+i+'"><div class="cols"><div>';
+  h+='<h4>Week by week</h4><div class="weeks">'+st.weeks.map((w,j)=>chk('wk|'+i+'-'+j,!!S.wk[i+'-'+j],'<b>'+esc(w[0])+'.</b> '+esc(w[1]))).join('')+'</div>';
+  h+='<h4>Technique focus</h4><ul style="margin:.2rem 0 0;padding-left:1.15rem">'+st.skills.map(s=>'<li>'+esc(s)+'</li>').join('')+'</ul>';
+  h+='<p class="singnote"><b>Singing:</b> '+esc(st.sing)+'</p>';
+  h+='<h4>Ready to move on when you can</h4>'+st.milestones.map((m,k)=>chk('ms|'+i+'-'+k,!!S.ms[i+'-'+k],esc(m))).join('');
+  h+='</div><div>';
+  if(st.bridge){h+='<h4>Same shape, new name</h4><p class="sub">Tap to hear each one. The highlighted dots are your ukulele shape, sitting on the guitar’s four thinnest strings.</p><div class="pairs">'+BRIDGE_PAIRS.map(p=>'<div class="pair">'+chordBtn('uke',p[0],'Uke '+p[0])+'<span class="arrow" aria-hidden="true">→</span>'+chordBtn('gtr',p[1],'Guitar '+p[1],true)+'</div>').join('')+'</div>';}
+  else{h+='<h4>New chords</h4><p class="sub">Tap a chord to hear it.</p><div class="chords">'+st.chords.map(c=>chordBtn(st.inst,c)).join('')+(st.scale?'<button class="cd" data-act="hear-scale" aria-label="Play the A minor pentatonic scale">'+diagram(PENTA,{start:5,label:'A minor pentatonic shape at the 5th fret'})+'<b>Am pentatonic</b></button>':'')+'</div>';}
+  h+='<h4>Rhythm</h4><p style="margin-top:0">'+esc(PATTERNS[st.pat].name)+' on '+esc(st.prog)+', starting at '+st.bpm+' bpm.</p><div class="row" style="margin-top:.5rem"><button data-act="stage-practise" data-i="'+i+'">'+ICON.play+'Practise in the strum trainer</button></div>';
+  h+='<h4>Songs for this stage</h4><div>'+st.songs.map(id=>songRow(id,false)).join('')+'</div>';
+  h+='</div></div></div>';}
+ return h+'</div></div>';}
+function renderRoadmap(){const ci=curStage();if(!openInit){OPEN_ST.add(ci);openInit=true;}
+ $('#v-roadmap').innerHTML=pageHead('Your year, stage by stage','About 20 to 30 minutes a day. Move on when you’ve ticked a stage’s milestones, not when the calendar says so. Going slower than the plan is completely fine.')+'<div class="tl">'+STAGES.map((st,i)=>stageHTML(st,i,ci)).join('')+'</div>';}
+
+/* songs */
+const OPEN_DET=new Set();
+function songTile(s){const d=stepsDone(s),f=focusSong(),isF=f&&f.id===s.id,sel=SEL_SONG===s.id;
+ return'<button class="tile'+(sel?' sel':'')+'" data-act="song-sel" data-id="'+esc(s.id)+'" aria-pressed="'+sel+'"><span class="tile-cover">'+cover(s)+(isF?'<span class="tile-badge">Focus</span>':'')+'</span><span class="tile-t">'+esc(s.t)+'</span><span class="tile-a">'+esc(s.a)+'</span><span class="tile-p"><span class="bar"><i style="width:'+d*10+'%"></i></span><span>'+d+'/10</span></span></button>';}
+function songDetail(s){const d=stepsDone(s),ns=nextStep(s),f=focusSong(),isF=f&&f.id===s.id,inst=STAGES[curStage()].inst,L=LIB.find(x=>x.id===s.id)||{},id=esc(s.id);
+ const q=s.t.replace(/\s*\(.*\)$/,'')+' '+s.a;
+ let h='<section class="panel detail" id="song-detail" aria-label="'+esc(s.t)+'"><div><div class="detail-cover">'+cover(s)+'</div><h2 style="margin-top:1rem">'+esc(s.t)+'</h2><p class="sub">'+esc(s.a)+(L.yr?' ('+L.yr+')':'')+'</p>'+(L.sg?'<p class="sub">Sung by '+esc(L.sg)+'</p>':'')+
+  '<div class="row" style="margin-top:.6rem;gap:.35rem">'+langTag(s.lang)+lvlTag(L.lvl)+(isF?'<span class="tag ok">Focus song</span>':'')+'</div>'+meterHTML(s)+'<p class="sub">'+d+' of 10 steps</p>'+
+  '<div class="acts"><button class="btn-main" data-act="song-practise" data-id="'+id+'">'+ICON.play+'Practise these chords</button><a class="btn" target="_blank" rel="noopener" href="https://www.youtube.com/results?search_query='+encodeURIComponent(q)+'">Listen</a><a class="btn" target="_blank" rel="noopener" href="https://www.google.com/search?q='+encodeURIComponent(q+' '+(inst==='uke'?'ukulele':'guitar')+' chords')+'">Find chords</a>'+(isF?'':'<button data-act="song-focus" data-id="'+id+'">Make focus song</button>')+'<button class="btn-quiet" data-act="song-remove" data-id="'+id+'">Remove</button></div></div><div>';
+ h+=ns===null?'<div class="next"><p><b>You can play and sing this one.</b> Keep it in your set and play it often.</p></div>'
+  :'<div class="next"><div><p class="sub">Next step</p><p><b>'+esc(LADDER[ns])+'</b></p></div><button class="btn-main" data-act="step-done" data-id="'+id+'">Mark done</button></div>';
+ h+='<h4>The ten steps</h4><div>'+LADDER.map((l,k)=>chk('step|'+s.id+'|'+k,!!s.steps[k],'<b>'+(k+1)+'.</b> '+esc(l))).join('')+'</div>';
+ h+='<div class="fields"><div><label class="f" for="ch-'+id+'">Chords</label><input type="text" id="ch-'+id+'" data-in="song-ch" data-id="'+id+'" value="'+esc(s.ch)+'" placeholder="C G Am F" autocomplete="off"></div><div><label class="f" for="k-'+id+'">Key, capo or notes</label><input type="text" id="k-'+id+'" data-in="song-key" data-id="'+id+'" value="'+esc(s.key)+'" placeholder="Capo 2, sing it low" autocomplete="off"></div></div></div></section>';
+ return h;}
+function maleBlock(){const dec=S.prefs.dec||'all',DEC=[['all','All'],['1990','1990s'],['2000','2000s'],['2010','2010s'],['2020','2020s']];
+ const yr=id=>{const s=LIB.find(x=>x.id===id);return s?s.yr:0;};
+ const groups=DEC.slice(1).filter(d=>dec==='all'||dec===d[0]).map(d=>{const ids=MALE_TA.filter(id=>Math.floor(yr(id)/10)*10===+d[0]).sort((a,b)=>yr(a)-yr(b));return'<section class="panel"><h3>'+d[1]+'</h3><p class="sub">'+ids.length+' songs</p><div style="margin-top:.4rem">'+ids.map(id=>songRow(id,true)).join('')+'</div></section>';}).join('');
+ return'<div class="row" style="justify-content:space-between;margin-bottom:.4rem"><div class="seg" role="group" aria-label="Filter by decade">'+DEC.map(d=>'<button data-act="dec" data-v="'+d[0]+'" aria-pressed="'+(dec===d[0])+'">'+d[1]+'</button>').join('')+'</div></div>'+
+  '<p class="note" style="max-width:none">Male-led film songs. Years are film release years. Start with the “Easy to sing” picks, and set the drone to “Lower” on the Singing page to find your Sa.</p>'+
+  '<div class="legend" style="margin:.5rem 0 1rem"><span><b>Easy to sing</b> narrow range, close to speaking</span><span><b>Medium</b> a wider melody with some long notes</span><span><b>Stretch</b> high notes and classical ornaments, best kept for later</span></div><div class="grid2">'+groups+'</div>';}
+function stageBlock(){const f=S.prefs.filter;
+ return'<div class="seg" role="group" aria-label="Filter by language" style="margin-bottom:1rem">'+[['all','All'],['en','English'],['ta','Tamil']].map(v=>'<button data-act="filter" data-v="'+v[0]+'" aria-pressed="'+(f===v[0])+'">'+v[1]+'</button>').join('')+'</div><div class="grid2">'+
+  STAGES.map((st,i)=>{const rows=LIB.filter(s=>s.st===i&&!s.extra&&(f==='all'||s.lang===f));if(!rows.length)return'';return'<section class="panel"><h3>Stage '+(i+1)+': '+esc(st.short)+'</h3><p class="sub">'+INST_NAME[st.inst]+', '+esc(st.time.toLowerCase())+'</p><div style="margin-top:.4rem">'+rows.map(s=>songRow(s.id,false)).join('')+'</div></section>';}).join('')+'</div>';}
+function renderSongs(){const fs=focusSong();if(!S.songs.some(x=>x.id===SEL_SONG))SEL_SONG=fs?fs.id:null;const sel=S.songs.find(x=>x.id===SEL_SONG);
+ let h=pageHead('My songs','Pick a few songs in each language and climb the ten steps for each one. Confidence comes from finishing songs, not collecting them.');
+ h+='<div class="tiles">'+S.songs.map(songTile).join('')+'<button class="tile" data-act="discover"><span class="tile-cover add">'+ICON.plus+'</span><span class="tile-t">Add a song</span><span class="tile-a">Browse the library</span></button></div>';
+ if(sel)h+=songDetail(sel);
+ h+='<div class="sec" id="discover"><div class="sec-h"><div><h2>Find your next song</h2><p>Chord sheets for Tamil film songs vary a lot online, so compare two or three versions and check them against the recording.</p></div></div>'+subTabs('songs',[['male','Tamil, male voice'],['stage','By stage'],['own','Add your own']]);
+ if(SUB.songs==='male')h+=maleBlock();else if(SUB.songs==='stage')h+=stageBlock();
+ else h+='<section class="panel" style="max-width:720px"><h3>Add your own song</h3><div class="fields"><div><label class="f" for="c-t">Song</label><input type="text" id="c-t" data-in="clr-c" placeholder="Vaseegara" autocomplete="off"></div><div><label class="f" for="c-a">Artist or film</label><input type="text" id="c-a" placeholder="Minnale" autocomplete="off"></div><div><label class="f" for="c-l">Language</label><select id="c-l"><option value="ta">Tamil</option><option value="en">English</option></select></div></div><p class="warn" id="c-err" hidden></p><div class="row" style="margin-top:.9rem"><button class="btn-main" data-act="custom-add">Add song</button></div></section>';
+ h+='</div>';
+ $('#v-songs').innerHTML=h;}
+
+/* singing */
+let RMODE='lo';
+function rangeSummary(){const lo=S.sing.lo,hi=S.sing.hi;
+ if(lo!=null&&hi!=null)return'Your comfortable range is <b>'+noteName(lo)+' to '+noteName(hi)+'</b>, about '+((hi-lo)/12).toFixed(1)+' octaves. If a song’s highest note sits above '+noteName(hi)+', lower the key with the capo helper on the Tools page.';
+ if(lo!=null)return'Lowest note: <b>'+noteName(lo)+'</b>. Now tap the highest note you can sing comfortably.';
+ return'Choose “Mark lowest”, then tap the lowest note you can sing clearly. Then mark your highest.';}
+function renderSinging(){const fs=focusSong(),t=SUB.singing;
+ let h=pageHead('Singing while you play','Playing and singing together is a coordination skill, not a talent. You build it in small layers, the same way you built your chord changes.')+subTabs('singing',[['warm','Warm-up'],['range','Find your range'],['layers','Sing and play'],['tips','Tips']]);
+ if(t==='warm'){h+='<div class="bento"><section class="panel b6"><h2>Five-minute voice warm-up</h2><p class="sub">Do this before any singing, even on busy days.</p><div id="r-warm" class="runner" style="margin-top:.75rem"></div></section>';
+  h+='<section class="panel b6"><h2>Drone and scale</h2><p class="sub">Choose a Sa (home note) that feels easy, then hum, hold long notes and sing the scale against the drone.</p>'+
+  '<div class="fields"><div><label class="f" for="s-key">Sa, your home note</label><select id="s-key" data-in="s-key">'+NAMES.map((n,i)=>'<option value="'+i+'"'+(S.prefs.key===i?' selected':'')+'>'+n+'</option>').join('')+'</select></div><div><span class="f">Voice</span><div class="seg" role="group" aria-label="Voice register">'+[['low','Lower'],['high','Higher']].map(v=>'<button data-act="reg" data-v="'+v[0]+'" aria-pressed="'+(S.prefs.reg===v[0])+'">'+v[1]+'</button>').join('')+'</div></div></div>'+
+  '<div class="row" style="margin-top:1rem"><button class="btn-main" id="drone-btn" data-act="drone">'+(DRONE?'Stop drone':'Start drone')+'</button><button data-act="scale">Play the scale</button></div>'+
+  '<div class="sargam" aria-hidden="true">'+SARGAM.map(n=>'<div><b>'+n[0]+'</b><small>'+n[1]+'</small></div>').join('')+'</div>'+
+  '<p class="note" style="margin-top:.7rem">Sa is set to '+noteName(saMidi())+'. “Lower” suits most men’s voices and “Higher” most women’s. Try a few home notes and keep the one where Pa and the top Sa feel easy.</p></section></div>';}
+ else if(t==='range'){h+='<section class="panel"><div class="sec-h" style="margin-bottom:.5rem"><div><h2>Find your range</h2><p>Tap a key to hear it, then sing it. Mark the lowest and highest notes you can sing comfortably, without straining or going breathy.</p></div><div class="seg" role="group" aria-label="What to mark">'+[['lo','Mark lowest'],['hi','Mark highest']].map(v=>'<button data-act="range-mode" data-v="'+v[0]+'" aria-pressed="'+(RMODE===v[0])+'">'+v[1]+'</button>').join('')+'</div></div><p style="margin:0">'+rangeSummary()+'</p>'+pianoHTML()+'</section>';}
+ else if(t==='layers'){h+='<div class="bento"><section class="panel b7"><h2>Six layers to sing while you play</h2><p class="sub">Use your focus song'+(fs?', '+esc(fs.t):'')+'. Stay on a layer until it feels boring, then move up.</p>'+LAYERS.map((l,k)=>chk('lv|'+k,!!S.sing.lv[k],'<b>'+(k+1)+'.</b> '+esc(l))).join('')+'<p class="note" style="margin-top:.6rem">If it falls apart, drop back one layer for a minute and try again. That’s how the skill builds.</p></section>'+
+  '<section class="panel b5"><h2>Build performing confidence</h2><p class="sub">Nerves shrink with exposure. Take these one at a time, over weeks.</p>'+CONF.map((l,k)=>chk('cf|'+k,!!S.sing.cf[k],esc(l))).join('')+'</section></div>';}
+ else{h+='<div class="grid2"><section class="panel"><h2>Singing Tamil songs</h2><ul style="margin:.6rem 0 0;padding-left:1.15rem;display:grid;gap:.45rem">'+TIPS_TA.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ul></section><section class="panel"><h2>Singing English pop</h2><ul style="margin:.6rem 0 0;padding-left:1.15rem;display:grid;gap:.45rem">'+TIPS_EN.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ul></section></div>';}
+ $('#v-singing').innerHTML=h;if(t==='warm')RUN.warm.mount();}
+
+/* tools */
+const KH={text:'',shift:0};
+function keyChords(){const toks=chordTokens(KH.text);const moved=toks.map(t=>{const c=parseChord(t);return c?transpose(c,KH.shift):null;}).filter(Boolean);
+ const uniq=[];moved.forEach(c=>{if(!uniq.some(u=>cname(u)===cname(c)))uniq.push(c);});return{moved:moved,uniq:uniq};}
+function capoOptions(uniq,inst){const opts=[];for(let cp=0;cp<=7;cp++){const shapes=uniq.map(c=>transpose(c,-cp));opts.push({cp:cp,shapes:shapes,easy:shapes.filter(c=>lookup(inst,c,true)).length});}
+ return opts.sort((a,b)=>b.easy-a.easy||a.cp-b.cp).slice(0,3);}
+function paintKey(){const out=$('#k-out');if(!out)return;const kc=keyChords(),sh=KH.shift;
+ if(!kc.uniq.length){out.innerHTML='<p class="note" style="margin-top:.75rem">Try typing C#m A F#m B, a progression full of awkward shapes, and see what a capo does.</p>';return;}
+ const inst=S.prefs.kinst;
+ let h='<h4>Move the key to suit your voice</h4><div class="row"><button data-act="k-shift" data-v="-1" aria-label="Down one semitone">−1</button><span style="min-width:9rem;text-align:center;font-weight:800">'+(sh===0?'Original key':(sh>0?'Up ':'Down ')+Math.abs(sh)+' semitone'+(Math.abs(sh)>1?'s':''))+'</span><button data-act="k-shift" data-v="1" aria-label="Up one semitone">+1</button></div><p style="margin-top:.6rem"><b>'+kc.moved.map(c=>esc(cname(c))).join(' ')+'</b></p><p class="note">Change one semitone at a time and sing the highest line of the chorus each time. Stop at the first key that feels easy.</p>';
+ h+='<h4>Easiest capo positions on '+INST_NAME[inst].toLowerCase()+'</h4><div class="capo-opts">'+capoOptions(kc.uniq,inst).map(o=>'<div class="capo-opt"><div><b>'+(o.cp?'Capo on fret '+o.cp:'No capo')+'</b><p class="sub">Play '+o.shapes.map(c=>esc(cname(c))).join(' ')+'</p></div><div class="row"><span class="tag'+(o.easy===kc.uniq.length?' ok':'')+'">'+o.easy+' of '+kc.uniq.length+' shapes in the library</span><button data-act="k-practise" data-cp="'+o.cp+'">Practise</button></div></div>').join('')+'</div>';
+ out.innerHTML=h;}
+function renderTools(){const p=pp(),t=SUB.tools;
+ let h=pageHead('Practice tools','A strum trainer that plays your chords back to you, a chord library, tuning notes and a capo helper for awkward chord sheets.')+subTabs('tools',[['trainer','Strum trainer'],['chords','Chord library'],['tuner','Tuning notes'],['capo','Key and capo']]);
+ if(t==='trainer'){h+='<section class="panel" id="trainer"><div class="player-top"><div class="nowchord" id="p-now"></div><div><div class="slots" id="p-slots">'+slotsHTML(p.pat)+'</div><div class="legend"><span><b>D</b> down</span><span><b>U</b> up</span><span><b>X</b> chuck, a palm slap that mutes</span><span><b>M</b> short palm-muted down</span><span><b>1 to 4</b> string numbers, 1 is the thinnest</span><span><b>B b</b> thumb alternating between two bass strings</span></div></div></div>'+
+  '<div class="player-ctl"><button class="playbtn" id="p-play" data-act="p-play">'+(P.playing?'Stop':'Play')+'</button><div><label class="f" for="p-bpm">Tempo: <span id="p-bpm-o">'+p.bpm+'</span> bpm <span class="note" id="p-count" aria-live="polite" style="margin-left:.5rem"></span></label><input type="range" id="p-bpm" data-in="p-bpm" min="40" max="140" step="1" value="'+p.bpm+'">'+
+  '<div class="row" style="margin-top:.2rem;gap:.25rem 1.25rem"><label class="chk"><input type="checkbox" data-in="p-click"'+(p.click?' checked':'')+'><span>Metronome click</span></label><label class="chk"><input type="checkbox" data-in="p-count"'+(p.countIn?' checked':'')+'><span>One-bar count-in</span></label></div></div></div>'+
+  '<div class="fields"><div><label class="f" for="p-text">Chords, in order</label><input type="text" id="p-text" data-in="p-text" value="'+esc(p.text)+'" placeholder="C G Am F" autocomplete="off"></div><div><label class="f" for="p-pat">Pattern</label><select id="p-pat" data-in="p-pat">'+Object.keys(PATTERNS).map(k=>'<option value="'+k+'"'+(p.pat===k?' selected':'')+'>'+PATTERNS[k].name+'</option>').join('')+'</select></div>'+
+  '<div><span class="f">Instrument</span>'+instSeg('p-inst',p.inst)+'</div><div><span class="f">Bars per chord</span><div class="seg" role="group" aria-label="Bars per chord">'+[1,2].map(v=>'<button data-act="p-bars" data-v="'+v+'" aria-pressed="'+(p.bars===v)+'">'+v+'</button>').join('')+'</div></div></div><p class="warn" id="p-warn"></p></section>';}
+ else if(t==='chords'){h+='<section class="panel"><div class="sec-h"><div><h2>Chord library</h2><p>Tap any chord to hear it.</p></div>'+instSeg('lib-inst',S.prefs.libInst)+'</div><div class="chords">'+Object.keys(LIBS[S.prefs.libInst]).map(c=>chordBtn(S.prefs.libInst,c)).join('')+'</div></section>';}
+ else if(t==='tuner'){h+='<div class="grid2"><section class="panel"><h2>Ukulele</h2><p class="sub">G C E A, from the string nearest your face.</p><div class="strings" style="margin-top:1rem">'+['G','C','E','A'].map((n,i)=>'<button data-act="tune" data-inst="uke" data-i="'+i+'" aria-label="Play the ukulele '+n+' string">'+n+'<small>string '+(4-i)+'</small></button>').join('')+'</div></section>'+
+  '<section class="panel"><h2>Guitar</h2><p class="sub">E A D G B E, from the thickest string.</p><div class="strings" style="margin-top:1rem">'+['E','A','D','G','B','E'].map((n,i)=>'<button data-act="tune" data-inst="gtr" data-i="'+i+'" aria-label="Play guitar string '+(6-i)+', '+n+'">'+n+'<small>string '+(6-i)+'</small></button>').join('')+'</div></section></div><p class="note" style="margin-top:1rem">Use a tuner app for accuracy. These reference notes help you hear what each string should sound like.</p>';}
+ else{h+='<section class="panel" style="max-width:820px"><h2>Key and capo helper</h2><p class="sub">Paste the chords from a chord sheet. Move the song to suit your voice, then find the easiest shapes with a capo.</p><div class="fields"><div><label class="f" for="k-text">Chords from the sheet</label><input type="text" id="k-text" data-in="k-text" value="'+esc(KH.text)+'" placeholder="C#m A F#m B" autocomplete="off"></div><div><span class="f">Instrument</span>'+instSeg('k-inst',S.prefs.kinst)+'</div></div><div id="k-out"></div></section>';}
+ $('#v-tools').innerHTML=h;updatePlayerInfo();paintKey();}
+function updatePlayerInfo(){const p=pp();const toks=chordTokens(p.text);const cs=toks.map(parseChord).filter(Boolean);const w=$('#p-warn');
+ const missing=[...new Set(cs.filter(c=>!lookup(p.inst,c,false)).map(c=>cname(c)))];
+ if(w)w.textContent=(!cs.length&&p.text.trim())?'No chords recognised. Use names like C, Am, F#m or G7.':missing.length?'No diagram yet for '+missing.join(', ')+'. It will still play; the capo helper can find easier shapes.':'';
+ if(!P.playing)paintNowChord(0);else if(P.lastCi>=0)paintNowChord(P.lastCi);}
+
+/* progress */
+function heat(){const now=new Date();now.setHours(0,0,0,0);const dow=(now.getDay()+6)%7;const start=new Date(now);start.setDate(now.getDate()-dow-77);let h='';
+ for(let i=0;i<84;i++){const d=new Date(start);d.setDate(start.getDate()+i);const k=dayKey(d),m=S.log[k]||0,fut=d>now;
+  h+='<i class="'+(fut?'fut':m>=30?'l3':m>=15?'l2':m>0?'l1':'')+'" title="'+k+(fut?'':', '+m+' min')+'"></i>';}
+ return h;}
+function prow(title,sub,frac,txt){return'<div class="prow"><div><b>'+title+'</b>'+(sub?'<p class="sub">'+sub+'</p>':'')+'</div><div class="bar"><i style="width:'+Math.round(frac*100)+'%"></i></div><span class="sub">'+txt+'</span></div>';}
+function renderProgress(){const st=stats(),lv=S.sing.lv.filter(Boolean).length,cf=S.sing.cf.filter(Boolean).length;
+ let h=pageHead('Progress','Small, regular sessions add up. Here’s what you’ve built so far.');
+ h+='<div class="bento"><section class="stat b4 stat-ring"><div class="ringwrap">'+ring(st.ms/21,104,10)+'<div class="ringtxt"><b>'+st.ms+'</b><span>of 21</span></div></div><div><h3>Roadmap</h3><p class="sub">milestones ticked across the seven stages</p></div></section>'+
+  '<div class="b8 statgrid"><div class="stat"><b>'+st.streak+'</b><span>day streak</span></div><div class="stat"><b>'+st.week+'</b><span>minutes this week</span></div><div class="stat"><b>'+(st.total/60).toFixed(1)+'</b><span>hours in total</span></div><div class="stat"><b>'+st.songsDone+'</b><span>songs you can play and sing</span></div></div>';
+ h+='<section class="panel b7"><h2>Last 12 weeks</h2><p class="sub">Each square is a day, Monday at the top. Darker means more minutes.</p><div class="heatwrap" style="margin-top:.85rem"><div class="heat">'+heat()+'</div></div></section>';
+ h+='<section class="panel b5"><h2>Log practice</h2><p class="sub">Sessions you finish on the Today page are logged for you. Add anything else here.</p><div class="fields"><div><label class="f" for="l-d">Date</label><input type="date" id="l-d" data-in="clr-l" value="'+dayKey()+'" max="'+dayKey()+'"></div><div><label class="f" for="l-m">Minutes</label><input type="number" id="l-m" data-in="clr-l" min="1" max="600" step="1" placeholder="20"></div></div><p class="warn" id="l-err" hidden></p><div class="row" style="margin-top:.9rem"><button class="btn-main" data-act="log-add">Add to log</button></div></section>';
+ h+='<section class="panel b6"><h2>Stages</h2><div style="margin-top:.5rem">'+STAGES.map((s,i)=>{const n=s.milestones.filter((_,k)=>S.ms[i+'-'+k]).length;return prow((i+1)+'. '+esc(s.title),INST_NAME[s.inst]+', '+esc(s.time.toLowerCase()),n/3,n+' of 3');}).join('')+'</div></section>';
+ h+='<div class="b6 stack"><section class="panel"><h2>Song confidence</h2><div style="margin-top:.5rem">'+(S.songs.length?S.songs.map(s=>prow(esc(s.t),s.lang==='ta'?'Tamil':'English',stepsDone(s)/10,stepsDone(s)+' of 10')).join(''):'<p style="margin:0">No songs yet. Add some on the Songs page.</p>')+'</div></section>'+
+  '<section class="panel"><h2>Singing</h2><div style="margin-top:.5rem">'+prow('Singing while playing','Layers completed',lv/6,lv+' of 6')+prow('Performing confidence','Steps completed',cf/5,cf+' of 5')+'<div class="prow"><div><b>Comfortable range</b><p class="sub">From the range finder</p></div><span style="grid-column:2/-1;text-align:right">'+(S.sing.lo!=null&&S.sing.hi!=null?noteName(S.sing.lo)+' to '+noteName(S.sing.hi):'Not measured yet')+'</span></div></div></section></div></div>';
+ h+='<div class="sec"><h2>Start over</h2><p>This clears your ticks, songs, practice log and range. It can’t be undone.</p><div class="row" style="margin-top:.75rem"><button class="btn-danger" data-act="reset" id="reset-btn">Reset all progress</button></div></div>';
+ $('#v-progress').innerHTML=h;}
+
+/* now-playing dock */
+let DOCK_KEY='';
+function paintDock(){const el=document.getElementById('dock');if(!el)return;const act=RUN.session.blocks?RUN.session:(RUN.warm.blocks?RUN.warm:null);const sound=!!(P.playing||DRONE);let k='',h='';
+ const eq=on=>'<span class="eqi'+(on?' go':'')+'" aria-hidden="true"><i></i><i></i><i></i></span>';
+ if(act){const b=act.blocks[act.i];k='run|'+act.id+'|'+act.i+'|'+act.run+'|'+sound;
+  h='<div class="dock-in">'+eq(act.run)+'<button class="dock-t" data-act="dock-open" data-v="'+(act.id==='session'?'today':'singing')+'"><b>'+esc(b.name)+'</b><span>'+(act.id==='session'?'Session':'Warm-up')+', part '+(act.i+1)+' of '+act.blocks.length+(act.run?'':', paused')+'</span></button><span class="dock-clock" id="dock-clock">'+fmtTime(act.left)+'</span>'+
+   (sound?'<button class="dock-b" data-act="stop-audio" aria-label="Stop the sound">'+ICON.stop+'</button>':'')+'<button class="dock-b" data-act="run" data-r="'+act.id+'" data-op="toggle" aria-label="'+(act.run?'Pause':'Resume')+'">'+(act.run?ICON.pause:ICON.play)+'</button><button class="dock-b" data-act="run" data-r="'+act.id+'" data-op="next" aria-label="Next part">'+ICON.next+'</button></div>';}
+ else if(P.playing){const p=pp();k='play|'+p.text+'|'+p.bpm+'|'+p.pat;h='<div class="dock-in">'+eq(true)+'<button class="dock-t" data-act="dock-open" data-v="tools"><b>Strum trainer</b><span>'+esc(chordTokens(p.text).join(' '))+', '+p.bpm+' bpm</span></button><button class="dock-b" data-act="p-play" aria-label="Stop the strum trainer">'+ICON.stop+'</button></div>';}
+ else if(DRONE){k='drone|'+saMidi();h='<div class="dock-in">'+eq(true)+'<button class="dock-t" data-act="dock-open" data-v="singing"><b>Sa drone</b><span>Home note '+noteName(saMidi())+'</span></button><button class="dock-b" data-act="drone" aria-label="Stop the drone">'+ICON.stop+'</button></div>';}
+ if(k!==DOCK_KEY){DOCK_KEY=k;el.innerHTML=h;el.hidden=!h;document.body.classList.toggle('has-dock',!!h);}
+ else if(act){const c=document.getElementById('dock-clock');if(c)c.textContent=fmtTime(act.left);}}
+
+/* ---------------- routing ---------------- */
+const RENDER={today:renderToday,roadmap:renderRoadmap,songs:renderSongs,singing:renderSinging,tools:renderTools,progress:renderProgress};
+const VIEWS=Object.keys(RENDER);
+let curView=null,PENDING_SCROLL=null,WANT=null;
+function hashView(){let v='';try{v=String(location.hash||'').replace('#','');}catch(e){}return VIEWS.indexOf(v)>=0?v:null;}
+function route(){const hasAuth=typeof AUTH!=='undefined';const locked=hasAuth&&!AUTH.user&&!AUTH.guest;document.body.classList.toggle('locked',locked);if(hasAuth)renderAcct();
+ if(locked){if(curView){const old=document.getElementById('v-'+curView);if(old)old.innerHTML='';}if(P.playing)playerStop();if(DRONE)droneStop();curView=null;
+  $$('.view').forEach(s=>s.classList.toggle('on',s.id==='v-signin'));renderSignin();return;}
+ const si=document.getElementById('v-signin');if(si)si.innerHTML='';
+ const v=WANT||hashView()||'today';const changed=curView!==v;
+ if(changed&&curView){const old=document.getElementById('v-'+curView);if(old)old.innerHTML='';}
+ curView=v;
+ $$('.view').forEach(s=>s.classList.toggle('on',s.id==='v-'+v));
+ $$('nav.tabs a').forEach(a=>{if(a.dataset.view===v)a.setAttribute('aria-current','page');else a.removeAttribute('aria-current');});
+ RENDER[v]();paintDock();
+ if(PENDING_SCROLL){const el=document.getElementById(PENDING_SCROLL);PENDING_SCROLL=null;if(el)el.scrollIntoView({block:'start'});}
+ else if(changed)window.scrollTo(0,0);}
+function go(view,scrollId){if(VIEWS.indexOf(view)<0)return;PENDING_SCROLL=scrollId||null;WANT=view;
+ try{if(location.hash!=='#'+view)location.hash=view;}catch(e){}
+ route();}
+function rerender(){if(curView)RENDER[curView]();}
+window.addEventListener('hashchange',()=>{const v=hashView();if(v&&v!==curView){WANT=v;PENDING_SCROLL=null;route();}});
+
+/* ---------------- actions ---------------- */
+let resetArm=null;
+function focusSel(sel){const n=document.querySelector('#v-'+curView+' '+sel);if(n)n.focus({preventScroll:true});}
+const ACT={
+ 'nav-stage':d=>{OPEN_ST.add(+d.i);openInit=true;go('roadmap','stage-'+d.i);},
+ 'stage-toggle':d=>{const i=+d.i;if(OPEN_ST.has(i))OPEN_ST.delete(i);else OPEN_ST.add(i);openInit=true;rerender();focusSel('[data-act="stage-toggle"][data-i="'+i+'"]');},
+ 'hear':d=>hearChord(d.inst,d.ch),
+ 'hear-scale':()=>hearScale(PENTA),
+ 'stage-practise':d=>{const st=STAGES[+d.i];if(P.playing)playerStop();Object.assign(pp(),{inst:st.inst,text:st.prog,pat:st.pat,bpm:st.bpm,bars:1});save();SUB.tools='trainer';go('tools','trainer');},
+ 'song-add':d=>{if(S.songs.some(x=>x.id===d.id))return;const s=libSong(d.id);if(!s)return;S.songs.push(s);save();toast('Added '+s.t+' to your songs');rerender();},
+ 'song-remove':d=>{const s=S.songs.find(x=>x.id===d.id);S.songs=S.songs.filter(x=>x.id!==d.id);if(S.focus===d.id)S.focus=null;if(SEL_SONG===d.id)SEL_SONG=null;save();if(s)toast('Removed '+s.t);rerender();},
+ 'song-focus':d=>{S.focus=d.id;save();toast('Focus song set');rerender();},
+ 'step-done':d=>{const s=S.songs.find(x=>x.id===d.id);if(!s)return;const n=nextStep(s);if(n===null)return;s.steps[n]=true;save();toast(n===9?'That song is yours now':'Step '+(n+1)+' done');rerender();},
+ 'song-practise':d=>{const s=S.songs.find(x=>x.id===d.id);if(!s)return;const cs=chordTokens(s.ch);if(!cs.length){toast('Add this song’s chords first');focusSel('#ch-'+CSS.escape(s.id));return;}
+  if(P.playing)playerStop();Object.assign(pp(),{text:cs.join(' '),inst:STAGES[curStage()].inst});save();SUB.tools='trainer';go('tools','trainer');},
+ 'custom-add':()=>{const ti=$('#c-t'),t=ti.value.trim(),a=$('#c-a').value.trim(),l=$('#c-l').value,err=$('#c-err');
+  if(!t){err.textContent='Enter a song name first.';err.hidden=false;ti.focus();return;}
+  const nid='c'+Date.now().toString(36);S.songs.push({id:nid,t:t,a:a||'Your pick',lang:l,st:curStage(),ch:'',key:'',steps:new Array(10).fill(false),custom:true});SEL_SONG=nid;save();toast('Added '+t+' to your songs');rerender();window.scrollTo(0,0);},
+ 'signin':()=>{if(AUTH.signIn)AUTH.signIn();else toast('Google sign-in isn’t ready yet');},
+ 'guest':()=>{AUTH.guest=true;route();},
+ 'signout':()=>{if(P.playing)playerStop();if(AUTH.signOut)AUTH.signOut();},
+ 'filter':d=>{S.prefs.filter=d.v;save();rerender();},
+ 'dec':d=>{S.prefs.dec=d.v;save();rerender();focusSel('[data-act="dec"][data-v="'+d.v+'"]');},
+ 'len':d=>{S.prefs.len=+d.v;save();rerender();},
+ 'run':d=>{const r=RUN[d.r];if(!r)return;if(d.op==='start')r.start();else if(d.op==='toggle')r.toggle();else if(d.op==='next')r.next();else if(d.op==='end')r.finish();if(d.r==='session'&&curView==='today'&&d.op!=='toggle')rerender();paintDock();},
+ 'session-go':()=>{if(!RUN.session.blocks)RUN.session.start();if(curView!=='today'){go('today','session-card');return;}rerender();const el=document.getElementById('session-card');if(el)el.scrollIntoView({block:'start',behavior:'smooth'});},
+ 'sub':d=>{SUB[d.k]=d.v;rerender();focusSel('[data-act="sub"][data-v="'+d.v+'"]');},
+ 'quick':d=>{if(d.v==='warm'){SUB.singing='warm';go('singing');}else{SUB.tools=d.v;go('tools');}},
+ 'song-sel':d=>{SEL_SONG=d.id;rerender();focusSel('[data-act="song-sel"][data-id="'+d.id+'"]');const el=document.getElementById('song-detail');if(el&&window.innerWidth<980)el.scrollIntoView({block:'start',behavior:'smooth'});},
+ 'discover':()=>{const el=document.getElementById('discover');if(el)el.scrollIntoView({block:'start',behavior:'smooth'});},
+ 'dock-open':d=>{if(d.v==='tools')SUB.tools='trainer';if(d.v==='singing')SUB.singing='warm';go(d.v);},
+ 'stop-audio':()=>{if(P.playing)playerStop();if(DRONE){droneStop();const b=$('#drone-btn');if(b)b.textContent='Start drone';}},
+ 'p-play':()=>{if(P.playing)playerStop();else playerStart();},
+ 'p-inst':d=>{if(P.playing)playerStop();pp().inst=d.v;save();rerender();},
+ 'p-bars':d=>{pp().bars=+d.v;save();$$('[data-act="p-bars"]').forEach(b=>b.setAttribute('aria-pressed',String(+b.dataset.v===pp().bars)));},
+ 'lib-inst':d=>{S.prefs.libInst=d.v;save();rerender();focusSel('[data-act="lib-inst"][data-v="'+d.v+'"]');},
+ 'k-inst':d=>{S.prefs.kinst=d.v;save();$$('[data-act="k-inst"]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.v===d.v)));paintKey();},
+ 'k-shift':d=>{KH.shift=Math.max(-11,Math.min(11,KH.shift+(+d.v)));paintKey();focusSel('[data-act="k-shift"][data-v="'+d.v+'"]');},
+ 'k-practise':d=>{const cp=+d.cp;const kc=keyChords();if(!kc.moved.length)return;if(P.playing)playerStop();
+  Object.assign(pp(),{text:kc.moved.map(c=>cname(transpose(c,-cp))).join(' '),inst:S.prefs.kinst});save();
+  SUB.tools='trainer';renderTools();const el=document.getElementById('trainer');if(el)el.scrollIntoView({block:'start'});if(cp)toast('Put your capo on fret '+cp);},
+ 'tune':d=>playString(d.inst,+d.i),
+ 'drone':()=>{if(DRONE)droneStop();else droneStart();const b=$('#drone-btn');if(b)b.textContent=DRONE?'Stop drone':'Start drone';},
+ 'scale':()=>playScale(),
+ 'reg':d=>{S.prefs.reg=d.v;save();if(DRONE)droneStart();rerender();focusSel('[data-act="reg"][data-v="'+d.v+'"]');},
+ 'range-mode':d=>{RMODE=d.v;rerender();focusSel('[data-act="range-mode"][data-v="'+d.v+'"]');},
+ 'range-note':d=>{const m=+d.m;if(ac())tone(m,AC.currentTime+.03,1.2,.3);
+  if(RMODE==='lo'){S.sing.lo=m;if(S.sing.hi!=null&&S.sing.hi<=m)S.sing.hi=null;RMODE='hi';}
+  else{S.sing.hi=m;if(S.sing.lo!=null&&S.sing.lo>=m)S.sing.lo=null;}
+  const pw=$('#v-singing .piano-wrap'),sl=pw?pw.scrollLeft:0;save();rerender();const pw2=$('#v-singing .piano-wrap');if(pw2)pw2.scrollLeft=sl;focusSel('[data-act="range-note"][data-m="'+m+'"]');},
+ 'log-add':()=>{const d=$('#l-d').value,mi=$('#l-m'),m=Math.round(+mi.value),err=$('#l-err');
+  if(!/^\d{4}-\d{2}-\d{2}$/.test(d)){err.textContent='Choose a date.';err.hidden=false;return;}
+  if(d>dayKey()){err.textContent='Choose today or an earlier day.';err.hidden=false;return;}
+  if(!(m>=1&&m<=600)){err.textContent='Enter minutes between 1 and 600.';err.hidden=false;mi.focus();return;}
+  S.log[d]=(S.log[d]||0)+m;save();toast('Logged '+m+' min');rerender();},
+ 'reset':()=>{const b=$('#reset-btn');if(!resetArm){if(b)b.textContent='Tap again to reset everything';resetArm=setTimeout(()=>{resetArm=null;const x=$('#reset-btn');if(x)x.textContent='Reset all progress';},4000);return;}
+  clearTimeout(resetArm);resetArm=null;S=blankState();OPEN_ST.clear();openInit=false;OPEN_DET.clear();save();toast('Progress reset');rerender();}
+};
+document.addEventListener('click',e=>{const a=e.target.closest('a[href^="#"]');if(a){const v=a.getAttribute('href').slice(1);if(VIEWS.indexOf(v)>=0){e.preventDefault();go(v);return;}}
+ const b=e.target.closest('[data-act]');if(!b)return;const f=ACT[b.dataset.act];if(f)f(b.dataset,b);});
+document.addEventListener('keydown',e=>{const t=e.target;if((e.key==='Enter'||e.key===' ')&&t&&t.getAttribute&&t.getAttribute('role')==='button'&&t.dataset&&t.dataset.act&&t.tagName.toLowerCase()==='g'){e.preventDefault();const f=ACT[t.dataset.act];if(f)f(t.dataset,t);}});
+function setChk(key,v){const p=key.split('|');
+ if(p[0]==='ms')S.ms[p[1]]=v;else if(p[0]==='wk')S.wk[p[1]]=v;else if(p[0]==='lv')S.sing.lv[+p[1]]=v;else if(p[0]==='cf')S.sing.cf[+p[1]]=v;
+ else if(p[0]==='step'){const s=S.songs.find(x=>x.id===p[1]);if(s)s.steps[+p[2]]=v;}
+ if(p[0]==='ms'&&v){const i=+p[1].split('-')[0];if(stageDone(i))toast(i<6?'Stage '+(i+1)+' complete. On to stage '+(i+2)+'.':'You’ve finished the whole roadmap.');}}
+document.addEventListener('change',e=>{const t=e.target;if(!t.dataset)return;
+ if(t.dataset.chk){const key=t.dataset.chk;setChk(key,t.checked);save();rerender();focusSel('[data-chk="'+key.replace(/"/g,'\\"')+'"]');return;}
+ if(t.dataset.in&&(t.tagName==='SELECT'||t.type==='checkbox'))onInput(t);});
+document.addEventListener('input',e=>{const t=e.target;if(t.dataset&&t.dataset.in&&t.type!=='checkbox'&&t.tagName!=='SELECT')onInput(t);});
+document.addEventListener('toggle',e=>{const d=e.target;if(d&&d.dataset&&d.dataset.det){if(d.open)OPEN_DET.add(d.dataset.det);else OPEN_DET.delete(d.dataset.det);}},true);
+function onInput(t){const k=t.dataset.in,p=pp();
+ if(k.indexOf('clr-')===0){const e=document.getElementById(k.slice(4)+'-err');if(e)e.hidden=true;return;}
+ if(k==='song-ch'||k==='song-key'){const s=S.songs.find(x=>x.id===t.dataset.id);if(s){s[k==='song-ch'?'ch':'key']=t.value;saveSoon();}return;}
+ if(k==='p-text'){p.text=t.value;saveSoon();if(P.playing){const cs=chordTokens(p.text).map(parseChord).filter(Boolean);if(cs.length)P.chords=cs;}updatePlayerInfo();return;}
+ if(k==='p-pat'){p.pat=t.value;saveSoon();const sl=$('#p-slots');if(sl)sl.innerHTML=slotsHTML(p.pat);return;}
+ if(k==='p-bpm'){p.bpm=Math.round(+t.value);const o=$('#p-bpm-o');if(o)o.textContent=p.bpm;saveSoon();return;}
+ if(k==='p-click'){p.click=t.checked;saveSoon();return;}
+ if(k==='p-count'){p.countIn=t.checked;saveSoon();return;}
+ if(k==='k-text'){KH.text=t.value;paintKey();return;}
+ if(k==='s-key'){S.prefs.key=+t.value;save();if(DRONE)droneStart();rerender();focusSel('#s-key');return;}}
+
+/* ---------------- Google sign-in and Firestore sync ---------------- */
+const CFG=window.FIREBASE_CONFIG||{};
+const AUTH={user:null,guest:false,configured:!!(CFG.apiKey&&!/^PASTE/.test(CFG.apiKey)),status:'loading',signIn:null,signOut:null};
+if(!AUTH.configured)AUTH.status='unconfigured';
+const CLIENT=Math.random().toString(36).slice(2)+Date.now().toString(36);
+const SYNC={push:null,ready:false,pending:false,busy:false,adopted:false,t:null};
+function setSync(state){const T={local:'Saved on this device only',loading:'Loading your progress…',synced:'Saved to your Google account',saving:'Saving…',error:'Couldn’t reach your account. Progress is kept on this device and will sync when you’re back online.',denied:'Your account couldn’t save. Check that the Firestore database exists and its rules are published (see the setup notes at the top of the file).'};
+ const m=$('#syncmsg'),d=$('#syncdot');if(m)m.textContent=T[state]||T.local;if(d)d.classList.toggle('ok',state==='synced');}
+function queueRemote(now){if(!SYNC.push||!SYNC.ready){SYNC.pending=true;return;}clearTimeout(SYNC.t);SYNC.t=setTimeout(()=>SYNC.push(),now?0:1200);}
+function switchLocal(id){const fromGuest=LS_KEY===LS_BASE+':guest';const guestState=S;LS_KEY=LS_BASE+':'+id;let next=loadLocal();SYNC.adopted=false;
+ if(id!=='guest'&&fromGuest&&!next.updatedAt&&guestState.updatedAt){next=guestState;SYNC.adopted=true;
+  try{localStorage.setItem(LS_KEY,JSON.stringify(next));localStorage.removeItem(LS_BASE+':guest');}catch(e){}}
+ S=next;OPEN_ST.clear();openInit=false;OPEN_DET.clear();}
+function applyRemote(r){S=migrate(r);try{localStorage.setItem(LS_KEY,JSON.stringify(S));}catch(e){}OPEN_ST.clear();openInit=false;rerender();}
+function authError(e){const c=(e&&e.code)||'';const M={'auth/unauthorized-domain':'This web address isn’t on your Firebase project’s authorized domains. Add it under Authentication, then Settings, then Authorized domains.',
+ 'auth/operation-not-allowed':'Google sign-in isn’t switched on for this Firebase project yet. Turn it on under Authentication, then Sign-in method.',
+ 'auth/network-request-failed':'Couldn’t reach Google. Check your connection and try again.',
+ 'auth/popup-blocked':'Your browser blocked the sign-in window. Allow pop-ups for this site and try again.'};
+ const msg=M[c]||('Sign-in didn’t work ('+(c||'unknown error')+'). Try again.');const el=$('#auth-err');if(el){el.textContent=msg;el.hidden=false;}else toast(msg);}
+const GLOGO='<svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9.1 3.6l6.8-6.8C35.8 2.4 30.3 0 24 0 14.6 0 6.6 5.4 2.6 13.2l7.9 6.2C12.4 13.7 17.7 9.5 24 9.5z"/><path fill="#4285F4" d="M46.1 24.6c0-1.6-.1-3.1-.4-4.6H24v9h12.4c-.5 2.9-2.2 5.3-4.6 6.9l7.4 5.7c4.3-4 6.9-9.9 6.9-17z"/><path fill="#FBBC05" d="M10.5 28.6c-.5-1.4-.8-3-.8-4.6s.3-3.2.8-4.6l-7.9-6.2C.9 16.6 0 20.2 0 24s.9 7.4 2.6 10.8l7.9-6.2z"/><path fill="#34A853" d="M24 48c6.5 0 11.9-2.1 15.9-5.8l-7.4-5.7c-2.1 1.4-4.8 2.3-8.5 2.3-6.3 0-11.6-4.2-13.5-10l-7.9 6.2C6.6 42.6 14.6 48 24 48z"/></svg>';
+function renderSignin(){const st=AUTH.status;
+ let h='<div class="stagecard"><p class="kicker">Ukulele to guitar, Tamil and English songs, with singing</p><h1>Four strings to six</h1><p class="lede">Sign in with Google to keep your sessions, songs and milestones in sync across your phone and computer.</p><div class="neck"><div class="neck-top"><span>Ukulele, four strings</span><span>Guitar, six strings</span></div>'+neckSVG(-1,true)+'</div>';
+ if(st==='unconfigured')h+='<div class="panel" style="margin-top:1.5rem"><h3>Finish the Firebase setup</h3><p>Paste your Firebase web app config into the <code>FIREBASE_CONFIG</code> block near the top of <code>index.html</code>. The setup notes at the top of the file walk you through it in about fifteen minutes. Until then you can use the app on this device.</p></div>';
+ if(st==='failed')h+='<p class="warn" style="margin-top:1.25rem">Couldn’t load Google sign-in. Check your connection and reload, or use the app on this device for now.</p>';
+ h+='<div class="row" style="margin-top:1.5rem">'+(st==='signedout'?'<button class="gbtn big" data-act="signin">'+GLOGO+'Continue with Google</button>':'')+(st==='loading'?'<span class="note">Checking whether you’re signed in…</span>':'')+'<button class="btn-quiet" data-act="guest">Use on this device only</button></div><p class="warn" id="auth-err" hidden></p>';
+ h+='<p class="note" style="margin-top:1rem">Only you can read or change your progress. If your account has no saved progress yet, anything you tracked on this device moves into it when you sign in.</p></div>';
+ $('#v-signin').innerHTML=h;}
+function renderAcct(){const el=$('#acct');if(!el)return;const u=AUTH.user;
+ if(u){const first=((u.name||u.email||'').split(/[\s@]/)[0])||'You';
+  el.innerHTML=(u.photo?'<img src="'+esc(u.photo)+'" alt="" referrerpolicy="no-referrer">':'<span class="avatar" aria-hidden="true">'+esc(first.charAt(0).toUpperCase())+'</span>')+'<span class="acct-name">'+esc(first)+'</span><button class="btn-quiet" data-act="signout">Sign out</button>';}
+ else if(AUTH.guest&&AUTH.status==='signedout')el.innerHTML='<button class="gbtn" data-act="signin">'+GLOGO+'Sign in</button>';
+ else el.innerHTML='';}
+
+route();
+setTimeout(()=>{if(AUTH.status==='loading'){AUTH.status='failed';if(!AUTH.user&&!AUTH.guest)route();else renderAcct();}},10000);
+</script>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
+import { getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
+import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
+
+if (AUTH.configured) {
+  const app = initializeApp(window.FIREBASE_CONFIG);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+  getRedirectResult(auth).catch(authError);
+
+  AUTH.signIn = async () => {
+    const provider = new GoogleAuthProvider();
+    provider.setCustomParameters({ prompt: 'select_account' });
+    try { await signInWithPopup(auth, provider); }
+    catch (e) {
+      if (e.code === 'auth/popup-blocked' || e.code === 'auth/operation-not-supported-in-environment') {
+        try { await signInWithRedirect(auth, provider); } catch (e2) { authError(e2); }
+      } else if (e.code !== 'auth/popup-closed-by-user' && e.code !== 'auth/cancelled-popup-request') { authError(e); }
+    }
+  };
+  AUTH.signOut = () => signOut(auth).catch(() => toast('Couldn’t sign out. Try again.'));
+
+  let unsub = null;
+  onAuthStateChanged(auth, (user) => {
+    if (unsub) { unsub(); unsub = null; }
+    SYNC.push = null; SYNC.ready = false; SYNC.pending = false; clearTimeout(SYNC.t);
+
+    if (!user) {
+      const wasUser = !!AUTH.user;
+      AUTH.user = null; AUTH.status = 'signedout';
+      if (wasUser) { AUTH.guest = false; switchLocal('guest'); toast('Signed out'); }
+      setSync('local'); route();
+      return;
+    }
+
+    AUTH.user = { uid: user.uid, name: user.displayName || '', email: user.email || '', photo: user.photoURL || '' };
+    AUTH.guest = false; AUTH.status = 'signedin';
+    switchLocal(user.uid);
+    setSync('loading'); route();
+
+    const ref = doc(db, 'users', user.uid);
+    SYNC.push = async () => {
+      if (SYNC.busy) { SYNC.pending = true; return; }
+      SYNC.busy = true; SYNC.pending = false; setSync('saving');
+      try {
+        await setDoc(ref, { state: JSON.stringify(S), updatedAt: S.updatedAt || Date.now(), client: CLIENT });
+        setSync('synced');
+      } catch (e) {
+        setSync(e && e.code === 'permission-denied' ? 'denied' : 'error');
+        if (!(e && e.code === 'permission-denied')) setTimeout(() => queueRemote(true), 5000);
+      }
+      SYNC.busy = false;
+      if (SYNC.pending) queueRemote(false);
+    };
+
+    let first = true;
+    unsub = onSnapshot(ref, (snap) => {
+      const d = snap.exists() ? snap.data() : null;
+      const ru = d ? (d.updatedAt || 0) : 0, lu = S.updatedAt || 0;
+      const parse = () => { try { return JSON.parse(d.state); } catch (e) { return null; } };
+      if (first) {
+        first = false; SYNC.ready = true;
+        if (d && (SYNC.adopted || ru > lu)) { const r = parse(); if (r) applyRemote(r); SYNC.pending = false; setSync('synced'); if (SYNC.adopted) toast('Loaded the progress saved in your account'); }
+        else if (!d || lu > ru) { if (S.updatedAt) queueRemote(true); else setSync('synced'); }
+        else { setSync('synced'); if (SYNC.pending) queueRemote(false); }
+        SYNC.adopted = false;
+        return;
+      }
+      if (snap.metadata.hasPendingWrites || !d) return;
+      if (d.client !== CLIENT && ru > lu) { const r = parse(); if (r) { applyRemote(r); toast('Updated from your other device'); } }
+    }, (e) => { setSync(e && e.code === 'permission-denied' ? 'denied' : 'error'); });
+  });
+}
+</script>
+</body>
+</html>
